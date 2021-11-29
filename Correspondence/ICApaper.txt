@@ -1,0 +1,10 @@
+Extended abstract
+Division: 
+  -- Information systems
+
+Francesco:
+  -- raw basic findings
+  -- describe the model as best as possible (parameters in table - tables don't count in word length)
+
+Mike and Ashley:
+  -- re-frame the abstract

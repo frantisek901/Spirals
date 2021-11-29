@@ -1,0 +1,24 @@
+My dearest collaborators!
+
+
+
+While producing more data for community detection/recognition, I find very interesting non-linear effect of neighborhood size, which is documented in attached pictures sim29.png, sim30.png and sim31.png.  The namber in picture name stands for parameter 'neis', so the only difference among simulations is that the first is done with 58 close neighbors, the second with 60 neighbors and the third with 62 (during initialization algorithm connects to agent the 'neis' closest agents on the left and 'neis' closest agents on the right, that's why the number of close neighbors is twice as high as the parameter 'neis'). As you might see, final state of simulation differs really much thank to this tiny changes in 'neis' -- with neis==29 the biggest component/group/community ends in the middle right, with neis==30 on the far right, with neis==31 in the middle left. So we see that small changes in neighborhood size lead to striking change in final consensus.
+
+I was wandering why it happens and found why! Because the first thing what simulation creates is the small-world network, then the computer consumes different number of pseudo random numbers if size of neighborhood differs. Then secondly computer randomly assigns randomly opinions. And since the computer used different number of pseudorandom numbers due to differing 'neis' then the distribution of opinion differs. So, this striking difference is a bit artifact, since due to model construction the change in 'neis' doesn't change only neighborhood size, but completely changes the opinion distribution. 
+
+But it doesn't end with opinions! Even the random assignment of boundaries is affected, in case we employ Spiral od Silence, then speaking/silence are affected, in case we use bias, then random distribution of bias is affected... So this small change in 'neis' has unintended huge consequences for whole model, or for our interpretation -- we think that we set random seed in same way, but we not, when two models differ in 'neis' then their initial state is completely different even in case the difference in 'neis' is the only difference.  Moreover, the 'neis' was not the only source of this artificiality -- when we assign boundary as "constant" we do not consume any pseudorandom number, but with "uniform" we consume one.
+
+But I addressed this issue of artificiality. Firstly the boundary assignment -- I just add to the constant randomly generated 0, it's strange, but it consumes one pseudorandom number and then disappear the artificial differences in random procedures which follows. Secondly, I generate small-world network and then I set random seed of pseudorandom number again, so everything what follows starts from same seed and then consumes pseudorandom numbers in same amount regardless the differences in parameters.   
+
+I ran again three simulations with neis = {29, 30, 31}, results are in attached pictures simC29.png, simC30.png and simC31.png. It's really interesting that the non-linear effect is stil there! as we moved from 29 through 30 to 31, we results on axis X on cca +.15, then -.40 and lastly at +.10! So, non-linear effect is still there, it's not too striking, but still reasonable (change from +.15 to -.40 is more than 25% of scale margin! and just because change of 'neis' by 1!). So, yes we did it! The interesting effect is there, but its not because of artificial opinion differences! 
+
+May be Ashley finds what differences in small-world networks are responsible for this non-linear behavior. It should be some specific network structure or its connection to turtles/agents (NOTE: agents on corrected screenshots/simulations should be same among simulations in terms of opinion position and value of Uncertainty, the only thing which should differ is the network structure which changes with 'neis') or it might be another unspotted bug :-) Anyway, for us it's another interesting exploration! 
+
+BTW, all simulated data for community/component detection/recognition are here:
+https://github.com/frantisek901/Spirals/tree/master/Recognition
+Now, thanks to my artificiality detection there are 9 files with data and 9 pictures of final state.
+
+
+
+With deference and love,
+Francesco

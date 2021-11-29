@@ -1,0 +1,43 @@
+---
+title: "Questions and reflections to Mike"
+author: "Francesco (František Kalvas)"
+date: "2021-01-21"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Dear Mike,   
+
+<br>  
+  
+<br>  
+  
+I studied your papers (Slater 2015, 2007; Slater et al. 2020) with high interest and I am sure ABM is right approach here. Thank you again for your openness to give a try to joint effort in modeling your theory via ABM. Your theory is so fruitful, that few research groups full of modelers would have a lot of work for several years. Today I am sending you some reflections and I have also some questions (because of future ABM). So let's start!  
+  
+Firstly, we might tak Propositions 8 (P8) and 9 (P9) as research questions(!) and prove their consistency via ABM. P8 states that the openness of communication system of social identity group (OoCSoSG) is important context variable which influences individuals and their behavior (/action ?). OoCSoSG influences identification with the group -- the more closed comm. system, the more likely strong identification (would it be possible to state: "the more closed system, the stronger identification"?) -- and also influences hostility towards out-group. I think the ABM might help here -- prove that OoCSoSG really influences identification and hostility and also show the dynamics of the change: how group's comm. system closes step-by-step. I feel also some potential for emergence, i.e. that the openness/closeness of comm. system probably emerge from the group or individual dynamics. The same holds for P9 -- we might show that national system modifies or controls the effect of the OoCSoSG. For me it is not apparent, I believe you, but wonder, how is it possible. How could open national system annihilate very toughly closed system of some group. So, I see proving P8 and P9 as a natural step on our journey towards modeling rise of AfD in Germany -- for AfD we really need good model of inter-group hostility. And it has its own value, so I see modeling P8 and P9 as natural milestones. But not the first one :)   
+  
+I think that right place for our tandem is at the heart of the model, deeper than Song and Boomgaarden (2017) dig -- it is in modeling the Fig. 2 (Slater 2015: 389). It is because of your expertise as RMS's author and also behavioral scientist. Start of work here *seems* shamefully trivial: Identity Relevant Attitudes (IRAs) stimulates Identity-Consistent Content Choice (IC3) which in turn increases two variables -- Accessibility of Social Identity (AoSI) and Accessibility of Identity-Relevant Attitudes (AoIRAs) -- these variables influence each other and also IRAs. So, it is system of 5 equations, each variable influenced by 1--3 other. Adventure starts with coefficients for these equations! And here I need your first helping hand.   
+  
+Do you have an idea or estimation about these relationships? How do IRAs turn into IC3? Is it qualitative relationship (being neutral I read both sides, but slightly turning to one side leads me to consume -- let's say -- 70 % of information from this side with respective spin) or more fine-grained (ideally, we are able to formulate exact equation of relationship between level of attitude -- orientation and intensity -- and the proportion of IC3 in all news consumed)? Are there some studies from which we might estimate these coefficients? (I am sorry, it must sound so lazy, but seeking relevant literature usually takes me days, so your good advises could save a lot of working time here...) And same set of questions I have regarding every relationship in Fig. 2. A bit harder questin is, how do accessibilities (AoSI and AoIRAs) change IRAs -- I intuitively feel it that accessibilities are very important, because  they unlock the possibility of attitude change, but on the other hand, when one hand unlocks the box with jewell, there must be another hand stealing it from box (or another action of unlocking hand). I just feel that we are missing some additional varible -- I don't know... interpreted content or information? I just feel that after unlocking IRAs via AoSI and AoIRAs -- or let's use another metaphor -- after taking off the armor of low accessibility the IRAs are naked (highly accessible and so susceptible for change), but 'something' must use this opportunity and attack and change the IRAs. I am probably wrong, but I can't imagine how accessibility itself could do change the IRAs. But you know, my furthest journey was agenda-setting with some light flavor of priming and framing, so I am not good now in handling accessibility right and right now...
+
+From the papers studied I got impression -- and I would like to check it whether I am right -- that social identity is in the end set of attitudes, above coined as IRAs. Could I tell this? Do I make safe shortcoming? It seems so :) at lest to me. I assess this as really interesting and so fascinating -- I have some values and attitudes, let's say combined in network, and they are one of my identities. It is not random set, this set is formed towards my life experience or social role (which produces experince...). AND(!) we have several identities since we have several roles and a lot of experience! AND(!) the question is: are the values and attitudes exclusive for respective identity OR(!) several identities share some values and attitudes? I am big fan of sharing here! It opens road for constant change -- an identity is accessible, it is changing right now, which means its respective IRAs change, BUT(!) change of these IRAs might cause inconsistency in different identity which was consistent, but now is not, since important IRAs have changed, so they are not consistent with IRAs not covered by presently changed identity. I would bet it will lead to increased accessibility of newly inconsistent identity (sooner or later...), so the spiral of identity changes might start rotate...     
+
+I have to stop now. I hope I haven't incesed you, yet. I also hope you feel my questions might be a bit ignorant sometimes, but I always mean them sincerely.
+
+So, I propose (1) to clear the heart of RSM as much as we can (Song and Boomgaarden avoided to do this -- in their model there is just 'very simple' attitude change based on external factors, which is fine and usual praxis: we do not draw maps in ratio 1:1, we focus on some part of precess's dynamics and we simplify as much as possible the rest), then (2) solve the problem of multile identities and the IRAs exclusiveness and then (3) prove by ABM consistency of Propositions P8 and P9. 
+
+I will patiently wait for your response!
+
+<br>  
+  
+<br>  
+  
+With deference,  
+Francesco
+
+
+
+
