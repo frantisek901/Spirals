@@ -319,7 +319,9 @@ write_csv(dfy, "Sims02_processed_2D.csv")
 # Firstly, we need to join files/add rows from different entropy dimensions,
 # later we add/join also files fro HK-benchmarking experiment
 df = dfy %>% ungroup() %>% add_row(read_csv("Sims02_processed_2D.csv")) %>%
-  filter(P_speaking > 0.4)
+  filter(P_speaking > 0.4) %>%
+  mutate(Nei_size = round((Close_links * 2) / (Population - 1) * 100, 1)) %>%
+  relocate(Nei_size, .after = Population)
 
 
 
@@ -331,7 +333,7 @@ ggplot(df, aes(x = Far_from_entropy, y = Zero_lenghts)) +
   theme_minimal()
 
 ggplot(df, aes(x = Far_from_entropy, y = One_group_size)) +
-  facet_grid(cols = vars(Dimensions), rows = vars(Mode)) +
+  facet_grid(cols = vars(Dimensions), rows = vars(Nei_size)) +
   geom_point(alpha = 0.1) +
   scale_x_log10() +
   theme_minimal()
