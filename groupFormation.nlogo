@@ -93,6 +93,7 @@ to setup
 
   ;; We initialize small-world network with random seed
   if set-seed? [random-seed RS]
+  if HK-benchmark? [set n-neis (N-agents - 1) / 2]
   nw:generate-watts-strogatz turtles links N-agents n-neis p-random [
     fd (max-pxcor - 1)
     set size (max-pxcor / 10)
@@ -500,7 +501,7 @@ n-neis
 n-neis
 1
 500
-64.0
+256.0
 1
 1
 NIL
@@ -515,7 +516,7 @@ p-random
 p-random
 0
 0.5
-0.25
+0.0
 0.01
 1
 NIL
@@ -1046,7 +1047,7 @@ INPUTBOX
 1424
 174
 file-name
-Sims/Sims02_10_513_0.25_64_1_1_0.3_uniform_1_vaguely-speak.csv
+Sims/Sims02_10_513_0_256_1_1_0.3_uniform_1_vaguely-speak.csv
 1
 0
 String
@@ -1130,6 +1131,17 @@ max-ticks
 1
 NIL
 HORIZONTAL
+
+SWITCH
+1275
+206
+1397
+239
+HK-benchmark?
+HK-benchmark?
+1
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -1629,6 +1641,78 @@ NetLogo 6.2.0
       <value value="true"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="construct-name?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="mu">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="record-length">
+      <value value="100"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="HK-benchmark" repetitions="1" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <metric>ticks</metric>
+    <enumeratedValueSet variable="record?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="construct-name?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="5000"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="RS" first="1" step="1" last="10"/>
+    <enumeratedValueSet variable="N-agents">
+      <value value="129"/>
+      <value value="257"/>
+      <value value="513"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="p-random">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-neis">
+      <value value="4"/>
+      <value value="16"/>
+      <value value="64"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="opinions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="boundary">
+      <value value="0.1"/>
+      <value value="0.2"/>
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="boundary-drawn">
+      <value value="&quot;constant&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="p-speaking">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="mode">
+      <value value="&quot;openly-listen&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="min-boundary">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="sigma">
+      <value value="0.05"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
       <value value="true"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="mu">
