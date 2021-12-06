@@ -314,15 +314,165 @@ b - a
 write_csv(dfy, "Sims02_processed_2D.csv")
 
 
+
+# Reading in and storing data from HK-benchmark -----------------------------------------
+
+# As with main data, we firstly need cycle iterating over ´Population´:
+for (k in c(129, 257, 513)) {
+
+  # As with main data, we need secondly the cycle iterating over seeds:
+  for (j in 1:10) {
+
+    # We take a vector with filenames of all simulation results from directory 'Sims':
+    d = dir(path = "Sims", pattern = paste0("Sims02_", j,"_", k, "_*"))
+
+    # We read the first file and transform it accordingly for the storing in master datafile:
+    df = read_csv(paste0("Sims/", d[1])) %>%
+      select(-starts_with("Nei")) %>%  # NOTE: without comp. cluster or better code or data storing politics we can't read in also the network data, files are then too huge and personal computer is not able to red, add and store updated dataframes, so for now, we have to information on networks cut out. Now the option is to agree on what we need to prapare from the network data, prepare it and store by each agent or by each simulation.
+      mutate(Meta = d[1]) %>%  # We store file name as variable, since the name contains all meta data
+      separate(
+        Meta, sep = "_",
+        into = c(  # We separate meta info into distinctive variables:
+          "Sim", "Seed","Population", "Random_links","Close_links", "Dimensions",
+          "Updating", "Boundary","Boundary_method", "P_speaking", "Mode")) %>%
+      mutate(Mode = str_sub(Mode, end = -5),  # We cut out last 4 characters from new variable mode, since they are ".csv"
+             Phase = if_else(Step==0, "Start", "Final"),  # We prepare variable coining final and starting state of agent/simulation
+             Step = max(Step)) %>%  # For the next step of data-management we need var ´Step´ constant
+      pivot_wider(id_cols = c(ID:Uncertainty, Step:Phase),  # Since a lot of data on final state are redundant -- they are constant for whole simulation -- we create opinion variables for starting and final state and the rest of data is same, so we save a lot of space!
+                  names_from = Phase, names_glue = "{.value}_{Phase}",  # We identify cases by all data, except Opinion vars.
+                  values_from = starts_with("Opinion")) %>%
+      relocate(Sim:Mode, .after = ID) %>% relocate(Step, .after = Mode) %>%
+      relocate(starts_with("Opinion"), .after = Uncertainty)  # We logically relocate vars.
+
+    # We save processed data-file.
+    # NOTE: since this is the first record, by 'append = F' we erase potential older versin of .csv file.
+    write_csv(df, paste0("HK02_", j,"_", k, ".csv"), append = F)
+
+    # We iterate over whole vector -- we prepare next file for inclusion and
+    # then append it into .csv file.
+    # NOTE: Code is the very same as the code for the first record,
+    #       annotated are only differing parts of code.
+    for (i in c(2:length(d))) {
+      df2 = read_csv(paste0("Sims/", d[i])) %>%
+        select(-starts_with("Nei")) %>%  # NOTE: After commenting this line out the data on network structure stay in the file.
+        mutate(Meta = d[i]) %>%
+        separate(
+          Meta, sep = "_",
+          into = c(
+            "Sim", "Seed","Population", "Random_links","Close_links", "Dimensions",
+            "Updating", "Boundary","Boundary_method", "P_speaking", "Mode")) %>%
+        mutate(Mode = str_sub(Mode, end = -5),
+               Phase = if_else(Step==0, "Start", "Final"),
+               Step = max(Step)) %>%
+        pivot_wider(id_cols = c(ID:Uncertainty, Step:Phase),
+                    names_from = Phase, names_glue = "{.value}_{Phase}",
+                    values_from = starts_with("Opinion")) %>%
+        relocate(Sim:Mode, .after = ID) %>% relocate(Step, .after = Mode) %>%
+        relocate(starts_with("Opinion"), .after = Uncertainty)
+
+      # Storing record into main .csv file:
+      # NOTE: Note 'append = T', it means that we append next record to the existing .csv file.
+      write_csv(df2, paste0("HK02_", j,"_", k, ".csv"), append = T)
+    }
+  }
+}
+
+
+
+# Reading files from HK-benchmark and joining them: ------------------------------------
+
+# We do it for sure step by step.
+# Firstly we make a file for each population size and them join them into one master file.
+
+# Joining files for population size 129:
+dfa = read_csv("Sims/HK02_1_129.csv") %>%
+  add_row(read_csv("Sims/HK02_2_129.csv")) %>%
+  add_row(read_csv("Sims/HK02_3_129.csv")) %>%
+  add_row(read_csv("Sims/HK02_4_129.csv")) %>%
+  add_row(read_csv("Sims/HK02_5_129.csv")) %>%
+  add_row(read_csv("Sims/HK02_6_129.csv")) %>%
+  add_row(read_csv("Sims/HK02_7_129.csv")) %>%
+  add_row(read_csv("Sims/HK02_8_129.csv")) %>%
+  add_row(read_csv("Sims/HK02_9_129.csv")) %>%
+  add_row(read_csv("Sims/HK02_10_129.csv")) %>%
+  add_row(read_csv("Sims/HK02_1_257.csv")) %>%
+  add_row(read_csv("Sims/HK02_2_257.csv")) %>%
+  add_row(read_csv("Sims/HK02_3_257.csv")) %>%
+  add_row(read_csv("Sims/HK02_4_257.csv")) %>%
+  add_row(read_csv("Sims/HK02_5_257.csv")) %>%
+  add_row(read_csv("Sims/HK02_6_257.csv")) %>%
+  add_row(read_csv("Sims/HK02_7_257.csv")) %>%
+  add_row(read_csv("Sims/HK02_8_257.csv")) %>%
+  add_row(read_csv("Sims/HK02_9_257.csv")) %>%
+  add_row(read_csv("Sims/HK02_10_257.csv"))%>%
+  add_row(read_csv("Sims/HK02_1_513.csv")) %>%
+  add_row(read_csv("Sims/HK02_2_513.csv")) %>%
+  add_row(read_csv("Sims/HK02_3_513.csv")) %>%
+  add_row(read_csv("Sims/HK02_4_513.csv")) %>%
+  add_row(read_csv("Sims/HK02_5_513.csv")) %>%
+  add_row(read_csv("Sims/HK02_6_513.csv")) %>%
+  add_row(read_csv("Sims/HK02_7_513.csv")) %>%
+  add_row(read_csv("Sims/HK02_8_513.csv")) %>%
+  add_row(read_csv("Sims/HK02_9_513.csv")) %>%
+  add_row(read_csv("Sims/HK02_10_513.csv"))
+write_csv(dfa, "HK02_all.csv")
+
+
+# Reding the master file back:
+dfa = read_csv("HK02_all.csv")
+
+
+# Preparing data for the analysis:
+dfx = dfa %>% select(-Sim) %>%
+  group_by(Seed, Population, Random_links, Close_links, Dimensions, Boundary, Boundary_method, P_speaking,  Mode) %>%
+  mutate(Sim_ID = 13000 + cur_group_id()) %>% relocate(Sim_ID, .before = ID)
+write_csv(dfx, "HK02_all_new.csv")
+
+dfa = read_csv("HK02_all_new.csv")
+
+
+# Processing HK-benchmark -------------------------------------------------
+
+dfp = dfa %>% filter(Dimensions == 1, Sim_ID <= 13004) %>% group_by(Sim_ID)
+de = entropy1D(dfp$Opinion1_Final, 0.1)
+de
+
+
+
+a = Sys.time()
+dfz = dfa %>%
+  # filter(Sim_ID <= 10) %>%
+  filter(Dimensions == 1) %>%
+  group_by(Sim_ID, Seed, Population, Random_links, Close_links, Dimensions, Boundary, Boundary_method, P_speaking,  Mode) %>%
+  summarise(ent = entropy1D(Opinion1_Final, 0.1)) %>%
+  separate(ent,
+           into = c("Far_from_entropy", "One_group_size",
+                    "Number_of_equal_groups", "Zero_lenghts", "SD"),
+           sep = "_", convert = T)
+b = Sys.time()
+b - a
+
+# Saving processed meta indicators:
+write_csv(dfz, "Sims02_processed_HK.csv")
+
+
+
+
+
 # Joining files -----------------------------------------------------------
 
 # Firstly, we need to join files/add rows from different entropy dimensions,
 # later we add/join also files fro HK-benchmarking experiment
-df = dfy %>% ungroup() %>% add_row(read_csv("Sims02_processed_2D.csv")) %>%
+df = read_csv("Sims02_processed_1D.csv") %>%
+  add_row(read_csv("Sims02_processed_2D.csv")) %>%
+  add_row(read_csv("Sims02_processed_HK.csv")) %>%
   filter(P_speaking > 0.4) %>%
   mutate(Nei_size = round((Close_links * 2) / (Population - 1) * 100, 1)) %>%
   relocate(Nei_size, .after = Population)
 
+# Saving all processed meta indicators:
+write_csv(df, "Sims02_processed_all.csv")
+df = read_csv("Sims02_processed_all.csv")
 
 
 # Entropy graphs ----------------------------------------------------------
