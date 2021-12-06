@@ -573,7 +573,7 @@ p-speaking
 p-speaking
 0
 1
-1.0
+0.5
 0.001
 1
 NIL
@@ -588,7 +588,7 @@ boundary
 boundary
 0.01
 1
-0.3
+0.2
 0.01
 1
 NIL
@@ -600,7 +600,7 @@ INPUTBOX
 746
 70
 RS
-10.0
+1.0
 1
 0
 Number
@@ -985,7 +985,7 @@ CHOOSER
 mode
 mode
 "openly-listen" "vaguely-speak"
-1
+0
 
 CHOOSER
 10
@@ -1047,7 +1047,7 @@ INPUTBOX
 1424
 174
 file-name
-Sims/Sims02_10_513_0_256_1_1_0.3_uniform_1_vaguely-speak.csv
+Sims/Sims02_1_513_0_256_1_1_0.2_uniform_0.5_openly-listen.csv
 1
 0
 String
@@ -1139,7 +1139,7 @@ SWITCH
 239
 HK-benchmark?
 HK-benchmark?
-1
+0
 1
 -1000
 
