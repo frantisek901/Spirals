@@ -216,15 +216,16 @@ entropy1D = function(v1, bin.width = 0.1) {
   n_groups = round(l * l / (l + (2 * cnts[1])), 2)
   p_lengths =  round(frqs[1] * 100, 1)
   SD = round(sd(d), 3)
+  DI = round(mean(d) / 2 * 100, 3)
 
   # Returning back four parameters as one string:
   #print(paste(p_ent, p_oneGroup, n_groups, p_lengths, SD, sep = "_"))
-  paste(p_ent, p_oneGroup, n_groups, p_lengths, SD, sep = "_")
+  paste(p_ent, p_oneGroup, n_groups, p_lengths, SD, DI, sep = "_")
 }
 
-dfp = dfb %>% filter(Dimensions == 1, Sim_ID <= 4) %>% group_by(Sim_ID)
-de = entropy1D(dfp$Opinion1_Final, 0.1)
-de
+# dfp = dfb %>% filter(Dimensions == 1, Sim_ID <= 4) %>% group_by(Sim_ID)
+# de = entropy1D(dfp$Opinion1_Final, 0.1)
+# de
 
 
 
@@ -236,7 +237,7 @@ dfy = dfb %>%
   summarise(ent = entropy1D(Opinion1_Final, 0.1)) %>%
   separate(ent,
            into = c("Far_from_entropy", "One_group_size",
-                    "Number_of_equal_groups", "Zero_lenghts", "SD"),
+                    "Number_of_equal_groups", "Zero_lenghts", "SD", "DI"),
            sep = "_", convert = T)
 b = Sys.time()
 b - a
@@ -287,15 +288,16 @@ entropy2D = function(v1, v2, bin.width = 0.1) {
   n_groups = round(l * l / (l + (2 * cnts[1])), 2)
   p_lengths =  round(frqs[1] * 100, 1)
   SD = round(sd(d), 3)
+  DI = round(mean(d) / sqrt(8) * 100, 3)
 
   # Returning back four parameters as one string:
   #print(paste(p_ent, p_oneGroup, n_groups, p_lengths, SD, sep = "_"))
-  paste(p_ent, p_oneGroup, n_groups, p_lengths, SD, sep = "_")
+  paste(p_ent, p_oneGroup, n_groups, p_lengths, SD, DI, sep = "_")
 }
 
-dfp = dfb %>% filter(Dimensions == 2, Sim_ID < 40) %>% group_by(Sim_ID)
-de = entropy2D(dfp$Opinion1_Final, dfp$Opinion2_Final, 0.1)
-de
+# dfp = dfb %>% filter(Dimensions == 2, Sim_ID < 40) %>% group_by(Sim_ID)
+# de = entropy2D(dfp$Opinion1_Final, dfp$Opinion2_Final, 0.1)
+# de
 
 a = Sys.time()
 dfy = dfb %>%
@@ -305,7 +307,7 @@ dfy = dfb %>%
   summarise(ent = entropy2D(Opinion1_Final, Opinion2_Final, 0.1)) %>%
   separate(ent,
            into = c("Far_from_entropy", "One_group_size",
-                    "Number_of_equal_groups", "Zero_lenghts", "SD"),
+                    "Number_of_equal_groups", "Zero_lenghts", "SD", "DI"),
            sep = "_", convert = T)
 b = Sys.time()
 b - a
@@ -318,10 +320,10 @@ write_csv(dfy, "Sims02_processed_2D.csv")
 # Reading in and storing data from HK-benchmark -----------------------------------------
 
 # As with main data, we firstly need cycle iterating over ´Population´:
-for (k in c(129, 257, 513)) {
+for (k in c(513)) { # 129, 257,
 
   # As with main data, we need secondly the cycle iterating over seeds:
-  for (j in 1:10) {
+  for (j in 1:73) {
 
     # We take a vector with filenames of all simulation results from directory 'Sims':
     d = dir(path = "Sims", pattern = paste0("Sims02_", j,"_", k, "_*"))
@@ -385,45 +387,68 @@ for (k in c(129, 257, 513)) {
 # Firstly we make a file for each population size and them join them into one master file.
 
 # Joining files for population size 129:
-dfa = read_csv("Sims/HK02_1_129.csv") %>%
-  add_row(read_csv("Sims/HK02_2_129.csv")) %>%
-  add_row(read_csv("Sims/HK02_3_129.csv")) %>%
-  add_row(read_csv("Sims/HK02_4_129.csv")) %>%
-  add_row(read_csv("Sims/HK02_5_129.csv")) %>%
-  add_row(read_csv("Sims/HK02_6_129.csv")) %>%
-  add_row(read_csv("Sims/HK02_7_129.csv")) %>%
-  add_row(read_csv("Sims/HK02_8_129.csv")) %>%
-  add_row(read_csv("Sims/HK02_9_129.csv")) %>%
-  add_row(read_csv("Sims/HK02_10_129.csv")) %>%
-  add_row(read_csv("Sims/HK02_1_257.csv")) %>%
-  add_row(read_csv("Sims/HK02_2_257.csv")) %>%
-  add_row(read_csv("Sims/HK02_3_257.csv")) %>%
-  add_row(read_csv("Sims/HK02_4_257.csv")) %>%
-  add_row(read_csv("Sims/HK02_5_257.csv")) %>%
-  add_row(read_csv("Sims/HK02_6_257.csv")) %>%
-  add_row(read_csv("Sims/HK02_7_257.csv")) %>%
-  add_row(read_csv("Sims/HK02_8_257.csv")) %>%
-  add_row(read_csv("Sims/HK02_9_257.csv")) %>%
-  add_row(read_csv("Sims/HK02_10_257.csv"))%>%
-  add_row(read_csv("Sims/HK02_1_513.csv")) %>%
-  add_row(read_csv("Sims/HK02_2_513.csv")) %>%
-  add_row(read_csv("Sims/HK02_3_513.csv")) %>%
-  add_row(read_csv("Sims/HK02_4_513.csv")) %>%
-  add_row(read_csv("Sims/HK02_5_513.csv")) %>%
-  add_row(read_csv("Sims/HK02_6_513.csv")) %>%
-  add_row(read_csv("Sims/HK02_7_513.csv")) %>%
-  add_row(read_csv("Sims/HK02_8_513.csv")) %>%
-  add_row(read_csv("Sims/HK02_9_513.csv")) %>%
-  add_row(read_csv("Sims/HK02_10_513.csv"))
-write_csv(dfa, "HK02_all.csv")
+# dfa = read_csv("Sims/HK02_1_129.csv") %>%
+#   add_row(read_csv("Sims/HK02_2_129.csv")) %>%
+#   add_row(read_csv("Sims/HK02_3_129.csv")) %>%
+#   add_row(read_csv("Sims/HK02_4_129.csv")) %>%
+#   add_row(read_csv("Sims/HK02_5_129.csv")) %>%
+#   add_row(read_csv("Sims/HK02_6_129.csv")) %>%
+#   add_row(read_csv("Sims/HK02_7_129.csv")) %>%
+#   add_row(read_csv("Sims/HK02_8_129.csv")) %>%
+#   add_row(read_csv("Sims/HK02_9_129.csv")) %>%
+#   add_row(read_csv("Sims/HK02_10_129.csv")) %>%
+#   add_row(read_csv("Sims/HK02_1_257.csv")) %>%
+#   add_row(read_csv("Sims/HK02_2_257.csv")) %>%
+#   add_row(read_csv("Sims/HK02_3_257.csv")) %>%
+#   add_row(read_csv("Sims/HK02_4_257.csv")) %>%
+#   add_row(read_csv("Sims/HK02_5_257.csv")) %>%
+#   add_row(read_csv("Sims/HK02_6_257.csv")) %>%
+#   add_row(read_csv("Sims/HK02_7_257.csv")) %>%
+#   add_row(read_csv("Sims/HK02_8_257.csv")) %>%
+#   add_row(read_csv("Sims/HK02_9_257.csv")) %>%
+#   add_row(read_csv("Sims/HK02_10_257.csv"))%>%
+#   add_row(read_csv("Sims/HK02_1_513.csv")) %>%
+#   add_row(read_csv("Sims/HK02_2_513.csv")) %>%
+#   add_row(read_csv("Sims/HK02_3_513.csv")) %>%
+#   add_row(read_csv("Sims/HK02_4_513.csv")) %>%
+#   add_row(read_csv("Sims/HK02_5_513.csv")) %>%
+#   add_row(read_csv("Sims/HK02_6_513.csv")) %>%
+#   add_row(read_csv("Sims/HK02_7_513.csv")) %>%
+#   add_row(read_csv("Sims/HK02_8_513.csv")) %>%
+#   add_row(read_csv("Sims/HK02_9_513.csv")) %>%
+#   add_row(read_csv("Sims/HK02_10_513.csv"))
+
+# Firstly we need to create empty tibble:
+dfc = tibble(ID = NA, Sim = NA, Seed = NA, Population = NA, Random_links = NA, Close_links = NA,
+             Dimensions = NA, Updating = NA, Boundary = NA, Boundary_method = NA,
+             P_speaking = NA, Mode = NA, Step = NA, Uncertainty = NA,
+             Opinion1_Start = NA, Opinion1_Final = NA)
+# NOTE: Later we have to erase the first row full of NAs
+
+# As with main data, we firstly need cycle iterating over ´Population´:
+for (k in c(129, 257, 513)) {
+
+  # As with main data, we need secondly the cycle iterating over seeds:
+  for (j in 1:73) {
+
+    # We construct the name of the processed file and then add it:
+    dfc = dfc %>% add_row(read_csv(paste0("Sims/HK02_", j, "_", k, ".csv")))
+  }
+}
+
+# Erasing empty line out:
+dfc = slice(dfc, -1)
+
+# Writing pre-processed data:
+write_csv(dfc, "HK02_all.csv")
 
 
 # Reding the master file back:
-dfa = read_csv("HK02_all.csv")
+# dfa = read_csv("HK02_all.csv")
 
 
 # Preparing data for the analysis:
-dfx = dfa %>% select(-Sim) %>%
+dfx = dfc %>% select(-Sim) %>%
   group_by(Seed, Population, Random_links, Close_links, Dimensions, Boundary, Boundary_method, P_speaking,  Mode) %>%
   mutate(Sim_ID = 13000 + cur_group_id()) %>% relocate(Sim_ID, .before = ID)
 write_csv(dfx, "HK02_all_new.csv")
@@ -447,7 +472,7 @@ dfz = dfa %>%
   summarise(ent = entropy1D(Opinion1_Final, 0.1)) %>%
   separate(ent,
            into = c("Far_from_entropy", "One_group_size",
-                    "Number_of_equal_groups", "Zero_lenghts", "SD"),
+                    "Number_of_equal_groups", "Zero_lenghts", "SD", "DI"),
            sep = "_", convert = T)
 b = Sys.time()
 b - a
@@ -473,7 +498,7 @@ df = read_csv("Sims02_processed_1D.csv") %>%
 # Saving all processed meta indicators:
 write_csv(df, "Sims02_processed_all.csv")
 df = read_csv("Sims02_processed_all.csv")
-
+save(df, file = "dataWithoutNetworks_all.RData")
 
 # Entropy graphs ----------------------------------------------------------
 
@@ -543,6 +568,43 @@ dfa %>% filter(Boundary_method != "constant" & Dimensions == 2) %>%
   guides(col = "none") +
   theme_minimal()
 ggsave("try3.jpg", width = 18, height = 12)
+
+
+
+# ZCU graphs --------------------------------------------------------------
+
+dfz = df %>%
+  # filter(Seed < 11, Mode == "openly-listen") %>%
+  mutate(NeiX = case_when(
+    Nei_size < 10 ~ "<10",
+    Nei_size > 10 & Nei_size < 100 ~ "12-50",
+    Nei_size == 100 ~ "100"
+  ) %>% factor(levels = c("<10", "12-50", "100")),
+  P_speaking = factor(P_speaking),
+  Nei_size = factor(Nei_size),
+  Polar = Far_from_entropy * DI / 50)
+
+ggplot(dfz, aes(x = Far_from_entropy, y = DI, col = P_speaking)) +
+  facet_grid(cols = vars(Boundary_method, NeiX), rows = vars(Dimensions, P_speaking)) +
+  geom_point(alpha = 0.1, size = 3) +
+  # scale_x_log10() +
+  # scale_y_log10() +
+  guides(color = "none") +
+  theme_minimal()
+ggsave("zcu.jpg", width = 8, height = 8)
+
+ggplot(dfz, aes(x = Nei_size, y = Polar, col = P_speaking)) +
+  facet_grid(cols = vars(Boundary_method, Boundary, Mode), rows = vars(Dimensions, P_speaking, Random_links)) +
+  geom_boxplot(alpha = 0.1) +
+  geom_jitter(alpha = 0.1, size = 3, width = 0.2) +
+  # scale_x_log10() +
+  # scale_y_log10() +
+  guides(color = "none") +
+  theme_minimal()
+ggsave("zcu2.jpg", width = 16, height = 16)
+
+
+
 
 
 

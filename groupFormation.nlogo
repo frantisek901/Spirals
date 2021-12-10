@@ -588,7 +588,7 @@ boundary
 boundary
 0.01
 1
-0.3
+0.2
 0.01
 1
 NIL
@@ -600,7 +600,7 @@ INPUTBOX
 746
 70
 RS
-10.0
+74.0
 1
 0
 Number
@@ -709,7 +709,7 @@ CHOOSER
 boundary-drawn
 boundary-drawn
 "constant" "uniform" "normal"
-1
+0
 
 SLIDER
 999
@@ -1047,7 +1047,7 @@ INPUTBOX
 1424
 174
 file-name
-Sims/Sims02_10_513_0_256_1_1_0.3_uniform_1_openly-listen.csv
+Sims/Sims02_74_513_0_256_1_1_0.2_constant_1_openly-listen.csv
 1
 0
 String
@@ -1763,6 +1763,80 @@ NetLogo 6.2.0
       <value value="&quot;uniform&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="p-speaking">
+      <value value="0.9"/>
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="mode">
+      <value value="&quot;openly-listen&quot;"/>
+      <value value="&quot;vaguely-speak&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="min-boundary">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="sigma">
+      <value value="0.05"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="mu">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="record-length">
+      <value value="100"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="HK-benchmarkV02" repetitions="1" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <metric>ticks</metric>
+    <enumeratedValueSet variable="record?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="construct-name?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="5000"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="RS" first="11" step="1" last="73"/>
+    <enumeratedValueSet variable="N-agents">
+      <value value="129"/>
+      <value value="257"/>
+      <value value="513"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="p-random">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK-benchmark?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="opinions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="boundary">
+      <value value="0.1"/>
+      <value value="0.2"/>
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="boundary-drawn">
+      <value value="&quot;constant&quot;"/>
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="p-speaking">
+      <value value="1"/>
       <value value="0.9"/>
       <value value="0.5"/>
     </enumeratedValueSet>
