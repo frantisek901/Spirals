@@ -3,7 +3,7 @@
 ;; MAIN BRANCH: THIS IS OUR THE BEST MODEL SO FAR
 
 ;; Created:  2021-10-21 FranCesko
-;; Edited:   2021-11-26 FranCesko
+;; Edited:   2021-12-23 FranCesko
 ;; Encoding: windows-1250
 ;; NetLogo:  6.2.0
 ;;
@@ -14,6 +14,10 @@
 ;;       if succeeds - speaks in given step, if not - falls silent for the respective step.
 ;;       In HK mechanism, agent computes mean opinion of all speaking agents who are inside 'opinion boundary' (are not further than threshold).
 ;;       In Defuant, agent randomly takes one speaking agent inside the 'opinion boundary' and sets opinon as average of their opinions.
+;; DONE!
+;;
+;; IDEA: Handle P-speaking as Uncertainty -- besides constant value for every agent, create random mode (random uniform for the start),
+;;       where all agents will have their own value of speaking probability which they will follow.
 ;; DONE!
 ;;
 ;; IDEA: Choose, how many opinions agents update: sometimes 1, 2, 3, 4 ...
@@ -73,6 +77,15 @@
 ;; Runs well.
 ;; On behalf of the editors@comses.net, thank you for submitting your computational model(s) to CoMSES Net! Our peer review service is intended to serve the community and we hope that you find the requested changes will improve your model’s accessibility and potential for reuse. If you have any questions or concerns about this process, please feel free to contact us.
 ;;
+;; 4) Adapt recording data for cluster computation -- machine's root independent.
+;;
+;; 5) Appropriate recorded data format -- we want it now as:
+;;    a) dynamical multilayer network, one row is one edge of opinion distance network,
+;;    b) separate file with agent's traits (P-speaking, Uncertainty etc.)
+;;    c) as it was before, contextual variables of one whole simulation run are coded in the filenames
+;;
+
+
 
 
 
@@ -80,7 +93,7 @@ extensions [nw]
 
 breed [ghosts ghost]
 
-turtles-own [Opinion-position Speak? Uncertainty Record Last-opinion Pol-bias Initial-opinion]
+turtles-own [Opinion-position P-speaking Speak? Uncertainty Record Last-opinion Pol-bias Initial-opinion]
 
 globals [main-Record components positions]
 
@@ -108,6 +121,7 @@ to setup
     set Last-opinion Opinion-position  ;; ...set last opinion as present opinion...
     set Initial-opinion Opinion-position  ;; ...we record opinion as initial opinion ...
     set Record n-values record-length [0]  ;; ... we prepare indicator of turtle's stability, at all positions we set 0 as non-stability...
+    set P-speaking get-speaking  ;; ...assigning individual probability of speaking...
     set speak? speaking  ;; ...checking whether agent speaks...
     set Pol-bias get-bias  ;; ... setting value of political bias...
     set Uncertainty get-uncertainty  ;;... setting value of Uncertainty.
@@ -126,7 +140,7 @@ to setup
 
   ;;;; Finally, we record initial state of simulation
   ;; If we want we could construct filename to contain all important parameters shaping initial condition, so the name is unique stamp of initial state!
-  if construct-name? [set file-name (word "Sims/Sims02_" RS "_" N-agents "_" p-random "_" n-neis "_" opinions "_" updating "_" boundary "_" boundary-drawn "_" p-speaking "_" mode ".csv")]
+  if construct-name? [set file-name-core (word RS "_" N-agents "_" p-random "_" n-neis "_" opinions "_" updating "_" boundary "_" boundary-drawn "_" p-speaking-level "_"  p-speaking-drawn "_" mode ".csv")]
   ;; recording itself
   if record? [record-state-of-simulation]
 end
@@ -136,6 +150,9 @@ end
 to record-state-of-simulation
   ;; setting working directory
   ;set-current-directory directory
+
+  ;; seting 'file-name'
+  let file-name (word "Nodes01_" file-name-core)
 
   ;;;; File creation and opening
   ;; If file exists at the start we delete it to start with clean file
@@ -162,6 +179,22 @@ to record-state-of-simulation
 
   ;; Finally, we close the file
   file-close
+end
+
+
+;; Sub-routine for assigning value of p-speaking
+to-report get-speaking
+  ;; We have to initialize empty temporary variable
+  let pValue 0
+
+  ;; Then we draw the value according the chosen method
+  if p-speaking-drawn = "constant" [set pValue p-speaking-level + random-float 0]  ;; NOTE! 'random-float 0' is here for consuming one pseudorandom number to cunsume same number of pseudorandom numbers as "uniform
+  if p-speaking-drawn = "uniform" [set pValue ifelse-value (p-speaking-level < 0.5)
+                                                           [precision (random-float (2 * p-speaking-level)) 3]
+                                                           [precision (1 - (random-float (2 * (1 - p-speaking-level)))) 3]]
+
+  ;; Report result back
+  report pValue
 end
 
 
@@ -486,8 +519,8 @@ N-agents
 N-agents
 10
 1000
-513.0
-10
+257.0
+1
 1
 NIL
 HORIZONTAL
@@ -501,7 +534,7 @@ n-neis
 n-neis
 1
 500
-256.0
+40.0
 1
 1
 NIL
@@ -531,7 +564,7 @@ opinions
 opinions
 1
 50
-1.0
+2.0
 1
 1
 NIL
@@ -569,11 +602,11 @@ SLIDER
 306
 182
 339
-p-speaking
-p-speaking
+p-speaking-level
+p-speaking-level
 0
 1
-1.0
+0.3
 0.001
 1
 NIL
@@ -588,7 +621,7 @@ boundary
 boundary
 0.01
 1
-0.2
+0.3
 0.01
 1
 NIL
@@ -709,7 +742,7 @@ CHOOSER
 boundary-drawn
 boundary-drawn
 "constant" "uniform" "normal"
-0
+1
 
 SLIDER
 999
@@ -849,7 +882,7 @@ Y-opinion
 Y-opinion
 1
 50
-1.0
+2.0
 1
 1
 NIL
@@ -902,9 +935,9 @@ PENS
 
 SLIDER
 10
-108
+109
 148
-141
+142
 updating
 updating
 1
@@ -988,20 +1021,20 @@ mode
 0
 
 CHOOSER
-10
-339
-102
-384
+1172
+239
+1264
+284
 bias-drawn
 bias-drawn
 "uniform" "no bias"
 0
 
 SLIDER
-10
-384
-182
-417
+1172
+284
+1344
+317
 bias-margin
 bias-margin
 0
@@ -1031,10 +1064,10 @@ PENS
 "default" 0.001 1 -16777216 true "" "histogram [pol-bias] of turtles"
 
 SWITCH
-102
-339
-199
-372
+1264
+239
+1361
+272
 social-bias
 social-bias
 1
@@ -1046,17 +1079,17 @@ INPUTBOX
 68
 1424
 174
-file-name
-Sims/Sims02_74_513_0_256_1_1_0.2_constant_1_openly-listen.csv
+file-name-core
+74_257_0_40_2_1_0.3_uniform_0.3_uniform_openly-listen.csv
 1
 0
 String
 
 SLIDER
-10
-417
-182
-450
+1172
+317
+1344
+350
 bias-of-bias
 bias-of-bias
 0
@@ -1139,9 +1172,37 @@ SWITCH
 239
 HK-benchmark?
 HK-benchmark?
-0
+1
 1
 -1000
+
+CHOOSER
+10
+339
+148
+384
+p-speaking-drawn
+p-speaking-drawn
+"constant" "uniform"
+1
+
+PLOT
+1166
+375
+1365
+495
+Distribution of 'Outspokeness'
+NIL
+NIL
+0.0
+1.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 0.05 1 -16777216 true "" "histogram [P-speaking] of turtles"
 
 @#$#@#$#@
 ## WHAT IS IT?
