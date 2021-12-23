@@ -78,6 +78,7 @@
 ;; On behalf of the editors@comses.net, thank you for submitting your computational model(s) to CoMSES Net! Our peer review service is intended to serve the community and we hope that you find the requested changes will improve your model’s accessibility and potential for reuse. If you have any questions or concerns about this process, please feel free to contact us.
 ;;
 ;; 4) Adapt recording data for cluster computation -- machine's root independent.
+;; DONE!
 ;;
 ;; 5) Appropriate recorded data format -- we want it now as:
 ;;    a) dynamical multilayer network, one row is one edge of opinion distance network,
@@ -152,7 +153,7 @@ to record-state-of-simulation
   ;set-current-directory directory
 
   ;; seting 'file-name'
-  let file-name (word "Nodes01_" file-name-core)
+  let file-name (word "Sims/Nodes01_" file-name-core)
 
   ;;;; File creation and opening
   ;; If file exists at the start we delete it to start with clean file
@@ -269,7 +270,12 @@ end
 ;; Sub routine for dissolving whether agent speaks at the given round/step or not
 to-report speaking
   ;; We just generate random number and compare it with parameter 'p-speaking' -- this code directly produces values TRUE or FALSE
-  report p-speaking > random-float 1
+  let pValue p-speaking
+
+  ;; For the case of function we have to update pValue
+  if p-speaking-drawn = "function" [set pValue precision((sqrt sum map [ x -> x * x ] opinion-position) / sqrt opinions) 3]
+
+  report pValue > random-float 1
 end
 
 
@@ -519,7 +525,7 @@ N-agents
 N-agents
 10
 1000
-257.0
+999.0
 1
 1
 NIL
@@ -534,7 +540,7 @@ n-neis
 n-neis
 1
 500
-40.0
+157.0
 1
 1
 NIL
@@ -549,7 +555,7 @@ p-random
 p-random
 0
 0.5
-0.0
+0.05
 0.01
 1
 NIL
@@ -606,7 +612,7 @@ p-speaking-level
 p-speaking-level
 0
 1
-0.3
+1.0
 0.001
 1
 NIL
@@ -633,7 +639,7 @@ INPUTBOX
 746
 70
 RS
-74.0
+4.0
 1
 0
 Number
@@ -1080,7 +1086,7 @@ INPUTBOX
 1424
 174
 file-name-core
-74_257_0_40_2_1_0.3_uniform_0.3_uniform_openly-listen.csv
+4_999_0.05_157_2_1_0.3_uniform_1_constant_openly-listen.csv
 1
 0
 String
@@ -1183,8 +1189,8 @@ CHOOSER
 384
 p-speaking-drawn
 p-speaking-drawn
-"constant" "uniform"
-1
+"constant" "uniform" "function"
+2
 
 PLOT
 1166
@@ -1546,7 +1552,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.2.0
+NetLogo 6.2.2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
