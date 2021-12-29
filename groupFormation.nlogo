@@ -3,9 +3,9 @@
 ;; MAIN BRANCH: THIS IS OUR THE BEST MODEL SO FAR
 
 ;; Created:  2021-10-21 FranCesko
-;; Edited:   2021-12-23 FranCesko
+;; Edited:   2021-12-29 FranCesko
 ;; Encoding: windows-1250
-;; NetLogo:  6.2.0
+;; NetLogo:  6.2.2
 ;;
 
 ;; IDEA: What about simply employ Spiral of Silence?
@@ -84,6 +84,7 @@
 ;;    a) dynamical multilayer network, one row is one edge of opinion distance network,
 ;;    b) separate file with agent's traits (P-speaking, Uncertainty etc.)
 ;;    c) as it was before, contextual variables of one whole simulation run are coded in the filenames
+;; DONE!
 ;;
 
 
@@ -141,7 +142,7 @@ to setup
 
   ;;;; Finally, we record initial state of simulation
   ;; If we want we could construct filename to contain all important parameters shaping initial condition, so the name is unique stamp of initial state!
-  if construct-name? [set file-name-core (word RS "_" N-agents "_" p-random "_" n-neis "_" opinions "_" updating "_" boundary "_" boundary-drawn "_" p-speaking-level "_"  p-speaking-drawn "_" mode ".csv")]
+  if construct-name? [set file-name-core (word RS "_" N-agents "_" p-random "_" n-neis "_" opinions "_" updating "_" boundary "_" boundary-drawn "_" p-speaking-level "_"  p-speaking-drawn "_" mode)]
   ;; recording itself
   if record? [record-state-of-simulation]
 end
@@ -153,33 +154,90 @@ to record-state-of-simulation
   ;set-current-directory directory
 
   ;; seting 'file-name'
-  let file-name (word "Sims/Nodes01_" file-name-core)
+  let file-name (word "Sims/Nodes01_" file-name-core "_" ticks ".csv")
 
-  ;;;; File creation and opening
+  ;;;; File creation and opening: NODES
   ;; If file exists at the start we delete it to start with clean file
-  if ticks = 0 and file-exists? file-name [file-delete file-name]
+  if file-exists? file-name [file-delete file-name]
   file-open file-name ;; This opens existing file (at the end) or creates file if doesn't exist (at the begining)
-  ;; Writng the variable names in the first row at the start
-  if ticks = 0 [
-    file-write (word "ID, Uncertainty, ")  ;; ID of turtle and its Uncertainty
-    foreach range Opinions [i -> file-write (word "Opinion" (i + 1) ", ")]   ;; and its Opinions
-    foreach range N-agents [i -> file-write (word "Nei" i ", ")]  ;; Varibles for each turtle in the simulation whether it's linked (1) or not (0)
-    file-print "Step"  ;; Last variable, the Step of simulation (0 for start, >0 for final state)
-  ]
 
-  ;; For writing state itself we firstly need to create list of sorted turtles 'srt'
+    ;; Constructing list for the first row with variable names:
+    let row (list "ID" "Uncertainty" "pSpeaking" "Speaks")
+    foreach range Opinions [i -> set row lput (word "Opinion" (i + 1)) row]
+
+    ;; Writing the variable names in the first row at the start
+    file-print list-to-string (row)
+
+  ;; For writing states itself we firstly need to create list of sorted turtles 'srt'
   let srt sort turtles
   ;; Then we iterate over the list 'srt':
   foreach srt [t -> ask t [  ;; every turtle in the list...
-    file-write (word "Nei" who ", " Uncertainty ", ")  ;; writes its ID, Uncertainty...
-    foreach Opinion-position [op -> file-write (word precision(op) 3  ", ")] ;; Opinions ...
-    foreach srt [tr -> file-write (word (ifelse-value (link-neighbor? tr) [1][0]) ", ")] ;; whether respective turtle is link neighbor (1) or not (0) ...
-    file-print ticks ;; and finally, the step of simulation
-    file-flush  ;; for larger simulations with many agents it will be safer flust the file after each row
+    set row (list (word "Nei" who)  Uncertainty P-Speaking (ifelse-value (speak?)[1][0]))  ;; stores in list ROW its ID, Uncertainty, P-Speaking and whether speaks...
+    foreach Opinion-position [op -> set row lput (precision(op) 3) row]  ;; Opinions ...
+    file-print list-to-string (row)
+    file-flush  ;; for larger simulations with many agents it will be safer flush the file after each row
   ]]
 
   ;; Finally, we close the file
   file-close
+
+
+  ;;;; File creation and opening: LINKS
+  ;; seting 'file-name' for links.
+  set file-name (word "Sims/Links01_" file-name-core "_" ticks ".csv")
+
+  ;;;; File creation and opening
+  ;; If file exists at the start we delete it to start with clean file
+  if file-exists? file-name [file-delete file-name]
+  file-open file-name ;; This opens existing file (at the end) or creates file if doesn't exist (at the begining)
+
+    ;; Constructing list for the first row with variable names:
+    set row (list "ID1" "ID2" "Communication" "Distance")
+
+    ;; Writing the variable names in the first row at the start
+    file-print list-to-string (row)
+
+  ;; We need to prepare counters and other auxilliary varibles for doubled cycle:
+  let i 0
+  let j 1
+  let iMax (count turtles - 2)
+  let jMax (count turtles - 1)
+  let mine []
+  let her []
+
+  ;; Now double while cycle!
+  while [i <= iMax] [  ;; Iterating over all turtles except the last one
+    set j i + 1
+    while [j <= jMax][  ;; Second cycle iterates over all turtles with index higher than 'i'
+      set mine ([opinion-position] of turtle i) ;; First opinion for measuring distance...
+      set her ([opinion-position] of turtle j)  ;; Second opinion...
+      set row (list (word "Nei" i) (word "Nei" j) (ifelse-value (is-link? link i j) [1][0]) opinion-distance2 (mine) (her))  ;; Construction of the 'row'
+      file-print list-to-string (row)  ;; Writing the row...
+      file-flush  ;; for larger simulations with many agents it will be safer flush the file after each row
+      set j j + 1 ;; Updating counter of second cycle
+    ]
+    set i i + 1  ;; Updating counter of the first cycle
+  ]
+
+  ;; Finally, we close the file
+  file-close
+end
+
+
+;; reporter function for translating a list into one string of values divided by commas
+to-report list-to-string [LtS]
+  ;; Initializing empty string and counter
+  let str ""
+  let i 0
+
+  ;; Now we go through the list item by item and add them into string
+  while [i < length LtS][
+    set str (word str item i LtS)
+    set i i + 1
+    if (i < length LtS) [set str (word str ", ")]
+  ]
+
+  report str
 end
 
 
@@ -193,6 +251,7 @@ to-report get-speaking
   if p-speaking-drawn = "uniform" [set pValue ifelse-value (p-speaking-level < 0.5)
                                                            [precision (random-float (2 * p-speaking-level)) 3]
                                                            [precision (1 - (random-float (2 * (1 - p-speaking-level)))) 3]]
+  if p-speaking-drawn = "function" [set pValue (precision(sqrt (sum (map [ x -> x * x ] opinion-position)) / sqrt opinions) 3) + random-float 0]  ;; NOTE! 'random-float 0' is here for consuming one pseudorandom number to cunsume same number of pseudorandom numbers as "uniform
 
   ;; Report result back
   report pValue
@@ -270,10 +329,10 @@ end
 ;; Sub routine for dissolving whether agent speaks at the given round/step or not
 to-report speaking
   ;; We just generate random number and compare it with parameter 'p-speaking' -- this code directly produces values TRUE or FALSE
-  let pValue p-speaking
+  let pValue P-speaking
 
   ;; For the case of function we have to update pValue
-  if p-speaking-drawn = "function" [set pValue precision((sqrt sum map [ x -> x * x ] opinion-position) / sqrt opinions) 3]
+  ;if p-speaking-drawn = "function" [set pValue precision(sqrt (sum (map [ x -> x * x ] opinion-position)) / sqrt opinions) 3]
 
   report pValue > random-float 1
 end
@@ -294,6 +353,7 @@ to go
 
   ask turtles [
     ;; speaking and coloring
+    if p-speaking-drawn = "function" [set p-speaking (precision(sqrt (sum (map [ x -> x * x ] opinion-position)) / sqrt opinions) 3)]
     set speak? speaking
     getColor
     getPlace
@@ -328,6 +388,7 @@ to go
   ;; 1) We reached state, where no turtle changes for RECORD-LENGTH steps, i.e. average of MAIN-RECORD (list of averages of turtles/agents RECORD) is 1 or
   ;; 2) We reached number of steps specified in MAX-TICKS
   if mean main-Record = 1 or ticks = max-ticks [record-state-of-simulation stop]
+  if (ticks / 1000) = floor(ticks / 1000) [record-state-of-simulation]
 end
 
 
@@ -437,6 +498,34 @@ to-report opinion-distance
   ;; reporting Euclidean distance
   report dist
 end
+
+
+;; sub-routine for computing opinion distance of two comparing agents
+to-report opinion-distance2 [my her]
+  ;; we initialize counter of step of comparison -- we will compare as many times as we have dimensions
+  let step 0
+
+  ;; we initialize container where we will store squared distance in each dimension
+  let dist 0
+
+  ;; while loop going through each dimension, computiong distance in each dimension, squarring it and adding in the container
+  while [step < opinions] [
+    ;; computiong distance in each dimension, squarring it and adding in the container
+    set dist dist + (item step my - item step her) ^ 2
+
+    ;; advancing 'step' counter by 1
+    set step step + 1
+  ]
+
+  ;; computing square-root of the container 'dist' -- computing Euclidean distance -- and setting it as 'dist'
+  set dist sqrt dist
+
+  ;; Turning 'dist' into 'weight'
+  let weight (sqrt(4 * opinions) - dist) / sqrt(4 * opinions)
+
+  ;; reporting weight of distance
+  report precision weight 3
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 219
@@ -525,32 +614,32 @@ N-agents
 N-agents
 10
 1000
-999.0
+513.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-839
 10
-931
-43
+385
+102
+418
 n-neis
 n-neis
 1
 500
-157.0
+256.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-839
-42
-931
-75
+10
+417
+102
+450
 p-random
 p-random
 0
@@ -570,7 +659,7 @@ opinions
 opinions
 1
 50
-2.0
+5.0
 1
 1
 NIL
@@ -612,7 +701,7 @@ p-speaking-level
 p-speaking-level
 0
 1
-1.0
+0.5
 0.001
 1
 NIL
@@ -627,7 +716,7 @@ boundary
 boundary
 0.01
 1
-0.3
+0.25
 0.01
 1
 NIL
@@ -639,7 +728,7 @@ INPUTBOX
 746
 70
 RS
-4.0
+1.0
 1
 0
 Number
@@ -941,9 +1030,9 @@ PENS
 
 SLIDER
 10
-109
+107
 148
-142
+140
 updating
 updating
 1
@@ -1010,7 +1099,7 @@ record-length
 record-length
 10
 100
-100.0
+20.0
 1
 1
 NIL
@@ -1024,7 +1113,7 @@ CHOOSER
 mode
 mode
 "openly-listen" "vaguely-speak"
-0
+1
 
 CHOOSER
 1172
@@ -1086,7 +1175,7 @@ INPUTBOX
 1424
 174
 file-name-core
-4_999_0.05_157_2_1_0.3_uniform_1_constant_openly-listen.csv
+1_513_0.05_256_5_1_0.25_uniform_0.5_uniform_vaguely-speak
 1
 0
 String
@@ -1165,7 +1254,7 @@ max-ticks
 max-ticks
 100
 10000
-5000.0
+100.0
 100
 1
 NIL
@@ -1178,7 +1267,7 @@ SWITCH
 239
 HK-benchmark?
 HK-benchmark?
-1
+0
 1
 -1000
 
@@ -1190,7 +1279,7 @@ CHOOSER
 p-speaking-drawn
 p-speaking-drawn
 "constant" "uniform" "function"
-2
+1
 
 PLOT
 1166

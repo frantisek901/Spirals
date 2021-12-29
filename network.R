@@ -2,11 +2,11 @@
 
 ## Encoding: windows-1250
 ## Created:  2021-11-19 Francesco
-## Edited:   2021-12-06 Francesco
+## Edited:   2021-12-29 Francesco
 
 
 ## NOTES:
-#  Nothing now...
+#  Data production in NetLogo is changed, but not the script here! Look out!
 #
 
 
