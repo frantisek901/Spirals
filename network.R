@@ -176,12 +176,15 @@ save(dc, file = "RData/dc19.RData")
 # Using the function on the largest example (1001 nodes, 8 opinion dimensions, 6 time points)
 dy = d %>% filter(Dimensions == 8, Population == 1001, Close_links == 50, Steps > 800)
 dc = combine_data(205)
-save(dc, file = "RData/dc205.RData")
+save(dc, file = "RData/SimID205_101_1001_0_50_8_1_0.1_uniform_0.5_uniform_vaguely-speak.RData")
 
 dy = d %>% filter(Dimensions == 8, Population == 101, Close_links == 50, Steps > 800)
 dc = combine_data(348)
 save(dc, file = "RData/dc348.RData")
 
+
+
+# ====== CODE is updated up to here, code bellow is still old =====
 
 # Measuring entropy of distances ------------------------------------------
 
