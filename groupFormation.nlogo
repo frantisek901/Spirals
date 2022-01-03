@@ -102,6 +102,13 @@ globals [main-Record components positions]
 
 ;; Initialization and setup
 to setup
+  ;; Redundant conditions which should be avoided -- if the boundary is drawn as constant, then is completely same whether agents vaguely speak or openly listen,
+  ;; seme case is for probability speaking of 100%, then it's same whether individual probability is drawn as constant or uniform, result is still same: all agents has probability 100%.
+  if avoid-redundancies? and mode = "vaguely-speak" and boundary-drawn = "constant" [stop]
+  if avoid-redundancies? and p-speaking-level = 1 and p-speaking-drawn = "uniform" [stop]
+  ;; these two conditions cover 7/16 of all simulations, approx. the half! This code should stop them from running.
+  ;(avoid-redundancies? and mode = "vaguely-speak" and boundary-drawn = "constant") or (avoid-redundancies? and p-speaking-level = 1 and p-speaking-drawn = "uniform")
+
   ;; We erase the world and clean patches
   ca
   ask patches [set pcolor patch-color]
@@ -180,6 +187,7 @@ to record-state-of-simulation
 
   ;; Finally, we close the file
   file-close
+  file-close
 
 
   ;;;; File creation and opening: LINKS
@@ -220,6 +228,7 @@ to record-state-of-simulation
   ]
 
   ;; Finally, we close the file
+  file-close
   file-close
 end
 
@@ -346,6 +355,12 @@ end
 
 ;; Main routine
 to go
+  ;; Redundant conditions which should be avoided -- if the boundary is drawn as constant, then is completely same whether agents vaguely speak or openly listen,
+  ;; seme case is for probability speaking of 100%, then it's same whether individual probability is drawn as constant or uniform, result is still same: all agents has probability 100%.
+  if avoid-redundancies? and mode = "vaguely-speak" and boundary-drawn = "constant" [stop]
+  if avoid-redundancies? and p-speaking-level = 1 and p-speaking-drawn = "uniform" [stop]
+  ;; these two conditions cover 7/16 of all simulations, approx. the half! This code should stop them from running.
+
 
   ;; Check whether we set properly parameter 'updating' --
   ;; if we want update more dimensions than exists in simulation, then we set 'updating' to max of dimensions, i.e. 'opinions'
@@ -388,7 +403,7 @@ to go
   ;; 1) We reached state, where no turtle changes for RECORD-LENGTH steps, i.e. average of MAIN-RECORD (list of averages of turtles/agents RECORD) is 1 or
   ;; 2) We reached number of steps specified in MAX-TICKS
   if mean main-Record = 1 or ticks = max-ticks [record-state-of-simulation stop]
-  if (ticks / 1000) = floor(ticks / 1000) [record-state-of-simulation]
+  if (ticks / record-each-n-steps) = floor(ticks / record-each-n-steps) [record-state-of-simulation]
 end
 
 
@@ -614,7 +629,7 @@ N-agents
 N-agents
 10
 1000
-513.0
+101.0
 1
 1
 NIL
@@ -629,7 +644,7 @@ n-neis
 n-neis
 1
 500
-256.0
+50.0
 1
 1
 NIL
@@ -644,7 +659,7 @@ p-random
 p-random
 0
 0.5
-0.05
+0.25
 0.01
 1
 NIL
@@ -659,7 +674,7 @@ opinions
 opinions
 1
 50
-5.0
+8.0
 1
 1
 NIL
@@ -716,7 +731,7 @@ boundary
 boundary
 0.01
 1
-0.25
+0.3
 0.01
 1
 NIL
@@ -848,23 +863,8 @@ sigma
 sigma
 0
 1
-0.05
-0.01
-1
-NIL
-HORIZONTAL
-
-SLIDER
-1000
-140
-1171
-173
-min-boundary
-min-boundary
-0.00
-0.100
 0.0
-0.001
+0.01
 1
 NIL
 HORIZONTAL
@@ -896,7 +896,7 @@ mu
 mu
 0.01
 1
-0.5
+0.0
 0.01
 1
 NIL
@@ -1099,7 +1099,7 @@ record-length
 record-length
 10
 100
-20.0
+10.0
 1
 1
 NIL
@@ -1175,7 +1175,7 @@ INPUTBOX
 1424
 174
 file-name-core
-1_513_0.05_256_5_1_0.25_uniform_0.5_uniform_vaguely-speak
+1_101_0.25_50_8_1_0.3_uniform_0.5_constant_vaguely-speak
 1
 0
 String
@@ -1189,22 +1189,11 @@ bias-of-bias
 bias-of-bias
 0
 1
-0.5
+0.0
 0.01
 1
 NIL
 HORIZONTAL
-
-INPUTBOX
-1172
-10
-1424
-70
-directory
-D:\\ownCloud2\\!!!Projekty\\!Spirals\\
-1
-0
-String
 
 BUTTON
 1320
@@ -1254,7 +1243,7 @@ max-ticks
 max-ticks
 100
 10000
-100.0
+1000.0
 100
 1
 NIL
@@ -1267,7 +1256,7 @@ SWITCH
 239
 HK-benchmark?
 HK-benchmark?
-0
+1
 1
 -1000
 
@@ -1279,7 +1268,7 @@ CHOOSER
 p-speaking-drawn
 p-speaking-drawn
 "constant" "uniform" "function"
-1
+0
 
 PLOT
 1166
@@ -1298,6 +1287,47 @@ false
 "" ""
 PENS
 "default" 0.05 1 -16777216 true "" "histogram [P-speaking] of turtles"
+
+SLIDER
+1023
+74
+1171
+107
+record-each-n-steps
+record-each-n-steps
+100
+10000
+200.0
+100
+1
+NIL
+HORIZONTAL
+
+SLIDER
+1000
+140
+1171
+173
+min-boundary
+min-boundary
+0
+1
+0.0
+0.001
+1
+NIL
+HORIZONTAL
+
+SWITCH
+746
+43
+894
+76
+avoid-redundancies?
+avoid-redundancies?
+0
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -2023,6 +2053,105 @@ NetLogo 6.2.2
     </enumeratedValueSet>
     <enumeratedValueSet variable="record-length">
       <value value="100"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="NewExperiment" repetitions="1" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="1001"/>
+    <enumeratedValueSet variable="record?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK-benchmark?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="1000"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="record-each-n-steps">
+      <value value="200"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="construct-name?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="record-length">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid-redundancies?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="RS" first="101" step="1" last="110"/>
+    <enumeratedValueSet variable="N-agents">
+      <value value="101"/>
+      <value value="1001"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="p-random">
+      <value value="0"/>
+      <value value="0.25"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-neis">
+      <value value="5"/>
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="opinions">
+      <value value="1"/>
+      <value value="8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="boundary">
+      <value value="0.1"/>
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="boundary-drawn">
+      <value value="&quot;constant&quot;"/>
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="min-boundary">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="p-speaking-level">
+      <value value="0.5"/>
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="p-speaking-drawn">
+      <value value="&quot;constant&quot;"/>
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="mode">
+      <value value="&quot;openly-listen&quot;"/>
+      <value value="&quot;vaguely-speak&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="mu">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="sigma">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="bias-margin">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="bias-of-bias">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="bias-drawn">
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="social-bias">
+      <value value="false"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>
