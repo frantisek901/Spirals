@@ -2,7 +2,7 @@
 
 ## Encoding: windows-1250
 ## Created:  2021-11-19 Francesco
-## Edited:   2022-01-02 Francesco
+## Edited:   2022-01-14 Francesco
 
 
 ## NOTES:
@@ -184,142 +184,62 @@ save(dc, file = "RData/dc348.RData")
 
 
 
-# ====== CODE is updated up to here, code bellow is still old =====
 
 # Measuring entropy of distances ------------------------------------------
 
-# 1D ----------------------------------------------------------------------
+# General entropy measure, i.e., independent of the data dimensions -- easy, we produce in NetLogo dimensionless data:
+entropy = function(distances, bin.width = 0.02) {
+  # Function computes entropy of distances out of vector of opinion distances
 
-entropy1D = function(v1, bin.width = 0.1) {
-  # preparation of empty vector of distances
-  l = length(v1)  # Length of file/number of agents in simulation
-  ld = (l * (l - 1)) / 2  # Length of 'd' is number of pair of agents, according equation: N * (N - 1) / 2
-  d = rep(NA, ld)  # We construct empty vector of length 'ld'
-  c = 0  # Counter which will be updated inside of the following cycles so to be able points to the first empty cell in 'd'.
-  # Note: we start 'c' with 0 because we will start with updating 'c'.
-
-  # We need two for cycles for going over all pairs of agents and measures their distance in 2D space
-  for (i in 1:(l - 1)) {  # We start first cycle with the first agent and end with the next to the last.
-    for (j in (i + 1):l) {
-      c = c + 1  # Updating counter
-      d[c] = abs(v1[i] - v1[j])  # Euclidean distance
-    }
+  # Test whwther we put in right data
+  if (class(distances) != "numeric") {
+    print("Function expects vector of values of class 'numeric'.")
+    break
   }
 
   # Now we use histogram function to separate vector into bins and
   # transform it into counts of these bins.
-  cnts = hist(d, breaks = seq(0, 2.11, bin.width))$counts  # Transformation
-  cnts = cnts[cnts>0]  # Filtering out 0s.
+  cnts = hist(distances, breaks = seq(0, 1, bin.width))$counts  # Transformation
 
   # Now we transform counts into relative freqencies:
-  frqs = cnts / ld
+  frqs = cnts[cnts>0] / length(distances) # Filtering out 0s.
 
   # Now we transform them into product of relative frequency and its logarithm:
   ents = frqs * log(frqs, 2)
 
   # Now we need the value of maximum entropy with given granularity:
-  bin.num = ceiling(2 / bin.width)
-  max.ent = log(1 / bin.num, 2)
+  bin.num = ceiling(1 / bin.width)
+  max.ent = log(bin.num, 2)
 
   # Here in clean environment we prepare all coefficients:
-  p_ent =  round(100 - (sum(ents) / (max.ent) * 100), 1)
-  p_oneGroup = round(sqrt(cnts[1] * 2) / l * 100, 1)
-  n_groups = round(l * l / (l + (2 * cnts[1])), 2)
-  p_lengths =  round(frqs[1] * 100, 1)
-  SD = round(sd(d), 3)
-  DI = round(mean(d) / 2 * 100, 3)
+  entropy = abs(round(sum(ents), 3))
+  normalized_entropy =  abs(round(sum(ents) / (max.ent) * 100, 1))
+  SD = round(sd(distances), 3)
+  AD = round(mean(1 - distances) * 100, 3)
 
   # Returning back four parameters as one string:
   #print(paste(p_ent, p_oneGroup, n_groups, p_lengths, SD, sep = "_"))
-  paste(p_ent, p_oneGroup, n_groups, p_lengths, SD, DI, sep = "_")
+  paste(entropy, normalized_entropy, SD, AD, sep = "_")
 }
 
-# dfp = dfb %>% filter(Dimensions == 1, Sim_ID <= 4) %>% group_by(Sim_ID)
-# de = entropy1D(dfp$Opinion1_Final, 0.1)
-# de
 
+# Function for finding dataset and processing it into entropy measures:
+find_and_process = function(catalog, file.order, granularity, path = "D:/!Spirals/") {
 
-
-a = Sys.time()
-dfy = dfb %>%
-  # filter(Sim_ID <= 10) %>%
-  filter(Dimensions == 1) %>%
-  group_by(Sim_ID, Seed, Population, Random_links, Close_links, Dimensions, Boundary, Boundary_method, P_speaking,  Mode) %>%
-  summarise(ent = entropy1D(Opinion1_Final, 0.1)) %>%
-  separate(ent,
-           into = c("Far_from_entropy", "One_group_size",
-                    "Number_of_equal_groups", "Zero_lenghts", "SD", "DI"),
-           sep = "_", convert = T)
-b = Sys.time()
-b - a
-
-# Saving processed meta indicators:
-write_csv(dfy, "Sims02_processed_1D.csv")
-
-
-
-# 2D ----------------------------------------------------------------------
-
-entropy2D = function(v1, v2, bin.width = 0.1) {
-  # preparation of empty vector of distances
-  l = length(v1)  # Length of file/number of agents in simulation
-  ld = (l * (l - 1)) / 2  # Length of 'd' is number of pair of agents, according equation: N * (N - 1) / 2
-  d = rep(NA, ld)  # We construct empty vector of length 'ld'
-  c = 0  # Counter which will be updated inside of the following cycles so to be able points to the first empty cell in 'd'.
-  # Note: we start 'c' with 0 because we will start with updating 'c'.
-
-  # We need two for cycles for going over all pairs of agents and measures their distance in 2D space
-  for (i in 1:(l - 1)) {  # We start first cycle with the first agent and end with the next to the last.
-    for (j in (i + 1):l) {
-      c = c + 1  # Updating counter
-      d1 = v1[i] - v1[j]  # distance in D1
-      d2 = v2[i] - v2[j]  # distance in D2
-      d[c] = sqrt((d1 ^ 2) + (d2 ^ 2))  # Euclidean distance
-    }
-  }
-
-  # Now we use histogram function to separate vector into bins and
-  # transform it into counts of these bins.
-  cnts = hist(d, breaks = seq(0, 3, bin.width))$counts  # Transformation
-  cnts = cnts[cnts>0]  # Filtering out 0s.
-
-  # Now we transform counts into relative freqencies:
-  frqs = cnts / ld
-
-  # Now we transform them into product of relative frequency and its logarithm:
-  ents = frqs * log(frqs, 2)
-
-  # Now we need the value of maximum entropy with given granularity:
-  bin.num = ceiling(2.82 / bin.width)
-  max.ent = log(1 / bin.num, 2)
-
-  # Here in clean environment we prepare all coefficients:
-  p_ent =  round(100 - (sum(ents) / (max.ent) * 100), 1)
-  p_oneGroup = round(sqrt(cnts[1] * 2) / l * 100, 1)
-  n_groups = round(l * l / (l + (2 * cnts[1])), 2)
-  p_lengths =  round(frqs[1] * 100, 1)
-  SD = round(sd(d), 3)
-  DI = round(mean(d) / sqrt(8) * 100, 3)
-
-  # Returning back four parameters as one string:
-  #print(paste(p_ent, p_oneGroup, n_groups, p_lengths, SD, sep = "_"))
-  paste(p_ent, p_oneGroup, n_groups, p_lengths, SD, DI, sep = "_")
+  load(paste0(path, catalog$outFile[file.order]))
+  entropy(dfi[["Distance"]], granularity)
 }
 
-a = Sys.time()
-dfy = dfb %>%
-  # filter(Sim_ID <= 72) %>%
-  filter(Dimensions == 2) %>%
-  group_by(Sim_ID, Seed, Population, Random_links, Close_links, Dimensions, Boundary, Boundary_method, P_speaking,  Mode) %>%
-  summarise(ent = entropy2D(Opinion1_Final, Opinion2_Final, 0.1)) %>%
-  separate(ent,
-           into = c("Far_from_entropy", "One_group_size",
-                    "Number_of_equal_groups", "Zero_lenghts", "SD", "DI"),
-           sep = "_", convert = T)
-b = Sys.time()
-b - a
+# Entropy of distances makes sense only for "Links01" data:
+dl = filter(d, Type == "Links01") %>% mutate(ent.measures = NA_character_)
 
-# Saving processed meta indicators:
-write_csv(dfy, "Sims02_processed_2D.csv")
 
+for (i in 765:nrow(dl)) {
+ dl$ent.measures[i] = (find_and_process(dl, i, 0.02))
+}
+
+
+dlp = separate(dl, ent.measures,
+               into = c("Entropy", "Normalized.entropy", "SD", "Average.distance"),
+               sep = "_", convert = T)
 

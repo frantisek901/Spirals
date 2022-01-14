@@ -1,12 +1,18 @@
 #### Script for coumputing Hausdorf fractal dimension of opinion space
 
+## Encoding: windows-1250
+## Created:  2022-01-14 Francesco
+## Edited:   2022-01-14 Francesco
+## Adapted from: https://stackoverflow.com/questions/58417161/box-counting-in-r
+
+
 
 
 # create a dataset to calculate de Hausdorff-Besicovitch dimension
 mat <- matrix(runif(512*512),nrow = 512,ncol = 512)
 
-mat[mat<=0.5] <- 0
-mat[mat>0.5] <- 1
+mat[mat<=0.3] <- 0
+mat[mat>0.3] <- 1
 
 cant <- sum(mat)
 
