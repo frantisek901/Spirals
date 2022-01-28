@@ -243,3 +243,4 @@ dlp = separate(dl, ent.measures,
                into = c("Entropy", "Normalized.entropy", "SD", "Average.distance"),
                sep = "_", convert = T)
 
+
