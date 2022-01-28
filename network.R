@@ -243,4 +243,10 @@ dlp = separate(dl, ent.measures,
                into = c("Entropy", "Normalized.entropy", "SD", "Average.distance"),
                sep = "_", convert = T)
 
+dlp %>% mutate(Average.distance = 2 * Average.distance) %>%
+  ggplot(aes(x = Normalized.entropy, y = Average.distance)) +
+  geom_point() +
+  lab(x = "Normalized entropy", y = "Average distance") +
+  theme_minimal()
 
+ggsave("EntropyVsDistance.jpg", height = 6, width = 6)
