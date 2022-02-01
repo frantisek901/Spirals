@@ -2,10 +2,10 @@
 ;; RQ: How polarisation of public opinion shapes the network structure
 ;;     and how the network structure shapes public opinion and influences individual opinions?
 ;;
-;; This code is based on the model on the opinion change only model from project of Mike, Ashley, Ashwin and FranCesko,
-;; they apply Hegselmann-Krausse model in more than 1D and look how agents adapt in >1D opinion space and whether they form groups,
-;; then they include small-world network (Watts-Strogatz) as another constraint, features of spiral of silence, and
-;; individual assignment of uncertainity and outspokeness.
+;; This code is from project of Mike, Ashley, Ashwin and FranCesko,
+;; we apply Hegselmann-Krausse model in more than 1D and look how agents adapt in >1D opinion space and whether they form groups,
+;; then we include small-world network (Watts-Strogatz) as another constraint, features of spiral of silence, and
+;; individual assignment of uncertainity, tollerance, comformity and outspokeness.
 ;; MAIN BRANCH: THIS IS OUR THE BEST MODEL SO FAR
 
 ;; Created:  2021-10-21 FranCesko
@@ -14,13 +14,81 @@
 ;; NetLogo:  6.2.2
 ;;
 
+;; IDEA: What about simply employ Spiral of Silence?
+;;       Just simply -- general parameter on scale (0; 1> and probability of speaking her attitude/opinion,
+;;       baseline is p==1, everybody speaks always, if p==0.5 so everybody has 0.5 probability to speak her opinion/attitude at given step,
+;;       if succeeds - speaks in given step, if not - falls silent for the respective step.
+;;       In HK mechanism, agent computes mean opinion of all speaking agents who are inside 'opinion boundary' (are not further than threshold).
+;;       In Defuant, agent randomly takes one speaking agent inside the 'opinion boundary' and sets opinon as average of their opinions.
+;; DONE!
+;;
+;; IDEA: Handle P-speaking as Uncertainty -- besides constant value for every agent, create random mode (random uniform for the start),
+;;       where all agents will have their own value of speaking probability which they will follow.
+;; DONE!
+;;
+;; IDEA: Choose, how many opinions agents update: sometimes 1, 2, 3, 4 ...
+;; DONE!
+;;
 ;; IDEA: Employ Schelling principle -- if the agents are unhappy in their neighborhood,
 ;;       the cut off all the links and create new set of links, i.e., join new neighborhood.
+;; DONE!
 ;;
+;; IDEA: Give weights to opinions... Taken from media, or from interpersonal communication:
+;;          - agents pick opinion according the importance, and update importance according number of contacts regarding the opinion
+;;
+;; IDEA: Compute clusters.
 ;; Elle: I do cluster detection using igraph:: cluster_walktrap() in R
 ;;
 
 
+;; WISHLIST:
+;;     - differentiate between interpersonal communication and social media communication -- two overlapping networks with their own rules
+;;     - how radicalization is possible? How polarization happens?
+;;     - differential attraction
+;;     - repulsion
+;;     - media exposure will be crucial…we can ask abt opinion consistent content, opinion contrary, and “mainstream/mixed”…
+;;       how to we conceptualize/model those in ABM? Is this too simplistic (eg, think of the different flavors of conservative media,
+;;       ranging from CDU type media to extremist hate groups).
+;;     - how to think about social media influencers (eg Trump before deplatforming)…
+;;       is it possible to designate “superagents” who influence everyone sharing certain beliefs and see their effects…
+;;       both reach everyone in a group and their opinions are very highly weighted (or people vary in how much they weight that opinion?
+;;       Could estimate Twitter effect that way!  Perhaps one could even model how movement towards an opinion might influence the superagent
+;;       to increase communication or change focus…
+;;     - Employ homophily/heterophily principle at model start.
+;;     - Control degree of opinion randomness at the start (different mean and SD of opinion for different groups)
+;;     - Mike was thinking…after we do “superagents”, the Trump/foxnews avatars…one thing that would be neat and represent social reality
+;;       is to have some kind of attraction to those who share beliefs (including superagents), but that decreases with close proximity…
+;;       that way we have less ability/willingness to select attitude consistent sources around us (eg can’t escape family and coworkers),
+;;       but can seek them elsewhere.  That might allow us to look at what happens in a more or less diverse local opinion environment, among other things.
+;;
+
+
+;; TO-DO:
+;; 1) constructing file name for recording initial and final state of simulation
+;; DONE!
+;; 2) implementing recording into the model -- into setup and final steps (delete component detection and just record instead)
+;; DONE!
+;;
+;; 3) Reviewer's comments:
+;; The reviewer for your computational model Simulating Components of the Reinforcing Spirals Model and Spiral of Silence v1.0.0 has recommended that changes be made to your model. These are summarized below:
+;; Very interesting model! It needs better documentation though, both within the code as comments, and the accompanying narrative documentation. Please consider following the ODD protocol or equivalent to describe your model in sufficient detail so that another could replicate the model based on the documentation.
+;; Has Clean Code:
+;; The code should be cleaned up and have more comments describing the intent and semantics of the variables.
+;; Has Narrative Documentation:
+;; The info tab is empty and the supplementary doc does not include sufficient detail to replicate the model. For example documentation please see ODD examples from other peer reviewed models in the library.
+;; Is Runnable:
+;; Runs well.
+;; On behalf of the editors@comses.net, thank you for submitting your computational model(s) to CoMSES Net! Our peer review service is intended to serve the community and we hope that you find the requested changes will improve your model’s accessibility and potential for reuse. If you have any questions or concerns about this process, please feel free to contact us.
+;;
+;; 4) Adapt recording data for cluster computation -- machine's root independent.
+;; DONE!
+;;
+;; 5) Appropriate recorded data format -- we want it now as:
+;;    a) dynamical multilayer network, one row is one edge of opinion distance network,
+;;    b) separate file with agent's traits (P-speaking, Uncertainty etc.)
+;;    c) as it was before, contextual variables of one whole simulation run are coded in the filenames
+;; DONE!
+;;
 
 extensions [nw]
 
