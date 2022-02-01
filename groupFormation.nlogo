@@ -1,103 +1,32 @@
-;; This is the first model for the high-risk high-gain project with Mike and Ashley
-;; Here we'd like to apply HK/Deffuant model in more than 1D and look how agents adapt in >1D opinion space and whether they form groups.
+;; Model for study of mutual interaction between public opinion and network structure.
+;; RQ: How polarisation of public opinion shapes the network structure
+;;     and how the network structure shapes public opinion and influences individual opinions?
+;;
+;; This code is based on the model on the opinion change only model from project of Mike, Ashley, Ashwin and FranCesko,
+;; they apply Hegselmann-Krausse model in more than 1D and look how agents adapt in >1D opinion space and whether they form groups,
+;; then they include small-world network (Watts-Strogatz) as another constraint, features of spiral of silence, and
+;; individual assignment of uncertainity and outspokeness.
 ;; MAIN BRANCH: THIS IS OUR THE BEST MODEL SO FAR
 
 ;; Created:  2021-10-21 FranCesko
-;; Edited:   2021-12-29 FranCesko
+;; Edited:   2022-01-19 FranCesko
 ;; Encoding: windows-1250
 ;; NetLogo:  6.2.2
 ;;
 
-;; IDEA: What about simply employ Spiral of Silence?
-;;       Just simply -- general parameter on scale (0; 1> and probability of speaking her attitude/opinion,
-;;       baseline is p==1, everybody speaks always, if p==0.5 so everybody has 0.5 probability to speak her opinion/attitude at given step,
-;;       if succeeds - speaks in given step, if not - falls silent for the respective step.
-;;       In HK mechanism, agent computes mean opinion of all speaking agents who are inside 'opinion boundary' (are not further than threshold).
-;;       In Defuant, agent randomly takes one speaking agent inside the 'opinion boundary' and sets opinon as average of their opinions.
-;; DONE!
+;; IDEA: Employ Schelling principle -- if the agents are unhappy in their neighborhood,
+;;       the cut off all the links and create new set of links, i.e., join new neighborhood.
 ;;
-;; IDEA: Handle P-speaking as Uncertainty -- besides constant value for every agent, create random mode (random uniform for the start),
-;;       where all agents will have their own value of speaking probability which they will follow.
-;; DONE!
+;; Elle: I do cluster detection using igraph:: cluster_walktrap() in R
 ;;
-;; IDEA: Choose, how many opinions agents update: sometimes 1, 2, 3, 4 ...
-;; DONE!
-;;
-;; IDEA: Give weights to opinions... Taken from media, or from interpersonal communication:
-;;          - agents pick opinion according the importance, and update importance according number of contacts regarding the opinion
-;;
-;; IDEA: Compute clusters
-;; DONE!
-;;
-
-
-;; WISHLIST:
-;;     - differentiate between interpersonal communication and social media communication -- two overlapping networks with their own rules
-;;     - how radicalization is possible? How polarization happens?
-;;     - differential attraction
-;;     - repulsion
-;;     - media exposure will be crucial…we can ask abt opinion consistent content, opinion contrary, and “mainstream/mixed”…
-;;       how to we conceptualize/model those in ABM? Is this too simplistic (eg, think of the different flavors of conservative media,
-;;       ranging from CDU type media to extremist hate groups).
-;;     - how to think about social media influencers (eg Trump before deplatforming)…
-;;       is it possible to designate “superagents” who influence everyone sharing certain beliefs and see their effects…
-;;       both reach everyone in a group and their opinions are very highly weighted (or people vary in how much they weight that opinion?
-;;       Could estimate Twitter effect that way!  Perhaps one could even model how movement towards an opinion might influence the superagent
-;;       to increase communication or change focus…
-;;     - Employ homophily/heterophily principle at model start.
-;;     - Control degree of opinion randomness at the start (different mean and SD of opinion for different groups)
-;;     - Mike was thinking…after we do “superagents”, the Trump/foxnews avatars…one thing that would be neat and represent social reality
-;;       is to have some kind of attraction to those who share beliefs (including superagents), but that decreases with close proximity…
-;;       that way we have less ability/willingness to select attitude consistent sources around us (eg can’t escape family and coworkers),
-;;       but can seek them elsewhere.  That might allow us to look at what happens in a more or less diverse local opinion environment, among other things.
-;;
-
-
-;; Parameters:
-;;   Small-world network (Watts-Strogatz)
-;;   agents have more than 1 type of attitude
-;;   opinion on scale <-1;+1>
-;;   boundary -- defines range as fraction of maximum possible Eucleid distance in n-dimensional space, this maximum depends on number of opinions: sqrt(opinions * 4)
-;;
-
-;; TO-DO:
-;; 1) constructing file name for recording initial and final state of simulation
-;; DONE!
-;; 2) implementing recording into the model -- into setup and final steps (delete component detection and just record instead)
-;; DONE!
-;;
-;; 3) Reviewer's comments:
-;; The reviewer for your computational model Simulating Components of the Reinforcing Spirals Model and Spiral of Silence v1.0.0 has recommended that changes be made to your model. These are summarized below:
-;; Very interesting model! It needs better documentation though, both within the code as comments, and the accompanying narrative documentation. Please consider following the ODD protocol or equivalent to describe your model in sufficient detail so that another could replicate the model based on the documentation.
-;; Has Clean Code:
-;; The code should be cleaned up and have more comments describing the intent and semantics of the variables.
-;; Has Narrative Documentation:
-;; The info tab is empty and the supplementary doc does not include sufficient detail to replicate the model. For example documentation please see ODD examples from other peer reviewed models in the library.
-;; Is Runnable:
-;; Runs well.
-;; On behalf of the editors@comses.net, thank you for submitting your computational model(s) to CoMSES Net! Our peer review service is intended to serve the community and we hope that you find the requested changes will improve your model’s accessibility and potential for reuse. If you have any questions or concerns about this process, please feel free to contact us.
-;;
-;; 4) Adapt recording data for cluster computation -- machine's root independent.
-;; DONE!
-;;
-;; 5) Appropriate recorded data format -- we want it now as:
-;;    a) dynamical multilayer network, one row is one edge of opinion distance network,
-;;    b) separate file with agent's traits (P-speaking, Uncertainty etc.)
-;;    c) as it was before, contextual variables of one whole simulation run are coded in the filenames
-;; DONE!
-;;
-
-
 
 
 
 extensions [nw]
 
-breed [ghosts ghost]
+turtles-own [Opinion-position P-speaking Speak? Uncertainty Record Last-opinion Pol-bias Initial-opinion Tolerance Conformity Satisfied?]
 
-turtles-own [Opinion-position P-speaking Speak? Uncertainty Record Last-opinion Pol-bias Initial-opinion]
-
-globals [main-Record components positions]
+globals [main-Record components positions network-changes]
 
 
 ;; Initialization and setup
@@ -128,12 +57,12 @@ to setup
   ask turtles [
     set Opinion-position n-values opinions [precision (1 - random-float 2) 3]  ;; We set opinions...
     set Last-opinion Opinion-position  ;; ...set last opinion as present opinion...
-    set Initial-opinion Opinion-position  ;; ...we record opinion as initial opinion ...
     set Record n-values record-length [0]  ;; ... we prepare indicator of turtle's stability, at all positions we set 0 as non-stability...
     set P-speaking get-speaking  ;; ...assigning individual probability of speaking...
     set speak? speaking  ;; ...checking whether agent speaks...
-    set Pol-bias get-bias  ;; ... setting value of political bias...
     set Uncertainty get-uncertainty  ;;... setting value of Uncertainty.
+    set Tolerance get-tolerance  ;; Setting individual tolerance level, as well as ...
+    set Conformity get-conformity  ;; setting individual conformity level.
     getColor  ;; Coloring the agents according their opinion.
     getPlace  ;; Moving agents to the opinion space according their opinions.
   ]
@@ -144,6 +73,8 @@ to setup
   ask links [set hidden? TRUE]
   ;; Setting the indicator of change for the whole simulation, again as non-stable.
   set main-Record n-values record-length [0]
+  ;; Setting control variable of network changes
+  set network-changes 0
 
   reset-ticks
 
@@ -250,6 +181,33 @@ to-report list-to-string [LtS]
 end
 
 
+;; Sub-routine for assigning value of tolerance
+to-report get-conformity
+  ;; We have to initialize empty temporary variable
+  let cValue 0
+
+  ;; Then we draw the value according the chosen method
+  if conformity-drawn = "constant" [set cValue conformity-level + random-float 0]  ;; NOTE! 'random-float 0' is here for consuming one pseudorandom number to cunsume same number of pseudorandom numbers as "uniform
+  if conformity-drawn = "uniform" [set cValue ifelse-value (conformity-level < 0.5)
+                                                           [precision (random-float (2 * conformity-level)) 3]
+                                                           [precision (1 - (random-float (2 * (1 - conformity-level)))) 3]]
+  report cValue
+end
+
+;; Sub-routine for assigning value of tolerance
+to-report get-tolerance
+  ;; We have to initialize empty temporary variable
+  let tValue 0
+
+  ;; Then we draw the value according the chosen method
+  if tolerance-drawn = "constant" [set tValue tolerance-level + random-float 0]  ;; NOTE! 'random-float 0' is here for consuming one pseudorandom number to cunsume same number of pseudorandom numbers as "uniform
+  if tolerance-drawn = "uniform" [set tValue ifelse-value (tolerance-level < 0.5)
+                                                           [precision (random-float (2 * tolerance-level)) 3]
+                                                           [precision (1 - (random-float (2 * (1 - tolerance-level)))) 3]]
+  report tValue
+end
+
+
 ;; Sub-routine for assigning value of p-speaking
 to-report get-speaking
   ;; We have to initialize empty temporary variable
@@ -267,22 +225,6 @@ to-report get-speaking
 end
 
 
-;; Sub-routine for assigning value of ideological bias
-to-report get-bias
-  ;; initialize 'bias' variable
-  let bias 0
-
-  ;; uniformly generating number from interval (0, + bias-margin) and then
-  ;; moving it towards negative pole by (bias-margin * bias-of-bias),
-  ;; bias-of-bias is fraction [0, 1], 0 means full bias towards '+' pole, resulting in interval of bias [0, +bias-margin],
-  ;; 1 means full bias towards '-' pole, interval [-bias-margin, 0], 0.5 means ballanced, resulting in interval [-bias-margin/2, +bias-margin/2]
-  if bias-drawn = "uniform" [set bias precision ((random-float (bias-margin)) - (bias-margin * bias-of-bias)) 3]
-
-  ;; report the result back
-  report bias
-end
-
-
 ;; sub-routine for assigning value of uncertainty to the agent
 to-report get-uncertainty
   ;; We have to initialize empty temporary variable
@@ -290,13 +232,7 @@ to-report get-uncertainty
 
   ;; Then we draw the value according the chosen method
   if boundary-drawn = "constant" [set uValue boundary + random-float 0]  ;; NOTE! 'random-float 0' is here for consuming one pseudorandom number to cunsume same number of pseudorandom numbers as "uniform"
-  if boundary-drawn = "uniform" [set uValue precision (min-boundary + random-float (2 * boundary - min-boundary)) 3]
-  if boundary-drawn = "normal" [
-    set uValue precision (random-normal boundary sigma) 3
-    while [uValue < min-boundary or uValue > 1] [
-      set uValue precision (random-normal boundary sigma) 3
-    ]
-  ]
+  if boundary-drawn = "uniform" [set uValue precision (random-float (2 * boundary)) 3]
 
   ;; reporting value back for assigning
   report uValue
@@ -337,13 +273,10 @@ end
 
 ;; Sub routine for dissolving whether agent speaks at the given round/step or not
 to-report speaking
-  ;; We just generate random number and compare it with parameter 'p-speaking' -- this code directly produces values TRUE or FALSE
-  let pValue P-speaking
+  ;; For the case of function we have to update P-speaking value
+  if p-speaking-drawn = "function" [set P-speaking precision(sqrt (sum (map [ x -> x * x ] opinion-position)) / sqrt opinions) 3]
 
-  ;; For the case of function we have to update pValue
-  ;if p-speaking-drawn = "function" [set pValue precision(sqrt (sum (map [ x -> x * x ] opinion-position)) / sqrt opinions) 3]
-
-  report pValue > random-float 1
+  report P-speaking > random-float 1
 end
 
 
@@ -353,22 +286,22 @@ to-report patch-color
 end
 
 
-;; Main routine
-to go
+;; Sub routine just for catching run-time errors
+to avoiding-run-time-errors
   ;; Redundant conditions which should be avoided -- if the boundary is drawn as constant, then is completely same whether agents vaguely speak or openly listen,
   ;; seme case is for probability speaking of 100%, then it's same whether individual probability is drawn as constant or uniform, result is still same: all agents has probability 100%.
   if avoid-redundancies? and mode = "vaguely-speak" and boundary-drawn = "constant" [stop]
   if avoid-redundancies? and p-speaking-level = 1 and p-speaking-drawn = "uniform" [stop]
   ;; these two conditions cover 7/16 of all simulations, approx. the half! This code should stop them from running.
 
-
   ;; Check whether we set properly parameter 'updating' --
   ;; if we want update more dimensions than exists in simulation, then we set 'updating' to max of dimensions, i.e. 'opinions'
   if updating > opinions [set updating opinions]
+end
 
-  ask turtles [
-    ;; speaking and coloring
-    if p-speaking-drawn = "function" [set p-speaking (precision(sqrt (sum (map [ x -> x * x ] opinion-position)) / sqrt opinions) 3)]
+
+;; Just envelope for updating agent at the begining of GO procedure
+to preparing-myself
     set speak? speaking
     getColor
     getPlace
@@ -376,13 +309,51 @@ to go
     ;; storing previous opinion position as 'Last-opinion'
     set Last-opinion Opinion-position
 
-    ;; Mechanism of opinion change
-    if model = "HK" [
-      change-opinion-HK
+    ;; Firstly we have to determine dissatisfaction with the neighborhood
+    set Satisfied? get-satisfaction
+end
+
+
+;; Main routine
+to go
+  ;; Just checking and avoiding runtime errors part of code
+  avoiding-run-time-errors
+
+  ;; Before a round erasing indicator of change
+  set network-changes 0
+
+  ;; True part of GO procedure!
+  ask turtles [
+    ;; speaking, coloring, updating and SATISFACTION!!!
+    preparing-myself
+
+    ;; Mechanism of own opinion or network change -- decision and rossolution
+    ;; In case of dissatisfaction agents leave, otherwise updates opinion
+    ifelse not satisfied? [
+      change-of-network
+      set network-changes network-changes + 1  ;; We advance the counter of network changes -- now, one just happened.
+    ] [
+      if model = "HK" [change-opinion-HK]
+      ;; Note: Now here is only Hegselmann-Krause algorithm, but in the future we might easily employ other algorithms here!
     ]
-    ;; Note: Now here is only Hegselmann-Krause algorithm, but in the future we might easily employ other algorithms here!
   ]
 
+  ;; Recoloring patches, computing how model settled down
+  updating-patches-and-globals
+
+  tick
+
+  ;; Finishing condition:
+  ;; 1) We reached state, where no turtle changes for RECORD-LENGTH steps, i.e. average of MAIN-RECORD (list of averages of turtles/agents RECORD) is 1 or
+  ;; 2) We reached number of steps specified in MAX-TICKS
+  if ((mean main-Record = 1 and network-changes = 0) or ticks = max-ticks) and record? [record-state-of-simulation]
+  if (mean main-Record = 1 and network-changes = 0) or ticks = max-ticks [stop]
+  if (ticks / record-each-n-steps) = floor(ticks / record-each-n-steps) and record? [record-state-of-simulation]
+end
+
+
+;; Updating patches and global variables
+to updating-patches-and-globals
   ;; Patches update color according the number of turtles on it.
   ask patches [set pcolor patch-color]
 
@@ -396,14 +367,96 @@ to go
   ]
   ;; Then we might update it for the whole:
   set main-Record fput precision (mean [mean Record] of turtles) 3 but-last main-Record
+end
 
-  tick
 
-  ;; Finishing condition:
-  ;; 1) We reached state, where no turtle changes for RECORD-LENGTH steps, i.e. average of MAIN-RECORD (list of averages of turtles/agents RECORD) is 1 or
-  ;; 2) We reached number of steps specified in MAX-TICKS
-  if mean main-Record = 1 or ticks = max-ticks [record-state-of-simulation stop]
-  if (ticks / record-each-n-steps) = floor(ticks / record-each-n-steps) [record-state-of-simulation]
+;; sub-routine computing whether the agent is satisfied with the neighborhood
+to-report get-satisfaction
+  ;; initialization of agent set 'supporters' containing agents whose opinion positions are key for agent's satisfaction
+  let supporters nobody
+  ;; 1) updating agent uses only visible link neighbors in small-world network
+  let visibles link-neighbors with [color != white]
+
+  ;; 2) we have different modes for finding supporters:
+  ;; 2.1) in mode "I got them!" agent looks inside her boundary (opinion +/- uncertainty),
+  ;;      i.e. agent takes opinions not that much far from her opinion
+  if mode = "openly-listen" [
+    ;; we compute 'lim-dist' -- it is the numerical distance in given opinion space
+    let lim-dist (Uncertainty * sqrt(opinions * 4))
+    ;; we set as influentials agents with opinion not further than 'lim-dist'
+    set supporters visibles with [opinion-distance <= lim-dist]
+  ]
+
+  ;; 2.1) in mode "They got me!" agent looks inside whose boundaries (opinion +/- uncertainty)
+  ;;       she is, i.e. agents takes opinions spoken with such a big uncertainty that it matches her own opinion
+  if mode = "vaguely-speak"  [
+    ;; Note: Here is used the 'Uncetainty' value of called agent, agent who might be used for updating,
+    ;;       not 'Uncertainty' of calling agent who updates her opinion.
+    set supporters visibles with [opinion-distance <= (Uncertainty * sqrt(opinions * 4))]
+  ]
+  ;print ((1 - (count supporters / count visibles)) < Tolerance)
+  ;; Now we can return the True/False value, whether the agent is satisfied and among visible neighbors are enough supporters
+  report ifelse-value (count visibles > 0) [((1 - (count supporters / count visibles)) < Tolerance)][TRUE]  ;; In case no visibles are in the neighborhood, then agent is happy.
+end
+
+
+;; envelope controlling the way, how we change the network
+to change-of-network
+  if network-change = "link" [rewire-the-most-annoying-link]
+  if network-change = "community" [leave-the-neighborhood-join-a-new-one]
+  ;; Note: here might be other ways in the future, that's why the 'ifelse' structure is not used here
+end
+
+
+;; subroutine for leaving the neighborhood and joining a new one -- agent is decided to leave, we just process it here
+to leave-the-neighborhood-join-a-new-one
+  ;; Firstly, we have to count agents neighbors, to determine how many links agent has to create in the main part of the procedure
+  let nei-size count link-neighbors
+
+  ;; Secondly, we cut off all the links
+  ask my-links [die]
+
+  ;; Thirdly, random VS intentional construction of new neighborhood.
+  ifelse random-network-change? [
+    ;; We set new neighborhood randomly or...
+    create-links-with n-of nei-size other turtles
+  ][
+    ;; ...creates it out of the closest neighbors.
+    create-links-with min-n-of nei-size other turtles [opinion-distance]
+  ]
+
+  ;; Lastly, we check whether each agent has at least one neighbor
+  ask turtles with [(count link-neighbors) = 0] [create-link-with one-of other turtles]
+
+  ;; P.S. Just hiding links for better speed of code -- when we change/cut a link, all links become visible and that slows down the simulation.
+  ask links [set hidden? TRUE]
+end
+
+
+;; subroutine for changing one link
+to rewire-the-most-annoying-link
+  ;; Firstly, we cut the link with agent with the most different opinion
+  ifelse random-network-change? [
+    ask one-of my-links [die]
+  ][
+    let annoyer max-one-of link-neighbors [opinion-distance]
+    ask one-of my-links with [other-end = annoyer] [die]
+  ]
+
+  ;; Secondly, we choose for the agent a new partner with the most close opinion
+  let potentials other turtles with [not link-neighbor? self]
+  ifelse random-network-change? [
+    create-link-with one-of potentials
+  ][
+    let partner min-one-of potentials [opinion-distance]
+    create-link-with partner
+  ]
+
+  ;; Lastly, we check whether each agent has at least one neighbor
+  ask turtles with [(count link-neighbors) = 0] [create-link-with one-of other turtles print "Link just has been added!"]
+
+  ;; P.S. Just hiding links for better speed of code -- when we change/cut a link, all links become visible and that slows down the simulation.
+  ask links [set hidden? TRUE]
 end
 
 
@@ -434,13 +487,6 @@ to change-opinion-HK
 
   ;; 3) we also add the updating agent into 'influentials'
   set influentials (turtle-set self influentials)
-  if social-bias [
-    ;; in case Social-bias is effective, then updating agent will create 'ghost',
-    ;; its younger self with same opinion which agent had at the start of simulation (result of its socialization).
-    hatch-ghosts 1 [set opinion-position [Initial-opinion] of myself]
-    ;; Then we include this 'ghost' into the agent-set 'influentials'
-    set influentials (turtle-set ghosts influentials)
-  ]
 
   ;; we check whether there is someone else then calling/updating agent in the agent set 'influentials'
   if count influentials > 1 [
@@ -460,17 +506,18 @@ to change-opinion-HK
       ;; note: since we use while-loop, we go through each item of the 'op-list', step by step, iteration by iteration.
       let i (item step op-list)
 
-      ;; them we update dimension of index 'i' drawn from the 'op-list' in the previous line:
+      ;; then we update dimension of index 'i' drawn from the 'op-list' in the previous line:
       ;; 1) we compute average position in given dimension of the calling/updating agent and all other agents from agent set 'influentials'
       ;;    by the command '(mean [item i opinion-position] of influentials)', and
-      ;; 2) we update average value through the pol-bias
+      ;; 2) the new value of opinion 'val' is not directly average, but it is weighted by the 'Conformity' (individual trait),
+      ;;    the closer 'Conformity' to 1, the closer agent jumps into the mean of others, the closer to 0, the less agent moves.
       ;; 3) we set value as new opinion position by command 'set opinion-position replace-item i opinion-position X' where 'X' is the mean opinion (ad 1, see line above)
 
       ;; ad 1: averge position computation
       let val  precision (mean [item i opinion-position] of influentials) 3 ;; NOTE: H-K model really assumes that agent adopts immediatelly the 'consesual' position
-      ;; ad 2: application of bias
-      if pol-bias < 0 [set val (((1 + val) * (1 + pol-bias)) - 1)]
-      if pol-bias > 0 [set val (1 - ((1 - val) * (1 - pol-bias)))]
+      ;; ad 2: updating/weighting 'val' by 'Conformity' and own opinion
+      let my item i opinion-position
+      set val my + ((val - my) * Conformity)
       ;; ad 3: assigning the value 'val'
       set opinion-position replace-item i opinion-position val
 
@@ -478,9 +525,6 @@ to change-opinion-HK
       set step step + 1
     ]
   ]
-
-  ;; In case there are some ghosts, kill them!
-  if (count ghosts) > 0 [ask ghosts [die]]
 end
 
 
@@ -629,7 +673,7 @@ N-agents
 N-agents
 10
 1000
-101.0
+257.0
 1
 1
 NIL
@@ -644,7 +688,7 @@ n-neis
 n-neis
 1
 500
-50.0
+32.0
 1
 1
 NIL
@@ -659,7 +703,7 @@ p-random
 p-random
 0
 0.5
-0.25
+0.05
 0.01
 1
 NIL
@@ -674,17 +718,17 @@ opinions
 opinions
 1
 50
-8.0
+2.0
 1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-10
-462
-65
+271
 495
+326
+528
 getPlace
 ask turtles [getPlace]
 NIL
@@ -716,7 +760,7 @@ p-speaking-level
 p-speaking-level
 0
 1
-0.5
+1.0
 0.001
 1
 NIL
@@ -731,7 +775,7 @@ boundary
 boundary
 0.01
 1
-0.3
+0.2
 0.01
 1
 NIL
@@ -743,7 +787,7 @@ INPUTBOX
 746
 70
 RS
-1.0
+10.0
 1
 0
 Number
@@ -760,10 +804,10 @@ set-seed?
 -1000
 
 BUTTON
-67
-462
-122
+328
 495
+383
+528
 getColor
 ask turtles [\n  set speak? TRUE\n  getColor\n]
 NIL
@@ -777,10 +821,10 @@ NIL
 1
 
 BUTTON
-120
-462
-175
+381
 495
+436
+528
 inspect
 inspect turtle 0\nask turtle 0 [print opinion-position]
 NIL
@@ -794,10 +838,10 @@ NIL
 1
 
 BUTTON
-175
-462
-230
+436
 495
+491
+528
 sizes
 show sort remove-duplicates [count turtles-here] of turtles 
 NIL
@@ -811,9 +855,9 @@ NIL
 1
 
 BUTTON
-230
+271
 462
-285
+326
 495
 HIDE!
 \nask turtles [set hidden? TRUE]
@@ -828,9 +872,9 @@ NIL
 1
 
 BUTTON
-284
+325
 462
-339
+380
 495
 SHOW!
 \nask turtles [set hidden? FALSE]\nask turtles [set size (max-pxcor / 10)]
@@ -851,23 +895,8 @@ CHOOSER
 306
 boundary-drawn
 boundary-drawn
-"constant" "uniform" "normal"
+"constant" "uniform"
 1
-
-SLIDER
-999
-107
-1171
-140
-sigma
-sigma
-0
-1
-0.0
-0.01
-1
-NIL
-HORIZONTAL
 
 PLOT
 967
@@ -887,25 +916,10 @@ false
 PENS
 "default" 0.05 1 -16777216 true "" "histogram [Uncertainty] of turtles"
 
-SLIDER
-999
-173
-1171
-206
-mu
-mu
-0.01
-1
-0.0
-0.01
-1
-NIL
-HORIZONTAL
-
 BUTTON
-339
+380
 462
-427
+468
 495
 avg. Unretainty
 show mean [Uncertainty] of turtles
@@ -920,9 +934,9 @@ NIL
 1
 
 BUTTON
-426
+467
 462
-488
+529
 495
 Hide links
 ask links [set hidden? TRUE]
@@ -937,9 +951,9 @@ NIL
 1
 
 BUTTON
-488
+529
 462
-548
+589
 495
 Show links
 ask links [set hidden? FALSE]
@@ -984,9 +998,9 @@ NIL
 HORIZONTAL
 
 BUTTON
-547
+588
 462
-618
+659
 495
 avg. Opinion
 show mean [mean opinion-position] of turtles
@@ -1029,10 +1043,10 @@ PENS
 "Op11" 1.0 0 -13791810 true "" "if opinions >= 11 [plot mean [item 10 opinion-position] of turtles]"
 
 SLIDER
-10
+746
+74
+884
 107
-148
-140
 updating
 updating
 1
@@ -1113,93 +1127,42 @@ CHOOSER
 mode
 mode
 "openly-listen" "vaguely-speak"
-1
-
-CHOOSER
-1172
-239
-1264
-284
-bias-drawn
-bias-drawn
-"uniform" "no bias"
 0
-
-SLIDER
-1172
-284
-1344
-317
-bias-margin
-bias-margin
-0
-0.1
-0.0
-0.002
-1
-NIL
-HORIZONTAL
 
 PLOT
 967
 375
 1167
 495
-Distribution of 'Political bias'
+Distribution of 'Tolerance'
 NIL
 NIL
--0.1
-0.1
+0.0
+1.0
 0.0
 10.0
 true
 false
 "" ""
 PENS
-"default" 0.001 1 -16777216 true "" "histogram [pol-bias] of turtles"
-
-SWITCH
-1264
-239
-1361
-272
-social-bias
-social-bias
-1
-1
--1000
+"default" 0.05 1 -16777216 true "" "histogram [Tolerance] of turtles"
 
 INPUTBOX
-1172
-68
-1424
-174
+1171
+10
+1423
+116
 file-name-core
-1_101_0.25_50_8_1_0.3_uniform_0.5_constant_vaguely-speak
+10_257_0.05_32_2_1_0.2_uniform_1_uniform_openly-listen
 1
 0
 String
 
-SLIDER
-1172
-317
-1344
-350
-bias-of-bias
-bias-of-bias
-0
-1
-0.0
-0.01
-1
-NIL
-HORIZONTAL
-
 BUTTON
-1320
-174
-1405
-207
+1319
+116
+1404
+149
 RECORD!
 record-state-of-simulation
 NIL
@@ -1213,10 +1176,10 @@ NIL
 1
 
 SWITCH
-1172
-174
-1320
-207
+1171
+116
+1319
+149
 construct-name?
 construct-name?
 0
@@ -1224,13 +1187,13 @@ construct-name?
 -1000
 
 SWITCH
-1172
-206
-1275
-239
+1171
+148
+1274
+181
 record?
 record?
-0
+1
 1
 -1000
 
@@ -1250,10 +1213,10 @@ NIL
 HORIZONTAL
 
 SWITCH
-1275
-206
-1397
-239
+1274
+148
+1396
+181
 HK-benchmark?
 HK-benchmark?
 1
@@ -1268,7 +1231,7 @@ CHOOSER
 p-speaking-drawn
 p-speaking-drawn
 "constant" "uniform" "function"
-0
+1
 
 PLOT
 1166
@@ -1303,21 +1266,6 @@ record-each-n-steps
 NIL
 HORIZONTAL
 
-SLIDER
-1000
-140
-1171
-173
-min-boundary
-min-boundary
-0
-1
-0.0
-0.001
-1
-NIL
-HORIZONTAL
-
 SWITCH
 746
 43
@@ -1325,7 +1273,107 @@ SWITCH
 76
 avoid-redundancies?
 avoid-redundancies?
+1
+1
+-1000
+
+SLIDER
+10
+107
+182
+140
+tolerance-level
+tolerance-level
 0
+1.1
+1.1
+0.01
+1
+NIL
+HORIZONTAL
+
+CHOOSER
+101
+140
+193
+185
+tolerance-drawn
+tolerance-drawn
+"constant" "uniform"
+1
+
+PLOT
+1166
+256
+1366
+376
+Number of network changes
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot network-changes / count turtles * 100"
+
+SLIDER
+9
+495
+130
+528
+conformity-level
+conformity-level
+0
+1
+1.0
+0.01
+1
+NIL
+HORIZONTAL
+
+CHOOSER
+130
+495
+249
+540
+conformity-drawn
+conformity-drawn
+"constant" "uniform"
+1
+
+CHOOSER
+10
+450
+102
+495
+network-change
+network-change
+"link" "community"
+0
+
+MONITOR
+1167
+211
+1276
+256
+NIL
+network-changes
+17
+1
+11
+
+SWITCH
+102
+462
+271
+495
+random-network-change?
+random-network-change?
+1
 1
 -1000
 
