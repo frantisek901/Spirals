@@ -238,10 +238,13 @@ for (i in 765:nrow(dl)) {
  dl$ent.measures[i] = (find_and_process(dl, i, 0.02))
 }
 
+save(dl, file = "dl.RData")
+
 
 dlp = separate(dl, ent.measures,
                into = c("Entropy", "Normalized.entropy", "SD", "Average.distance"),
                sep = "_", convert = T)
+save(dlp, file = "dlp.RData")
 
 dlp %>% mutate(Average.distance = 2 * Average.distance) %>%
   ggplot(aes(x = Normalized.entropy, y = Average.distance)) +
