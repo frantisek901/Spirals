@@ -14,7 +14,7 @@
 <fitnessInfo>
 <fitnessMinimized>false</fitnessMinimized>
 <fitnessCollecting>AT_FINAL_STEP</fitnessCollecting>
-<fitnessSamplingReplications>10</fitnessSamplingReplications>
+<fitnessSamplingReplications>5</fitnessSamplingReplications>
 <fitnessCombineReplications>MEDIAN</fitnessCombineReplications>
 </fitnessInfo>
 <searchSpace>
@@ -54,14 +54,14 @@
 <paramSpec>["polar_repeats" 20]</paramSpec>
 </searchSpace>
 <searchMethod type="StandardGA">
-<searchMethodParameter name="mutation-rate" value="0.03"/>
-<searchMethodParameter name="population-size" value="50"/>
-<searchMethodParameter name="crossover-rate" value="0.7"/>
-<searchMethodParameter name="population-model" value="generational"/>
+<searchMethodParameter name="mutation-rate" value="0.01"/>
+<searchMethodParameter name="population-size" value="5"/>
 <searchMethodParameter name="tournament-size" value="3"/>
+<searchMethodParameter name="population-model" value="generational"/>
+<searchMethodParameter name="crossover-rate" value="0.7"/>
 </searchMethod>
 <chromosomeRepresentation type="GrayBinaryChromosome"/>
 <caching>true</caching>
-<evaluationLimit>300</evaluationLimit>
+<evaluationLimit>30</evaluationLimit>
 <bestCheckingNumReplications>0</bestCheckingNumReplications>
 </search>
