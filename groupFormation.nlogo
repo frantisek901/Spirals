@@ -202,7 +202,7 @@ to compute-polarisation
   ;; Computing clusters' mean 'opinion-position'
   let postions-clusters [] ;; List with all positions of all clusters
   foreach communities [c ->
-    let one []  ;; List for one positionof one cluster
+    let one []  ;; List for one positio nof one cluster
     foreach range opinions [o ->
       set one lput precision (mean [item o opinion-position] of c) 3 one
     ]
@@ -247,47 +247,59 @@ to compute-polarisation
   ;; Killing centroids without connected agents
   ask centroids [
     let wom who
-    if (not any? turtles with [group = wom]) [
+    if (not any? agents with [group = wom]) [
       set N_centroids N_centroids - 1
       die
     ]
   ]
 
-  ;; Computing polarization -- preparation of lists and agents
-  let distances []
-  let diversity []
-  let whos sort [who] of centroids  ;; List of 'who' of all centroids
-  ;show whos
-  ask agents [set distance_to_centroid [opinion-distance] of centroid group]  ;; Each agent computes her distance to her centroid and stores it as 'distance_to_centroid'.
+  ;show count centroids
+  ;; Catching the run-time error:
+  ;; If there is just one component since all agents has same opinion, then the polarisation algorithm does produce error --
+  ;; because of computing mean of empty list of distences: this list is empty since the only one existing centroid can't
+  ;; compute distance to itself via double 'while' structuresince 'ai' and 'aj' lists are empty.
+  ;; In this case it is obvious that polarisation is 0, so we set 'polarisation' and 'normalized_polarisation' to 0 directly via 'ifelse' structure
+  ifelse (count centroids < 2) [
+    ;show "Manual setting of polarisation globals to 0!"
+    set polarisation 0
+    set normalized_polarisation 0
+  ][
+    ;; Computing polarization -- preparation of lists and agents
+    let distances []
+    let diversity []
+    let whos sort [who] of centroids  ;; List of 'who' of all centroids
+    ;show whos
+    ask agents [set distance_to_centroid [opinion-distance] of centroid group]  ;; Each agent computes her distance to her centroid and stores it as 'distance_to_centroid'.
 
-  ;; Computing polarization -- distances of all centroids
-  let ai but-last whos  ;; List of all 'i' -- 'who' initializing distances computation
-  let aj but-first whos  ;; List of all 'j' -- 'who' of other end of distances computation
-  foreach ai [i ->
-    foreach aj [j ->
-      ;show (word i ";  " j)
-      ;; Each distance is weighted by fraction of both centroid groups
-      ;; via formula '(N_centroids ^ 2) * (count agents with [group = i] / count agents) * (count agents with [group = j] / count agents)'
-      let weight (N_centroids ^ 2) * (count agents with [group = i] / count agents) * (count agents with [group = j] / count agents)
-      let cent-dist opinion-distance3 ([opinion-position] of centroid i) ([opinion-position] of centroid j)
-      set distances lput (weight * cent-dist) distances
+    ;; Computing polarization -- distances of all centroids
+    let ai but-last whos  ;; List of all 'i' -- 'who' initializing distances computation
+    let aj but-first whos  ;; List of all 'j' -- 'who' of other end of distances computation
+    foreach ai [i ->
+      foreach aj [j ->
+        ;show (word i ";  " j)
+        ;; Each distance is weighted by fraction of both centroid groups
+        ;; via formula '(N_centroids ^ 2) * (count agents with [group = i] / count agents) * (count agents with [group = j] / count agents)'
+        let weight (N_centroids ^ 2) * (count agents with [group = i] / count agents) * (count agents with [group = j] / count agents)
+        let cent-dist opinion-distance3 ([opinion-position] of centroid i) ([opinion-position] of centroid j)
+        set distances lput (weight * cent-dist) distances
+      ]
+      set aj but-first aj
     ]
-    set aj but-first aj
+
+    ;; Computing polarization -- diversity in groups
+    foreach sort [who] of centroids [wg -> set diversity lput ((count agents with [group = wg] / count agents) * mean [distance_to_centroid] of agents with [group = wg]) diversity]
+
+    ;; Computing polarization -- polarization index
+    ;; Note: Now it is computed to receive same result as for n=2 groups,
+    ;;       but might be needed to change it later to get better results for n>2 group,
+    ;;       but now it works fine without runtime errors with all numbers of groups.
+    set polarisation (mean distances) / (1 + 2 * mean diversity)  ;; Raw polarization computed as distance divided by heterogeinity in the groups.
+    set normalized_polarisation precision (polarisation / (2 * sqrt(opinions))) 3
+    set polarisation precision polarisation 3
+    ;show diversity
+    ;show distances
+    ;show (word polarisation ";  " normalized_polarisation)
   ]
-
-  ;; Computing polarization -- diversity in groups
-  foreach sort [who] of centroids [wg -> set diversity lput ((count agents with [group = wg] / count agents) * mean [distance_to_centroid] of agents with [group = wg]) diversity]
-
-  ;; Computing polarization -- polarization index
-  ;; Note: Now it is computed to receive same result as for n=2 groups,
-  ;;       but might be needed to change it later to get better results for n>2 group,
-  ;;       but now it works fine without runtime errors with all numbers of groups.
-  set polarisation (mean distances) / (1 + 2 * mean diversity)  ;; Raw polarization computed as distance divided by heterogeinity in the groups.
-  set normalized_polarisation precision (polarisation / (2 * sqrt(opinions))) 3
-  set polarisation precision polarisation 3
-  ;show diversity
-  ;show distances
-  ;show (word polarisation ";  " normalized_polarisation)
 
   ;; Final coloring and killing of centroids
   if centroid_color? [ask agents [set color [color] of centroid group]]
@@ -305,7 +317,7 @@ to compute-centroids-positions
   let grp min [who] of centroids
   while [grp <= (max [who] of centroids)] [
     ask centroid grp [
-      ifelse (not any? turtles with [group = grp]) [
+      ifelse (not any? agents with [group = grp]) [
         set Opinion-position Last-opinion
       ][
         let dim 0
@@ -321,84 +333,6 @@ to compute-centroids-positions
     getPlace
     ;show opinion-distance3 (Last-opinion) (Opinion-position)
   ]
-end
-
-
-;; Sub-routine which opens/creates *.csv file and stores there states of all turtles
-to record-state-of-simulation
-  ;; setting working directory
-  ;set-current-directory directory
-
-  ;; seting 'file-name'
-  let file-name (word "Sims/Nodes01_" file-name-core "_" ticks ".csv")
-
-  ;;;; File creation and opening: NODES
-  ;; If file exists at the start we delete it to start with clean file
-  if file-exists? file-name [file-delete file-name]
-  file-open file-name ;; This opens existing file (at the end) or creates file if doesn't exist (at the begining)
-
-    ;; Constructing list for the first row with variable names:
-    let row (list "ID" "Uncertainty" "pSpeaking" "Speaks")
-    foreach range Opinions [i -> set row lput (word "Opinion" (i + 1)) row]
-
-    ;; Writing the variable names in the first row at the start
-    file-print list-to-string (row)
-
-  ;; For writing states itself we firstly need to create list of sorted turtles 'srt'
-  let srt sort turtles
-  ;; Then we iterate over the list 'srt':
-  foreach srt [t -> ask t [  ;; every turtle in the list...
-    set row (list (word "Nei" who)  Uncertainty P-Speaking (ifelse-value (speak?)[1][0]))  ;; stores in list ROW its ID, Uncertainty, P-Speaking and whether speaks...
-    foreach Opinion-position [op -> set row lput (precision(op) 3) row]  ;; Opinions ...
-    file-print list-to-string (row)
-    file-flush  ;; for larger simulations with many agents it will be safer flush the file after each row
-  ]]
-
-  ;; Finally, we close the file
-  file-close
-  file-close
-
-
-  ;;;; File creation and opening: LINKS
-  ;; seting 'file-name' for links.
-  set file-name (word "Sims/Links01_" file-name-core "_" ticks ".csv")
-
-  ;;;; File creation and opening
-  ;; If file exists at the start we delete it to start with clean file
-  if file-exists? file-name [file-delete file-name]
-  file-open file-name ;; This opens existing file (at the end) or creates file if doesn't exist (at the begining)
-
-    ;; Constructing list for the first row with variable names:
-    set row (list "ID1" "ID2" "Communication" "Distance")
-
-    ;; Writing the variable names in the first row at the start
-    file-print list-to-string (row)
-
-  ;; We need to prepare counters and other auxilliary varibles for doubled cycle:
-  let i 0
-  let j 1
-  let iMax (count turtles - 2)
-  let jMax (count turtles - 1)
-  let mine []
-  let her []
-
-  ;; Now double while cycle!
-  while [i <= iMax] [  ;; Iterating over all turtles except the last one
-    set j i + 1
-    while [j <= jMax][  ;; Second cycle iterates over all turtles with index higher than 'i'
-      set mine ([opinion-position] of turtle i) ;; First opinion for measuring distance...
-      set her ([opinion-position] of turtle j)  ;; Second opinion...
-      set row (list i j (ifelse-value (is-comm? comm i j) [1][0]) opinion-distance2 (mine) (her))  ;; Construction of the 'row'
-      file-print list-to-string (row)  ;; Writing the row...
-      file-flush  ;; for larger simulations with many agents it will be safer flush the file after each row
-      set j j + 1 ;; Updating counter of second cycle
-    ]
-    set i i + 1  ;; Updating counter of the first cycle
-  ]
-
-  ;; Finally, we close the file
-  file-close
-  file-close
 end
 
 
@@ -561,7 +495,7 @@ to go
   set network-changes 0
 
   ;; True part of GO procedure!
-  ask turtles [
+  ask agents [
     ;; speaking, coloring, updating and SATISFACTION!!!
     preparing-myself
 
@@ -693,7 +627,7 @@ to rewire-the-most-annoying-link
   ]
 
   ;; Lastly, we check whether each agent has at least one neighbor
-  ask agents with [(count comm-neighbors) = 0] [create-comm-with one-of other turtles ;print "Link just has been added!"
+  ask agents with [(count comm-neighbors) = 0] [create-comm-with one-of other agents ;print "Link just has been added!"
   ]
 
   ;; P.S. Just hiding links for better speed of code -- when we change/cut a link, all links become visible and that slows down the simulation.
@@ -852,6 +786,85 @@ to-report opinion-distance3 [my her]
   ;; reporting weight of distance
   report precision dist 8
 end
+
+
+;; Sub-routine which opens/creates *.csv file and stores there states of all turtles
+to record-state-of-simulation
+  ;; setting working directory
+  ;set-current-directory directory
+
+  ;; seting 'file-name'
+  let file-name (word "Sims/Nodes01_" file-name-core "_" ticks ".csv")
+
+  ;;;; File creation and opening: NODES
+  ;; If file exists at the start we delete it to start with clean file
+  if file-exists? file-name [file-delete file-name]
+  file-open file-name ;; This opens existing file (at the end) or creates file if doesn't exist (at the begining)
+
+    ;; Constructing list for the first row with variable names:
+    let row (list "ID" "Uncertainty" "pSpeaking" "Speaks")
+    foreach range Opinions [i -> set row lput (word "Opinion" (i + 1)) row]
+
+    ;; Writing the variable names in the first row at the start
+    file-print list-to-string (row)
+
+  ;; For writing states itself we firstly need to create list of sorted turtles 'srt'
+  let srt sort agents
+  ;; Then we iterate over the list 'srt':
+  foreach srt [t -> ask t [  ;; every turtle in the list...
+    set row (list (word "Nei" who)  Uncertainty P-Speaking (ifelse-value (speak?)[1][0]))  ;; stores in list ROW its ID, Uncertainty, P-Speaking and whether speaks...
+    foreach Opinion-position [op -> set row lput (precision(op) 3) row]  ;; Opinions ...
+    file-print list-to-string (row)
+    file-flush  ;; for larger simulations with many agents it will be safer flush the file after each row
+  ]]
+
+  ;; Finally, we close the file
+  file-close
+  file-close
+
+
+  ;;;; File creation and opening: LINKS
+  ;; seting 'file-name' for links.
+  set file-name (word "Sims/Links01_" file-name-core "_" ticks ".csv")
+
+  ;;;; File creation and opening
+  ;; If file exists at the start we delete it to start with clean file
+  if file-exists? file-name [file-delete file-name]
+  file-open file-name ;; This opens existing file (at the end) or creates file if doesn't exist (at the begining)
+
+    ;; Constructing list for the first row with variable names:
+    set row (list "ID1" "ID2" "Communication" "Distance")
+
+    ;; Writing the variable names in the first row at the start
+    file-print list-to-string (row)
+
+  ;; We need to prepare counters and other auxilliary varibles for doubled cycle:
+  let i 0
+  let j 1
+  let iMax (count agents - 2)
+  let jMax (count agents - 1)
+  let mine []
+  let her []
+
+  ;; Now double while cycle!
+  while [i <= iMax] [  ;; Iterating over all turtles except the last one
+    set j i + 1
+    while [j <= jMax][  ;; Second cycle iterates over all turtles with index higher than 'i'
+      set mine ([opinion-position] of turtle i) ;; First opinion for measuring distance...
+      set her ([opinion-position] of turtle j)  ;; Second opinion...
+      set row (list i j (ifelse-value (is-comm? comm i j) [1][0]) opinion-distance2 (mine) (her))  ;; Construction of the 'row'
+      file-print list-to-string (row)  ;; Writing the row...
+      file-flush  ;; for larger simulations with many agents it will be safer flush the file after each row
+      set j j + 1 ;; Updating counter of second cycle
+    ]
+    set i i + 1  ;; Updating counter of the first cycle
+  ]
+
+  ;; Finally, we close the file
+  file-close
+  file-close
+end
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 219
@@ -955,7 +968,7 @@ n-neis
 n-neis
 1
 500
-20.0
+42.0
 1
 1
 NIL
@@ -970,7 +983,7 @@ p-random
 p-random
 0
 0.5
-0.05
+0.1
 0.01
 1
 NIL
@@ -1027,7 +1040,7 @@ p-speaking-level
 p-speaking-level
 0
 1
-1.0
+0.34400000000000003
 0.001
 1
 NIL
@@ -1042,7 +1055,7 @@ boundary
 boundary
 0.01
 1
-0.155
+0.37
 0.01
 1
 NIL
@@ -1051,18 +1064,18 @@ HORIZONTAL
 INPUTBOX
 674
 10
-746
+781
 70
 RS
-10.0
+-1.36807062E9
 1
 0
 Number
 
 SWITCH
-746
+781
 10
-839
+874
 43
 set-seed?
 set-seed?
@@ -1163,7 +1176,7 @@ CHOOSER
 boundary-drawn
 boundary-drawn
 "constant" "uniform"
-0
+1
 
 PLOT
 967
@@ -1310,9 +1323,9 @@ PENS
 "Op11" 1.0 0 -13791810 true "" "if opinions >= 11 [plot mean [item 10 opinion-position] of turtles]"
 
 SLIDER
-746
+781
 74
-884
+919
 107
 updating
 updating
@@ -1342,7 +1355,8 @@ true
 PENS
 "Turtles" 1.0 0 -16777216 true "" "plot mean [mean Record] of agents"
 "Main record" 1.0 0 -2674135 true "" "plot mean main-Record"
-"Polarisation" 1.0 0 -13791810 true "" "plot normalized_polarisation"
+"Normalized" 1.0 0 -13791810 true "" "plot normalized_polarisation"
+"Polarisation" 1.0 0 -13345367 true "" "plot polarisation"
 
 BUTTON
 1403
@@ -1381,7 +1395,7 @@ record-length
 record-length
 10
 100
-10.0
+25.0
 1
 1
 NIL
@@ -1395,7 +1409,7 @@ CHOOSER
 mode
 mode
 "openly-listen" "vaguely-speak"
-0
+1
 
 PLOT
 967
@@ -1421,7 +1435,7 @@ INPUTBOX
 1423
 116
 file-name-core
-10_257_0.05_20_2_1_0.155_constant_1_uniform_openly-listen
+-1368070620_257_0.1_42_2_1_0.37_uniform_0.34400000000000003_uniform_vaguely-speak
 1
 0
 String
@@ -1474,7 +1488,7 @@ max-ticks
 max-ticks
 100
 10000
-3000.0
+1300.0
 100
 1
 NIL
@@ -1528,16 +1542,16 @@ record-each-n-steps
 record-each-n-steps
 100
 10000
-200.0
+5000.0
 100
 1
 NIL
 HORIZONTAL
 
 SWITCH
-746
+781
 43
-894
+929
 76
 avoid-redundancies?
 avoid-redundancies?
@@ -1554,7 +1568,7 @@ tolerance-level
 tolerance-level
 0
 1.1
-0.5
+0.69
 0.01
 1
 NIL
@@ -1597,7 +1611,7 @@ conformity-level
 conformity-level
 0
 1
-0.35
+0.49
 0.01
 1
 NIL
@@ -1641,7 +1655,7 @@ SWITCH
 495
 random-network-change?
 random-network-change?
-1
+0
 1
 -1000
 
@@ -1668,7 +1682,7 @@ INPUTBOX
 1389
 242
 N_centroids
-4.0
+1.0
 1
 0
 Number
@@ -1682,7 +1696,7 @@ Centroids_change
 Centroids_change
 0.00000001
 0.001
-1.0E-8
+1.0E-5
 0.00001
 1
 NIL
@@ -1750,7 +1764,7 @@ SWITCH
 258
 centroid_color?
 centroid_color?
-0
+1
 1
 -1000
 
@@ -1761,7 +1775,7 @@ SWITCH
 257
 killing_centroids?
 killing_centroids?
-1
+0
 1
 -1000
 
@@ -1774,7 +1788,7 @@ d_threshold
 d_threshold
 0.01
 1
-0.75
+0.8
 0.01
 1
 NIL
@@ -1789,7 +1803,7 @@ polarisation-each-n-steps
 polarisation-each-n-steps
 1
 10000
-1000.0
+3000.0
 1
 1
 NIL
