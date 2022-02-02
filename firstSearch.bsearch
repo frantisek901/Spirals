@@ -14,35 +14,21 @@
 <fitnessInfo>
 <fitnessMinimized>false</fitnessMinimized>
 <fitnessCollecting>AT_FINAL_STEP</fitnessCollecting>
-<fitnessSamplingReplications>10</fitnessSamplingReplications>
+<fitnessSamplingReplications>5</fitnessSamplingReplications>
 <fitnessCombineReplications>MEDIAN</fitnessCombineReplications>
 </fitnessInfo>
 <searchSpace>
-<paramSpec>["n-agents" 257]</paramSpec>
-<paramSpec>["n-neis" [4 1 64]]</paramSpec>
-<paramSpec>["p-random" [0 0.01 0.35]]</paramSpec>
-<paramSpec>["opinions" 2]</paramSpec>
-<paramSpec>["model" "HK"]</paramSpec>
-<paramSpec>["p-speaking-level" [0 0.001 1]]</paramSpec>
-<paramSpec>["boundary" [0.01 0.01 0.4]]</paramSpec>
-<paramSpec>["set-seed?" false]</paramSpec>
-<paramSpec>["boundary-drawn"  "uniform"]</paramSpec>
-<paramSpec>["x-opinion" 1]</paramSpec>
-<paramSpec>["y-opinion" 2]</paramSpec>
-<paramSpec>["updating" 1]</paramSpec>
-<paramSpec>["record-length" 25]</paramSpec>
-<paramSpec>["mode" "openly-listen" "vaguely-speak"]</paramSpec>
-<paramSpec>["construct-name?" true]</paramSpec>
-<paramSpec>["record?" false]</paramSpec>
-<paramSpec>["max-ticks" 3000]</paramSpec>
-<paramSpec>["hk-benchmark?" false]</paramSpec>
-<paramSpec>["p-speaking-drawn"  "uniform"]</paramSpec>
-<paramSpec>["record-each-n-steps" 5000 ]</paramSpec>
-<paramSpec>["avoid-redundancies?" false]</paramSpec>
-<paramSpec>["tolerance-level" [0.1 0.01 1.1]]</paramSpec>
-<paramSpec>["tolerance-drawn" "uniform"]</paramSpec>
 <paramSpec>["conformity-level" [0.1 0.01 1]]</paramSpec>
 <paramSpec>["conformity-drawn"  "uniform"]</paramSpec>
+<paramSpec>["n-neis" [4 1 64]]</paramSpec>
+<paramSpec>["p-random" [0 0.01 0.35]]</paramSpec>
+<paramSpec>["p-speaking-level" [0 0.001 1]]</paramSpec>
+<paramSpec>["p-speaking-drawn"  "uniform"]</paramSpec>
+<paramSpec>["boundary" [0.01 0.01 0.4]]</paramSpec>
+<paramSpec>["boundary-drawn"  "uniform"]</paramSpec>
+<paramSpec>["mode" "openly-listen" "vaguely-speak"]</paramSpec>
+<paramSpec>["tolerance-level" [0.1 0.01 1.1]]</paramSpec>
+<paramSpec>["tolerance-drawn" "uniform"]</paramSpec>
 <paramSpec>["network-change" "link"]</paramSpec>
 <paramSpec>["random-network-change?" false true]</paramSpec>
 <paramSpec>["n_centroids" 4]</paramSpec>
@@ -52,16 +38,30 @@
 <paramSpec>["d_threshold" 0.8]</paramSpec>
 <paramSpec>["polarisation-each-n-steps" 3000]</paramSpec>
 <paramSpec>["polar_repeats" 20]</paramSpec>
+<paramSpec>["opinions" 2]</paramSpec>
+<paramSpec>["model" "HK"]</paramSpec>
+<paramSpec>["record-each-n-steps" 5000 ]</paramSpec>
+<paramSpec>["avoid-redundancies?" false]</paramSpec>
+<paramSpec>["set-seed?" false]</paramSpec>
+<paramSpec>["x-opinion" 1]</paramSpec>
+<paramSpec>["y-opinion" 2]</paramSpec>
+<paramSpec>["updating" 1]</paramSpec>
+<paramSpec>["record-length" 25]</paramSpec>
+<paramSpec>["construct-name?" true]</paramSpec>
+<paramSpec>["record?" false]</paramSpec>
+<paramSpec>["max-ticks" 3000]</paramSpec>
+<paramSpec>["hk-benchmark?" false]</paramSpec>
+<paramSpec>["n-agents" 257]</paramSpec>
 </searchSpace>
 <searchMethod type="StandardGA">
-<searchMethodParameter name="mutation-rate" value="0.03"/>
-<searchMethodParameter name="population-size" value="50"/>
-<searchMethodParameter name="crossover-rate" value="0.7"/>
-<searchMethodParameter name="population-model" value="generational"/>
+<searchMethodParameter name="mutation-rate" value="0.01"/>
+<searchMethodParameter name="population-size" value="5"/>
 <searchMethodParameter name="tournament-size" value="3"/>
+<searchMethodParameter name="population-model" value="generational"/>
+<searchMethodParameter name="crossover-rate" value="0.7"/>
 </searchMethod>
 <chromosomeRepresentation type="GrayBinaryChromosome"/>
 <caching>true</caching>
-<evaluationLimit>300</evaluationLimit>
+<evaluationLimit>30</evaluationLimit>
 <bestCheckingNumReplications>0</bestCheckingNumReplications>
 </search>
