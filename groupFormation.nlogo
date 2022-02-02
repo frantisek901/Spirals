@@ -92,9 +92,14 @@
 
 extensions [nw]
 
-turtles-own [Opinion-position P-speaking Speak? Uncertainty Record Last-opinion Pol-bias Initial-opinion Tolerance Conformity Satisfied?]
+breed [centroids centroid]
+undirected-link-breed [comms comm]
+undirected-link-breed [l-distances l-distance]
 
-globals [main-Record components positions network-changes]
+turtles-own [Opinion-position P-speaking Speak? Uncertainty Record Last-opinion Pol-bias Initial-opinion Tolerance Conformity Satisfied? group distance_to_centroid]
+l-distances-own [l-weight]
+
+globals [main-Record components positions network-changes agents polarisation normalized_polarisation]
 
 
 ;; Initialization and setup
@@ -113,7 +118,7 @@ to setup
   ;; We initialize small-world network with random seed
   if set-seed? [random-seed RS]
   if HK-benchmark? [set n-neis (N-agents - 1) / 2]
-  nw:generate-watts-strogatz turtles links N-agents n-neis p-random [
+  nw:generate-watts-strogatz turtles comms N-agents n-neis p-random [
     fd (max-pxcor - 1)
     set size (max-pxcor / 10)
   ]
@@ -134,15 +139,19 @@ to setup
     getColor  ;; Coloring the agents according their opinion.
     getPlace  ;; Moving agents to the opinion space according their opinions.
   ]
+  set agents turtle-set turtles  ;; Note: If we just write 'set agents turtles', then variable 'agents' is a synonym for 'turtles', so it will contain in the future created centroids!
+
 
   ;; Coloring patches according the number of agents/turtles on them.
   ask patches [set pcolor patch-color]
   ;; Hiding links so to improve simulation speed performance.
-  ask links [set hidden? TRUE]
+  ask comms [set hidden? TRUE]
   ;; Setting the indicator of change for the whole simulation, again as non-stable.
   set main-Record n-values record-length [0]
   ;; Setting control variable of network changes
   set network-changes 0
+  ;; Compute polarisation
+  compute-polarisation-repeatedly
 
   reset-ticks
 
@@ -151,6 +160,167 @@ to setup
   if construct-name? [set file-name-core (word RS "_" N-agents "_" p-random "_" n-neis "_" opinions "_" updating "_" boundary "_" boundary-drawn "_" p-speaking-level "_"  p-speaking-drawn "_" mode)]
   ;; recording itself
   if record? [record-state-of-simulation]
+end
+
+;; We compute polarisation several times and then set it for the average
+to compute-polarisation-repeatedly
+  ;; Initialization of temporal variables
+  let r 0
+  let p []
+  let np []
+
+  ;; Repeating cycle
+  while [r < polar_repeats] [
+    compute-polarisation
+    set p lput polarisation p
+    set np lput normalized_polarisation np
+    set r r + 1
+  ]
+
+  ;; Setting variables back
+  set polarisation precision (mean p) 3
+  set normalized_polarisation precision (mean np) 3
+end
+
+;; NOTE: Now I am iplementing it for N = 2 centroids, but I prepare code for easy generalisation for N > 2.
+to compute-polarisation
+  ;; Preparation
+  ask centroids [die]
+  ;let original_centroids_value N_centroids
+
+  ;; Detection of clusters via Louvain
+  ask l-distances [die]  ;; Cleaning environment
+  ask agents [create-l-distances-with other agents with [(sqrt(4 * opinions) - opinion-distance) / sqrt(4 * opinions) >= d_threshold] [set l-weight opinion-distance2 ([opinion-position] of end1)([opinion-position] of end2)]]
+  ;show count l-distances
+  ;ask l-distances with [l-weight < d_threshold] [die]
+  nw:set-context agents l-distances ;with [l-weight >= d_threshold]
+  let communities nw:louvain-communities
+  ;show count l-distances
+  ask l-distances [die]
+  set N_centroids length communities
+
+  ;; Computing clusters' mean 'opinion-position'
+  let postions-clusters [] ;; List with all positions of all clusters
+  foreach communities [c ->
+    let one []  ;; List for one positionof one cluster
+    foreach range opinions [o ->
+      set one lput precision (mean [item o opinion-position] of c) 3 one
+    ]
+    ;show one
+    set postions-clusters lput one postions-clusters
+    ;show postions-clusters
+  ]
+
+  ;; Preparation of centroids -- feedeing them with communities
+  create-centroids N_centroids [
+    set heading (who - min [who] of centroids)
+    set Opinion-position item heading postions-clusters  ;; We set opinions, we try to do it smoothly...
+    ;show Opinion-position
+    set shape "circle"
+    set size 1.5
+    set color 5 + who * 10
+    getPlace
+  ]
+
+  ;; Assignment of agents to groups
+  ;let min_group min [who] of centroids
+  ask agents [set group [who] of min-one-of centroids [opinion-distance]]
+
+  ;; Computation of centroids possitions
+  compute-centroids-positions
+
+  ;let iter 0
+
+  ;; Iterating cycle -- looking for good match of centroids
+  while [sum [opinion-distance3 (Last-opinion) (Opinion-position)] of centroids > Centroids_change] [
+
+    ;set iter iter + 1
+    ;show (word "Iteration: " iter)
+
+    ;; turtles compute whether they are in right cluster and
+    ask agents [set group [who] of min-one-of centroids [opinion-distance]]
+
+    ;; Computation of centroids possitions
+    compute-centroids-positions
+  ]
+
+  ;; Killing centroids without connected agents
+  ask centroids [
+    let wom who
+    if (not any? turtles with [group = wom]) [
+      set N_centroids N_centroids - 1
+      die
+    ]
+  ]
+
+  ;; Computing polarization -- preparation of lists and agents
+  let distances []
+  let diversity []
+  let whos sort [who] of centroids  ;; List of 'who' of all centroids
+  ;show whos
+  ask agents [set distance_to_centroid [opinion-distance] of centroid group]  ;; Each agent computes her distance to her centroid and stores it as 'distance_to_centroid'.
+
+  ;; Computing polarization -- distances of all centroids
+  let ai but-last whos  ;; List of all 'i' -- 'who' initializing distances computation
+  let aj but-first whos  ;; List of all 'j' -- 'who' of other end of distances computation
+  foreach ai [i ->
+    foreach aj [j ->
+      ;show (word i ";  " j)
+      ;; Each distance is weighted by fraction of both centroid groups
+      ;; via formula '(N_centroids ^ 2) * (count agents with [group = i] / count agents) * (count agents with [group = j] / count agents)'
+      let weight (N_centroids ^ 2) * (count agents with [group = i] / count agents) * (count agents with [group = j] / count agents)
+      let cent-dist opinion-distance3 ([opinion-position] of centroid i) ([opinion-position] of centroid j)
+      set distances lput (weight * cent-dist) distances
+    ]
+    set aj but-first aj
+  ]
+
+  ;; Computing polarization -- diversity in groups
+  foreach sort [who] of centroids [wg -> set diversity lput ((count agents with [group = wg] / count agents) * mean [distance_to_centroid] of agents with [group = wg]) diversity]
+
+  ;; Computing polarization -- polarization index
+  ;; Note: Now it is computed to receive same result as for n=2 groups,
+  ;;       but might be needed to change it later to get better results for n>2 group,
+  ;;       but now it works fine without runtime errors with all numbers of groups.
+  set polarisation (mean distances) / (1 + 2 * mean diversity)  ;; Raw polarization computed as distance divided by heterogeinity in the groups.
+  set normalized_polarisation precision (polarisation / (2 * sqrt(opinions))) 3
+  set polarisation precision polarisation 3
+  ;show diversity
+  ;show distances
+  ;show (word polarisation ";  " normalized_polarisation)
+
+  ;; Final coloring and killing of centroids
+  if centroid_color? [ask agents [set color [color] of centroid group]]
+  if killing_centroids? [ask centroids [die]]
+  ;set N_centroids original_centroids_value
+end
+
+
+;; Sub-routine of polarization routine
+to compute-centroids-positions
+  ;; Preparation
+  ask centroids [set Last-opinion Opinion-position]
+
+  ;; Computation of centroids possitions
+  let grp min [who] of centroids
+  while [grp <= (max [who] of centroids)] [
+    ask centroid grp [
+      ifelse (not any? turtles with [group = grp]) [
+        set Opinion-position Last-opinion
+      ][
+        let dim 0
+        while [dim < opinions] [
+          set Opinion-position replace-item dim Opinion-position mean [item dim Opinion-position] of agents with [group = grp]
+          set dim dim + 1
+        ]
+      ]
+    ]
+    set grp grp + 1
+  ]
+  ask centroids [
+    getPlace
+    ;show opinion-distance3 (Last-opinion) (Opinion-position)
+  ]
 end
 
 
@@ -218,7 +388,7 @@ to record-state-of-simulation
     while [j <= jMax][  ;; Second cycle iterates over all turtles with index higher than 'i'
       set mine ([opinion-position] of turtle i) ;; First opinion for measuring distance...
       set her ([opinion-position] of turtle j)  ;; Second opinion...
-      set row (list (word "Nei" i) (word "Nei" j) (ifelse-value (is-link? link i j) [1][0]) opinion-distance2 (mine) (her))  ;; Construction of the 'row'
+      set row (list i j (ifelse-value (is-comm? comm i j) [1][0]) opinion-distance2 (mine) (her))  ;; Construction of the 'row'
       file-print list-to-string (row)  ;; Writing the row...
       file-flush  ;; for larger simulations with many agents it will be safer flush the file after each row
       set j j + 1 ;; Updating counter of second cycle
@@ -414,8 +584,9 @@ to go
   ;; Finishing condition:
   ;; 1) We reached state, where no turtle changes for RECORD-LENGTH steps, i.e. average of MAIN-RECORD (list of averages of turtles/agents RECORD) is 1 or
   ;; 2) We reached number of steps specified in MAX-TICKS
-  if ((mean main-Record = 1 and network-changes = 0) or ticks = max-ticks) and record? [record-state-of-simulation]
-  if (mean main-Record = 1 and network-changes = 0) or ticks = max-ticks [stop]
+  if ((mean main-Record = 1 and network-changes <= 5) or ticks = max-ticks) and record? [compute-polarisation-repeatedly record-state-of-simulation]
+  if (mean main-Record = 1 and network-changes <= 5) or ticks = max-ticks [stop]
+  if (ticks / polarisation-each-n-steps) = floor (ticks / polarisation-each-n-steps) [compute-polarisation-repeatedly]
   if (ticks / record-each-n-steps) = floor(ticks / record-each-n-steps) and record? [record-state-of-simulation]
 end
 
@@ -428,13 +599,13 @@ to updating-patches-and-globals
   ;; We have to check here the change of opinions, resp. how many agents changed,
   ;; and record it for each agent and also for the whole simulation
   ;; Turtles update their record of changes:
-  ask turtles [
+  ask agents [
     ;; we take 1 if opinion is same, we take 0 if opinion changes, then
     ;; we put 1/0 on the start of the list Record, but we omit the last item from Record
     set Record fput ifelse-value (Last-opinion = Opinion-position) [1][0] but-last Record
   ]
   ;; Then we might update it for the whole:
-  set main-Record fput precision (mean [mean Record] of turtles) 3 but-last main-Record
+  set main-Record fput precision (mean [mean Record] of agents) 3 but-last main-Record
 end
 
 
@@ -443,7 +614,7 @@ to-report get-satisfaction
   ;; initialization of agent set 'supporters' containing agents whose opinion positions are key for agent's satisfaction
   let supporters nobody
   ;; 1) updating agent uses only visible link neighbors in small-world network
-  let visibles link-neighbors with [color != white]
+  let visibles comm-neighbors with [color != white]
 
   ;; 2) we have different modes for finding supporters:
   ;; 2.1) in mode "I got them!" agent looks inside her boundary (opinion +/- uncertainty),
@@ -479,25 +650,25 @@ end
 ;; subroutine for leaving the neighborhood and joining a new one -- agent is decided to leave, we just process it here
 to leave-the-neighborhood-join-a-new-one
   ;; Firstly, we have to count agents neighbors, to determine how many links agent has to create in the main part of the procedure
-  let nei-size count link-neighbors
+  let nei-size count comm-neighbors
 
   ;; Secondly, we cut off all the links
-  ask my-links [die]
+  ask my-comms [die]
 
   ;; Thirdly, random VS intentional construction of new neighborhood.
   ifelse random-network-change? [
     ;; We set new neighborhood randomly or...
-    create-links-with n-of nei-size other turtles
+    create-comms-with n-of nei-size other agents
   ][
     ;; ...creates it out of the closest neighbors.
-    create-links-with min-n-of nei-size other turtles [opinion-distance]
+    create-comms-with min-n-of nei-size other agents [opinion-distance]
   ]
 
   ;; Lastly, we check whether each agent has at least one neighbor
-  ask turtles with [(count link-neighbors) = 0] [create-link-with one-of other turtles]
+  ask agents with [(count comm-neighbors) = 0] [create-comm-with one-of other agents]
 
   ;; P.S. Just hiding links for better speed of code -- when we change/cut a link, all links become visible and that slows down the simulation.
-  ask links [set hidden? TRUE]
+  ask comms [set hidden? TRUE]
 end
 
 
@@ -505,26 +676,27 @@ end
 to rewire-the-most-annoying-link
   ;; Firstly, we cut the link with agent with the most different opinion
   ifelse random-network-change? [
-    ask one-of my-links [die]
+    ask one-of my-comms [die]
   ][
-    let annoyer max-one-of link-neighbors [opinion-distance]
-    ask one-of my-links with [other-end = annoyer] [die]
+    let annoyer max-one-of comm-neighbors [opinion-distance]
+    ask one-of my-comms with [other-end = annoyer] [die]
   ]
 
   ;; Secondly, we choose for the agent a new partner with the most close opinion
-  let potentials other turtles with [not link-neighbor? self]
+  let potentials other agents with [not comm-neighbor? self]
   ifelse random-network-change? [
-    create-link-with one-of potentials
+    create-comm-with one-of potentials
   ][
     let partner min-one-of potentials [opinion-distance]
-    create-link-with partner
+    create-comm-with partner
   ]
 
   ;; Lastly, we check whether each agent has at least one neighbor
-  ask turtles with [(count link-neighbors) = 0] [create-link-with one-of other turtles print "Link just has been added!"]
+  ask agents with [(count comm-neighbors) = 0] [create-comm-with one-of other turtles ;print "Link just has been added!"
+  ]
 
   ;; P.S. Just hiding links for better speed of code -- when we change/cut a link, all links become visible and that slows down the simulation.
-  ask links [set hidden? TRUE]
+  ask comms [set hidden? TRUE]
 end
 
 
@@ -533,7 +705,7 @@ to change-opinion-HK
   ;; initialization of agent set 'influentials' containing agents whose opinion positions uses updating agent
   let influentials nobody
   ;; 1) updating agent uses only visible link neighbors in small-world network
-  let visibles other link-neighbors with [color != white]
+  let visibles other comm-neighbors with [color != white]
 
   ;; 2) we have different modes for finding influentials:
   ;; 2.1) in mode "I got them!" agent looks inside his boundary (opinion +/- uncertainty),
@@ -627,7 +799,7 @@ to-report opinion-distance
 end
 
 
-;; sub-routine for computing opinion distance of two comparing agents
+;; sub-routine for computing opinion distance of two comparing opinion positions  -- relative distance weighted as 1 for minimal distance and 0 for the maximal one
 to-report opinion-distance2 [my her]
   ;; we initialize counter of step of comparison -- we will compare as many times as we have dimensions
   let step 0
@@ -652,6 +824,32 @@ to-report opinion-distance2 [my her]
 
   ;; reporting weight of distance
   report precision weight 3
+end
+
+
+
+;; sub-routine for computing opinion distance of two comparing opinion positions  -- absolute distance without weighting
+to-report opinion-distance3 [my her]
+  ;; we initialize counter of step of comparison -- we will compare as many times as we have dimensions
+  let step 0
+
+  ;; we initialize container where we will store squared distance in each dimension
+  let dist 0
+
+  ;; while loop going through each dimension, computiong distance in each dimension, squarring it and adding in the container
+  while [step < opinions] [
+    ;; computiong distance in each dimension, squarring it and adding in the container
+    set dist dist + (item step my - item step her) ^ 2
+
+    ;; advancing 'step' counter by 1
+    set step step + 1
+  ]
+
+  ;; computing square-root of the container 'dist' -- computing Euclidean distance -- and setting it as 'dist'
+  set dist sqrt dist
+
+  ;; reporting weight of distance
+  report precision dist 8
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -756,7 +954,7 @@ n-neis
 n-neis
 1
 500
-32.0
+20.0
 1
 1
 NIL
@@ -843,7 +1041,7 @@ boundary
 boundary
 0.01
 1
-0.2
+0.155
 0.01
 1
 NIL
@@ -964,7 +1162,7 @@ CHOOSER
 boundary-drawn
 boundary-drawn
 "constant" "uniform"
-1
+0
 
 PLOT
 967
@@ -982,7 +1180,7 @@ true
 false
 "" ""
 PENS
-"default" 0.05 1 -16777216 true "" "histogram [Uncertainty] of turtles"
+"default" 0.05 1 -16777216 true "" "histogram [Uncertainty] of agents"
 
 BUTTON
 380
@@ -1084,24 +1282,24 @@ NIL
 
 PLOT
 674
-256
+224
 968
-495
+432
 Developement of opinions
 NIL
 NIL
 0.0
 10.0
--0.01
-0.01
+-0.1
+0.1
 true
 true
 "" ""
 PENS
-"Op01" 1.0 0 -16777216 true "" "plot mean [item 0 opinion-position] of turtles"
-"Op02" 1.0 0 -7500403 true "" "if opinions >= 2 [plot mean [item 1 opinion-position] of turtles]"
-"Op03" 1.0 0 -2674135 true "" "if opinions >= 3 [plot mean [item 2 opinion-position] of turtles]"
-"Op04" 1.0 0 -955883 true "" "if opinions >= 4 [plot mean [item 3 opinion-position] of turtles]"
+"Op01" 1.0 0 -16777216 true "" "plot mean [item 0 opinion-position] of agents"
+"Op02" 1.0 0 -7500403 true "" "if opinions >= 2 [plot mean [item 1 opinion-position] of agents]"
+"Op03" 1.0 0 -2674135 true "" "if opinions >= 3 [plot mean [item 2 opinion-position] of agents]"
+"Op04" 1.0 0 -955883 true "" "if opinions >= 4 [plot mean [item 3 opinion-position] of agents]"
 "Op05" 1.0 0 -6459832 true "" "if opinions >= 5 [plot mean [item 4 opinion-position] of turtles]"
 "Op06" 1.0 0 -1184463 true "" "if opinions >= 6 [plot mean [item 5 opinion-position] of turtles]"
 "Op07" 1.0 0 -10899396 true "" "if opinions >= 7 [plot mean [item 6 opinion-position] of turtles]"
@@ -1129,7 +1327,7 @@ PLOT
 674
 107
 1001
-257
+227
 Stability of turtles (average)
 NIL
 NIL
@@ -1141,16 +1339,17 @@ true
 true
 "" ""
 PENS
-"Turtles" 1.0 0 -16777216 true "" "plot mean [mean Record] of turtles"
+"Turtles" 1.0 0 -16777216 true "" "plot mean [mean Record] of agents"
 "Main record" 1.0 0 -2674135 true "" "plot mean main-Record"
+"Polarisation" 1.0 0 -13791810 true "" "plot normalized_polarisation"
 
 BUTTON
-1071
-206
-1143
-239
+1403
+161
+1475
+194
 avg. Record
-show mean [mean Record] of turtles
+show mean [mean Record] of agents
 NIL
 1
 T
@@ -1162,12 +1361,12 @@ NIL
 1
 
 MONITOR
-1000
-206
-1072
-251
+1404
+117
+1476
+162
 avg. Record
-mean [mean Record] of turtles
+mean [mean Record] of agents
 3
 1
 11
@@ -1213,7 +1412,7 @@ true
 false
 "" ""
 PENS
-"default" 0.05 1 -16777216 true "" "histogram [Tolerance] of turtles"
+"default" 0.05 1 -16777216 true "" "histogram [Tolerance] of agents"
 
 INPUTBOX
 1171
@@ -1221,7 +1420,7 @@ INPUTBOX
 1423
 116
 file-name-core
-10_257_0.05_32_2_1_0.2_uniform_1_uniform_openly-listen
+10_257_0.05_20_2_1_0.155_constant_1_uniform_openly-listen
 1
 0
 String
@@ -1274,7 +1473,7 @@ max-ticks
 max-ticks
 100
 10000
-1000.0
+3000.0
 100
 1
 NIL
@@ -1317,7 +1516,7 @@ true
 false
 "" ""
 PENS
-"default" 0.05 1 -16777216 true "" "histogram [P-speaking] of turtles"
+"default" 0.05 1 -16777216 true "" "histogram [P-speaking] of agents"
 
 SLIDER
 1023
@@ -1354,7 +1553,7 @@ tolerance-level
 tolerance-level
 0
 1.1
-1.1
+0.5
 0.01
 1
 NIL
@@ -1371,10 +1570,10 @@ tolerance-drawn
 1
 
 PLOT
-1166
-256
-1366
-376
+767
+432
+967
+552
 Number of network changes
 NIL
 NIL
@@ -1397,7 +1596,7 @@ conformity-level
 conformity-level
 0
 1
-1.0
+0.35
 0.01
 1
 NIL
@@ -1424,10 +1623,10 @@ network-change
 0
 
 MONITOR
-1167
-211
-1276
-256
+674
+432
+768
+477
 NIL
 network-changes
 17
@@ -1444,6 +1643,171 @@ random-network-change?
 1
 1
 -1000
+
+BUTTON
+545
+519
+620
+552
+polarisation
+compute-polarisation-repeatedly
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+INPUTBOX
+1316
+182
+1389
+242
+N_centroids
+4.0
+1
+0
+Number
+
+SLIDER
+1021
+193
+1171
+226
+Centroids_change
+Centroids_change
+0.00000001
+0.001
+1.0E-8
+0.00001
+1
+NIL
+HORIZONTAL
+
+PLOT
+1166
+256
+1365
+376
+Distribution of 'Conformity'
+NIL
+NIL
+0.0
+1.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 0.05 1 -16777216 true "" "histogram [Conformity] of agents"
+
+SLIDER
+1196
+510
+1346
+543
+alpha
+alpha
+0.5
+5
+1.0
+0.1
+1
+NIL
+HORIZONTAL
+
+MONITOR
+691
+507
+768
+552
+NIL
+polarisation
+17
+1
+11
+
+MONITOR
+967
+507
+1091
+552
+NIL
+normalized_polarisation
+17
+1
+11
+
+SWITCH
+1021
+225
+1171
+258
+centroid_color?
+centroid_color?
+0
+1
+-1000
+
+SWITCH
+1171
+224
+1319
+257
+killing_centroids?
+killing_centroids?
+1
+1
+-1000
+
+SLIDER
+1021
+160
+1171
+193
+d_threshold
+d_threshold
+0.01
+1
+0.75
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+1001
+127
+1171
+160
+polarisation-each-n-steps
+polarisation-each-n-steps
+1
+10000
+1000.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+1171
+191
+1276
+224
+polar_repeats
+polar_repeats
+1
+100
+20.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
