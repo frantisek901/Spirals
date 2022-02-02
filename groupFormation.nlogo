@@ -317,7 +317,7 @@ to compute-polarisation
     set unweighted_polarisation precision unweighted_polarisation 3
     ;show diversity
     ;show distances
-    show (word polarisation ";  " normalized_polarisation "; " unweighted_polarisation ";  " unweighted_normalized_polarisation)
+    ;show (word polarisation ";  " normalized_polarisation "; " unweighted_polarisation ";  " unweighted_normalized_polarisation)
   ]
 
   ;; Final coloring and killing of centroids
@@ -504,6 +504,11 @@ to preparing-myself
     set Satisfied? get-satisfaction
 end
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;   G O !   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Main routine
 to go
@@ -528,6 +533,9 @@ to go
       ;; Note: Now here is only Hegselmann-Krause algorithm, but in the future we might easily employ other algorithms here!
     ]
   ]
+
+  ;; The main algorithm might produce lonely agents, now we connect them to one other speaking agent
+  connect-loners
 
   ;; Recoloring patches, computing how model settled down
   updating-patches-and-globals
@@ -568,7 +576,7 @@ to-report get-satisfaction
   ;; initialization of agent set 'supporters' containing agents whose opinion positions are key for agent's satisfaction
   let supporters nobody
   ;; 1) updating agent uses only visible link neighbors in small-world network
-  let visibles comm-neighbors with [color != white]
+  let visibles comm-neighbors with [speak?]
 
   ;; 2) we have different modes for finding supporters:
   ;; 2.1) in mode "I got them!" agent looks inside her boundary (opinion +/- uncertainty),
@@ -604,54 +612,96 @@ end
 ;; subroutine for leaving the neighborhood and joining a new one -- agent is decided to leave, we just process it here
 to leave-the-neighborhood-join-a-new-one
   ;; Firstly, we have to count agents neighbors, to determine how many links agent has to create in the main part of the procedure
-  let nei-size count comm-neighbors
+  let to-visibles my-comms with [(end1 != myself and [speak?] of end1) or (end2 != myself and [speak?] of end2)]
+  let nei-size count to-visibles
 
   ;; Secondly, we cut off all the links
-  ask my-comms [die]
+  ;show (word "I'm killing " nei-size " visible neighbors!")
+  ask to-visibles [die]
+
+  ;; Catching possible error with not enough visible agents for creating 'comms'
+  let speaking-others other agents with [speak?]
+  if (nei-size > count speaking-others) [set nei-size count speaking-others ;show "Not enough visibles!"
+  ]
 
   ;; Thirdly, random VS intentional construction of new neighborhood.
   ifelse random-network-change? [
     ;; We set new neighborhood randomly or...
-    create-comms-with n-of nei-size other agents
+    create-comms-with n-of nei-size speaking-others
+    ;show (word "I'm creating " nei-size " links with random visible neighbors!")
   ][
     ;; ...creates it out of the closest neighbors.
-    create-comms-with min-n-of nei-size other agents [opinion-distance]
+    create-comms-with min-n-of nei-size speaking-others [opinion-distance]
+    ;show (word "I'm creating " nei-size " links with closest visible neighbors!")
   ]
-
-  ;; Lastly, we check whether each agent has at least one neighbor
-  ask agents with [(count comm-neighbors) = 0] [create-comm-with one-of other agents]
 
   ;; P.S. Just hiding links for better speed of code -- when we change/cut a link, all links become visible and that slows down the simulation.
   ask comms [set hidden? TRUE]
 end
 
+
+;; TO-DO: agents should cut-off only neighbors that they previously heard speak,
+;;        we probably should create their memory whom they heard speak and onlythose agents might cut-off.
+;;
+;; Note:  Now I implement it in modest variant: agent cuts off the most annoying presently speaking agent --
+;;        there must be at least one, since agents are satisfied by the rule with the empty neighborhood and
+;;        they update neighborhood only in case of dissatisfaction.
+;; DONE!
+;;
 
 ;; subroutine for changing one link
 to rewire-the-most-annoying-link
-  ;; Firstly, we cut the link with agent with the most different opinion
+  ;; Firstly, we cut the link with speaking agent with the most different opinion
+  let visibles comm-neighbors with [speak?]
+  ;show visibles
   ifelse random-network-change? [
-    ask one-of my-comms [die]
+    let a-visible one-of visibles
+    ask one-of my-comms  with [other-end = a-visible] [;show self
+      die]
+    ;show (word "One random link to visible " a-visible " killed!")
   ][
-    let annoyer max-one-of comm-neighbors [opinion-distance]
-    ask one-of my-comms with [other-end = annoyer] [die]
+    let annoyer max-one-of comm-neighbors with [speak?] [opinion-distance]
+    ask one-of my-comms with [other-end = annoyer] [;show self
+      die]
+    ;show (word "Link to most annoying visible " annoyer " killed!")
   ]
 
-  ;; Secondly, we choose for the agent a new partner with the most close opinion
-  let potentials other agents with [not comm-neighbor? self]
+  ;; Secondly, we choose for the agent a new speaking partner with the most close opinion
+  let potentials other agents with [speak? and not comm-neighbor? myself]
+  ;show potentials
   ifelse random-network-change? [
-    create-comm-with one-of potentials
+    create-comm-with one-of potentials ;[show self]
+    ;show (word "Link to One random visible created!")
   ][
     let partner min-one-of potentials [opinion-distance]
-    create-comm-with partner
-  ]
-
-  ;; Lastly, we check whether each agent has at least one neighbor
-  ask agents with [(count comm-neighbors) = 0] [create-comm-with one-of other agents ;print "Link just has been added!"
+    create-comm-with partner ;[show self]
+    ;show (word "Link to the closest visible " partner " created!")
   ]
 
   ;; P.S. Just hiding links for better speed of code -- when we change/cut a link, all links become visible and that slows down the simulation.
   ask comms [set hidden? TRUE]
 end
+
+
+to connect-loners
+  ;; We check whether each agent has at least one neighbor
+  ask agents with [(count comm-neighbors) = 0] [
+    ;; NOTE: Potential BUG! In case the agent without neis is the only speaking agent then 'potentials' = NOBODY and
+    ;; it produces BUG during link creation.
+    ;; That's why I catch it via 'if' structure -- if there is noone speaking, then the lone agent has to wait until the next round.
+    ifelse (count other agents with [speak?] > 0) [
+      let potentials other agents with [speak?]  ; We set 'potentials' to all other speaking agents and then...
+      ;show "Creating new link!"
+      create-comm-with ifelse-value (random-network-change?) [one-of potentials][min-one-of potentials [opinion-distance]] ;[show myself]  ;... it depends on scenario: we choose randomly or with the closest opinion
+      ;print "Link just has been added!"
+    ][;show "Not any speaking agents!"
+    ]
+  ]
+
+  ;; P.S. Just hiding links for better speed of code -- when we change/cut a link, all links become visible and that slows down the simulation.
+  ask comms [set hidden? TRUE]
+end
+
 
 
 ;; sub-routine for updating opinion position of turtle according the Hegselmann-Krause (2002) model
@@ -659,7 +709,7 @@ to change-opinion-HK
   ;; initialization of agent set 'influentials' containing agents whose opinion positions uses updating agent
   let influentials nobody
   ;; 1) updating agent uses only visible link neighbors in small-world network
-  let visibles other comm-neighbors with [color != white]
+  let visibles other comm-neighbors with [speak?]
 
   ;; 2) we have different modes for finding influentials:
   ;; 2.1) in mode "I got them!" agent looks inside his boundary (opinion +/- uncertainty),
@@ -986,7 +1036,7 @@ n-neis
 n-neis
 1
 500
-42.0
+46.0
 1
 1
 NIL
@@ -1058,7 +1108,7 @@ p-speaking-level
 p-speaking-level
 0
 1
-0.34400000000000003
+0.37
 0.001
 1
 NIL
@@ -1073,7 +1123,7 @@ boundary
 boundary
 0.01
 1
-0.37
+0.2
 0.01
 1
 NIL
@@ -1427,7 +1477,7 @@ CHOOSER
 mode
 mode
 "openly-listen" "vaguely-speak"
-1
+0
 
 PLOT
 967
@@ -1453,7 +1503,7 @@ INPUTBOX
 1423
 116
 file-name-core
--1368070620_257_0.1_42_2_1_0.37_uniform_0.34400000000000003_uniform_vaguely-speak
+-1368070620_257_0.1_46_2_1_0.2_uniform_0.37_function_openly-listen
 1
 0
 String
@@ -1506,7 +1556,7 @@ max-ticks
 max-ticks
 100
 10000
-1300.0
+2500.0
 100
 1
 NIL
@@ -1531,7 +1581,7 @@ CHOOSER
 p-speaking-drawn
 p-speaking-drawn
 "constant" "uniform" "function"
-1
+2
 
 PLOT
 1166
@@ -1586,7 +1636,7 @@ tolerance-level
 tolerance-level
 0
 1.1
-0.69
+0.5
 0.01
 1
 NIL
@@ -1629,7 +1679,7 @@ conformity-level
 conformity-level
 0
 1
-0.49
+0.5
 0.01
 1
 NIL
@@ -1673,7 +1723,7 @@ SWITCH
 495
 random-network-change?
 random-network-change?
-0
+1
 1
 -1000
 
@@ -1700,7 +1750,7 @@ INPUTBOX
 1389
 242
 N_centroids
-1.0
+4.0
 1
 0
 Number
@@ -1737,21 +1787,6 @@ false
 "" ""
 PENS
 "default" 0.05 1 -16777216 true "" "histogram [Conformity] of agents"
-
-SLIDER
-1196
-510
-1346
-543
-alpha
-alpha
-0.5
-5
-1.0
-0.1
-1
-NIL
-HORIZONTAL
 
 MONITOR
 691
@@ -1821,8 +1856,8 @@ polarisation-each-n-steps
 polarisation-each-n-steps
 1
 10000
-3000.0
-1
+100.0
+10
 1
 NIL
 HORIZONTAL
@@ -1836,7 +1871,7 @@ polar_repeats
 polar_repeats
 1
 100
-20.0
+5.0
 1
 1
 NIL
