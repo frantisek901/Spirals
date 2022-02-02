@@ -1108,7 +1108,7 @@ p-speaking-level
 p-speaking-level
 0
 1
-0.37
+0.474
 0.001
 1
 NIL
@@ -1503,7 +1503,7 @@ INPUTBOX
 1423
 116
 file-name-core
--1368070620_257_0.1_46_2_1_0.2_uniform_0.37_function_openly-listen
+-1368070620_257_0.1_46_2_1_0.2_uniform_0.474_uniform_openly-listen
 1
 0
 String
@@ -1581,7 +1581,7 @@ CHOOSER
 p-speaking-drawn
 p-speaking-drawn
 "constant" "uniform" "function"
-2
+1
 
 PLOT
 1166
@@ -1750,7 +1750,7 @@ INPUTBOX
 1389
 242
 N_centroids
-4.0
+3.0
 1
 0
 Number
