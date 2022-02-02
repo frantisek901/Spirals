@@ -99,7 +99,7 @@ undirected-link-breed [l-distances l-distance]
 turtles-own [Opinion-position P-speaking Speak? Uncertainty Record Last-opinion Pol-bias Initial-opinion Tolerance Conformity Satisfied? group distance_to_centroid]
 l-distances-own [l-weight]
 
-globals [main-Record components positions network-changes agents polarisation normalized_polarisation]
+globals [main-Record components positions network-changes agents polarisation normalized_polarisation unweighted_polarisation unweighted_normalized_polarisation]
 
 
 ;; Initialization and setup
@@ -168,18 +168,24 @@ to compute-polarisation-repeatedly
   let r 0
   let p []
   let np []
+  let up []
+  let unp []
 
   ;; Repeating cycle
   while [r < polar_repeats] [
     compute-polarisation
     set p lput polarisation p
     set np lput normalized_polarisation np
+    set up lput unweighted_polarisation up
+    set unp lput unweighted_normalized_polarisation unp
     set r r + 1
   ]
 
   ;; Setting variables back
   set polarisation precision (mean p) 3
   set normalized_polarisation precision (mean np) 3
+  set unweighted_polarisation precision (mean up) 3
+  set unweighted_normalized_polarisation precision (mean unp) 3
 end
 
 ;; NOTE: Now I am iplementing it for N = 2 centroids, but I prepare code for easy generalisation for N > 2.
@@ -263,10 +269,14 @@ to compute-polarisation
     ;show "Manual setting of polarisation globals to 0!"
     set polarisation 0
     set normalized_polarisation 0
+    set unweighted_polarisation 0
+    set unweighted_normalized_polarisation 0
   ][
     ;; Computing polarization -- preparation of lists and agents
     let distances []
     let diversity []
+    let unweighted_distances []
+    let unweighted_diversity []
     let whos sort [who] of centroids  ;; List of 'who' of all centroids
     ;show whos
     ask agents [set distance_to_centroid [opinion-distance] of centroid group]  ;; Each agent computes her distance to her centroid and stores it as 'distance_to_centroid'.
@@ -282,23 +292,32 @@ to compute-polarisation
         let weight (N_centroids ^ 2) * (count agents with [group = i] / count agents) * (count agents with [group = j] / count agents)
         let cent-dist opinion-distance3 ([opinion-position] of centroid i) ([opinion-position] of centroid j)
         set distances lput (weight * cent-dist) distances
+        set unweighted_distances lput cent-dist unweighted_distances
       ]
       set aj but-first aj
     ]
 
     ;; Computing polarization -- diversity in groups
-    foreach sort [who] of centroids [wg -> set diversity lput ((count agents with [group = wg] / count agents) * mean [distance_to_centroid] of agents with [group = wg]) diversity]
+    foreach sort [who] of centroids [wg ->
+      let weight (count agents with [group = wg] / count agents)
+      let cent-div (mean [distance_to_centroid] of agents with [group = wg])
+      set diversity lput (weight * cent-div) diversity
+      set unweighted_diversity lput cent-div unweighted_diversity
+    ]
 
-    ;; Computing polarization -- polarization index
+    ;; Computing polarization -- polarization indexes
     ;; Note: Now it is computed to receive same result as for n=2 groups,
     ;;       but might be needed to change it later to get better results for n>2 group,
     ;;       but now it works fine without runtime errors with all numbers of groups.
     set polarisation (mean distances) / (1 + 2 * mean diversity)  ;; Raw polarization computed as distance divided by heterogeinity in the groups.
     set normalized_polarisation precision (polarisation / (2 * sqrt(opinions))) 3
     set polarisation precision polarisation 3
+    set unweighted_polarisation (mean unweighted_distances) / (1 + 2 * mean unweighted_diversity)  ;; Raw unweighted polarization computed as unweighted distance divided by unweighted heterogeinity in the groups.
+    set unweighted_normalized_polarisation precision (unweighted_polarisation / (2 * sqrt(opinions))) 3
+    set unweighted_polarisation precision unweighted_polarisation 3
     ;show diversity
     ;show distances
-    ;show (word polarisation ";  " normalized_polarisation)
+    show (word polarisation ";  " normalized_polarisation "; " unweighted_polarisation ";  " unweighted_normalized_polarisation)
   ]
 
   ;; Final coloring and killing of centroids
@@ -864,7 +883,6 @@ to record-state-of-simulation
   file-close
   file-close
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 219
