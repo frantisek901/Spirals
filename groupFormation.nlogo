@@ -9,7 +9,7 @@
 ;; MAIN BRANCH: THIS IS OUR THE BEST MODEL SO FAR
 
 ;; Created:  2021-10-21 FranCesko
-;; Edited:   2022-01-19 FranCesko
+;; Edited:   2022-02-01 FranCesko
 ;; Encoding: windows-1250
 ;; NetLogo:  6.2.2
 ;;
