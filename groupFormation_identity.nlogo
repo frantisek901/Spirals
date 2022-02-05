@@ -103,7 +103,7 @@ undirected-link-breed [l-distances l-distance]
 turtles-own [Opinion-position P-speaking Speak? Uncertainty Record Last-opinion Pol-bias Initial-opinion Tolerance Conformity Satisfied? group distance_to_centroid]
 l-distances-own [l-weight]
 
-globals [main-Record components positions network-changes agents polarisation normalized_polarisation unweighted_polarisation unweighted_normalized_polarisation]
+globals [main-Record components positions network-changes agents polarisation normalized_polarisation unweighted_polarisation unweighted_normalized_polarisation postions_clusters]
 
 
 ;; Initialization and setup
@@ -200,7 +200,7 @@ to compute-polarisation
 
   ;; Detection of clusters via Louvain
   ask l-distances [die]  ;; Cleaning environment
-  ask agents [create-l-distances-with other agents with [(sqrt(4 * opinions) - opinion-distance) / sqrt(4 * opinions) >= id_threshold] [set l-weight opinion-distance2 ([opinion-position] of end1)([opinion-position] of end2)]]
+  ask agents [create-l-distances-with other agents with [(sqrt(4 * opinions) - opinion-distance) / sqrt(4 * opinions) >= d_threshold] [set l-weight opinion-distance2 ([opinion-position] of end1)([opinion-position] of end2)]]
   ;show count l-distances
   ;ask l-distances with [l-weight < d_threshold] [die]
   nw:set-context agents l-distances ;with [l-weight >= d_threshold]
@@ -510,38 +510,31 @@ end
 
 
 to set-group-identities
-    ;; Preparation
+  ;; Detection of clusters via Louvain: Preparation
   ask centroids [die]
-  ;let original_centroids_value N_centroids
-
-  ;; Detection of clusters via Louvain
   ask l-distances [die]  ;; Cleaning environment
   ask agents [create-l-distances-with other agents with [(sqrt(4 * opinions) - opinion-distance) / sqrt(4 * opinions) >= id_threshold] [set l-weight opinion-distance2 ([opinion-position] of end1)([opinion-position] of end2)]]
-  ;show count l-distances
-  ;ask l-distances with [l-weight < d_threshold] [die]
-  nw:set-context agents l-distances ;with [l-weight >= d_threshold]
+
+  ;; Detection of clusters via Louvain: Detection itself
+  nw:set-context agents l-distances
   let communities nw:louvain-communities
-  ;show count l-distances
   ask l-distances [die]
   set N_centroids length communities
 
   ;; Computing clusters' mean 'opinion-position'
-  let postions-clusters [] ;; List with all positions of all clusters
+  set postions_clusters [] ;; List with all positions of all clusters
   foreach communities [c ->
-    let one []  ;; List for one positio nof one cluster
+    let one []  ;; List for one position of one cluster
     foreach range opinions [o ->
       set one lput precision (mean [item o opinion-position] of c) 3 one
     ]
-    ;show one
-    set postions-clusters lput one postions-clusters
-    ;show postions-clusters
+    set postions_clusters lput one postions_clusters
   ]
 
   ;; Preparation of centroids -- feedeing them with communities
   create-centroids N_centroids [
     set heading (who - min [who] of centroids)
-    set Opinion-position item heading postions-clusters  ;; We set opinions, we try to do it smoothly...
-    ;show Opinion-position
+    set Opinion-position item heading postions_clusters  ;; We set opinions, we try to do it smoothly...
     set shape "circle"
     set size 1.5
     set color 5 + who * 10
@@ -549,26 +542,25 @@ to set-group-identities
   ]
 
   ;; Assignment of agents to groups
-  ;let min_group min [who] of centroids
   ask agents [set group [who] of min-one-of centroids [opinion-distance]]
 
   ;; Computation of centroids possitions
-  ;compute-centroids-positions
+  compute-centroids-positions
 
   ;let iter 0
 
-;  ;; Iterating cycle -- looking for good match of centroids
-;  while [sum [opinion-distance3 (Last-opinion) (Opinion-position)] of centroids > Centroids_change] [
-;
-;    ;set iter iter + 1
-;    ;show (word "Iteration: " iter)
-;
-;    ;; turtles compute whether they are in right cluster and
-;    ask agents [set group [who] of min-one-of centroids [opinion-distance]]
-;
-;    ;; Computation of centroids possitions
-;    compute-centroids-positions
-;  ]
+  ;; Iterating cycle -- looking for good match of centroids
+  while [sum [opinion-distance3 (Last-opinion) (Opinion-position)] of centroids > Centroids_change] [
+
+    ;set iter iter + 1
+    ;show (word "Iteration: " iter)
+
+    ;; turtles compute whether they are in right cluster and
+    ask agents [set group [who] of min-one-of centroids [opinion-distance]]
+
+    ;; Computation of centroids possitions
+    compute-centroids-positions
+  ]
 
   ;; Killing centroids without connected agents
   ask centroids [
@@ -624,7 +616,7 @@ to go
 
   ;; Recoloring patches, computing how model settled down
   updating-patches-and-globals
-  if centroid_color? [ask agents [set color [color] of centroid group]]
+  if centroid_color? and not killing_centroids? [ask agents [set color [color] of centroid group]]
 
   tick
 
@@ -1108,7 +1100,7 @@ N-agents
 N-agents
 10
 1000
-257.0
+98.0
 1
 1
 NIL
@@ -1590,7 +1582,7 @@ INPUTBOX
 1423
 116
 file-name-core
--1368070620_257_0.1_46_2_1_0.2_uniform_0.474_uniform_openly-listen
+-1368070620_98_0.1_46_2_1_0.2_uniform_0.474_uniform_openly-listen
 1
 0
 String
@@ -1643,7 +1635,7 @@ max-ticks
 max-ticks
 100
 10000
-2500.0
+10000.0
 100
 1
 NIL
@@ -1697,7 +1689,7 @@ record-each-n-steps
 record-each-n-steps
 100
 10000
-5000.0
+10000.0
 100
 1
 NIL
@@ -1815,10 +1807,10 @@ random-network-change?
 -1000
 
 BUTTON
-545
-519
-620
-552
+502
+522
+577
+555
 polarisation
 compute-polarisation-repeatedly
 NIL
@@ -1915,15 +1907,15 @@ SWITCH
 257
 killing_centroids?
 killing_centroids?
-1
+0
 1
 -1000
 
 SLIDER
-1021
-160
-1171
-193
+101
+417
+205
+450
 id_threshold
 id_threshold
 0.01
@@ -1965,15 +1957,30 @@ NIL
 HORIZONTAL
 
 SWITCH
-9
-527
-121
-560
+101
+385
+213
+418
 use_clusters?
 use_clusters?
 0
 1
 -1000
+
+SLIDER
+1021
+160
+1172
+193
+d_threshold
+d_threshold
+0
+1
+0.85
+.01
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
