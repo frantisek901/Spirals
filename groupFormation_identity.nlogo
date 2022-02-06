@@ -102,8 +102,10 @@ undirected-link-breed [l-distances l-distance]
 
 turtles-own [Opinion-position P-speaking Speak? Uncertainty Record Last-opinion Pol-bias Initial-opinion Tolerance Conformity Satisfied? group distance_to_centroid]
 l-distances-own [l-weight]
+comms-own [op-weight]
 
-globals [main-Record components positions network-changes agents polarisation normalized_polarisation unweighted_polarisation unweighted_normalized_polarisation postions_clusters]
+globals [main-Record components positions network-changes agents postions_clusters
+  polarisation normalized_polarisation unweighted_polarisation unweighted_normalized_polarisation Ashwin_polarisation Ashwin_normalized_polarisation]
 
 
 ;; Initialization and setup
@@ -113,7 +115,6 @@ to setup
   if avoid-redundancies? and mode = "vaguely-speak" and boundary-drawn = "constant" [stop]
   if avoid-redundancies? and p-speaking-level = 1 and p-speaking-drawn = "uniform" [stop]
   ;; these two conditions cover 7/16 of all simulations, approx. the half! This code should stop them from running.
-  ;(avoid-redundancies? and mode = "vaguely-speak" and boundary-drawn = "constant") or (avoid-redundancies? and p-speaking-level = 1 and p-speaking-drawn = "uniform")
 
   ;; We erase the world and clean patches
   ca
@@ -201,9 +202,12 @@ to compute-polarisation
   ;; Detection of clusters via Louvain
   ask l-distances [die]  ;; Cleaning environment
   ask agents [create-l-distances-with other agents with [(sqrt(4 * opinions) - opinion-distance) / sqrt(4 * opinions) >= d_threshold] [set l-weight opinion-distance2 ([opinion-position] of end1)([opinion-position] of end2)]]
+  ;stop
+
   ;show count l-distances
   ;ask l-distances with [l-weight < d_threshold] [die]
-  nw:set-context agents l-distances ;with [l-weight >= d_threshold]
+  let selected-agents agents with [count my-l-distances > 2]  ;; Note: We take into account only not loosely connected agents
+  nw:set-context selected-agents l-distances ;with [l-weight >= d_threshold]
   let communities nw:louvain-communities
   ;show count l-distances
   ask l-distances [die]
@@ -234,7 +238,7 @@ to compute-polarisation
 
   ;; Assignment of agents to groups
   ;let min_group min [who] of centroids
-  ask agents [set group [who] of min-one-of centroids [opinion-distance]]
+  ask selected-agents [set group [who] of min-one-of centroids [opinion-distance]]
 
   ;; Computation of centroids possitions
   compute-centroids-positions
@@ -248,7 +252,7 @@ to compute-polarisation
     ;show (word "Iteration: " iter)
 
     ;; turtles compute whether they are in right cluster and
-    ask agents [set group [who] of min-one-of centroids [opinion-distance]]
+    ask selected-agents [set group [who] of min-one-of centroids [opinion-distance]]
 
     ;; Computation of centroids possitions
     compute-centroids-positions
@@ -283,7 +287,7 @@ to compute-polarisation
     let unweighted_diversity []
     let whos sort [who] of centroids  ;; List of 'who' of all centroids
     ;show whos
-    ask agents [set distance_to_centroid [opinion-distance] of centroid group]  ;; Each agent computes her distance to her centroid and stores it as 'distance_to_centroid'.
+    ask selected-agents [set distance_to_centroid [opinion-distance] of centroid group]  ;; Each agent computes her distance to her centroid and stores it as 'distance_to_centroid'.
 
     ;; Computing polarization -- distances of all centroids
     let ai but-last whos  ;; List of all 'i' -- 'who' initializing distances computation
@@ -293,7 +297,7 @@ to compute-polarisation
         ;show (word i ";  " j)
         ;; Each distance is weighted by fraction of both centroid groups
         ;; via formula '(N_centroids ^ 2) * (count agents with [group = i] / count agents) * (count agents with [group = j] / count agents)'
-        let weight (N_centroids ^ 2) * (count agents with [group = i] / count agents) * (count agents with [group = j] / count agents)
+        let weight (N_centroids ^ 2) * (count selected-agents with [group = i] / count selected-agents) * (count selected-agents with [group = j] / count selected-agents)
         let cent-dist opinion-distance3 ([opinion-position] of centroid i) ([opinion-position] of centroid j)
         set distances lput (weight * cent-dist) distances
         set unweighted_distances lput cent-dist unweighted_distances
@@ -303,8 +307,8 @@ to compute-polarisation
 
     ;; Computing polarization -- diversity in groups
     foreach sort [who] of centroids [wg ->
-      let weight (count agents with [group = wg] / count agents)
-      let cent-div (mean [distance_to_centroid] of agents with [group = wg])
+      let weight (count selected-agents with [group = wg] / count selected-agents)
+      let cent-div (mean [distance_to_centroid] of selected-agents with [group = wg])
       set diversity lput (weight * cent-div) diversity
       set unweighted_diversity lput cent-div unweighted_diversity
     ]
@@ -325,7 +329,7 @@ to compute-polarisation
   ]
 
   ;; Final coloring and killing of centroids
-  if centroid_color? [ask agents [set color [color] of centroid group]]
+  if centroid_color? [ask selected-agents [set color [color] of centroid group]]
   if killing_centroids? [ask centroids [die]]
   ;set N_centroids original_centroids_value
 end
@@ -483,12 +487,6 @@ end
 
 ;; Sub routine just for catching run-time errors
 to avoiding-run-time-errors
-  ;; Redundant conditions which should be avoided -- if the boundary is drawn as constant, then is completely same whether agents vaguely speak or openly listen,
-  ;; seme case is for probability speaking of 100%, then it's same whether individual probability is drawn as constant or uniform, result is still same: all agents has probability 100%.
-  if avoid-redundancies? and mode = "vaguely-speak" and boundary-drawn = "constant" [stop]
-  if avoid-redundancies? and p-speaking-level = 1 and p-speaking-drawn = "uniform" [stop]
-  ;; these two conditions cover 7/16 of all simulations, approx. the half! This code should stop them from running.
-
   ;; Check whether we set properly parameter 'updating' --
   ;; if we want update more dimensions than exists in simulation, then we set 'updating' to max of dimensions, i.e. 'opinions'
   if updating > opinions [set updating opinions]
@@ -510,9 +508,11 @@ end
 
 
 to set-group-identities
-  ;; Detection of clusters via Louvain: Preparation
+  ;; Cleaning environment
   ask centroids [die]
-  ask l-distances [die]  ;; Cleaning environment
+  ask l-distances [die]
+
+  ;; Detection of clusters via Louvain: Preparation
   ask agents [create-l-distances-with other agents with [(sqrt(4 * opinions) - opinion-distance) / sqrt(4 * opinions) >= id_threshold] [set l-weight opinion-distance2 ([opinion-position] of end1)([opinion-position] of end2)]]
 
   ;; Detection of clusters via Louvain: Detection itself
@@ -586,8 +586,18 @@ end
 
 ;; Main routine
 to go
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;; Preparation part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
   ;; Just checking and avoiding runtime errors part of code
   avoiding-run-time-errors
+
+  ;; Redundant conditions which should be avoided -- if the boundary is drawn as constant, then is completely same whether agents vaguely speak or openly listen,
+  ;; seme case is for probability speaking of 100%, then it's same whether individual probability is drawn as constant or uniform, result is still same: all agents has probability 100%.
+  if avoid-redundancies? and mode = "vaguely-speak" and boundary-drawn = "constant" [stop]
+  if avoid-redundancies? and p-speaking-level = 1 and p-speaking-drawn = "uniform" [stop]
+  ;; these two conditions cover 7/16 of all simulations, approx. the half! This code should stop them from running.
 
   ;; Before a round erasing indicator of change
   set network-changes 0
@@ -595,7 +605,11 @@ to go
   ;; Prepare group identities via Louvain
   if use_clusters? [set-group-identities]
 
-  ;; True part of GO procedure!
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;; Main part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
   ask agents [
     ;; speaking, coloring, updating and SATISFACTION!!!
     preparing-myself
@@ -611,21 +625,36 @@ to go
     ]
   ]
 
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;; Final part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
   ;; The main algorithm might produce lonely agents, now we connect them to one other speaking agent
   connect-loners
 
   ;; Recoloring patches, computing how model settled down
   updating-patches-and-globals
-  if centroid_color? and not killing_centroids? [ask agents [set color [color] of centroid group]]
+  if centroid_color? [ask agents [set color (5 + 10 * group)]]
 
   tick
 
   ;; Finishing condition:
   ;; 1) We reached state, where no turtle changes for RECORD-LENGTH steps, i.e. average of MAIN-RECORD (list of averages of turtles/agents RECORD) is 1 or
   ;; 2) We reached number of steps specified in MAX-TICKS
+  recording-situation-and-computing-polarisation
+  if (mean main-Record = 1 and network-changes <= 5) or ticks = max-ticks [stop]
+end
+
+
+to recording-situation-and-computing-polarisation
+  ;; Finishing condition:
+  ;; 1) We reached state, where no turtle changes for RECORD-LENGTH steps, i.e. average of MAIN-RECORD (list of averages of turtles/agents RECORD) is 1 or
+  ;; 2) We reached number of steps specified in MAX-TICKS
   if ((mean main-Record = 1 and network-changes <= 5) or ticks = max-ticks) [compute-polarisation-repeatedly]
   if ((mean main-Record = 1 and network-changes <= 5) or ticks = max-ticks) and record? [record-state-of-simulation]
-  if (mean main-Record = 1 and network-changes <= 5) or ticks = max-ticks [stop]
+
+  ;; Recording and computing polarisation on the fly...
   if (ticks / polarisation-each-n-steps) = floor (ticks / polarisation-each-n-steps) [compute-polarisation-repeatedly]
   if (ticks / record-each-n-steps) = floor(ticks / record-each-n-steps) and record? [record-state-of-simulation]
 end
@@ -1100,7 +1129,7 @@ N-agents
 N-agents
 10
 1000
-98.0
+1000.0
 1
 1
 NIL
@@ -1115,7 +1144,7 @@ n-neis
 n-neis
 1
 500
-46.0
+16.0
 1
 1
 NIL
@@ -1187,7 +1216,7 @@ p-speaking-level
 p-speaking-level
 0
 1
-0.474
+1.0
 0.001
 1
 NIL
@@ -1202,7 +1231,7 @@ boundary
 boundary
 0.01
 1
-0.2
+0.4
 0.01
 1
 NIL
@@ -1270,7 +1299,7 @@ BUTTON
 491
 528
 sizes
-show sort remove-duplicates [count turtles-here] of turtles 
+show sort remove-duplicates [count turtles-here] of turtles \nask patches [set plabel count turtles-here]
 NIL
 1
 T
@@ -1470,9 +1499,9 @@ PENS
 "Op11" 1.0 0 -13791810 true "" "if opinions >= 11 [plot mean [item 10 opinion-position] of turtles]"
 
 SLIDER
-781
+931
 74
-919
+1023
 107
 updating
 updating
@@ -1487,7 +1516,7 @@ HORIZONTAL
 PLOT
 674
 107
-1001
+968
 227
 Stability of turtles (average)
 NIL
@@ -1582,7 +1611,7 @@ INPUTBOX
 1423
 116
 file-name-core
--1368070620_98_0.1_46_2_1_0.2_uniform_0.474_uniform_openly-listen
+-1368070620_1000_0.1_16_2_1_0.4_uniform_1_uniform_openly-listen
 1
 0
 String
@@ -1715,7 +1744,7 @@ tolerance-level
 tolerance-level
 0
 1.1
-0.5
+0.7
 0.01
 1
 NIL
@@ -1758,7 +1787,7 @@ conformity-level
 conformity-level
 0
 1
-0.5
+0.55
 0.01
 1
 NIL
@@ -1843,7 +1872,7 @@ Centroids_change
 Centroids_change
 0.00000001
 0.001
-1.0E-5
+1.0E-8
 0.00001
 1
 NIL
@@ -1920,7 +1949,7 @@ id_threshold
 id_threshold
 0.01
 1
-0.6
+0.7
 0.01
 1
 NIL
