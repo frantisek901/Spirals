@@ -153,6 +153,8 @@ to setup
   ask comms [set hidden? TRUE]
   ;; Setting the indicator of change for the whole simulation, again as non-stable.
   set main-Record n-values record-length [0]
+  ;; Setting communication links' weights
+  update-comms-weights
   ;; Setting control variable of network changes
   set network-changes 0
   ;; Compute polarisation
@@ -166,6 +168,18 @@ to setup
   ;; recording itself
   if record? [record-state-of-simulation]
 end
+
+
+;; Sub-routine for updating Communication links' weights,
+;; according opinion distance of both their ends
+to update-comms-weights
+  ;; We use function 'opinion-distance2', which needs two opinion positions as input and
+  ;; receives their distance as output, but this distance is converted to weight:
+  ;; weight = 1 means that both positions are same, weight = 0 means that their distance is maximal,
+  ;; i.e. both positions are in oposit corners of respective N-dimensional space.
+  ask comms [set op-weight opinion-distance2 ([opinion-position] of end1) ([opinion-position] of end2)]
+end
+
 
 ;; We compute polarisation several times and then set it for the average
 to compute-polarisation-repeatedly
@@ -200,17 +214,17 @@ to compute-polarisation
   ;let original_centroids_value N_centroids
 
   ;; Detection of clusters via Louvain
-  ask l-distances [die]  ;; Cleaning environment
-  ask agents [create-l-distances-with other agents with [(sqrt(4 * opinions) - opinion-distance) / sqrt(4 * opinions) >= d_threshold] [set l-weight opinion-distance2 ([opinion-position] of end1)([opinion-position] of end2)]]
+  ;ask l-distances [die]  ;; Cleaning environment
+  ;ask agents [create-l-distances-with other agents with [(sqrt(4 * opinions) - opinion-distance) / sqrt(4 * opinions) >= d_threshold] [set l-weight opinion-distance2 ([opinion-position] of end1)([opinion-position] of end2)]]
   ;stop
 
   ;show count l-distances
   ;ask l-distances with [l-weight < d_threshold] [die]
-  let selected-agents agents with [count my-l-distances > 2]  ;; Note: We take into account only not loosely connected agents
-  nw:set-context selected-agents l-distances ;with [l-weight >= d_threshold]
+  let selected-agents agents with [1 < count my-comms with [op-weight >= d_threshold]]  ;; Note: We take into account only not loosely connected agents
+  nw:set-context selected-agents comms with [op-weight >= d_threshold]
   let communities nw:louvain-communities
   ;show count l-distances
-  ask l-distances [die]
+  ;ask l-distances [die]
   set N_centroids length communities
 
   ;; Computing clusters' mean 'opinion-position'
@@ -229,7 +243,6 @@ to compute-polarisation
   create-centroids N_centroids [
     set heading (who - min [who] of centroids)
     set Opinion-position item heading postions-clusters  ;; We set opinions, we try to do it smoothly...
-    ;show Opinion-position
     set shape "circle"
     set size 1.5
     set color 5 + who * 10
@@ -241,7 +254,7 @@ to compute-polarisation
   ask selected-agents [set group [who] of min-one-of centroids [opinion-distance]]
 
   ;; Computation of centroids possitions
-  compute-centroids-positions
+  compute-centroids-positions (selected-agents)
 
   ;let iter 0
 
@@ -255,7 +268,7 @@ to compute-polarisation
     ask selected-agents [set group [who] of min-one-of centroids [opinion-distance]]
 
     ;; Computation of centroids possitions
-    compute-centroids-positions
+    compute-centroids-positions (selected-agents)
   ]
 
   ;; Killing centroids without connected agents
@@ -329,14 +342,14 @@ to compute-polarisation
   ]
 
   ;; Final coloring and killing of centroids
-  if centroid_color? [ask selected-agents [set color [color] of centroid group]]
+  if centroid_color? [ask selected-agents [set color (5 + 10 * group)]]
   if killing_centroids? [ask centroids [die]]
   ;set N_centroids original_centroids_value
 end
 
 
 ;; Sub-routine of polarization routine
-to compute-centroids-positions
+to compute-centroids-positions [sel-agents]
   ;; Preparation
   ask centroids [set Last-opinion Opinion-position]
 
@@ -349,7 +362,7 @@ to compute-centroids-positions
       ][
         let dim 0
         while [dim < opinions] [
-          set Opinion-position replace-item dim Opinion-position mean [item dim Opinion-position] of agents with [group = grp]
+          set Opinion-position replace-item dim Opinion-position mean [item dim Opinion-position] of sel-agents with [group = grp]
           set dim dim + 1
         ]
       ]
@@ -510,15 +523,15 @@ end
 to set-group-identities
   ;; Cleaning environment
   ask centroids [die]
-  ask l-distances [die]
+  ;ask l-distances [die]
 
   ;; Detection of clusters via Louvain: Preparation
-  ask agents [create-l-distances-with other agents with [(sqrt(4 * opinions) - opinion-distance) / sqrt(4 * opinions) >= id_threshold] [set l-weight opinion-distance2 ([opinion-position] of end1)([opinion-position] of end2)]]
+  ;ask agents [create-l-distances-with other agents with [(sqrt(4 * opinions) - opinion-distance) / sqrt(4 * opinions) >= id_threshold] [set l-weight opinion-distance2 ([opinion-position] of end1)([opinion-position] of end2)]]
 
   ;; Detection of clusters via Louvain: Detection itself
-  nw:set-context agents l-distances
+  nw:set-context agents comms with [op-weight >= id_threshold]
   let communities nw:louvain-communities
-  ask l-distances [die]
+  ;ask l-distances [die]
   set N_centroids length communities
 
   ;; Computing clusters' mean 'opinion-position'
@@ -545,7 +558,7 @@ to set-group-identities
   ask agents [set group [who] of min-one-of centroids [opinion-distance]]
 
   ;; Computation of centroids possitions
-  compute-centroids-positions
+  compute-centroids-positions (agents)
 
   ;let iter 0
 
@@ -559,7 +572,7 @@ to set-group-identities
     ask agents [set group [who] of min-one-of centroids [opinion-distance]]
 
     ;; Computation of centroids possitions
-    compute-centroids-positions
+    compute-centroids-positions (agents)
   ]
 
   ;; Killing centroids without connected agents
@@ -572,7 +585,7 @@ to set-group-identities
   ]
 
   ;; Final coloring and killing of centroids
-  if centroid_color? [ask agents [set color [color] of centroid group]]
+  if centroid_color? [ask agents [set color (5 + 10 * group)]]
   if killing_centroids? [ask centroids [die]]
   ;set N_centroids original_centroids_value
 end
@@ -792,7 +805,7 @@ end
 
 to connect-loners
   ;; We check whether each agent has at least one neighbor
-  ask agents with [(count comm-neighbors) = 0] [
+  ask agents with [count comm-neighbors = 0] [
     ;; NOTE: Potential BUG! In case the agent without neis is the only speaking agent then 'potentials' = NOBODY and
     ;; it produces BUG during link creation.
     ;; That's why I catch it via 'if' structure -- if there is noone speaking, then the lone agent has to wait until the next round.
@@ -801,7 +814,7 @@ to connect-loners
       ;show "Creating new link!"
       create-comm-with ifelse-value (random-network-change?) [one-of potentials][min-one-of potentials [opinion-distance]] ;[show myself]  ;... it depends on scenario: we choose randomly or with the closest opinion
       ;print "Link just has been added!"
-    ][;show "Not any speaking agents!"
+    ][show "Not any speaking agents!"
     ]
   ]
 
@@ -820,7 +833,7 @@ to change-opinion-HK
   if use_clusters? [set visibles visibles with [group = [group] of myself]]
 
   ;; 2) we have different modes for finding influentials:
-  ;; 2.1) in mode "I got them!" agent looks inside his boundary (opinion +/- uncertainty),
+  ;; 2.1) in mode "openly-listen" agent looks inside his boundary (opinion +/- uncertainty),
   ;;      i.e. agent takes opinions not that much far from her opinion
   if mode = "openly-listen" [
     ;; we compute 'lim-dist' -- it is the numerical distance in given opinion space
@@ -829,7 +842,7 @@ to change-opinion-HK
     set influentials visibles with [opinion-distance <= lim-dist]
   ]
 
-  ;; 2.1) in mode "They got me!" agent looks inside whose boundaries (opinion +/- uncertainty)
+  ;; 2.1) in mode "vaguely-speak" agent looks inside whose boundaries (opinion +/- uncertainty)
   ;;       she is, i.e. agents takes opinions spoken with such a big uncertainty that it matches her own opinion
   if mode = "vaguely-speak"  [
     ;; Note: Here is used the 'Uncetainty' value of called agent, agent who might be used for updating,
@@ -1129,7 +1142,7 @@ N-agents
 N-agents
 10
 1000
-1000.0
+180.0
 1
 1
 NIL
@@ -1611,7 +1624,7 @@ INPUTBOX
 1423
 116
 file-name-core
--1368070620_1000_0.1_16_2_1_0.4_uniform_1_uniform_openly-listen
+-1368070620_180_0.1_16_2_1_0.4_uniform_1_uniform_openly-listen
 1
 0
 String
@@ -1858,7 +1871,7 @@ INPUTBOX
 1389
 242
 N_centroids
-2.0
+13.0
 1
 0
 Number
@@ -1925,7 +1938,7 @@ SWITCH
 258
 centroid_color?
 centroid_color?
-1
+0
 1
 -1000
 
@@ -1949,7 +1962,7 @@ id_threshold
 id_threshold
 0.01
 1
-0.7
+0.5
 0.01
 1
 NIL
@@ -2005,7 +2018,7 @@ d_threshold
 d_threshold
 0
 1
-0.85
+0.49
 .01
 1
 NIL
