@@ -11,7 +11,7 @@
 ;;
 
 ;; Created:  2021-10-21 FranCesko
-;; Edited:   2022-02-04 FranCesko
+;; Edited:   2022-02-07 FranCesko
 ;; Encoding: windows-1250
 ;; NetLogo:  6.2.2
 ;;
@@ -209,6 +209,8 @@ to compute-polarisation-repeatedly
   let np []
   let up []
   let unp []
+  let ap []
+  update-links-weights
 
   ;; Repeating cycle
   while [r < polar_repeats] [
@@ -217,6 +219,7 @@ to compute-polarisation-repeatedly
     set np lput normalized_polarisation np
     set up lput unweighted_polarisation up
     set unp lput unweighted_normalized_polarisation unp
+    set ap lput Ash-polarisation ap
     set r r + 1
   ]
 
@@ -225,6 +228,7 @@ to compute-polarisation-repeatedly
   set normalized_polarisation precision (mean np) 3
   set unweighted_polarisation precision (mean up) 3
   set unweighted_normalized_polarisation precision (mean unp) 3
+  set ESBG_polarisation precision (mean ap) 3
 end
 
 ;; NOTE: Now I am iplementing it for N = 2 centroids, but I prepare code for easy generalisation for N > 2.
@@ -242,7 +246,7 @@ to compute-polarisation
   let postions-clusters [] ;; List with all positions of all clusters
   foreach communities [c ->
     let one []  ;; List for one positio nof one cluster
-    foreach range opinions [o -> set one lput precision (mean [item o opinion-position] of c) 3 one]
+    foreach range opinions [o -> set one lput precision (mean [item o opinion-position] of c) 8 one]
     set postions-clusters lput one postions-clusters
   ]
 
@@ -593,8 +597,7 @@ to go
   set network-changes 0
 
   ;; Prepare group identities via Louvain
-  update-links-weights
-  if use_clusters? [set-group-identities]
+  if use_clusters? [update-links-weights set-group-identities]
 
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -670,7 +673,7 @@ to updating-patches-and-globals
   if centroid_color? [ask agents [set color (5 + 10 * group)]]
 
   ;; Computing 'Ashwins polarisation'
-  set ESBG_polarisation Ash-polarisation
+  ;set ESBG_polarisation Ash-polarisation
 end
 
 
@@ -680,59 +683,91 @@ to-report Ash-polarisation
   create-centroids 2 [  ;; Creating 2 centroids
     set shape "square"
     set Opinion-position n-values opinions [precision (1 - random-float 2) 8]
-    set Last-opinion n-values opinions [precision (1 - random-float 2) 8]
   ]
   let cent1 max [who] of centroids  ;; Storing 'who' of two new centroids
   let cent0 cent1 - 1
   ask agents [set group (cent0 + (who mod 2))]  ;; Random assignment of agents to the groups
+  updating-centroids-opinion-position (cent0) (cent1)  ;; Initial update
 
   ;; Iterating until centroids are stable
   while [Centroids_change < sum [opinion-distance3 Opinion-position Last-opinion] of centroids with [who >= cent0]][
-    update-centroids (cent0) (cent1)
-    ask centroids [getPlace]
+    ;show sum [opinion-distance3 Opinion-position Last-opinion] of centroids with [who >= cent0]
+    ;print count centroids with [who >= cent0]
+    update-agents-opinion-group (cent0) (cent1)
+    updating-centroids-opinion-position (cent0) (cent1)
   ]
 
+  ;; Computing polarisation -- cutting-out agents too distant from centroids
+  ask agents [set distance_to_centroid [opinion-distance] of centroid group]
+  let cent-dist opinion-distance3 ([opinion-position] of centroid cent0) ([opinion-position] of centroid cent1)
+  let a0 agents with [group = cent0]
+  set a0 min-n-of (count a0 - ESBG_furthest_out) a0 [opinion-distance3 ([opinion-position] of self) ([opinion-position] of centroid cent0)]
+  let a1 agents with [group = cent1]
+  set a1 min-n-of (count a1 - ESBG_furthest_out) a1 [opinion-distance3 ([opinion-position] of self) ([opinion-position] of centroid cent1)]
 
-  ;; Cleaning
-  ;ask centroids with [who >= cent0] [die]
+  ;; Updating centroids and agents opinion position (without furthes agents)
+  ask centroid cent0 [foreach range opinions [o -> set opinion-position replace-item o opinion-position precision (mean [item o opinion-position] of a0) 8] ;getPlace
+  ]
+  ask centroid cent1 [foreach range opinions [o -> set opinion-position replace-item o opinion-position precision (mean [item o opinion-position] of a1) 8] ;getPlace
+  ]
+  ask a0 [set distance_to_centroid [opinion-distance] of centroid cent0]
+  ask a1 [set distance_to_centroid [opinion-distance] of centroid cent1]
 
-  report 0
+  ;; Preparing final distances and diversity
+  let div0 (mean [distance_to_centroid] of a0)
+  let div1 (mean [distance_to_centroid] of a1)
+  ;ask a0 [set color blue]
+  ;ask a1 [set color black]
+
+  ;; Cleaning and reporting
+  ask centroids with [who >= cent0] [die]
+  report (cent-dist / (1 + div0 + div1)) / sqrt(opinions * 4)
 end
 
 
-to update-centroids [cent0 cent1]
+to update-agents-opinion-group [cent0 cent1]
+  ;; Checking the assignment -- is the assigned centroid the nearest? If not, reassign!
+  ask agents [set group group - ([who] of min-one-of centroids with [who >= cent0] [opinion-distance])]  ; set color 15 + group * 10]
+  let wrongly-at-grp0 turtle-set agents with [group = -1]  ;; they are in 0, but should be in 1: 0 - 1 = -1
+  let wrongly-at-grp1 turtle-set agents with [group = 1]  ;; they are in 1, but should be in 0: 1 - 0 = 1
+  ifelse count wrongly-at-grp0 = count wrongly-at-grp1 [
+    ask agents [set group [who] of min-one-of centroids with [who >= cent0] [opinion-distance]]
+  ][
+    let peleton agents with [group = 0]
+    ifelse count wrongly-at-grp0 < count wrongly-at-grp1 [
+      set peleton (turtle-set peleton wrongly-at-grp0 max-n-of (count wrongly-at-grp0) wrongly-at-grp1 [opinion-distance3 ([opinion-position] of self) ([opinion-position] of centroid cent0)]) ;; all agents assigned correctly + smaller group of wrong + from bigger group 'n of size of smaller group'
+      let stayed agents with [not member? self peleton]
+      ask peleton [set group [who] of min-one-of centroids with [who >= cent0] [opinion-distance] ;set color 15 + group * 10
+      ]
+      ask stayed [set group cent1 ;set color 15 + group * 10
+      ]
+     ][
+      set peleton (turtle-set peleton wrongly-at-grp1 max-n-of (count wrongly-at-grp1) wrongly-at-grp0 [opinion-distance3 ([opinion-position] of self) ([opinion-position] of centroid cent1)]) ;; all agents assigned correctly + smaller group of wrong + from bigger group 'n of size of smaller group'
+      let stayed agents with [not member? self peleton]
+      ask peleton [set group [who] of min-one-of centroids with [who >= cent0] [opinion-distance] ;set color 15 + group * 10
+      ]
+      ask stayed [set group cent0 ;set color 15 + group * 10
+      ]
+    ]
+  ]
+end
+
+
+to updating-centroids-opinion-position [cent0 cent1]
+  ;; Storing opinion as Last-opinion
+  ask centroids with [who >= cent0] [set Last-opinion Opinion-position]
+
   ;; Computing groups mean 'opinion-position'
   set postions_clusters [] ;; List with all positions of both 2 groups
   foreach range 2 [c ->
     let one-position []  ;; List for one position of one cluster
-    foreach range opinions [o -> set one-position lput precision (mean [item o opinion-position] of agents with [group = cent0 + c]) 3 one-position]
+    foreach range opinions [o -> set one-position lput precision (mean [item o opinion-position] of agents with [group = cent0 + c]) 8 one-position]
     set postions_clusters lput one-position postions_clusters
   ]
 
   ;; Setting opinions of centroids
   ask centroid cent0 [set opinion-position item 0 postions_clusters getPlace]
   ask centroid cent1 [set opinion-position item 1 postions_clusters getPlace]
-
-  ;; Checking the assignment -- is the assigned centroid the nearest? If not, reassign!
-  ask agents [set group group - ([who] of min-one-of centroids [opinion-distance])]  ; set color 15 + group * 10]
-  let wrongly-at-grp0 turtle-set agents with [group = -1]  ;; they are in 0, but should be in 1: 0 - 1 = -1
-  let wrongly-at-grp1 turtle-set agents with [group = 1]  ;; they are in 1, but should be in 0: 1 - 0 = 1
-  ifelse count wrongly-at-grp0 = count wrongly-at-grp1 [
-    ask agents [set group [who] of min-one-of centroids [opinion-distance]]
-  ][
-    let peleton agents with [group = 0]
-    ifelse count wrongly-at-grp0 < count wrongly-at-grp1 [
-      set peleton (turtle-set peleton wrongly-at-grp0 max-n-of (count wrongly-at-grp0) wrongly-at-grp1 [opinion-distance3 ([opinion-position] of self) ([opinion-position] of centroid cent0)]) ;; all agents assigned correctly + smaller group of wrong + from bigger group 'n of size of smaller group'
-      let stayed agents with [not member? self peleton]
-      ask peleton [set group [who] of min-one-of centroids [opinion-distance]]
-      ask stayed [set group cent1]
-     ][
-      set peleton (turtle-set peleton wrongly-at-grp1 max-n-of (count wrongly-at-grp1) wrongly-at-grp0 [opinion-distance3 ([opinion-position] of self) ([opinion-position] of centroid cent1)]) ;; all agents assigned correctly + smaller group of wrong + from bigger group 'n of size of smaller group'
-      let stayed agents with [not member? self peleton]
-      ask peleton [set group [who] of min-one-of centroids [opinion-distance] set color 15 + group * 10]
-      ask stayed [set group cent0 set color 15 + group * 10]
-    ]
-  ]
 end
 
 
@@ -993,7 +1028,7 @@ to-report opinion-distance2 [my her]
   let weight (sqrt(4 * opinions) - dist) / sqrt(4 * opinions)
 
   ;; reporting weight of distance
-  report precision weight 3
+  report precision weight 10
 end
 
 
@@ -1019,7 +1054,7 @@ to-report opinion-distance3 [my her]
   set dist sqrt dist
 
   ;; reporting weight of distance
-  report precision dist 8
+  report precision dist 10
 end
 
 
@@ -1591,6 +1626,7 @@ PENS
 "Main record" 1.0 0 -2674135 true "" "plot mean main-Record"
 "Normalized" 1.0 0 -13791810 true "" "plot normalized_polarisation"
 "Polarisation" 1.0 0 -13345367 true "" "plot polarisation"
+"ESBG" 1.0 0 -11221820 true "" "plot ESBG_polarisation"
 
 BUTTON
 1403
@@ -1894,9 +1930,9 @@ random-network-change?
 -1000
 
 BUTTON
-616
+551
 519
-691
+626
 552
 polarisation
 compute-polarisation-repeatedly
@@ -1916,7 +1952,7 @@ INPUTBOX
 1389
 242
 N_centroids
-2.0
+3.0
 1
 0
 Number
@@ -1955,12 +1991,12 @@ PENS
 "default" 0.05 1 -16777216 true "" "histogram [Conformity] of agents"
 
 MONITOR
-691
+626
 507
 768
 552
 NIL
-polarisation
+normalized_polarisation
 17
 1
 11
@@ -2007,7 +2043,7 @@ id_threshold
 id_threshold
 0.01
 1
-0.5
+0.6
 0.01
 1
 NIL
@@ -2065,6 +2101,21 @@ d_threshold
 1
 0.8
 .01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+1091
+507
+1263
+540
+ESBG_furthest_out
+ESBG_furthest_out
+0
+100
+0.0
+1
 1
 NIL
 HORIZONTAL
