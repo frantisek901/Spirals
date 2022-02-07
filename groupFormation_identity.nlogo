@@ -105,7 +105,7 @@ l-distances-own [l-weight]
 comms-own [op-weight]
 
 globals [main-Record components positions network-changes agents postions_clusters
-  polarisation normalized_polarisation unweighted_polarisation unweighted_normalized_polarisation Ashwin_polarisation Ashwin_normalized_polarisation]
+  polarisation normalized_polarisation unweighted_polarisation unweighted_normalized_polarisation ESBG_polarisation]
 
 
 ;; Initialization and setup
@@ -624,9 +624,8 @@ to go
   ;; The main algorithm might produce lonely agents, now we connect them to one other speaking agent
   connect-loners
 
-  ;; Recoloring patches, computing how model settled down
+  ;; Recoloring patches, agents, computing how model settled down
   updating-patches-and-globals
-  if centroid_color? [ask agents [set color (5 + 10 * group)]]
 
   tick
 
@@ -666,6 +665,74 @@ to updating-patches-and-globals
   ]
   ;; Then we might update it for the whole:
   set main-Record fput precision (mean [mean Record] of agents) 3 but-last main-Record
+
+  ;; Coloring agents according identity group
+  if centroid_color? [ask agents [set color (5 + 10 * group)]]
+
+  ;; Computing 'Ashwins polarisation'
+  set ESBG_polarisation Ash-polarisation
+end
+
+
+;; Procedure reporting ESBG/Ashwin's polarisation
+to-report Ash-polarisation
+  ;; Preparation
+  create-centroids 2 [  ;; Creating 2 centroids
+    set shape "square"
+    set Opinion-position n-values opinions [precision (1 - random-float 2) 8]
+    set Last-opinion n-values opinions [precision (1 - random-float 2) 8]
+  ]
+  let cent1 max [who] of centroids  ;; Storing 'who' of two new centroids
+  let cent0 cent1 - 1
+  ask agents [set group (cent0 + (who mod 2))]  ;; Random assignment of agents to the groups
+
+  ;; Iterating until centroids are stable
+  while [Centroids_change < sum [opinion-distance3 Opinion-position Last-opinion] of centroids with [who >= cent0]][
+    update-centroids (cent0) (cent1)
+    ask centroids [getPlace]
+  ]
+
+
+  ;; Cleaning
+  ;ask centroids with [who >= cent0] [die]
+
+  report 0
+end
+
+
+to update-centroids [cent0 cent1]
+  ;; Computing groups mean 'opinion-position'
+  set postions_clusters [] ;; List with all positions of both 2 groups
+  foreach range 2 [c ->
+    let one-position []  ;; List for one position of one cluster
+    foreach range opinions [o -> set one-position lput precision (mean [item o opinion-position] of agents with [group = cent0 + c]) 3 one-position]
+    set postions_clusters lput one-position postions_clusters
+  ]
+
+  ;; Setting opinions of centroids
+  ask centroid cent0 [set opinion-position item 0 postions_clusters getPlace]
+  ask centroid cent1 [set opinion-position item 1 postions_clusters getPlace]
+
+  ;; Checking the assignment -- is the assigned centroid the nearest? If not, reassign!
+  ask agents [set group group - ([who] of min-one-of centroids [opinion-distance])]  ; set color 15 + group * 10]
+  let wrongly-at-grp0 turtle-set agents with [group = -1]  ;; they are in 0, but should be in 1: 0 - 1 = -1
+  let wrongly-at-grp1 turtle-set agents with [group = 1]  ;; they are in 1, but should be in 0: 1 - 0 = 1
+  ifelse count wrongly-at-grp0 = count wrongly-at-grp1 [
+    ask agents [set group [who] of min-one-of centroids [opinion-distance]]
+  ][
+    let peleton agents with [group = 0]
+    ifelse count wrongly-at-grp0 < count wrongly-at-grp1 [
+      set peleton (turtle-set peleton wrongly-at-grp0 max-n-of (count wrongly-at-grp0) wrongly-at-grp1 [opinion-distance3 ([opinion-position] of self) ([opinion-position] of centroid cent0)]) ;; all agents assigned correctly + smaller group of wrong + from bigger group 'n of size of smaller group'
+      let stayed agents with [not member? self peleton]
+      ask peleton [set group [who] of min-one-of centroids [opinion-distance]]
+      ask stayed [set group cent1]
+     ][
+      set peleton (turtle-set peleton wrongly-at-grp1 max-n-of (count wrongly-at-grp1) wrongly-at-grp0 [opinion-distance3 ([opinion-position] of self) ([opinion-position] of centroid cent1)]) ;; all agents assigned correctly + smaller group of wrong + from bigger group 'n of size of smaller group'
+      let stayed agents with [not member? self peleton]
+      ask peleton [set group [who] of min-one-of centroids [opinion-distance] set color 15 + group * 10]
+      ask stayed [set group cent0 set color 15 + group * 10]
+    ]
+  ]
 end
 
 
@@ -1222,7 +1289,7 @@ boundary
 boundary
 0.01
 1
-0.3
+0.2
 0.01
 1
 NIL
@@ -1246,7 +1313,7 @@ SWITCH
 43
 set-seed?
 set-seed?
-0
+1
 1
 -1000
 
@@ -1602,7 +1669,7 @@ INPUTBOX
 1423
 116
 file-name-core
-1_129_0.1_16_2_1_0.3_uniform_1_uniform_openly-listen
+1_129_0.1_16_2_1_0.2_uniform_1_uniform_openly-listen
 1
 0
 String
@@ -1904,7 +1971,7 @@ MONITOR
 1091
 552
 NIL
-normalized_polarisation
+ESBG_polarisation
 17
 1
 11
@@ -1940,7 +2007,7 @@ id_threshold
 id_threshold
 0.01
 1
-0.59
+0.5
 0.01
 1
 NIL
