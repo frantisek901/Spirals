@@ -8,6 +8,7 @@
 ;; individual assignment of uncertainity, tollerance, comformity and outspokeness.
 ;;
 ;; !!!EXPERIMENTAL FEATURE: IDENTITY!!!
+;; !!!SUPER EXPERIMENTAL: INDIVIDUAL IDENTITY VISION!!!
 ;;
 
 ;; Created:  2021-10-21 FranCesko
@@ -100,11 +101,11 @@ breed [centroids centroid]
 undirected-link-breed [comms comm]
 undirected-link-breed [l-distances l-distance]
 
-turtles-own [Opinion-position P-speaking Speak? Uncertainty Record Last-opinion Pol-bias Initial-opinion Tolerance Conformity Satisfied? group distance_to_centroid]
+turtles-own [Opinion-position P-speaking Speak? Uncertainty Record Last-opinion Pol-bias Initial-opinion Tolerance Conformity Satisfied? group distance_to_centroid Group-threshold Identity-group]
 l-distances-own [l-weight]
 comms-own [op-weight]
 
-globals [main-Record components positions network-changes agents postions_clusters
+globals [main-Record components positions network-changes agents positions_clusters
   polarisation normalized_polarisation unweighted_polarisation unweighted_normalized_polarisation ESBG_polarisation]
 
 
@@ -140,7 +141,9 @@ to setup
     set speak? speaking  ;; ...checking whether agent speaks...
     set Uncertainty get-uncertainty  ;;... setting value of Uncertainty.
     set Tolerance get-tolerance  ;; Setting individual tolerance level, as well as ...
-    set Conformity get-conformity  ;; setting individual conformity level.
+    set Conformity get-conformity  ;; setting individual conformity level, and ...
+    set Group-threshold get-group-threshold  ;; Individual sensitivity for group tightness/threshold.
+    set Identity-group no-turtles  ;; Now, we just initialize it, later may be... we use it also here meaningfully.
     getColor  ;; Coloring the agents according their opinion.
     getPlace  ;; Moving agents to the opinion space according their opinions.
   ]
@@ -157,6 +160,28 @@ to setup
   set main-Record n-values record-length [0]
   ;; Setting communication and distances links' weights
   update-links-weights
+  ;; Setting agents' identity groups
+  ifelse use_identity? [
+    if identity_type = "global" [set-group-identities]
+    if identity_type = "individual" [ask agents [set-individual-group-identities]]
+  ][
+    ask agents [set Identity-group other agents]
+  ]
+
+;  ask agents [
+;    set Identity-group (turtle-set Identity-group [other-end] of my-l-distances with [l-weight >= [Group-threshold] of myself])  ;; Now, we put in identity group all other agents close enough.
+;    if count Identity-group < 3 [set Identity-group other agents]  ;; If no agent is close enough, then everyone is identity group ~ no exclusive distinction by identity
+;  ]
+;
+
+;  if use_clusters? [
+;    update-links-weights
+;    ;set-group-identities
+;    ask agents [set-individual-group-identities]
+;  ]
+
+
+
   ;; Setting control variable of network changes
   set network-changes 0
   ;; Compute polarisation
@@ -187,6 +212,7 @@ to update-comms-weights
   ;; weight = 1 means that both positions are same, weight = 0 means that their distance is maximal,
   ;; i.e. both positions are in oposit corners of respective N-dimensional space.
   ask comms [set op-weight opinion-distance2 ([opinion-position] of end1) ([opinion-position] of end2)]
+  ask comms [set hidden? TRUE]
 end
 
 
@@ -198,6 +224,7 @@ to update-l-distances-weights
   ;; weight = 1 means that both positions are same, weight = 0 means that their distance is maximal,
   ;; i.e. both positions are in oposit corners of respective N-dimensional space.
   ask l-distances [set l-weight opinion-distance2 ([opinion-position] of end1) ([opinion-position] of end2)]
+  ask l-distances [set hidden? TRUE]
 end
 
 
@@ -243,17 +270,17 @@ to compute-polarisation
   set N_centroids length communities
 
   ;; Computing clusters' mean 'opinion-position'
-  let postions-clusters [] ;; List with all positions of all clusters
+  let positions-clusters [] ;; List with all positions of all clusters
   foreach communities [c ->
     let one []  ;; List for one positio nof one cluster
     foreach range opinions [o -> set one lput precision (mean [item o opinion-position] of c) 8 one]
-    set postions-clusters lput one postions-clusters
+    set positions-clusters lput one positions-clusters
   ]
 
   ;; Preparation of centroids -- feedeing them with communities
   create-centroids N_centroids [
     set heading (who - min [who] of centroids)
-    set Opinion-position item heading postions-clusters  ;; We set opinions, we try to do it smoothly...
+    set Opinion-position item heading positions-clusters  ;; We set opinions, we try to do it smoothly...
     set shape "circle"
     set size 1.5
     set color 5 + who * 10
@@ -389,6 +416,20 @@ end
 
 
 ;; Sub-routine for assigning value of tolerance
+to-report get-group-threshold
+  ;; We have to initialize empty temporary variable
+  let gtValue 0
+
+  ;; Then we draw the value according the chosen method
+  if threshold_drawn = "constant" [set gtValue id_threshold + random-float 0]  ;; NOTE! 'random-float 0' is here for consuming one pseudorandom number to cunsume same number of pseudorandom numbers as "uniform
+  if threshold_drawn = "uniform" [set gtValue ifelse-value (id_threshold < 0.5)
+                                                           [precision (random-float (2 * id_threshold)) 3]
+                                                           [precision (1 - (random-float (2 * (1 - id_threshold)))) 3]]
+  report gtValue
+end
+
+
+;; Sub-routine for assigning value of tolerance
 to-report get-conformity
   ;; We have to initialize empty temporary variable
   let cValue 0
@@ -520,23 +561,24 @@ to set-group-identities
   ask centroids [die]
 
   ;; Detection of clusters via Louvain: Detection itself
-  let selected-agents agents with [2 < count my-l-distances with [l-weight >= d_threshold]]  ;; Note: We take into account only not loosely connected agents
+  let selected-agents agents with [2 < count my-l-distances with [l-weight >= id_threshold]]  ;; Note: We take into account only not loosely connected agents
   nw:set-context selected-agents l-distances with [l-weight >= id_threshold]  ;; For starting centroids we take into account only not loosely connected agents, but later we set groups for all.
   let communities nw:louvain-communities
+  ;repeat N-agents [set communities nw:louvain-communities]
   set N_centroids length communities
 
   ;; Computing clusters' mean 'opinion-position'
-  set postions_clusters [] ;; List with all positions of all clusters
+  set positions_clusters [] ;; List with all positions of all clusters
   foreach communities [c ->
     let one []  ;; List for one position of one cluster
     foreach range opinions [o -> set one lput precision (mean [item o opinion-position] of c) 3 one]
-    set postions_clusters lput one postions_clusters
+    set positions_clusters lput one positions_clusters
   ]
 
   ;; Preparation of centroids -- feedeing them with communities
   create-centroids N_centroids [
     set heading (who - min [who] of centroids)
-    set Opinion-position item heading postions_clusters  ;; We set opinions, we try to do it smoothly...
+    set Opinion-position item heading positions_clusters  ;; We set opinions, we try to do it smoothly...
     set shape "circle"
     set size 1.5
     set color 5 + who * 10
@@ -559,6 +601,12 @@ to set-group-identities
     compute-centroids-positions (agents)
   ]
 
+  ;; Saving Identity group as agent-set
+  ask agents [
+    set Identity-group other agents with [group = [group] of myself]
+    if count Identity-group < 3 [set Identity-group other agents]
+  ]
+
   ;; Killing centroids without connected agents
   ask centroids [
     let wom who
@@ -569,6 +617,22 @@ to set-group-identities
   ;; Final coloring and killing of centroids
   if centroid_color? [ask agents [set color (5 + 10 * group)]]
   if killing_centroids? [ask centroids [die]]
+end
+
+
+to set-individual-group-identities
+  ;; Cleaning environment
+  set Identity-group no-turtles
+  let my-Group-threshold Group-threshold
+
+  ;; Detection of clusters via Louvain: Detection itself
+  ;let selected-agents agents with [2 < count my-l-distances with [l-weight >= my-Group-threshold]]  ;; Note: We take into account only not loosely connected agents
+  nw:set-context agents l-distances with [l-weight >= my-Group-threshold]  ;; For starting centroids we take into account only not loosely connected agents, but later we set groups for all.
+  let communities nw:louvain-communities  ;; Louvain detection of communitites
+  ;show communities
+  foreach communities [c -> if member? self c [set Identity-group other c ;show c show Identity-group
+  ]]  ;; Looking for 'self' in communities -- community which includes '(my)self' is set as Identity group.
+  if count Identity-group < 3 [set Identity-group other agents]  ;; CHECK: If Identity group is (almost) empty, then set all agents as Identity group
 end
 
 
@@ -596,8 +660,12 @@ to go
   ;; Before a round erasing indicator of change
   set network-changes 0
 
-  ;; Prepare group identities via Louvain
-  if use_clusters? [update-links-weights set-group-identities]
+  ;; Update group identities via Louvain
+  if use_identity? [
+    update-l-distances-weights
+    if identity_type = "global" [set-group-identities]
+    if identity_type = "individual" [ask agents [set-individual-group-identities]] ; and (ticks mod identity_update = 0)
+  ]
 
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -758,16 +826,16 @@ to updating-centroids-opinion-position [cent0 cent1]
   ask centroids with [who >= cent0] [set Last-opinion Opinion-position]
 
   ;; Computing groups mean 'opinion-position'
-  set postions_clusters [] ;; List with all positions of both 2 groups
+  set positions_clusters [] ;; List with all positions of both 2 groups
   foreach range 2 [c ->
     let one-position []  ;; List for one position of one cluster
     foreach range opinions [o -> set one-position lput precision (mean [item o opinion-position] of agents with [group = cent0 + c]) 8 one-position]
-    set postions_clusters lput one-position postions_clusters
+    set positions_clusters lput one-position positions_clusters
   ]
 
   ;; Setting opinions of centroids
-  ask centroid cent0 [set opinion-position item 0 postions_clusters getPlace]
-  ask centroid cent1 [set opinion-position item 1 postions_clusters getPlace]
+  ask centroid cent0 [set opinion-position item 0 positions_clusters getPlace]
+  ask centroid cent1 [set opinion-position item 1 positions_clusters getPlace]
 end
 
 
@@ -776,7 +844,7 @@ to-report get-satisfaction
   ;; initialization of agent set 'supporters' containing agents whose opinion positions are key for agent's satisfaction
   let supporters nobody
   ;; 1) updating agent uses only visible link neighbors in small-world network
-  let visibles comm-neighbors with [speak?]
+  let visibles Identity-group with [speak?] ;comm-neighbors with [speak?]
 
   ;; 2) we have different modes for finding supporters:
   ;; 2.1) in mode "I got them!" agent looks inside her boundary (opinion +/- uncertainty),
@@ -907,10 +975,19 @@ end
 ;; sub-routine for updating opinion position of turtle according the Hegselmann-Krause (2002) model
 to change-opinion-HK
   ;; initialization of agent set 'influentials' containing agents whose opinion positions uses updating agent
-  let influentials nobody
-  ;; 1) updating agent uses only visible link neighbors in small-world network
-  let visibles other comm-neighbors with [speak?]
-  if use_clusters? [set visibles visibles with [group = [group] of myself]]
+  let influentials no-turtles
+  ;; 1) updating agent uses only visible link neighbors in small-world network who are also members of her Identity group
+  let visibles (turtle-set filter [vis -> member? vis Identity-Group] sort comm-neighbors with [speak?] )
+  ;let IG Identity-group
+  ;foreach sort visibles [vis -> if member? vis Identity-group [set influentials (turtle-set influentials vis)]]
+
+  ;set visibles visibles with [member? self Identity-group]
+  ;show visibles with [member? self Identity-group]
+  ;show Identity-group
+  ; show Influentials
+  ;show visibles
+
+  ;if use_identity? [set visibles visibles with [group = [group] of myself]]
 
   ;; 2) we have different modes for finding influentials:
   ;; 2.1) in mode "openly-listen" agent looks inside his boundary (opinion +/- uncertainty),
@@ -1230,24 +1307,24 @@ HORIZONTAL
 
 SLIDER
 10
-385
+384
 102
-418
+417
 n-neis
 n-neis
 1
 500
-16.0
+14.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-10
-417
 102
-450
+384
+194
+417
 p-random
 p-random
 0
@@ -1273,23 +1350,6 @@ opinions
 NIL
 HORIZONTAL
 
-BUTTON
-271
-495
-326
-528
-getPlace
-ask turtles [getPlace]
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
 CHOOSER
 10
 140
@@ -1303,7 +1363,7 @@ model
 SLIDER
 10
 306
-182
+138
 339
 p-speaking-level
 p-speaking-level
@@ -1318,13 +1378,13 @@ HORIZONTAL
 SLIDER
 10
 228
-182
+102
 261
 boundary
 boundary
 0.01
 1
-0.2
+0.67
 0.01
 1
 NIL
@@ -1351,23 +1411,6 @@ set-seed?
 1
 1
 -1000
-
-BUTTON
-328
-495
-383
-528
-getColor
-ask turtles [\n  set speak? TRUE\n  getColor\n]
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
 
 BUTTON
 381
@@ -1404,10 +1447,10 @@ NIL
 1
 
 BUTTON
-271
-462
-326
+325
 495
+380
+528
 HIDE!
 \nask turtles [set hidden? TRUE]
 NIL
@@ -1440,7 +1483,7 @@ NIL
 CHOOSER
 10
 261
-148
+102
 306
 boundary-drawn
 boundary-drawn
@@ -1450,7 +1493,7 @@ boundary-drawn
 PLOT
 967
 256
-1167
+1127
 376
 Distribution of 'Uncertainty'
 NIL
@@ -1545,23 +1588,6 @@ Y-opinion
 1
 NIL
 HORIZONTAL
-
-BUTTON
-588
-462
-659
-495
-avg. Opinion
-show mean [mean opinion-position] of turtles
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
 
 PLOT
 674
@@ -1665,7 +1691,7 @@ record-length
 record-length
 10
 100
-25.0
+40.0
 1
 1
 NIL
@@ -1674,7 +1700,7 @@ HORIZONTAL
 CHOOSER
 10
 184
-148
+102
 229
 mode
 mode
@@ -1684,7 +1710,7 @@ mode
 PLOT
 967
 375
-1167
+1127
 495
 Distribution of 'Tolerance'
 NIL
@@ -1705,7 +1731,7 @@ INPUTBOX
 1423
 116
 file-name-core
-1_129_0.1_16_2_1_0.2_uniform_1_uniform_openly-listen
+1_129_0.1_14_2_1_0.67_uniform_1_uniform_openly-listen
 1
 0
 String
@@ -1758,7 +1784,7 @@ max-ticks
 max-ticks
 100
 10000
-1500.0
+10000.0
 100
 1
 NIL
@@ -1778,7 +1804,7 @@ HK-benchmark?
 CHOOSER
 10
 339
-148
+107
 384
 p-speaking-drawn
 p-speaking-drawn
@@ -1786,9 +1812,9 @@ p-speaking-drawn
 1
 
 PLOT
-1166
+1127
 375
-1365
+1287
 495
 Distribution of 'Outspokeness'
 NIL
@@ -1838,7 +1864,7 @@ tolerance-level
 tolerance-level
 0
 1.1
-0.7
+0.5
 0.01
 1
 NIL
@@ -1873,35 +1899,35 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot network-changes / count turtles * 100"
 
 SLIDER
-9
-495
-130
-528
+10
+461
+131
+494
 conformity-level
 conformity-level
 0
 1
-0.5
+0.72
 0.01
 1
 NIL
 HORIZONTAL
 
 CHOOSER
-130
-495
-249
-540
+10
+417
+129
+462
 conformity-drawn
 conformity-drawn
 "constant" "uniform"
 1
 
 CHOOSER
-10
-450
-102
-495
+128
+417
+220
+462
 network-change
 network-change
 "link" "community"
@@ -1919,10 +1945,10 @@ network-changes
 11
 
 SWITCH
-102
-462
-271
-495
+130
+461
+299
+494
 random-network-change?
 random-network-change?
 1
@@ -1930,10 +1956,10 @@ random-network-change?
 -1000
 
 BUTTON
-551
-519
-626
-552
+491
+495
+566
+528
 polarisation
 compute-polarisation-repeatedly
 NIL
@@ -1952,7 +1978,7 @@ INPUTBOX
 1389
 242
 N_centroids
-3.0
+4.0
 1
 0
 Number
@@ -1973,9 +1999,9 @@ NIL
 HORIZONTAL
 
 PLOT
-1166
+1127
 256
-1365
+1287
 376
 Distribution of 'Conformity'
 NIL
@@ -1991,7 +2017,7 @@ PENS
 "default" 0.05 1 -16777216 true "" "histogram [Conformity] of agents"
 
 MONITOR
-626
+643
 507
 768
 552
@@ -2004,7 +2030,7 @@ normalized_polarisation
 MONITOR
 967
 507
-1091
+1068
 552
 NIL
 ESBG_polarisation
@@ -2030,20 +2056,20 @@ SWITCH
 257
 killing_centroids?
 killing_centroids?
-0
+1
 1
 -1000
 
 SLIDER
-101
-417
-205
-450
+102
+228
+206
+261
 id_threshold
 id_threshold
 0.01
 1
-0.6
+0.54
 0.01
 1
 NIL
@@ -2080,12 +2106,12 @@ NIL
 HORIZONTAL
 
 SWITCH
-101
-385
-213
-418
-use_clusters?
-use_clusters?
+102
+195
+217
+228
+use_identity?
+use_identity?
 0
 1
 -1000
@@ -2106,15 +2132,86 @@ NIL
 HORIZONTAL
 
 SLIDER
-1091
-507
-1263
-540
+643
+476
+767
+509
 ESBG_furthest_out
 ESBG_furthest_out
 0
 100
+5.0
+1
+1
+NIL
+HORIZONTAL
+
+CHOOSER
+102
+261
+194
+306
+threshold_drawn
+threshold_drawn
+"constant" "uniform"
+1
+
+PLOT
+1287
+256
+1447
+378
+Distribution of 'Group threshold'
+NIL
+NIL
 0.0
+1.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 0.05 1 -16777216 true "" "histogram [group-threshold] of agents"
+
+PLOT
+1287
+375
+1447
+495
+Distribution od 'Size of identity group'
+NIL
+NIL
+0.0
+130.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 10.0 1 -16777216 true "" "histogram [count Identity-group] of agents"
+
+CHOOSER
+107
+339
+199
+384
+identity_type
+identity_type
+"global" "individual"
+1
+
+SLIDER
+10
+497
+182
+530
+identity_update
+identity_update
+1
+100
+50.0
 1
 1
 NIL
