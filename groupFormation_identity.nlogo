@@ -145,6 +145,8 @@ to setup
     getPlace  ;; Moving agents to the opinion space according their opinions.
   ]
   set agents turtle-set turtles  ;; Note: If we just write 'set agents turtles', then variable 'agents' is a synonym for 'turtles', so it will contain in the future created centroids!
+  ask agents [create-l-distances-with other agents]  ;; Creating full network for computing groups and polarisation
+  ask l-distances [set hidden? true]  ;; Hiding links for saving comp. resources
 
 
   ;; Coloring patches according the number of agents/turtles on them.
@@ -153,8 +155,8 @@ to setup
   ask comms [set hidden? TRUE]
   ;; Setting the indicator of change for the whole simulation, again as non-stable.
   set main-Record n-values record-length [0]
-  ;; Setting communication links' weights
-  update-comms-weights
+  ;; Setting communication and distances links' weights
+  update-links-weights
   ;; Setting control variable of network changes
   set network-changes 0
   ;; Compute polarisation
@@ -170,6 +172,13 @@ to setup
 end
 
 
+;; Envelope for combined update of weights of all links
+to update-links-weights
+  update-comms-weights
+  update-l-distances-weights
+end
+
+
 ;; Sub-routine for updating Communication links' weights,
 ;; according opinion distance of both their ends
 to update-comms-weights
@@ -178,6 +187,17 @@ to update-comms-weights
   ;; weight = 1 means that both positions are same, weight = 0 means that their distance is maximal,
   ;; i.e. both positions are in oposit corners of respective N-dimensional space.
   ask comms [set op-weight opinion-distance2 ([opinion-position] of end1) ([opinion-position] of end2)]
+end
+
+
+;; Sub-routine for updating Distances links' weights,
+;; according opinion distance of both their ends
+to update-l-distances-weights
+  ;; We use function 'opinion-distance2', which needs two opinion positions as input and
+  ;; receives their distance as output, but this distance is converted to weight:
+  ;; weight = 1 means that both positions are same, weight = 0 means that their distance is maximal,
+  ;; i.e. both positions are in oposit corners of respective N-dimensional space.
+  ask l-distances [set l-weight opinion-distance2 ([opinion-position] of end1) ([opinion-position] of end2)]
 end
 
 
@@ -211,32 +231,19 @@ end
 to compute-polarisation
   ;; Preparation
   ask centroids [die]
-  ;let original_centroids_value N_centroids
 
   ;; Detection of clusters via Louvain
-  ;ask l-distances [die]  ;; Cleaning environment
-  ;ask agents [create-l-distances-with other agents with [(sqrt(4 * opinions) - opinion-distance) / sqrt(4 * opinions) >= d_threshold] [set l-weight opinion-distance2 ([opinion-position] of end1)([opinion-position] of end2)]]
-  ;stop
-
-  ;show count l-distances
-  ;ask l-distances with [l-weight < d_threshold] [die]
-  let selected-agents agents with [1 < count my-comms with [op-weight >= d_threshold]]  ;; Note: We take into account only not loosely connected agents
-  nw:set-context selected-agents comms with [op-weight >= d_threshold]
+  let selected-agents agents with [2 < count my-l-distances with [l-weight >= d_threshold]]  ;; Note: We take into account only not loosely connected agents
+  nw:set-context selected-agents l-distances with [l-weight >= d_threshold]
   let communities nw:louvain-communities
-  ;show count l-distances
-  ;ask l-distances [die]
   set N_centroids length communities
 
   ;; Computing clusters' mean 'opinion-position'
   let postions-clusters [] ;; List with all positions of all clusters
   foreach communities [c ->
     let one []  ;; List for one positio nof one cluster
-    foreach range opinions [o ->
-      set one lput precision (mean [item o opinion-position] of c) 3 one
-    ]
-    ;show one
+    foreach range opinions [o -> set one lput precision (mean [item o opinion-position] of c) 3 one]
     set postions-clusters lput one postions-clusters
-    ;show postions-clusters
   ]
 
   ;; Preparation of centroids -- feedeing them with communities
@@ -250,19 +257,13 @@ to compute-polarisation
   ]
 
   ;; Assignment of agents to groups
-  ;let min_group min [who] of centroids
   ask selected-agents [set group [who] of min-one-of centroids [opinion-distance]]
 
   ;; Computation of centroids possitions
   compute-centroids-positions (selected-agents)
 
-  ;let iter 0
-
   ;; Iterating cycle -- looking for good match of centroids
   while [sum [opinion-distance3 (Last-opinion) (Opinion-position)] of centroids > Centroids_change] [
-
-    ;set iter iter + 1
-    ;show (word "Iteration: " iter)
 
     ;; turtles compute whether they are in right cluster and
     ask selected-agents [set group [who] of min-one-of centroids [opinion-distance]]
@@ -274,20 +275,16 @@ to compute-polarisation
   ;; Killing centroids without connected agents
   ask centroids [
     let wom who
-    if (not any? agents with [group = wom]) [
-      set N_centroids N_centroids - 1
-      die
-    ]
+    if (not any? agents with [group = wom]) [die]
   ]
+  set N_centroids count centroids
 
-  ;show count centroids
   ;; Catching the run-time error:
   ;; If there is just one component since all agents has same opinion, then the polarisation algorithm does produce error --
   ;; because of computing mean of empty list of distences: this list is empty since the only one existing centroid can't
   ;; compute distance to itself via double 'while' structuresince 'ai' and 'aj' lists are empty.
   ;; In this case it is obvious that polarisation is 0, so we set 'polarisation' and 'normalized_polarisation' to 0 directly via 'ifelse' structure
   ifelse (count centroids < 2) [
-    ;show "Manual setting of polarisation globals to 0!"
     set polarisation 0
     set normalized_polarisation 0
     set unweighted_polarisation 0
@@ -299,7 +296,6 @@ to compute-polarisation
     let unweighted_distances []
     let unweighted_diversity []
     let whos sort [who] of centroids  ;; List of 'who' of all centroids
-    ;show whos
     ask selected-agents [set distance_to_centroid [opinion-distance] of centroid group]  ;; Each agent computes her distance to her centroid and stores it as 'distance_to_centroid'.
 
     ;; Computing polarization -- distances of all centroids
@@ -307,7 +303,6 @@ to compute-polarisation
     let aj but-first whos  ;; List of all 'j' -- 'who' of other end of distances computation
     foreach ai [i ->
       foreach aj [j ->
-        ;show (word i ";  " j)
         ;; Each distance is weighted by fraction of both centroid groups
         ;; via formula '(N_centroids ^ 2) * (count agents with [group = i] / count agents) * (count agents with [group = j] / count agents)'
         let weight (N_centroids ^ 2) * (count selected-agents with [group = i] / count selected-agents) * (count selected-agents with [group = j] / count selected-agents)
@@ -336,15 +331,11 @@ to compute-polarisation
     set unweighted_polarisation (mean unweighted_distances) / (1 + 2 * mean unweighted_diversity)  ;; Raw unweighted polarization computed as unweighted distance divided by unweighted heterogeinity in the groups.
     set unweighted_normalized_polarisation precision (unweighted_polarisation / (2 * sqrt(opinions))) 3
     set unweighted_polarisation precision unweighted_polarisation 3
-    ;show diversity
-    ;show distances
-    ;show (word polarisation ";  " normalized_polarisation "; " unweighted_polarisation ";  " unweighted_normalized_polarisation)
   ]
 
   ;; Final coloring and killing of centroids
   if centroid_color? [ask selected-agents [set color (5 + 10 * group)]]
   if killing_centroids? [ask centroids [die]]
-  ;set N_centroids original_centroids_value
 end
 
 
@@ -523,24 +514,18 @@ end
 to set-group-identities
   ;; Cleaning environment
   ask centroids [die]
-  ;ask l-distances [die]
-
-  ;; Detection of clusters via Louvain: Preparation
-  ;ask agents [create-l-distances-with other agents with [(sqrt(4 * opinions) - opinion-distance) / sqrt(4 * opinions) >= id_threshold] [set l-weight opinion-distance2 ([opinion-position] of end1)([opinion-position] of end2)]]
 
   ;; Detection of clusters via Louvain: Detection itself
-  nw:set-context agents comms with [op-weight >= id_threshold]
+  let selected-agents agents with [2 < count my-l-distances with [l-weight >= d_threshold]]  ;; Note: We take into account only not loosely connected agents
+  nw:set-context selected-agents l-distances with [l-weight >= id_threshold]  ;; For starting centroids we take into account only not loosely connected agents, but later we set groups for all.
   let communities nw:louvain-communities
-  ;ask l-distances [die]
   set N_centroids length communities
 
   ;; Computing clusters' mean 'opinion-position'
   set postions_clusters [] ;; List with all positions of all clusters
   foreach communities [c ->
     let one []  ;; List for one position of one cluster
-    foreach range opinions [o ->
-      set one lput precision (mean [item o opinion-position] of c) 3 one
-    ]
+    foreach range opinions [o -> set one lput precision (mean [item o opinion-position] of c) 3 one]
     set postions_clusters lput one postions_clusters
   ]
 
@@ -555,18 +540,13 @@ to set-group-identities
   ]
 
   ;; Assignment of agents to groups
-  ask agents [set group [who] of min-one-of centroids [opinion-distance]]
+  ask agents [set group [who] of min-one-of centroids [opinion-distance]]  ;; Sic! Here we intentionally use all agents, including loosely connected.
 
   ;; Computation of centroids possitions
   compute-centroids-positions (agents)
 
-  ;let iter 0
-
   ;; Iterating cycle -- looking for good match of centroids
   while [sum [opinion-distance3 (Last-opinion) (Opinion-position)] of centroids > Centroids_change] [
-
-    ;set iter iter + 1
-    ;show (word "Iteration: " iter)
 
     ;; turtles compute whether they are in right cluster and
     ask agents [set group [who] of min-one-of centroids [opinion-distance]]
@@ -578,16 +558,13 @@ to set-group-identities
   ;; Killing centroids without connected agents
   ask centroids [
     let wom who
-    if (not any? agents with [group = wom]) [
-      set N_centroids N_centroids - 1
-      die
-    ]
+    if (not any? agents with [group = wom]) [die]
   ]
+  set N_centroids count centroids
 
   ;; Final coloring and killing of centroids
   if centroid_color? [ask agents [set color (5 + 10 * group)]]
   if killing_centroids? [ask centroids [die]]
-  ;set N_centroids original_centroids_value
 end
 
 
@@ -616,6 +593,7 @@ to go
   set network-changes 0
 
   ;; Prepare group identities via Louvain
+  update-links-weights
   if use_clusters? [set-group-identities]
 
 
@@ -1142,7 +1120,7 @@ N-agents
 N-agents
 10
 1000
-180.0
+129.0
 1
 1
 NIL
@@ -1244,7 +1222,7 @@ boundary
 boundary
 0.01
 1
-0.4
+0.3
 0.01
 1
 NIL
@@ -1256,7 +1234,7 @@ INPUTBOX
 781
 70
 RS
--1.36807062E9
+1.0
 1
 0
 Number
@@ -1624,7 +1602,7 @@ INPUTBOX
 1423
 116
 file-name-core
--1368070620_180_0.1_16_2_1_0.4_uniform_1_uniform_openly-listen
+1_129_0.1_16_2_1_0.3_uniform_1_uniform_openly-listen
 1
 0
 String
@@ -1677,7 +1655,7 @@ max-ticks
 max-ticks
 100
 10000
-10000.0
+1500.0
 100
 1
 NIL
@@ -1800,7 +1778,7 @@ conformity-level
 conformity-level
 0
 1
-0.55
+0.5
 0.01
 1
 NIL
@@ -1849,10 +1827,10 @@ random-network-change?
 -1000
 
 BUTTON
-502
-522
-577
-555
+616
+519
+691
+552
 polarisation
 compute-polarisation-repeatedly
 NIL
@@ -1871,7 +1849,7 @@ INPUTBOX
 1389
 242
 N_centroids
-13.0
+2.0
 1
 0
 Number
@@ -1938,7 +1916,7 @@ SWITCH
 258
 centroid_color?
 centroid_color?
-0
+1
 1
 -1000
 
@@ -1962,7 +1940,7 @@ id_threshold
 id_threshold
 0.01
 1
-0.5
+0.59
 0.01
 1
 NIL
@@ -2018,7 +1996,7 @@ d_threshold
 d_threshold
 0
 1
-0.49
+0.8
 .01
 1
 NIL
