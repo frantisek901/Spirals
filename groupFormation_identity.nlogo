@@ -12,7 +12,7 @@
 ;;
 
 ;; Created:  2021-10-21 FranCesko
-;; Edited:   2022-02-08 FranCesko
+;; Edited:   2022-02-09 FranCesko
 ;; Encoding: windows-1250
 ;; NetLogo:  6.2.2
 ;;
@@ -1947,7 +1947,7 @@ INPUTBOX
 1389
 242
 N_centroids
-4.0
+3.0
 1
 0
 Number
@@ -2038,7 +2038,7 @@ id_threshold
 id_threshold
 0.01
 1
-0.8
+0.72
 0.01
 1
 NIL
