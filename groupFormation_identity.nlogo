@@ -472,15 +472,33 @@ end
 to connect-loners
   ;; We check whether each agent has enough neighbors
   ask agents with [count comm-neighbors < min-comm-neis] [
+    ;; !!!WARNING!!!: If there are many agents classified as 'loners',
+    ;; then early running agents might connect some later going agents,
+    ;; and then might happen that when later running agent runs this algorithm,
+    ;; she has enough connections (because she was connected by earlier running agents).
+    ;; SOLUTION: Check before creating new link whetwer agent is still demanding these new links.
+
+    ;; Defining needed agentset and variables:
     let potentials other agents with [speak?]  ; We set 'potentials' to all other speaking agents and then...
     let p count potentials  ; 'p' stands for potentials
 
-    ;; Catch of potential BUG via 'if' structure -- if there is no-one speaking, then the lone agent has to wait until the next round.
-    ifelse (p > 0) [
-      let n min-comm-neis - count comm-neighbors  ; 'n' stands for needed
-      let ap ifelse-value(p >= n)[n][p]  ; 'ap' stands for asked potentials
-      create-comms-with ifelse-value (create-links-randomly?) [n-of ap potentials][min-n-of ap potentials [opinion-distance]]  ;... it depends on scenario: we choose randomly or with the closest opinion
-    ][show "Not any speaking agents!"]
+    ;; Catch of potential BUG via 'if' structure --
+    ;;   a) if there is no-one speaking, then the lone agent has to wait until the next round.
+    ;;   b) if agent was demanding new links, but was served by previous demanders, then needs no new link
+    (if;else
+      p > 0 and count comm-neighbors < min-comm-neis [
+        let n min-comm-neis - count comm-neighbors  ; 'n' stands for needed
+        let ap ifelse-value(p >= n)[n][p]  ; 'ap' stands for asked potentials
+        create-comms-with ifelse-value (create-links-randomly?) [n-of ap potentials][min-n-of ap potentials [opinion-distance]]  ;... it depends on scenario: we choose randomly or with the closest opinion
+;      ]
+;      p <= 0 and count comm-neighbors < min-comm-neis [
+;        show "Not any speaking agents!"
+;      ]
+;      ;; Else commands for situation when the agent was already served by previous demanders,
+;      ;; so no creation is needed.
+;      [
+;        show (word "I have enough neis (exactly " count my-comms " at the step " ticks ", BTW), no need to create new links.")
+    ])
   ]
 
   ;; P.S. Just hiding links for better speed of code -- when we change/cut a link, all links become visible and that slows down the simulation.
@@ -1282,7 +1300,7 @@ n-neis
 n-neis
 1
 500
-16.0
+1.0
 1
 1
 NIL
@@ -1297,7 +1315,7 @@ p-random
 p-random
 0
 0.5
-0.1
+0.05
 0.01
 1
 NIL
@@ -1337,7 +1355,7 @@ p-speaking-level
 p-speaking-level
 0
 1
-0.602
+0.584
 0.001
 1
 NIL
@@ -1352,7 +1370,7 @@ boundary
 boundary
 0.01
 1
-0.2
+0.25
 0.01
 1
 NIL
@@ -1364,7 +1382,7 @@ INPUTBOX
 781
 70
 RS
-1.0
+3.93804989E8
 1
 0
 Number
@@ -1376,7 +1394,7 @@ SWITCH
 43
 set-seed?
 set-seed?
-0
+1
 1
 -1000
 
@@ -1752,7 +1770,7 @@ max-ticks
 max-ticks
 100
 10000
-500.0
+1000.0
 100
 1
 NIL
@@ -1832,16 +1850,16 @@ tolerance-level
 tolerance-level
 0
 1.1
-0.1
+0.21
 0.01
 1
 NIL
 HORIZONTAL
 
 CHOOSER
-124
+126
 75
-216
+218
 120
 tolerance-drawn
 tolerance-drawn
@@ -1876,7 +1894,7 @@ conformity-level
 conformity-level
 0
 1
-0.55
+0.58
 0.01
 1
 NIL
@@ -1947,7 +1965,7 @@ INPUTBOX
 1389
 242
 N_centroids
-3.0
+2.0
 1
 0
 Number
@@ -1961,7 +1979,7 @@ Centroids_change
 Centroids_change
 0.00000001
 0.001
-1.0E-8
+1.0E-5
 0.00001
 1
 NIL
@@ -2014,7 +2032,7 @@ SWITCH
 258
 centroid_color?
 centroid_color?
-1
+0
 1
 -1000
 
@@ -2038,7 +2056,7 @@ id_threshold
 id_threshold
 0.01
 1
-0.72
+0.6
 0.01
 1
 NIL
@@ -2051,7 +2069,7 @@ SLIDER
 160
 polarisation-each-n-steps
 polarisation-each-n-steps
-1
+0
 10000
 100.0
 10
@@ -2068,7 +2086,7 @@ polar_repeats
 polar_repeats
 1
 100
-15.0
+20.0
 1
 1
 NIL
@@ -2206,7 +2224,7 @@ dissatisfied_updates_opinion
 dissatisfied_updates_opinion
 0
 1
-0.7
+0.5
 0.01
 1
 NIL
