@@ -485,20 +485,11 @@ to connect-loners
     ;; Catch of potential BUG via 'if' structure --
     ;;   a) if there is no-one speaking, then the lone agent has to wait until the next round.
     ;;   b) if agent was demanding new links, but was served by previous demanders, then needs no new link
-    (if;else
-      p > 0 and count comm-neighbors < min-comm-neis [
+    if p > 0 and count comm-neighbors < min-comm-neis [
         let n min-comm-neis - count comm-neighbors  ; 'n' stands for needed
         let ap ifelse-value(p >= n)[n][p]  ; 'ap' stands for asked potentials
         create-comms-with ifelse-value (create-links-randomly?) [n-of ap potentials][min-n-of ap potentials [opinion-distance]]  ;... it depends on scenario: we choose randomly or with the closest opinion
-;      ]
-;      p <= 0 and count comm-neighbors < min-comm-neis [
-;        show "Not any speaking agents!"
-;      ]
-;      ;; Else commands for situation when the agent was already served by previous demanders,
-;      ;; so no creation is needed.
-;      [
-;        show (word "I have enough neis (exactly " count my-comms " at the step " ticks ", BTW), no need to create new links.")
-    ])
+    ]
   ]
 
   ;; P.S. Just hiding links for better speed of code -- when we change/cut a link, all links become visible and that slows down the simulation.
