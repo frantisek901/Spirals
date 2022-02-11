@@ -1291,7 +1291,7 @@ n-neis
 n-neis
 1
 500
-1.0
+5.0
 1
 1
 NIL
@@ -1346,7 +1346,7 @@ p-speaking-level
 p-speaking-level
 0
 1
-0.584
+1.0
 0.001
 1
 NIL
@@ -1603,7 +1603,7 @@ updating
 updating
 1
 50
-2.0
+1.0
 1
 1
 NIL
@@ -1956,7 +1956,7 @@ INPUTBOX
 1389
 242
 N_centroids
-2.0
+3.0
 1
 0
 Number
@@ -2047,7 +2047,7 @@ id_threshold
 id_threshold
 0.01
 1
-0.6
+0.75
 0.01
 1
 NIL
@@ -2200,7 +2200,7 @@ min-comm-neis
 min-comm-neis
 0
 10
-10.0
+1.0
 1
 1
 NIL
@@ -2215,7 +2215,7 @@ dissatisfied_updates_opinion
 dissatisfied_updates_opinion
 0
 1
-0.5
+0.35
 0.01
 1
 NIL
@@ -2231,6 +2231,21 @@ use_opponents_ratio?
 1
 1
 -1000
+
+SLIDER
+102
+130
+217
+163
+identity_levels
+identity_levels
+2
+10
+4.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
