@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<!DOCTYPE search SYSTEM "behaviorsearch.dtd">
+<search>
+<bsearchVersionNumber>1.10</bsearchVersionNumber>
+<modelInfo>
+<modelFile>/home/kalvas.5/Downloads/groupFormation_identity.nlogo</modelFile>
+<modelSetupCommands>setup</modelSetupCommands>
+<modelStepCommands>go</modelStepCommands>
+<modelStopCondition>(mean main-Record = 1 and network-changes &lt;= 5)</modelStopCondition>
+<modelStepLimit>1000</modelStepLimit>
+<modelMetricReporter>normalized_polarisation + ESBG_polarisation</modelMetricReporter>
+<modelMeasureIf>true</modelMeasureIf>
+</modelInfo>
+<fitnessInfo>
+<fitnessMinimized>false</fitnessMinimized>
+<fitnessCollecting>AT_FINAL_STEP</fitnessCollecting>
+<fitnessSamplingReplications>7</fitnessSamplingReplications>
+<fitnessCombineReplications>MEDIAN</fitnessCombineReplications>
+</fitnessInfo>
+<searchSpace>
+<paramSpec>["n-neis" [2 1 64]]</paramSpec>
+<paramSpec>["p-random" [0 0.01 0.5]]</paramSpec>
+<paramSpec>["p-speaking-level" [0.01 0.001 1]]</paramSpec>
+<paramSpec>["p-speaking-drawn" "uniform"]</paramSpec>
+<paramSpec>["boundary" [0.01 0.01 0.5]]</paramSpec>
+<paramSpec>["boundary-drawn" "uniform"]</paramSpec>
+<paramSpec>["mode" "openly-listen" "vaguely-speak"]</paramSpec>
+<paramSpec>["tolerance-level" [0.01 0.01 1.1]]</paramSpec>
+<paramSpec>["tolerance-drawn" "uniform"]</paramSpec>
+<paramSpec>["conformity-level" [0.01 0.01 1]]</paramSpec>
+<paramSpec>["conformity-drawn" "uniform"]</paramSpec>
+<paramSpec>["network-change" "link"]</paramSpec>
+<paramSpec>["cut-links-randomly?" false]</paramSpec>
+<paramSpec>["create-links-randomly?" true false]</paramSpec>
+<paramSpec>["min-comm-neis" [0 1 10]]</paramSpec>
+<paramSpec>["dissatisfied_updates_opinion" [0 0.01 1]]</paramSpec>
+<paramSpec>["id_threshold" [0.1 0.01 0.95]]</paramSpec>
+<paramSpec>["use_identity?" true false]</paramSpec>
+<paramSpec>["use_opponents_ratio?"  false]</paramSpec>
+<paramSpec>["polarisation-each-n-steps" 999]</paramSpec>
+<paramSpec>["polar_repeats" 20]</paramSpec>
+<paramSpec>["centroids_change" 1.0E-5]</paramSpec>
+<paramSpec>["centroid_color?"  false]</paramSpec>
+<paramSpec>["killing_centroids?" true]</paramSpec>
+<paramSpec>["d_threshold" 0.8]</paramSpec>
+<paramSpec>["esbg_furthest_out" 5]</paramSpec>
+<paramSpec>["n-agents" 129]</paramSpec>
+<paramSpec>["opinions" 2]</paramSpec>
+<paramSpec>["model" "HK"]</paramSpec>
+<paramSpec>["rs" 1]</paramSpec>
+<paramSpec>["set-seed?" false]</paramSpec>
+<paramSpec>["x-opinion" 1]</paramSpec>
+<paramSpec>["y-opinion" 2]</paramSpec>
+<paramSpec>["updating" 1]</paramSpec>
+<paramSpec>["record-length" 20]</paramSpec>
+<paramSpec>["record?"  false]</paramSpec>
+<paramSpec>["max-ticks" 1000]</paramSpec>
+<paramSpec>["hk-benchmark?" false]</paramSpec>
+<paramSpec>["record-each-n-steps" 10000]</paramSpec>
+<paramSpec>["avoid-redundancies?" false]</paramSpec>
+</searchSpace>
+<searchMethod type="StandardGA">
+<searchMethodParameter name="mutation-rate" value="0.05"/>
+<searchMethodParameter name="population-size" value="21"/>
+<searchMethodParameter name="tournament-size" value="3"/>
+<searchMethodParameter name="population-model" value="generational"/>
+<searchMethodParameter name="crossover-rate" value="0.7"/>
+</searchMethod>
+<chromosomeRepresentation type="MixedTypeChromosome"/>
+<caching>true</caching>
+<evaluationLimit>300</evaluationLimit>
+<bestCheckingNumReplications>10</bestCheckingNumReplications>
+</search>

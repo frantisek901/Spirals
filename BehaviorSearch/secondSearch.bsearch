@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<!DOCTYPE search SYSTEM "behaviorsearch.dtd">
+<search>
+<bsearchVersionNumber>1,10</bsearchVersionNumber>
+<modelInfo>
+<modelFile>D:\ownCloud2\!!!Projekty\!Spirals\groupFormation.nlogo</modelFile>
+<modelSetupCommands>setup</modelSetupCommands>
+<modelStepCommands>go</modelStepCommands>
+<modelStopCondition>(mean main-Record = 1 and network-changes &lt;= 5)</modelStopCondition>
+<modelStepLimit>3000</modelStepLimit>
+<modelMetricReporter>polarisation</modelMetricReporter>
+<modelMeasureIf>true</modelMeasureIf>
+</modelInfo>
+<fitnessInfo>
+<fitnessMinimized>false</fitnessMinimized>
+<fitnessCollecting>AT_FINAL_STEP</fitnessCollecting>
+<fitnessSamplingReplications>30</fitnessSamplingReplications>
+<fitnessCombineReplications>MEDIAN</fitnessCombineReplications>
+</fitnessInfo>
+<searchSpace>
+<paramSpec>["conformity-level" [0.1 0.01 1]]</paramSpec>
+<paramSpec>["conformity-drawn"  "uniform"]</paramSpec>
+<paramSpec>["n-neis" [4 1 64]]</paramSpec>
+<paramSpec>["p-random" [0 0.01 0.5]]</paramSpec>
+<paramSpec>["p-speaking-level" [0.001 0.001 1]]</paramSpec>
+<paramSpec>["p-speaking-drawn"  "uniform" "function"]</paramSpec>
+<paramSpec>["boundary" [0.01 0.01 0.99]]</paramSpec>
+<paramSpec>["boundary-drawn"  "uniform"]</paramSpec>
+<paramSpec>["mode" "openly-listen" "vaguely-speak"]</paramSpec>
+<paramSpec>["tolerance-level" [0.1 0.01 1.1]]</paramSpec>
+<paramSpec>["tolerance-drawn" "uniform"]</paramSpec>
+<paramSpec>["network-change" "link" "community"]</paramSpec>
+<paramSpec>["random-network-change?" false true]</paramSpec>
+<paramSpec>["n_centroids" 4]</paramSpec>
+<paramSpec>["centroids_change" 0.00001 ]</paramSpec>
+<paramSpec>["centroid_color?" false]</paramSpec>
+<paramSpec>["killing_centroids?" true]</paramSpec>
+<paramSpec>["d_threshold" 0.8]</paramSpec>
+<paramSpec>["polarisation-each-n-steps" 3000]</paramSpec>
+<paramSpec>["polar_repeats" 20]</paramSpec>
+<paramSpec>["opinions" 2]</paramSpec>
+<paramSpec>["model" "HK"]</paramSpec>
+<paramSpec>["record-each-n-steps" 5000 ]</paramSpec>
+<paramSpec>["avoid-redundancies?" false]</paramSpec>
+<paramSpec>["set-seed?" false]</paramSpec>
+<paramSpec>["x-opinion" 1]</paramSpec>
+<paramSpec>["y-opinion" 2]</paramSpec>
+<paramSpec>["updating" 1]</paramSpec>
+<paramSpec>["record-length" 25]</paramSpec>
+<paramSpec>["construct-name?" true]</paramSpec>
+<paramSpec>["record?" false]</paramSpec>
+<paramSpec>["hk-benchmark?" false]</paramSpec>
+<paramSpec>["max-ticks" 3000]</paramSpec>
+<paramSpec>["n-agents" 257]</paramSpec>
+</searchSpace>
+<searchMethod type="StandardGA">
+<searchMethodParameter name="mutation-rate" value="0.01"/>
+<searchMethodParameter name="population-size" value="50"/>
+<searchMethodParameter name="tournament-size" value="3"/>
+<searchMethodParameter name="population-model" value="steady-state-replace-worst"/>
+<searchMethodParameter name="crossover-rate" value="0.7"/>
+</searchMethod>
+<chromosomeRepresentation type="MixedTypeChromosome"/>
+<caching>true</caching>
+<evaluationLimit>30</evaluationLimit>
+<bestCheckingNumReplications>0</bestCheckingNumReplications>
+</search>
