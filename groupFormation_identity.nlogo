@@ -252,16 +252,18 @@ end
 
 
 to set-individual-group-identities
-  ;; Cleaning environment
-  set Identity-group no-turtles
-  let my-Group-threshold Group-threshold
+  ask agents [
+    ;; Cleaning environment
+    set Identity-group no-turtles
+    let my-Group-threshold Group-threshold
 
-  ;; Detection of clusters via Louvain: Detection itself
-  ;let selected-agents agents with [2 < count my-l-distances with [l-weight >= my-Group-threshold]]  ;; Note: We take into account only not loosely connected agents
-  nw:set-context agents l-distances with [l-weight >= my-Group-threshold]  ;; For starting centroids we take into account only not loosely connected agents, but later we set groups for all.
-  let communities nw:louvain-communities  ;; Louvain detection of communitites
-  foreach communities [c -> if member? self c [set Identity-group c]]  ;; Looking for 'self' in communities -- community which includes '(my)self' is set as Identity group.
-  if count Identity-group < 3 [set Identity-group agents]  ;; CHECK: If Identity group is (almost) empty, then set all agents as Identity group
+    ;; Detection of clusters via Louvain: Detection itself
+    ;let selected-agents agents with [2 < count my-l-distances with [l-weight >= my-Group-threshold]]  ;; Note: We take into account only not loosely connected agents
+    nw:set-context agents l-distances with [l-weight >= my-Group-threshold]  ;; For starting centroids we take into account only not loosely connected agents, but later we set groups for all.
+    let communities nw:louvain-communities  ;; Louvain detection of communitites
+    foreach communities [c -> if member? self c [set Identity-group c]]  ;; Looking for 'self' in communities -- community which includes '(my)self' is set as Identity group.
+    if count Identity-group < 3 [set Identity-group agents]  ;; CHECK: If Identity group is (almost) empty, then set all agents as Identity group
+  ]
 end
 
 
@@ -342,7 +344,7 @@ to prepare-everything-for-the-step
   ifelse use_identity? [
     update-l-distances-weights
     if identity_type = "global" [set-group-identities]
-    if identity_type = "individual" [ask agents [set-individual-group-identities]] ; and (ticks mod identity_update = 0)
+    if identity_type = "individual" [set-individual-group-identities] ; and (ticks mod identity_update = 0)
   ][
     ask agents [set Identity-group agents]
   ]
@@ -1956,7 +1958,7 @@ INPUTBOX
 1389
 242
 N_centroids
-3.0
+2.0
 1
 0
 Number
@@ -2047,7 +2049,7 @@ id_threshold
 id_threshold
 0.01
 1
-0.75
+0.5
 0.01
 1
 NIL
