@@ -2083,7 +2083,7 @@ INPUTBOX
 1389
 242
 N_centroids
-2.0
+1.0
 1
 0
 Number
@@ -2284,7 +2284,7 @@ PLOT
 375
 1447
 495
-Distribution od 'Size of identity group'
+Distribution of 'Size of identity group'
 NIL
 NIL
 0.0
