@@ -94,8 +94,6 @@
 ;;
 ;; 6) Implement K-clusters algorithm for addressing just 2 clusters.
 ;;
-;; 7) Store state of simulation in global variables -- instead of storing it to file,
-;;    we will to store states in variables and then at the end let the experiment/BehaviorSpace itself to record it to the file
 
 extensions [nw]
 
@@ -109,14 +107,7 @@ l-distances-own [l-weight]
 comms-own [op-weight]
 
 globals [main-Record components positions network-changes agents positions_clusters
-  polarisation normalized_polarisation unweighted_polarisation unweighted_normalized_polarisation ESBG_polarisation id_threshold_set
-  betweenness_start eigenvector_start clustering_start modularity_start mean_path_start normalized_polarization_start ESBSG_polarization_start
-  mean_op1_start mean_op2_start sd_op1_start sd_op2_start median_op1_start median_op2_start
-  lower_op1_start lower_op2_start upper_op1_start upper_op2_start
-  betweenness_final eigenvector_final clustering_final modularity_final mean_path_final normalized_polarization_final ESBSG_polarization_final
-  mean_op1_final mean_op2_final sd_op1_final sd_op2_final median_op1_final median_op2_final
-  lower_op1_final lower_op2_final upper_op1_final upper_op2_final
-]
+  polarisation normalized_polarisation unweighted_polarisation unweighted_normalized_polarisation ESBG_polarisation id_threshold_set]
 
 
 ;; Initialization and setup
@@ -192,7 +183,7 @@ to setup
   ;; If we want we could construct filename to contain all important parameters shaping initial condition, so the name is unique stamp of initial state!
   if construct-name? [set file-name-core (word RS "_" N-agents "_" p-random "_" n-neis "_" opinions "_" updating "_" boundary "_" boundary-drawn "_" p-speaking-level "_"  p-speaking-drawn "_" mode)]
   ;; recording itself
-  if record? [compute-macro-state-of-simulation]
+  if record? [record-state-of-simulation]
 end
 
 
@@ -794,7 +785,7 @@ to recording-situation-and-computing-polarisation
 
   ;; Recording and computing polarisation on the fly...
   if (ticks / polarisation-each-n-steps) = floor (ticks / polarisation-each-n-steps) [compute-polarisation-repeatedly]
-  if (ticks / record-each-n-steps) = floor(ticks / record-each-n-steps) and record? [compute-macro-state-of-simulation]
+  if (ticks / record-each-n-steps) = floor(ticks / record-each-n-steps) and record? [record-state-of-simulation]
 end
 
 
@@ -1324,12 +1315,6 @@ to record-state-of-simulation
   file-close
   file-close
 end
-
-
-;; Subroutine for computing aggregate/macro state of simulation
-to compute-macro-state-of-simulation
-
-end
 @#$#@#$#@
 GRAPHICS-WINDOW
 219
@@ -1433,7 +1418,7 @@ n-neis
 n-neis
 1
 500
-64.0
+18.0
 1
 1
 NIL
@@ -1448,7 +1433,7 @@ p-random
 p-random
 0
 0.5
-0.34
+0.47
 0.01
 1
 NIL
@@ -1488,7 +1473,7 @@ p-speaking-level
 p-speaking-level
 0
 1
-0.543
+0.186
 0.001
 1
 NIL
@@ -1503,7 +1488,7 @@ boundary
 boundary
 0.01
 1
-0.28
+0.45
 0.01
 1
 NIL
@@ -1515,7 +1500,7 @@ INPUTBOX
 781
 70
 RS
-7.0
+-5.47220854E8
 1
 0
 Number
@@ -1983,7 +1968,7 @@ tolerance-level
 tolerance-level
 0
 1.1
-1.08
+0.03
 0.01
 1
 NIL
@@ -2027,7 +2012,7 @@ conformity-level
 conformity-level
 0
 1
-0.45
+0.7
 0.01
 1
 NIL
@@ -2189,7 +2174,7 @@ id_threshold
 id_threshold
 0.01
 1
-0.5
+0.4
 0.01
 1
 NIL
@@ -2204,7 +2189,7 @@ polarisation-each-n-steps
 polarisation-each-n-steps
 0
 10000
-1000.0
+100.0
 10
 1
 NIL
@@ -2342,7 +2327,7 @@ min-comm-neis
 min-comm-neis
 0
 10
-5.0
+1.0
 1
 1
 NIL
@@ -2357,7 +2342,7 @@ dissatisfied_updates_opinion
 dissatisfied_updates_opinion
 0
 1
-0.41
+0.14
 0.01
 1
 NIL
@@ -3222,154 +3207,6 @@ NetLogo 6.2.2
     </enumeratedValueSet>
     <enumeratedValueSet variable="social-bias">
       <value value="false"/>
-    </enumeratedValueSet>
-  </experiment>
-  <experiment name="regularExperiment" repetitions="1" runMetricsEveryStep="true">
-    <setup>setup</setup>
-    <go>go</go>
-    <final>compute-macro-state-of-simulation</final>
-    <timeLimit steps="1000"/>
-    <metric>count turtles</metric>
-    <enumeratedValueSet variable="cut-links-randomly?">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="record?">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="opinions">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="updating">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="set-seed?">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="boundary">
-      <value value="0.28"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="polar_repeats">
-      <value value="20"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Y-opinion">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="draw_id_threshold">
-      <value value="&quot;uniform&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="model">
-      <value value="&quot;HK&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="max-ticks">
-      <value value="1000"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Centroids_change">
-      <value value="1.0E-5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="boundary-drawn">
-      <value value="&quot;uniform&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="p-random">
-      <value value="0.34"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="tolerance-drawn">
-      <value value="&quot;uniform&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="p-speaking-drawn">
-      <value value="&quot;uniform&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="n-neis">
-      <value value="64"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="use_opponents_ratio?">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="polarisation-each-n-steps">
-      <value value="1000"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="mode">
-      <value value="&quot;openly-listen&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="d_threshold">
-      <value value="0.8"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="record-each-n-steps">
-      <value value="1500"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="ESBG_furthest_out">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="identity_levels">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="record-length">
-      <value value="40"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="file-name-core">
-      <value value="&quot;1_129_0.1_16_2_2_0.4_uniform_1_uniform_openly-listen&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="id_threshold">
-      <value value="0.5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="network-change">
-      <value value="&quot;link&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="tolerance-level">
-      <value value="1.08"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="p-speaking-level">
-      <value value="0.543"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="centroid_color?">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="use_identity?">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="conformity-drawn">
-      <value value="&quot;uniform&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="N_centroids">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="RS">
-      <value value="7"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="dissatisfied_updates_opinion">
-      <value value="0.41"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="create-links-randomly?">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="killing_centroids?">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="N-agents">
-      <value value="129"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="construct-name?">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="avoid-redundancies?">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="HK-benchmark?">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="min-comm-neis">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="conformity-level">
-      <value value="0.45"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="threshold_drawn">
-      <value value="&quot;uniform&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="identity_type">
-      <value value="&quot;global&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="X-opinion">
-      <value value="1"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>
