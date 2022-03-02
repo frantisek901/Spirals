@@ -1,0 +1,13 @@
+Network:
+- nw:betweenness-centrality
+- nw:eigenvector-centrality
+- nw:clustering-coefficient
+- nw:modularity
+- nw:mean-path-length 
+
+Opinion:
+- Polarization coefficient
+- mean, SD 
+- median and inter-quartile range
+- number of Louvain comms (threshold ~0.75) 
+
