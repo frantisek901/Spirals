@@ -5,6 +5,7 @@ Network:
 - nw:modularity
 - nw:mean-path-length 
 
+
 Opinion:
 - Polarization coefficient
 - mean, SD 
