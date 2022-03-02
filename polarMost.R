@@ -8,7 +8,7 @@
 ## NOTES:
 #
 # We need to get the most polarizing settings to test then,
-# how polarizing it is, when we change parameter's value by +/- 10%.
+# how polarizing it is, when we change parameter's value by +/- 20%.
 #
 
 

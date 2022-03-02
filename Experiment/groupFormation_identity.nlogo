@@ -184,7 +184,7 @@ to setup
   ;; Setting control variable of network changes
   set network-changes 0
   ;; Compute polarisation
-  compute-polarisation-repeatedly
+  ;compute-polarisation-repeatedly  ;; We are computing it in next command after reseting ticks, so we save computer time here.
 
   reset-ticks
 
@@ -192,7 +192,7 @@ to setup
   ;; If we want we could construct filename to contain all important parameters shaping initial condition, so the name is unique stamp of initial state!
   if construct-name? [set file-name-core (word RS "_" N-agents "_" p-random "_" n-neis "_" opinions "_" updating "_" boundary "_" boundary-drawn "_" p-speaking-level "_"  p-speaking-drawn "_" mode)]
   ;; recording itself
-  if record? [compute-macro-state-of-simulation]
+  compute-initial-macro-state-of-simulation
 end
 
 
@@ -790,11 +790,11 @@ to recording-situation-and-computing-polarisation
   ;; 1) We reached state, where no turtle changes for RECORD-LENGTH steps, i.e. average of MAIN-RECORD (list of averages of turtles/agents RECORD) is 1 or
   ;; 2) We reached number of steps specified in MAX-TICKS
   if ((mean main-Record = 1 and network-changes <= 5) or ticks = max-ticks) [compute-polarisation-repeatedly]
-  if ((mean main-Record = 1 and network-changes <= 5) or ticks = max-ticks) and record? [record-state-of-simulation]
+  if ((mean main-Record = 1 and network-changes <= 5) or ticks = max-ticks) and record? [compute-final-macro-state-of-simulation]
 
   ;; Recording and computing polarisation on the fly...
   if (ticks / polarisation-each-n-steps) = floor (ticks / polarisation-each-n-steps) [compute-polarisation-repeatedly]
-  if (ticks / record-each-n-steps) = floor(ticks / record-each-n-steps) and record? [compute-macro-state-of-simulation]
+  if (ticks / record-each-n-steps) = floor(ticks / record-each-n-steps) [compute-final-macro-state-of-simulation]
 end
 
 
@@ -1327,8 +1327,65 @@ end
 
 
 ;; Subroutine for computing aggregate/macro state of simulation
-to compute-macro-state-of-simulation
+to compute-initial-macro-state-of-simulation
+    ;; Network
+    nw:set-context turtles comms ;; Setting context for the network measures
+    set betweenness_start mean [nw:betweenness-centrality] of turtles
+    set eigenvector_start mean [nw:eigenvector-centrality] of turtles
+    set clustering_start mean [nw:clustering-coefficient] of turtles
+    ;modularity_start
+    set mean_path_start nw:mean-path-length
 
+    ;; Polarisation
+    compute-polarisation-repeatedly ;; Firstly we have to compute polarization
+    set normalized_polarization_start normalized_polarisation
+    set ESBSG_polarization_start ESBG_polarisation
+
+    ;; Opinion
+    set mean_op1_start mean [item 0 opinion-position] of turtles
+    set mean_op2_start mean [item 1 opinion-position] of turtles
+    set sd_op1_start standard-deviation [item 0 opinion-position] of turtles
+    set sd_op2_start standard-deviation [item 1 opinion-position] of turtles
+
+    ;; For last measures we need to sort turtles regarding their opinion
+    let lops1 sort-by < [item 0 opinion-position] of turtles
+    let lops2 sort-by < [item 1 opinion-position] of turtles
+    set median_op1_start item 64 lops1
+    set median_op2_start item 64 lops2
+    set lower_op1_start mean (list item 31 lops1 item 32 lops1)
+    set lower_op2_start mean (list item 31 lops2 item 32 lops2)
+    set upper_op1_start mean (list item 95 lops1 item 96 lops1)
+    set upper_op2_start mean (list item 95 lops2 item 96 lops2)
+end
+to compute-final-macro-state-of-simulation
+    ;; Network
+    nw:set-context turtles comms ;; Setting context for the network measures
+    set betweenness_final mean [nw:betweenness-centrality] of turtles
+    set eigenvector_final mean [nw:eigenvector-centrality] of turtles
+    set clustering_final mean [nw:clustering-coefficient] of turtles
+    ;modularity_final
+    set mean_path_final nw:mean-path-length
+
+    ;; Polarisation
+    compute-polarisation-repeatedly ;; Firstly we have to compute polarization
+    set normalized_polarization_final normalized_polarisation
+    set ESBSG_polarization_final ESBG_polarisation
+
+    ;; Opinion
+    set mean_op1_final mean [item 0 opinion-position] of turtles
+    set mean_op2_final mean [item 1 opinion-position] of turtles
+    set sd_op1_final standard-deviation [item 0 opinion-position] of turtles
+    set sd_op2_final standard-deviation [item 1 opinion-position] of turtles
+
+    ;; For last measures we need to sort turtles regarding their opinion
+    let lops1 sort-by < [item 0 opinion-position] of turtles
+    let lops2 sort-by < [item 1 opinion-position] of turtles
+    set median_op1_final item 64 lops1
+    set median_op2_final item 64 lops2
+    set lower_op1_final mean (list item 31 lops1 item 32 lops1)
+    set lower_op2_final mean (list item 31 lops2 item 32 lops2)
+    set upper_op1_final mean (list item 95 lops1 item 96 lops1)
+    set upper_op2_final mean (list item 95 lops2 item 96 lops2)
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -1448,7 +1505,7 @@ p-random
 p-random
 0
 0.5
-0.34
+0.27
 0.01
 1
 NIL
@@ -1488,7 +1545,7 @@ p-speaking-level
 p-speaking-level
 0
 1
-0.543
+0.43
 0.001
 1
 NIL
@@ -1503,7 +1560,7 @@ boundary
 boundary
 0.01
 1
-0.28
+0.22
 0.01
 1
 NIL
@@ -1515,7 +1572,7 @@ INPUTBOX
 781
 70
 RS
-7.0
+2.0
 1
 0
 Number
@@ -1667,7 +1724,7 @@ BUTTON
 643
 491
 Show links
-ask links [set hidden? FALSE]
+ask comms [set hidden? FALSE]
 NIL
 1
 T
@@ -1903,7 +1960,7 @@ max-ticks
 max-ticks
 100
 10000
-1000.0
+1001.0
 100
 1
 NIL
@@ -1957,7 +2014,7 @@ record-each-n-steps
 record-each-n-steps
 100
 10000
-1500.0
+1000.0
 100
 1
 NIL
@@ -2027,7 +2084,7 @@ conformity-level
 conformity-level
 0
 1
-0.45
+0.54
 0.01
 1
 NIL
@@ -2189,7 +2246,7 @@ id_threshold
 id_threshold
 0.01
 1
-0.5
+0.39
 0.01
 1
 NIL
@@ -2204,7 +2261,7 @@ polarisation-each-n-steps
 polarisation-each-n-steps
 0
 10000
-1000.0
+1010.0
 10
 1
 NIL
@@ -3224,12 +3281,42 @@ NetLogo 6.2.2
       <value value="false"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="regularExperiment" repetitions="1" runMetricsEveryStep="true">
+  <experiment name="regularExperiment" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <final>compute-macro-state-of-simulation</final>
     <timeLimit steps="1000"/>
-    <metric>count turtles</metric>
+    <metric>betweenness_start</metric>
+    <metric>eigenvector_start</metric>
+    <metric>clustering_start</metric>
+    <metric>mean_path_start</metric>
+    <metric>normalized_polarization_start</metric>
+    <metric>ESBSG_polarization_start</metric>
+    <metric>mean_op1_start</metric>
+    <metric>mean_op2_start</metric>
+    <metric>sd_op1_start</metric>
+    <metric>sd_op2_start</metric>
+    <metric>median_op1_start</metric>
+    <metric>median_op2_start</metric>
+    <metric>lower_op1_start</metric>
+    <metric>lower_op2_start</metric>
+    <metric>upper_op1_start</metric>
+    <metric>upper_op2_start</metric>
+    <metric>betweenness_final</metric>
+    <metric>eigenvector_final</metric>
+    <metric>clustering_final</metric>
+    <metric>mean_path_final</metric>
+    <metric>normalized_polarization_final</metric>
+    <metric>ESBSG_polarization_final</metric>
+    <metric>mean_op1_final</metric>
+    <metric>mean_op2_final</metric>
+    <metric>sd_op1_final</metric>
+    <metric>sd_op2_final</metric>
+    <metric>median_op1_final</metric>
+    <metric>median_op2_final</metric>
+    <metric>lower_op1_final</metric>
+    <metric>lower_op2_final</metric>
+    <metric>upper_op1_final</metric>
+    <metric>upper_op2_final</metric>
     <enumeratedValueSet variable="cut-links-randomly?">
       <value value="false"/>
     </enumeratedValueSet>
@@ -3246,7 +3333,9 @@ NetLogo 6.2.2
       <value value="true"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="boundary">
+      <value value="0.22"/>
       <value value="0.28"/>
+      <value value="0.34"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="polar_repeats">
       <value value="20"/>
@@ -3261,7 +3350,7 @@ NetLogo 6.2.2
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1000"/>
+      <value value="1001"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -3270,6 +3359,7 @@ NetLogo 6.2.2
       <value value="&quot;uniform&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="p-random">
+      <value value="0.27"/>
       <value value="0.34"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="tolerance-drawn">
@@ -3280,21 +3370,23 @@ NetLogo 6.2.2
     </enumeratedValueSet>
     <enumeratedValueSet variable="n-neis">
       <value value="64"/>
+      <value value="52"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="use_opponents_ratio?">
       <value value="false"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="polarisation-each-n-steps">
-      <value value="1000"/>
+      <value value="1010"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="mode">
       <value value="&quot;openly-listen&quot;"/>
+      <value value="&quot;vaguely-speak&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="d_threshold">
       <value value="0.8"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="record-each-n-steps">
-      <value value="1500"/>
+      <value value="1000"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="ESBG_furthest_out">
       <value value="5"/>
@@ -3305,20 +3397,22 @@ NetLogo 6.2.2
     <enumeratedValueSet variable="record-length">
       <value value="40"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="file-name-core">
-      <value value="&quot;1_129_0.1_16_2_2_0.4_uniform_1_uniform_openly-listen&quot;"/>
-    </enumeratedValueSet>
     <enumeratedValueSet variable="id_threshold">
-      <value value="0.5"/>
+      <value value="0.39"/>
+      <value value="0.49"/>
+      <value value="0.59"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="network-change">
       <value value="&quot;link&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="tolerance-level">
       <value value="1.08"/>
+      <value value="0.648"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="p-speaking-level">
+      <value value="0.43"/>
       <value value="0.543"/>
+      <value value="0.65"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="centroid_color?">
       <value value="true"/>
@@ -3332,9 +3426,7 @@ NetLogo 6.2.2
     <enumeratedValueSet variable="N_centroids">
       <value value="2"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="RS">
-      <value value="7"/>
-    </enumeratedValueSet>
+    <steppedValueSet variable="RS" first="1" step="1" last="30"/>
     <enumeratedValueSet variable="dissatisfied_updates_opinion">
       <value value="0.41"/>
     </enumeratedValueSet>
@@ -3360,7 +3452,9 @@ NetLogo 6.2.2
       <value value="5"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="conformity-level">
+      <value value="0.36"/>
       <value value="0.45"/>
+      <value value="0.54"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="threshold_drawn">
       <value value="&quot;uniform&quot;"/>
