@@ -44,7 +44,8 @@ test = read_csv("speedTestingData.csv", skip = 6)
 
 wrng = read_csv("wronglySpecifiedExperiment.csv", skip = 6)
 
-res = read_csv("experiment01part01.csv", skip = 6)
+res = read_csv("experiment01part01.csv", skip = 6) %>%
+  add_row(read_csv("experiment01part02.csv", skip = 6))
 
 
 
@@ -61,7 +62,7 @@ summary(lm(normalized_polarization_final~ESBSG_polarization_final,res))
 ggplot(res, aes(y = normalized_polarization_final , x = boundary)) + geom_jitter()
 ggplot(res, aes(y = normalized_polarization_final , x = mode)) + geom_boxplot(alpha = 0.2) + geom_jitter()
 ggplot(res, aes(y = normalized_polarization_final , x = mode, col = as.factor(boundary))) + geom_boxplot(alpha = 0.2) + geom_jitter()
-ggplot(res, aes(y = normalized_polarization_final , x = mode, col = as.factor(id_threshold))) + geom_jitter()
+ggplot(res, aes(y = normalized_polarization_final , x = mode, col = as.factor(id_threshold))) + geom_jitter(alpha = 0.5, size = 2) + theme_minimal()
 
 
 
