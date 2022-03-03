@@ -790,11 +790,11 @@ to recording-situation-and-computing-polarisation
   ;; 1) We reached state, where no turtle changes for RECORD-LENGTH steps, i.e. average of MAIN-RECORD (list of averages of turtles/agents RECORD) is 1 or
   ;; 2) We reached number of steps specified in MAX-TICKS
   if ((mean main-Record = 1 and network-changes <= 5) or ticks = max-ticks) [compute-polarisation-repeatedly]
-  if ((mean main-Record = 1 and network-changes <= 5) or ticks = max-ticks) and record? [compute-final-macro-state-of-simulation]
+  if ((mean main-Record = 1 and network-changes <= 5) or ticks = max-ticks) [compute-final-macro-state-of-simulation]
 
   ;; Recording and computing polarisation on the fly...
-  if (ticks / polarisation-each-n-steps) = floor (ticks / polarisation-each-n-steps) [compute-polarisation-repeatedly]
-  if (ticks / record-each-n-steps) = floor(ticks / record-each-n-steps) [compute-final-macro-state-of-simulation]
+  ;if (ticks / polarisation-each-n-steps) = floor (ticks / polarisation-each-n-steps) [compute-polarisation-repeatedly]
+  ;if (ticks / record-each-n-steps) = floor(ticks / record-each-n-steps) [compute-final-macro-state-of-simulation]
 end
 
 
@@ -1572,7 +1572,7 @@ INPUTBOX
 781
 70
 RS
-2.0
+1.0
 1
 0
 Number
@@ -1960,7 +1960,7 @@ max-ticks
 max-ticks
 100
 10000
-1001.0
+1000.0
 100
 1
 NIL
@@ -2084,7 +2084,7 @@ conformity-level
 conformity-level
 0
 1
-0.54
+0.36
 0.01
 1
 NIL
@@ -3284,7 +3284,7 @@ NetLogo 6.2.2
   <experiment name="regularExperiment" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1000"/>
+    <timeLimit steps="1001"/>
     <metric>betweenness_start</metric>
     <metric>eigenvector_start</metric>
     <metric>clustering_start</metric>
@@ -3350,7 +3350,7 @@ NetLogo 6.2.2
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1001"/>
+      <value value="1000"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
