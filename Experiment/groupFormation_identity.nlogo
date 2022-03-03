@@ -1545,7 +1545,7 @@ p-speaking-level
 p-speaking-level
 0
 1
-0.43
+0.543
 0.001
 1
 NIL
@@ -1572,7 +1572,7 @@ INPUTBOX
 781
 70
 RS
-1.0
+24.0
 1
 0
 Number
@@ -2246,7 +2246,7 @@ id_threshold
 id_threshold
 0.01
 1
-0.39
+0.49
 0.01
 1
 NIL
@@ -3284,7 +3284,7 @@ NetLogo 6.2.2
   <experiment name="regularExperiment" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1001"/>
+    <timeLimit steps="366"/>
     <metric>betweenness_start</metric>
     <metric>eigenvector_start</metric>
     <metric>clustering_start</metric>
@@ -3317,6 +3317,7 @@ NetLogo 6.2.2
     <metric>lower_op2_final</metric>
     <metric>upper_op1_final</metric>
     <metric>upper_op2_final</metric>
+    <steppedValueSet variable="RS" first="1" step="1" last="30"/>
     <enumeratedValueSet variable="cut-links-randomly?">
       <value value="false"/>
     </enumeratedValueSet>
@@ -3350,7 +3351,7 @@ NetLogo 6.2.2
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1000"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -3386,7 +3387,7 @@ NetLogo 6.2.2
       <value value="0.8"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="record-each-n-steps">
-      <value value="1000"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="ESBG_furthest_out">
       <value value="5"/>
@@ -3426,7 +3427,6 @@ NetLogo 6.2.2
     <enumeratedValueSet variable="N_centroids">
       <value value="2"/>
     </enumeratedValueSet>
-    <steppedValueSet variable="RS" first="1" step="1" last="30"/>
     <enumeratedValueSet variable="dissatisfied_updates_opinion">
       <value value="0.41"/>
     </enumeratedValueSet>
