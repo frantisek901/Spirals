@@ -44,10 +44,24 @@ test = read_csv("speedTestingData.csv", skip = 6)
 
 wrng = read_csv("wronglySpecifiedExperiment.csv", skip = 6)
 
+res = read_csv("experiment01part01.csv", skip = 6)
 
 
 
+# Some graphs -------------------------------------------------------------
 
+ggplot(res, aes(x = `n-neis`, y = betweenness_final)) + geom_point()
+ggplot(res, aes(x = `n-neis`, y = eigenvector_final)) + geom_point()
+ggplot(res, aes(x = `n-neis`, y = clustering_final)) + geom_point()
+ggplot(res, aes(x = `n-neis`, y = mean_path_final)) + geom_point()
+
+ggplot(res, aes(y = normalized_polarization_final , x = ESBSG_polarization_final)) + geom_point()
+summary(lm(normalized_polarization_final~ESBSG_polarization_final,res))
+
+ggplot(res, aes(y = normalized_polarization_final , x = boundary)) + geom_jitter()
+ggplot(res, aes(y = normalized_polarization_final , x = mode)) + geom_boxplot(alpha = 0.2) + geom_jitter()
+ggplot(res, aes(y = normalized_polarization_final , x = mode, col = as.factor(boundary))) + geom_boxplot(alpha = 0.2) + geom_jitter()
+ggplot(res, aes(y = normalized_polarization_final , x = mode, col = as.factor(id_threshold))) + geom_jitter()
 
 
 
