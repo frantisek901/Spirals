@@ -86,5 +86,8 @@ final.full = full %>% filter(Final == max(Final)) %>%
 
 
 # Printing the main parameters:
-kable(final.best)
 kable(final.full)
+kable(final.best)
+
+# NOTE: parameters at 'final.full' are unstable, only with tiny fraction of random seeds
+#       it produces high polarization --> use parameters from 'final.best'
