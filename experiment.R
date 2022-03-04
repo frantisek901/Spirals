@@ -63,15 +63,34 @@ summary(lm(normalized_polarization_final~ESBSG_polarization_final,res))
 ggplot(res, aes(y = normalized_polarization_final , x = boundary)) + geom_jitter()
 ggplot(res, aes(y = normalized_polarization_final , x = mode)) + geom_boxplot(alpha = 0.2) + geom_jitter()
 ggplot(res, aes(y = normalized_polarization_final , x = mode, col = as.factor(boundary))) + geom_boxplot(alpha = 0.2) + geom_jitter()
-ggplot(res, aes(y = normalized_polarization_final , x = mode, col = as.factor(id_threshold))) + geom_jitter(alpha = 0.5, size = 2) + theme_minimal()
+ggplot(res, aes(y = normalized_polarization_final , x = mode, col = as.factor(id_threshold))) +
+  facet_wrap(vars(`use_identity?`)) +
+  geom_jitter(alpha = 0.05, size = 2) +
+  theme_minimal()
 
 ggplot(res, aes(x = RS)) + geom_bar()
 
 
 
+ggplot(res, aes(y = normalized_polarization_final , x = mode, col = as.factor(id_threshold))) +
+  facet_grid(rows = vars(`use_identity?`), cols = vars(boundary, `tolerance-level`)) +
+  geom_jitter(alpha = 0.05, size = 2) +
+  theme_minimal()
+
+
+res %>% group_by(mode, id_threshold, `use_identity?`, boundary, `tolerance-level`) %>%
+  summarise(npf = mean(normalized_polarization_final)) %>%
+  ggplot(aes(y = npf , x = mode, fill = as.factor(id_threshold))) +
+  facet_grid(rows = vars(`use_identity?`), cols = vars(boundary, `tolerance-level`)) +
+  geom_col(alpha = 0.5) +
+  theme_minimal()
+
+
+
 # Some regressions --------------------------------------------------------
 
-summary(lm(normalized_polarization_final~ESBSG_polarization_final,res))
+summary(lm(normalized_polarization_final~boundary+mode+id_threshold+`use_identity?`+`tolerance-level`+`p-speaking-level`+`conformity-level`+`p-random`+`n-neis`,res))
+summary(lm(ESBSG_polarization_final~boundary+mode+id_threshold+`use_identity?`+`tolerance-level`+`p-speaking-level`+`conformity-level`+`p-random`+`n-neis`,res))
 
 
 
