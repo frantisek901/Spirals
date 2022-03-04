@@ -46,11 +46,25 @@ wrng = read_csv("wronglySpecifiedExperiment.csv", skip = 6)
 
 res = read_csv("experiment01part01.csv", skip = 6) %>%
   add_row(read_csv("experiment01part02.csv", skip = 6)) %>%
-  add_row(read_csv("experiment01part03.csv", skip = 6))
+  add_row(read_csv("experiment01part03.csv", skip = 6)) %>%
+  select(-c(3:4, 7, 9:12, 14:15, 17:18, 20:21, 23:27, 29, 32, 34:35, 38, 40:43, 45:47)) %>%
+  mutate(
+    iqr_op1_start = upper_op1_start - lower_op1_start,
+    iqr_op2_start = upper_op2_start - lower_op2_start,
+    iqr_op1_final = upper_op1_final - lower_op1_final,
+    iqr_op2_final = upper_op2_final - lower_op2_final
+  ) %>% select(-c(31:34, 47:50)) %>%
+  relocate(any_of(c("iqr_op1_start", "iqr_op2_start")), .after = median_op2_start)
+
+long = read_csv("experiment01part03LONG.csv", skip = 6)
 
 
 
 # Some graphs -------------------------------------------------------------
+
+ggplot(res, aes(x = iqr_op1_final, y = iqr_op2_final, col = `use_identity?`)) +
+  geom_point(alpha = 0.15) +
+  theme_minimal()
 
 ggplot(res, aes(x = `n-neis`, y = betweenness_final)) + geom_point()
 ggplot(res, aes(x = `n-neis`, y = eigenvector_final)) + geom_point()
