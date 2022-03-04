@@ -2,7 +2,7 @@
 
 ## Encoding: windows-1250
 ## Created:  2022-03-03 Francesco
-## Edited:   2022-03-03 Francesco
+## Edited:   2022-03-04 Francesco
 
 
 ## NOTES:
@@ -40,10 +40,6 @@ prejmenuj = function(data, positions, new.names) {
 
 # Loading and cleaning data -----------------------------------------------
 
-test = read_csv("speedTestingData.csv", skip = 6)
-
-wrng = read_csv("wronglySpecifiedExperiment.csv", skip = 6)
-
 res = read_csv("experiment01part01.csv", skip = 6) %>%
   add_row(read_csv("experiment01part02.csv", skip = 6)) %>%
   add_row(read_csv("experiment01part03.csv", skip = 6)) %>%
@@ -56,8 +52,25 @@ res = read_csv("experiment01part01.csv", skip = 6) %>%
   ) %>% select(-c(31:34, 47:50)) %>%
   relocate(any_of(c("iqr_op1_start", "iqr_op2_start")), .after = median_op2_start)
 
-long = read_csv("experiment01part03LONG.csv", skip = 6)
 
+
+long = read_csv("experiment01part03LONG.csv", skip = 6) %>%
+  mutate(mean_path_final = as.numeric(mean_path_final)) %>%
+  add_row(read_csv("experiment01part01LONG01.csv", skip = 6)) %>%
+  select(-c(3:4, 7, 9:12, 14:15, 17:18, 20:21, 23:27, 29, 32, 34:35, 38, 40:43, 45:47)) %>%
+  mutate(
+    iqr_op1_start = upper_op1_start - lower_op1_start,
+    iqr_op2_start = upper_op2_start - lower_op2_start,
+    iqr_op1_final = upper_op1_final - lower_op1_final,
+    iqr_op2_final = upper_op2_final - lower_op2_final
+  ) %>% select(-c(31:34, 47:50)) %>%
+  relocate(any_of(c("iqr_op1_start", "iqr_op2_start")), .after = median_op2_start)
+
+
+
+test = read_csv("speedTestingData.csv", skip = 6)
+
+wrng = read_csv("wronglySpecifiedExperiment.csv", skip = 6)
 
 
 # Some graphs -------------------------------------------------------------
