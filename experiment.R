@@ -57,7 +57,8 @@ res = read_csv("experiment01part01.csv", skip = 6) %>%
     iqr_op2_final = upper_op2_final - lower_op2_final
   ) %>%
   # select(-c(31:34, 47:50)) %>%
-  relocate(any_of(c("iqr_op1_start", "iqr_op2_start")), .after = median_op2_start)
+  relocate(any_of(c("iqr_op1_start", "iqr_op2_start")), .after = median_op2_start) %>%
+  prejmenuj(41:42, c("normalized_365", "ESBG_365"))
 
 
 
@@ -76,13 +77,9 @@ long = read_csv("experiment01part03LONG.csv", skip = 6) %>%
     iqr_op2_final = upper_op2_final - lower_op2_final
   ) %>%
   # select(-c(31:34, 47:50)) %>%
-  relocate(any_of(c("iqr_op1_start", "iqr_op2_start")), .after = median_op2_start)
+  relocate(any_of(c("iqr_op1_start", "iqr_op2_start")), .after = median_op2_start) %>%
+  prejmenuj(41:42, c("normalized_3650", "ESBG_3650"))
 
-
-
-test = read_csv("speedTestingData.csv", skip = 6)
-
-wrng = read_csv("wronglySpecifiedExperiment.csv", skip = 6)
 
 
 
@@ -96,12 +93,15 @@ save(long, file = "longData.RData")
 
 # Some graphs -------------------------------------------------------------
 
-ggplot(res, aes(x = iqr_op1_final, y = iqr_op2_final, col = `use_identity?`)) +
-  geom_point(alpha = 0.15) +
+sample_n(res, 10000) %>%
+  ggplot(aes(x = iqr_op1_final, y = iqr_op2_final, col = `use_identity?`)) +
+  geom_point(alpha = 0.35) +
   theme_minimal()
 
-ggplot(long, aes(x = iqr_op1_final, y = iqr_op2_final, col = `use_identity?`)) +
-  geom_point(alpha = 0.15) +
+sample_n(long[!long$`use_identity?`,], 5000) %>%
+  add_row(sample_n(long[long$`use_identity?`,], 5000)) %>%
+  ggplot(aes(x = iqr_op1_final, y = iqr_op2_final, col = `use_identity?`)) +
+  geom_point(alpha = 0.35) +
   theme_minimal()
 
 ggplot(res, aes(x = `n-neis`, y = betweenness_final)) + geom_point()
@@ -142,12 +142,19 @@ res %>% group_by(mode, id_threshold, `use_identity?`, boundary, `tolerance-level
 # Some regressions --------------------------------------------------------
 
 # 365 ticks
-summary(lm(normalized_polarization_final~boundary+mode+id_threshold+`use_identity?`+`tolerance-level`+`p-speaking-level`+`conformity-level`+`p-random`+`n-neis`,res))
-summary(lm(ESBSG_polarization_final~boundary+mode+id_threshold+`use_identity?`+`tolerance-level`+`p-speaking-level`+`conformity-level`+`p-random`+`n-neis`,res))
+summary(lm(normalized_365~boundary+mode+id_threshold+`use_identity?`+`tolerance-level`+`p-speaking-level`+`conformity-level`+`p-random`+`n-neis`,res))
+summary(lm(ESBG_365~boundary+mode+id_threshold+`use_identity?`+`tolerance-level`+`p-speaking-level`+`conformity-level`+`p-random`+`n-neis`,res))
 
 # 3650 ticks
-summary(lm(normalized_polarization_final~boundary+mode+id_threshold+`use_identity?`+`tolerance-level`+`p-speaking-level`+`conformity-level`+`p-random`+`n-neis`, long))
-summary(lm(ESBSG_polarization_final~boundary+mode+id_threshold+`use_identity?`+`tolerance-level`+`p-speaking-level`+`conformity-level`+`p-random`+`n-neis`, long))
+summary(lm(normalized_3650~boundary+mode+id_threshold*`use_identity?`+`tolerance-level`+`p-speaking-level`+`conformity-level`+`p-random`+`n-neis`, long))
+summary(lm(ESBG_3650~boundary+mode+id_threshold*`use_identity?`+`tolerance-level`+`p-speaking-level`+`conformity-level`+`p-random`+`n-neis`, long))
 
 
 
+
+
+# Strange code ------------------------------------------------------------
+
+test = read_csv("speedTestingData.csv", skip = 6)
+
+wrng = read_csv("wronglySpecifiedExperiment.csv", skip = 6)
