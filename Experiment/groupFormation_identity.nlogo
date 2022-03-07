@@ -5797,9 +5797,7 @@ NetLogo 6.2.2
       <value value="40"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="id_threshold">
-      <value value="0.39"/>
       <value value="0.49"/>
-      <value value="0.59"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="network-change">
       <value value="&quot;link&quot;"/>
@@ -5980,9 +5978,7 @@ NetLogo 6.2.2
       <value value="40"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="id_threshold">
-      <value value="0.39"/>
       <value value="0.49"/>
-      <value value="0.59"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="network-change">
       <value value="&quot;link&quot;"/>
@@ -6163,9 +6159,7 @@ NetLogo 6.2.2
       <value value="40"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="id_threshold">
-      <value value="0.39"/>
       <value value="0.49"/>
-      <value value="0.59"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="network-change">
       <value value="&quot;link&quot;"/>
