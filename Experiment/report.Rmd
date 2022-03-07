@@ -1,0 +1,45 @@
+---
+title: "Report for Ashley"
+author: "František Kalvas"
+date: "2022-03-07"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+## Encoding: UTF-8
+
+rm(list=ls())
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Loading data
+
+Data are at <http://github.com/frantisek901/Spirals/Experiment>. Experiment is still running and I, Francesco, from time to time actualize the `*.csv` files at GitHub, then I run script `experiment.R` which loads the data. Later version probably finds better names for variables, but now, I use default names from NetLogo experiment.
+
+Who is not interested in working with megabytes of `*.csv files`, might use compiled `*.RData`, there are two files: `shortData.RData`, which is main data file from experiments running only 365 steps, these data are extended by extra simulations with low size of small-world network neighborhood; and `longData.RData`, which is additional data file from experiments running 3650 steps -- thanks to it we might test the effect of simulation length.
+
+Now we load these data:
+```{r loading}
+load("shortData.RData")
+load("longData.RData")
+
+```
+
+
+
+## Regressions
+
+
+
+```{r regression, echo=FALSE}
+# 365 ticks
+summary(lm(normalized_polarization_final~boundary+mode+id_threshold+`use_identity?`+`tolerance-level`+`p-speaking-level`+`conformity-level`+`p-random`+`n-neis`,res)) 
+summary(lm(ESBSG_polarization_final~boundary+mode+id_threshold+`use_identity?`+`tolerance-level`+`p-speaking-level`+`conformity-level`+`p-random`+`n-neis`,res))
+
+# 3650 ticks
+summary(lm(normalized_polarization_final~boundary+mode+id_threshold+`use_identity?`+`tolerance-level`+`p-speaking-level`+`conformity-level`+`p-random`+`n-neis`, long))
+summary(lm(ESBSG_polarization_final~boundary+mode+id_threshold+`use_identity?`+`tolerance-level`+`p-speaking-level`+`conformity-level`+`p-random`+`n-neis`, long))
+
+
+```
+
