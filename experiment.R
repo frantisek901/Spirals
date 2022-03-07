@@ -2,7 +2,7 @@
 
 ## Encoding: windows-1250
 ## Created:  2022-03-03 Francesco
-## Edited:   2022-03-04 Francesco
+## Edited:   2022-03-07 Francesco
 
 
 ## NOTES:
@@ -43,13 +43,20 @@ prejmenuj = function(data, positions, new.names) {
 res = read_csv("experiment01part01.csv", skip = 6) %>%
   add_row(read_csv("experiment01part02.csv", skip = 6)) %>%
   add_row(read_csv("experiment01part03.csv", skip = 6)) %>%
+  add_row(read_csv("experiment01part04.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
+  add_row(read_csv("experiment01part05.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
+  add_row(read_csv("experiment01part06.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
+  add_row(read_csv("experiment01part11.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
+  add_row(read_csv("experiment01part13.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
+  add_row(read_csv("experiment01part14.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
   select(-c(3:4, 7, 9:12, 14:15, 17:18, 20:21, 23:27, 29, 32, 34:35, 38, 40:43, 45:47)) %>%
   mutate(
     iqr_op1_start = upper_op1_start - lower_op1_start,
     iqr_op2_start = upper_op2_start - lower_op2_start,
     iqr_op1_final = upper_op1_final - lower_op1_final,
     iqr_op2_final = upper_op2_final - lower_op2_final
-  ) %>% select(-c(31:34, 47:50)) %>%
+  ) %>%
+  # select(-c(31:34, 47:50)) %>%
   relocate(any_of(c("iqr_op1_start", "iqr_op2_start")), .after = median_op2_start)
 
 
@@ -57,13 +64,18 @@ res = read_csv("experiment01part01.csv", skip = 6) %>%
 long = read_csv("experiment01part03LONG.csv", skip = 6) %>%
   mutate(mean_path_final = as.numeric(mean_path_final)) %>%
   add_row(read_csv("experiment01part01LONG01.csv", skip = 6)) %>%
+  add_row(read_csv("experiment01part01LONG02.csv", skip = 6)) %>%
+  add_row(read_csv("experiment01part01LONG02b.csv", skip = 6)) %>%
+  add_row(read_csv("experiment01part01LONG04.csv", skip = 6)) %>%
+  add_row(read_csv("experiment01part03LONG.csv", skip = 6)) %>%
   select(-c(3:4, 7, 9:12, 14:15, 17:18, 20:21, 23:27, 29, 32, 34:35, 38, 40:43, 45:47)) %>%
   mutate(
     iqr_op1_start = upper_op1_start - lower_op1_start,
     iqr_op2_start = upper_op2_start - lower_op2_start,
     iqr_op1_final = upper_op1_final - lower_op1_final,
     iqr_op2_final = upper_op2_final - lower_op2_final
-  ) %>% select(-c(31:34, 47:50)) %>%
+  ) %>%
+  # select(-c(31:34, 47:50)) %>%
   relocate(any_of(c("iqr_op1_start", "iqr_op2_start")), .after = median_op2_start)
 
 
@@ -73,9 +85,22 @@ test = read_csv("speedTestingData.csv", skip = 6)
 wrng = read_csv("wronglySpecifiedExperiment.csv", skip = 6)
 
 
+
+# Saving data -------------------------------------------------------------
+
+save(res, file = "shortData.RData")
+
+save(long, file = "longData.RData")
+
+
+
 # Some graphs -------------------------------------------------------------
 
 ggplot(res, aes(x = iqr_op1_final, y = iqr_op2_final, col = `use_identity?`)) +
+  geom_point(alpha = 0.15) +
+  theme_minimal()
+
+ggplot(long, aes(x = iqr_op1_final, y = iqr_op2_final, col = `use_identity?`)) +
   geom_point(alpha = 0.15) +
   theme_minimal()
 
@@ -116,9 +141,13 @@ res %>% group_by(mode, id_threshold, `use_identity?`, boundary, `tolerance-level
 
 # Some regressions --------------------------------------------------------
 
+# 365 ticks
 summary(lm(normalized_polarization_final~boundary+mode+id_threshold+`use_identity?`+`tolerance-level`+`p-speaking-level`+`conformity-level`+`p-random`+`n-neis`,res))
 summary(lm(ESBSG_polarization_final~boundary+mode+id_threshold+`use_identity?`+`tolerance-level`+`p-speaking-level`+`conformity-level`+`p-random`+`n-neis`,res))
 
+# 3650 ticks
+summary(lm(normalized_polarization_final~boundary+mode+id_threshold+`use_identity?`+`tolerance-level`+`p-speaking-level`+`conformity-level`+`p-random`+`n-neis`, long))
+summary(lm(ESBSG_polarization_final~boundary+mode+id_threshold+`use_identity?`+`tolerance-level`+`p-speaking-level`+`conformity-level`+`p-random`+`n-neis`, long))
 
 
 
