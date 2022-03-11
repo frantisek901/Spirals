@@ -1,10 +1,10 @@
 ---
 title: "Report for Ashley"
 author: "František Kalvas"
-date: '2022-03-07'
+date: '2022-03-11'
 output:
-  pdf_document: default
   word_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -21,6 +21,8 @@ library(stargazer)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(lmtest)
+library(forcats)
 
 
 # My own functon for renaming in Tidyverse
@@ -55,12 +57,12 @@ On the two following pages, there are 4 regressions in 2 tables (I'm starting wi
 
 ```{r regression1, echo=FALSE}
 # 365 ticks
-nn = lm(normalized_365~id_threshold+`use_identity?`+boundary+mode+`tolerance-level`+`p-speaking-level`+`conformity-level`+`p-random`+`n-neis`,res) 
-ne = (lm(ESBG_365~id_threshold+`use_identity?`+boundary+mode+`tolerance-level`+`p-speaking-level`+`conformity-level`+`p-random`+`n-neis`,res))
+nn = lm(normalized_365~id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`,res) 
+ne = (lm(ESBG_365~id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`,res))
 
 # 3650 ticks
-ln = (lm(normalized_3650~id_threshold+`use_identity?`+boundary+mode+`tolerance-level`+`p-speaking-level`+`conformity-level`+`p-random`+`n-neis`, long))
-le = (lm(ESBG_3650~id_threshold+`use_identity?`+boundary+mode+`tolerance-level`+`p-speaking-level`+`conformity-level`+`p-random`+`n-neis`, long))
+ln = (lm(normalized_3650~id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`, long))
+le = (lm(ESBG_3650~id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`, long))
 
 stargazer(ne, le, type = "text")
 
@@ -205,4 +207,435 @@ df %>% filter(file == "standard", identity) %>%
 In previous graph we saw that while some polarisation might happen even without using identity (especially with narrower boundaries), more polarized simulations on average are that using identity. Effect of identity threshold is non-linear: in simulations with 'openly listen' mode the main polarization increase is between 0.39 and 0.49 values, in mode 'vaguely speak' between values 0.49 and 0.59 (but generally, the later mode is less polarized). It is also interesting, that in mode 'vaguely speak' with boundary widening the polarization always decreases, but in mode 'openly listen' this happens only for the lowest identity threshold value (0.39), for other threshold values (0.49, 0.59) the polarization stays same with widening of boundary or even very slightly increases! 
 
 The last result is very surprising -- Hegselmann-Krause model usually finds overall concensus and avoids polarization with wider boundary, it's one of basic results. But when we introduce identity, then this old true changes or is contingent on simulation mode (speaking/listening) and identity threshold. The classical HK findings still hold true, but only for 'vaguely speak' mode and low identity threshold values.
+
+## More regressions
+
+Here we compare full models `le`, `ln`, `ne` and `nn` with single varibles models, with full models omiting these single variables and with variables blocks. Let's start with blocks!  
+
+### Identity block  
+
+```{r regression block 1, echo=FALSE}
+idn = lm(normalized_365~id_threshold+`use_identity?`,res) 
+ide = (lm(ESBG_365~id_threshold+`use_identity?`,res))
+
+stargazer(ide, idn, type = "text")
+
+anova(ne, ide)
+anova(nn, idn)
+
+lrtest(ne, ide)
+lrtest(nn, idn)
+
+```
+
+
+### Hegselmann-Krause block  
+
+```{r regression block 2, echo=FALSE}
+hkn = lm(normalized_365~boundary+mode+`conformity-level`,res) 
+hke = (lm(ESBG_365~boundary+mode+`conformity-level`,res))
+
+stargazer(hke, hkn, type = "text")
+
+anova(ne, hke)
+anova(nn, hkn)
+
+lrtest(ne, hke)
+lrtest(nn, hkn)
+
+```
+
+
+### Network block  
+
+```{r regression block 3, echo=FALSE}
+ntn = lm(normalized_365~`tolerance-level`+`p-random`+`n-neis`,res) 
+nte = (lm(ESBG_365~`tolerance-level`+`p-random`+`n-neis`,res))
+
+stargazer(nte, ntn, type = "text")
+
+anova(ne, nte)
+anova(nn, ntn)
+
+lrtest(ne, nte)
+lrtest(nn, ntn)
+
+```
+
+
+
+### SoS block  
+
+```{r regression block 4, echo=FALSE}
+ssn = lm(normalized_365~`p-speaking-level`,res) 
+sse = (lm(ESBG_365~`p-speaking-level`,res))
+
+stargazer(sse, ssn, type = "text")
+
+anova(ne, sse)
+anova(nn, ssn)
+
+lrtest(ne, sse)
+lrtest(nn, ssn)
+
+```
+
+OK, we see, that we might omit SoS and Network blocks, we may focus only on Identity and HK blocks.
+
+## Without identity
+
+```{r regression block 5, echo=FALSE}
+# 365 ticks
+nidn = lm(normalized_365~boundary+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`,res) 
+nide = (lm(ESBG_365~boundary+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`,res))
+
+stargazer(nide, nidn, type = "text")
+
+
+anova(ne, nide)
+anova(nn, nidn)
+
+lrtest(ne, nide)
+lrtest(nn, nidn)
+
+
+```
+
+
+
+## Without HK block
+
+```{r regression block 6, echo=FALSE}
+# 365 ticks
+nhkn = lm(normalized_365~id_threshold+`use_identity?`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`,res) 
+nhke = (lm(ESBG_365~id_threshold+`use_identity?`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`,res))
+
+stargazer(nhke, nhkn, type = "text")
+
+
+anova(ne, nhke)
+anova(nn, nhkn)
+
+lrtest(ne, nhke)
+lrtest(nn, nhkn)
+
+
+```
+
+
+```{r blocks 1, echo=FALSE}
+hkidn = lm(normalized_365~id_threshold+`use_identity?`+boundary+mode+`conformity-level`,res) 
+hkide = (lm(ESBG_365~id_threshold+`use_identity?`+boundary+mode+`conformity-level`,res))
+
+stargazer(hkide, hkidn, type = "text")
+
+anova(hkide, hke)
+anova(hkidn, hkn)
+
+lrtest(hkide, hke)
+lrtest(hkidn, hkn)
+
+anova(hkide, ne)
+anova(hkidn, nn)
+
+lrtest(hkide, ne)
+lrtest(hkidn, nn)
+
+```
+
+OK, then! Evidently the weaker block (Identity) improves model with stronger block (Hegselmann-Krause) a lot. Other blocks improve model also (statistically), but it is weak improvement. It is evident that present data these blocks (Identity, HK) explain satisfactorily. But just let's look at Network block -- would it improve the present model (Identity + HK)?
+
+
+```{r blocks 2, echo=FALSE}
+hkidnwn = lm(normalized_365~id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`tolerance-level`+`p-random`+`n-neis`,res) 
+hkidnwe = (lm(ESBG_365~id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`tolerance-level`+`p-random`+`n-neis`,res))
+
+stargazer(hkidnwe, hkidnwn, type = "text")
+
+anova(hkide, hkidnwe)
+anova(hkidn, hkidnwn)
+
+lrtest(hkide, hkidnwe)
+lrtest(hkidn, hkidnwn)
+
+anova(hkidnwe, ne)
+anova(hkidnwn, nn)
+
+lrtest(hkidnwe, ne)
+lrtest(hkidnwn, nn)
+
+```
+
+OK, Network and SoS improve model, but it is very weak. Thanks to huge number of obsefvations we receive statistically significant results, even in case of SoS, but substantively it's not big improvement (instead of thousands, only tens of point of $\chi^2 $). Only just for sure, we continue with testing effect of individual variables.
+
+
+## Individual variables
+
+This testing is not very useful, I think, because we just tested effect of SoS -- block of one variable -- and even this weak variable is statistically significant. But, OK, for sure, we do it! :-) And we will start from the tail, from weakest variables. We will estimate model with just one variable, and also just without this one variable.
+
+### Number of neighbors  
+
+```{r regression idividual1, echo=FALSE}
+nnein = lm(normalized_365~`n-neis`,res) 
+nneie = (lm(ESBG_365~`n-neis`,res))
+nnnein = lm(normalized_365~id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`,res) 
+nnneie = (lm(ESBG_365~id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`,res))
+
+stargazer(nneie, nnein, type = "text")
+
+anova(nnnein, nn)
+anova(nnneie, ne)
+
+lrtest(nnnein, nn)
+lrtest(nnneie, ne)
+
+```
+
+OK, Size of neighborhood explains data better, improves model significantly, but still it is weak improvement.
+
+
+### Probability of random links  
+
+```{r regression idividual2, echo=FALSE}
+nvarn = lm(normalized_365~`p-random`,res) 
+nvare = (lm(ESBG_365~`p-random`,res))
+nnvarn = lm(normalized_365~id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`n-neis`,res) 
+nnvare = (lm(ESBG_365~id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`n-neis`,res))
+
+stargazer(nvare, nvarn, type = "text")
+
+anova(nnvarn, nn)
+anova(nnvare, ne)
+
+lrtest(nnvarn, nn)
+lrtest(nnvare, ne)
+
+```
+
+Whoa! Probability of random links doesn't improve model significantly! This probability is useless.
+
+
+
+### Tolerance to opponents in neighborhood  
+
+```{r regression idividual3, echo=FALSE}
+nvarn = lm(normalized_365~`tolerance-level`,res) 
+nvare = (lm(ESBG_365~`tolerance-level`,res))
+nnvarn = lm(normalized_365~id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`p-speaking-level`+`p-random`+`n-neis`,res) 
+nnvare = (lm(ESBG_365~id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`p-speaking-level`+`p-random`+`n-neis`,res))
+
+stargazer(nvare, nvarn, type = "text")
+
+anova(nnvarn, nn)
+anova(nnvare, ne)
+
+lrtest(nnvarn, nn)
+lrtest(nnvare, ne)
+
+```
+
+OK, Tolerance to opponents in neighborhood explains data better, improves model significantly, but still it is weak improvement.
+
+
+
+### Probability of speaking
+
+```{r regression idividual4, echo=FALSE}
+ssn = lm(normalized_365~`p-speaking-level`,res) 
+sse = (lm(ESBG_365~`p-speaking-level`,res))
+hkidnwn = lm(normalized_365~id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`tolerance-level`+`p-random`+`n-neis`,res) 
+hkidnwe = (lm(ESBG_365~id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`tolerance-level`+`p-random`+`n-neis`,res))
+
+stargazer(sse, ssn, type = "text")
+
+anova(ne, hkidnwe)
+anova(nn, hkidnwn)
+
+lrtest(ne, hkidnwe)
+lrtest(nn, hkidnwn)
+
+```
+
+OK, Probability of speaking explains data better, improves model significantly, but still it is very weak improvement.
+
+
+
+### Conformity level  
+
+```{r regression idividual5, echo=FALSE}
+nvarn = lm(normalized_365~`conformity-level`,res) 
+nvare = (lm(ESBG_365~`conformity-level`,res))
+nnvarn = lm(normalized_365~id_threshold+`use_identity?`+boundary+mode+`tolerance-level`+`p-speaking-level`+`p-random`+`n-neis`,res) 
+nnvare = (lm(ESBG_365~id_threshold+`use_identity?`+boundary+mode+`tolerance-level`+`p-speaking-level`+`p-random`+`n-neis`,res))
+
+stargazer(nvare, nvarn, type = "text")
+
+anova(nnvarn, nn)
+anova(nnvare, ne)
+
+lrtest(nnvarn, nn)
+lrtest(nnvare, ne)
+
+```
+
+OK, Conformity level in neighborhood explains data better, improves model significantly, but still it is weak improvement.
+
+
+
+### Mode  
+
+```{r regression idividual6, echo=FALSE}
+nvarn = lm(normalized_365~mode,res) 
+nvare = (lm(ESBG_365~mode,res))
+nnvarn = lm(normalized_365~id_threshold+`use_identity?`+boundary+`conformity-level`+`tolerance-level`+`p-speaking-level`+`p-random`+`n-neis`,res) 
+nnvare = (lm(ESBG_365~id_threshold+`use_identity?`+boundary+`conformity-level`+`tolerance-level`+`p-speaking-level`+`p-random`+`n-neis`,res))
+
+stargazer(nvare, nvarn, type = "text")
+
+anova(nnvarn, nn)
+anova(nnvare, ne)
+
+lrtest(nnvarn, nn)
+lrtest(nnvare, ne)
+
+```
+
+WHOOOOAAA! Mode is hugely significant, explains data so much better, improves model very significantly, it is strong improvement.
+
+
+
+### Boundary  
+
+```{r regression idividual7, echo=FALSE}
+nvarn = lm(normalized_365~boundary,res) 
+nvare = (lm(ESBG_365~boundary,res))
+nnvarn = lm(normalized_365~id_threshold+`use_identity?`+mode+`conformity-level`+`tolerance-level`+`p-speaking-level`+`p-random`+`n-neis`,res) 
+nnvare = (lm(ESBG_365~id_threshold+`use_identity?`+mode+`conformity-level`+`tolerance-level`+`p-speaking-level`+`p-random`+`n-neis`,res))
+
+stargazer(nvare, nvarn, type = "text")
+
+anova(nnvarn, nn)
+anova(nnvare, ne)
+
+lrtest(nnvarn, nn)
+lrtest(nnvare, ne)
+
+```
+
+OK, Boundary explains data better, improves model significantly, but still it is weak improvement.
+
+
+
+### Identity use  
+
+```{r regression idividual8, echo=FALSE}
+nvarn = lm(normalized_365~`use_identity?`,res) 
+nvare = (lm(ESBG_365~`use_identity?`,res))
+nnvarn = lm(normalized_365~id_threshold+boundary+mode+`conformity-level`+`tolerance-level`+`p-speaking-level`+`p-random`+`n-neis`,res) 
+nnvare = (lm(ESBG_365~id_threshold+boundary+mode+`conformity-level`+`tolerance-level`+`p-speaking-level`+`p-random`+`n-neis`,res))
+
+stargazer(nvare, nvarn, type = "text")
+
+anova(nnvarn, nn)
+anova(nnvare, ne)
+
+lrtest(nnvarn, nn)
+lrtest(nnvare, ne)
+
+```
+
+WHOOOOAAA! Identity use is very significant, explains data much better, improves model significantly, it is strong improvement.
+
+
+
+### Identity level  
+
+```{r regression idividual9, echo=FALSE}
+nvarn = lm(normalized_365~id_threshold,res) 
+nvare = (lm(ESBG_365~id_threshold,res))
+nnvarn = lm(normalized_365~`use_identity?`+boundary+mode+`conformity-level`+`tolerance-level`+`p-speaking-level`+`p-random`+`n-neis`,res) 
+nnvare = (lm(ESBG_365~`use_identity?`+boundary+mode+`conformity-level`+`tolerance-level`+`p-speaking-level`+`p-random`+`n-neis`,res))
+
+stargazer(nvare, nvarn, type = "text")
+
+anova(nnvarn, nn)
+anova(nnvare, ne)
+
+lrtest(nnvarn, nn)
+lrtest(nnvare, ne)
+
+```
+
+WHOOOOAAA! Identity level is very significant, explains data much better, improves model significantly, it is strong improvement.  
+
+OK, then! So, it seems that there are only 3 variables really significant, all explaining 10+% of variability, they are: Identity use, Identity level and Mode. So for the final regression test, let's compare model with just these three vars and full model, let's see how different these models are.
+
+
+
+### Best model?  
+
+```{r blocks 3, echo=FALSE}
+idmn = lm(normalized_365~id_threshold+`use_identity?`+mode, res) 
+idme = (lm(ESBG_365~id_threshold+`use_identity?`+mode, res))
+widmn = lm(normalized_365~boundary+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`,res) 
+widme = (lm(ESBG_365~boundary+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`,res))
+
+stargazer(idme, ne, type = "text")
+
+stargazer(idmn, nn, type = "text")
+
+stargazer(widme, widmn, type = "text")
+
+anova(idme, ne)
+anova(idmn, nn)
+
+lrtest(idme, ne)
+lrtest(idmn, nn)
+
+```
+
+OK, resting 6 another variables improves model slightly, explain 1.5 percent points of $R^2$ more. So, yes, the triumvirate variables, 3 the most important, explain almost all variability, the resp explains something, but it's so weak. ANOVA and Likelihood ratio tests tell us that these 6 variables improve, but 67 or 100 points of RSS only. 
+
+So, we might neglect the 6 resting variables in further experiments and play more smoothly with identity threshold (since the Mode is true/false, as well as Identity use). We also should inspect extreme value of Probability of speaking -- if the probability will be 100%, would the results be the same?
+
+
+## Graph reflecting the best model
+
+
+```{r graph5, fig.width=5.8, fig.height=5.8}
+df = res %>% mutate(file = "standard") %>% 
+  rename(ESBG = ESBG_365, normalized = normalized_365, identity = `use_identity?`) %>% 
+  add_row(long %>% mutate(file = "long") %>% 
+            rename(ESBG = ESBG_3650, normalized = normalized_3650, identity = `use_identity?`)) %>% 
+  group_by(file, id_threshold, identity, mode) %>% 
+  summarise(ESBG = mean(ESBG), normalized = mean(normalized)) %>% 
+  pivot_longer(cols = c(ESBG, normalized), names_to = "polarization_measure", values_to = "polarization")
+
+df %>% #filter(file == "standard") %>% 
+  ggplot(aes(x = as.factor(id_threshold), y = polarization, fill = fct_rev(file))) +
+  facet_grid(cols = vars(fct_rev(mode), polarization_measure), rows = vars(identity)) +
+  geom_col(position = position_dodge()) +
+  labs(title = "Comparison of average polarization in standard (365 steps) simulations\nby polarization measure, identity use (TRUE/FALSE)\nidentity threshold (0.39, 0.49, 0.59) and mode (listen/speak)", caption = "Full aggregated sample.") +
+  theme_minimal()  +
+  theme(legend.position = "bottom")
+
+df %>% filter(polarization_measure == "ESBG") %>% 
+  ggplot(aes(x = as.factor(id_threshold), y = polarization, fill = fct_rev(file))) +
+  facet_grid(cols = vars(fct_rev(mode), polarization_measure), rows = vars(identity)) +
+  geom_col(position = position_dodge()) +
+  labs(title = "Comparison of average polarization in standard (365 steps) simulations\nby polarization measure, identity use (TRUE/FALSE)\nidentity threshold (0.39, 0.49, 0.59) and mode (listen/speak)", caption = "Full aggregated sample.") +
+  theme_minimal()  +
+  theme(legend.position = "bottom")
+
+df %>% filter(polarization_measure == "ESBG", file == "standard") %>% 
+  ggplot(aes(fill = as.factor(id_threshold), y = polarization, x = fct_rev(mode))) +
+  facet_grid(cols = vars(identity)) +
+  geom_col(position = position_dodge()) +
+  labs(title = "Comparison of average polarization in standard (365 steps) simulations\nby polarization measure, identity use (TRUE/FALSE)\nidentity threshold (0.39, 0.49, 0.59) and mode (listen/speak)", caption = "Full aggregated sample.") +
+  theme_minimal()  +
+  theme(legend.position = "bottom")
+
+
+
+```
 
