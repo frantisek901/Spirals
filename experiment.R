@@ -2,7 +2,7 @@
 
 ## Encoding: windows-1250
 ## Created:  2022-03-03 Francesco
-## Edited:   2022-03-07 Francesco
+## Edited:   2022-03-11 Francesco
 
 
 ## NOTES:
@@ -47,8 +47,12 @@ res = read_csv("experiment01part01.csv", skip = 6) %>%
   add_row(read_csv("experiment01part05.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
   add_row(read_csv("experiment01part06.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
   add_row(read_csv("experiment01part11.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
+  add_row(read_csv("experiment01part11b.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
   add_row(read_csv("experiment01part13.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
   add_row(read_csv("experiment01part14.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
+  add_row(read_csv("experiment01part14b.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
+  add_row(read_csv("experiment01part15.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
+  add_row(read_csv("experiment01part16.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
   select(-c(3:4, 7, 9:12, 14:15, 17:18, 20:21, 23:27, 29, 32, 34:35, 38, 40:43, 45:47)) %>%
   mutate(
     iqr_op1_start = upper_op1_start - lower_op1_start,
@@ -67,6 +71,7 @@ long = read_csv("experiment01part03LONG.csv", skip = 6) %>%
   add_row(read_csv("experiment01part01LONG01.csv", skip = 6)) %>%
   add_row(read_csv("experiment01part01LONG02.csv", skip = 6)) %>%
   add_row(read_csv("experiment01part01LONG02b.csv", skip = 6)) %>%
+  add_row(read_csv("experiment01part01LONG03.csv", skip = 6)) %>%
   add_row(read_csv("experiment01part01LONG04.csv", skip = 6)) %>%
   add_row(read_csv("experiment01part03LONG.csv", skip = 6)) %>%
   select(-c(3:4, 7, 9:12, 14:15, 17:18, 20:21, 23:27, 29, 32, 34:35, 38, 40:43, 45:47)) %>%
@@ -80,6 +85,43 @@ long = read_csv("experiment01part03LONG.csv", skip = 6) %>%
   relocate(any_of(c("iqr_op1_start", "iqr_op2_start")), .after = median_op2_start) %>%
   prejmenuj(41:42, c("normalized_3650", "ESBG_3650"))
 
+# To DO: Some problems... clean it out!
+
+res1D = read_csv("experiment01part21.csv", skip = 6) %>%
+  mutate(`[run number]` = as.numeric(`[run number]`)) %>%
+  add_row(read_csv("experiment01part22.csv", skip = 6) %>%  mutate(`[run number]` = as.numeric(`[run number]`))) %>%
+  add_row(read_csv("experiment01part23.csv", skip = 6) %>%  mutate(`[run number]` = as.numeric(`[run number]`))) %>%
+  select(-c(6, 15:47)) %>%
+  mutate(
+    iqr_op1_start = upper_op1_start - lower_op1_start,
+    # iqr_op2_start = upper_op2_start - lower_op2_start,
+    iqr_op1_final = upper_op1_final - lower_op1_final,
+    # iqr_op2_final = upper_op2_final - lower_op2_final
+  ) %>%
+  # select(-c(31:34, 47:50)) %>%
+  relocate(any_of(c("iqr_op1_start")), .after = median_op1_start) %>%
+  prejmenuj(31:32, c("normalized_365", "ESBG_365"))
+
+
+
+long1D = read_csv("experiment01part21LONG01.csv", skip = 6) %>%
+  mutate(mean_path_final = as.numeric(mean_path_final)) %>%
+  add_row(read_csv("experiment01part23LONG01.csv", skip = 6) %>%  mutate(mean_path_final = as.numeric(mean_path_final))) %>%
+  # add_row(read_csv("experiment01part01LONG02.csv", skip = 6)) %>%
+  # add_row(read_csv("experiment01part01LONG02b.csv", skip = 6)) %>%
+  # add_row(read_csv("experiment01part01LONG03.csv", skip = 6)) %>%
+  # add_row(read_csv("experiment01part01LONG04.csv", skip = 6)) %>%
+  # add_row(read_csv("experiment01part03LONG.csv", skip = 6)) %>%
+  select(-c(6, 15:47)) %>%
+  mutate(
+    iqr_op1_start = upper_op1_start - lower_op1_start,
+    # iqr_op2_start = upper_op2_start - lower_op2_start,
+    iqr_op1_final = upper_op1_final - lower_op1_final,
+    # iqr_op2_final = upper_op2_final - lower_op2_final
+  ) %>%
+  # select(-c(31:34, 47:50)) %>%
+  relocate(any_of(c("iqr_op1_start")), .after = median_op1_start) %>%
+  prejmenuj(31:32, c("normalized_3650", "ESBG_3650"))
 
 
 
@@ -88,6 +130,11 @@ long = read_csv("experiment01part03LONG.csv", skip = 6) %>%
 save(res, file = "shortData.RData")
 
 save(long, file = "longData.RData")
+
+save(res1D, file = "shortData1D.RData")
+
+save(long1D, file = "longData1D.RData")
+
 
 
 
