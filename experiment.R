@@ -57,6 +57,7 @@ res = read_csv("experiment01part01.csv", skip = 6) %>%
   add_row(read_csv("experiment01part17a.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
   add_row(read_csv("experiment01part17b.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
   add_row(read_csv("experiment01part18a.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
+  add_row(read_csv("experiment01part18b.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
   select(-c(3:4, 7, 9:12, 14:15, 17:18, 20:21, 23:27, 29, 32, 34:35, 38, 40:43, 45:47)) %>%
   mutate(
     iqr_op1_start = upper_op1_start - lower_op1_start,
@@ -89,7 +90,6 @@ long = read_csv("experiment01part03LONG.csv", skip = 6) %>%
   relocate(any_of(c("iqr_op1_start", "iqr_op2_start")), .after = median_op2_start) %>%
   prejmenuj(41:42, c("normalized_3650", "ESBG_3650"))
 
-# To DO: Some problems... clean it out!
 
 res1D = read_csv("experiment01part21.csv", skip = 6) %>%
   mutate(`[run number]` = as.numeric(`[run number]`)) %>%
@@ -99,6 +99,12 @@ res1D = read_csv("experiment01part21.csv", skip = 6) %>%
   add_row(read_csv("experiment01part23.csv", skip = 6) %>%
             mutate(`[run number]` = as.numeric(`[run number]`), mean_path_final = as.numeric(mean_path_final))) %>%
   add_row(read_csv("experiment01part23b.csv", skip = 6) %>%
+            mutate(`[run number]` = as.numeric(`[run number]`), mean_path_final = as.numeric(mean_path_final))) %>%
+  add_row(read_csv("experiment01part27a.csv", skip = 6) %>%
+            mutate(`[run number]` = as.numeric(`[run number]`), mean_path_final = as.numeric(mean_path_final))) %>%
+  add_row(read_csv("experiment01part27b.csv", skip = 6) %>%
+            mutate(`[run number]` = as.numeric(`[run number]`), mean_path_final = as.numeric(mean_path_final))) %>%
+  add_row(read_csv("experiment01part28b.csv", skip = 6) %>%
             mutate(`[run number]` = as.numeric(`[run number]`), mean_path_final = as.numeric(mean_path_final))) %>%
   select(-c(6, 15:47)) %>%
   mutate(
