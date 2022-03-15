@@ -1,0 +1,225 @@
+---
+title: "Report II."
+author: "František Kalvas"
+date: '2022-03-15'
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+## Encoding: UTF-8
+
+rm(list=ls())
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Main focus of the previous report was on weight of individual variables and their blocks. Here I will focus more on some addenda -- sensitivity of our model to extreme values of boundary (low, average of 0.1, instead of 0.22--0.34) and probability of speaking (high, average of 0.95, instead of 0.39--0.59) and comparison of 1D vs. 2D opinion. I will neglect here effect of simulation length: from previous report we know that there is some small effect -- after thousands of steps sometimes groups merge into one or become more concentrated if agents were scattered after 365 steps, in some cases scattered agents become more concentrated in two opposing groups, which increases polarization, but on the average the processes decreasing polarization are more frequent than process increasing polarization, that's why on the average polarization slightly decreases in the long running simulations.  
+
+
+
+
+## Packages etc.
+
+```{r}
+library(stargazer)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(lmtest)
+library(forcats)
+library(sjmisc)
+
+
+# My own functon for renaming in Tidyverse
+prejmenuj = function(data, positions, new.names) {
+  names(data)[positions] = new.names
+  data
+}
+```
+
+
+
+## Loading data
+
+Data are at <http://github.com/frantisek901/Spirals/Experiment>. Experiment is still running and I, FranČesko, from time to time actualize the `*.csv` files at GitHub, then I run script `experiment.R` which loads the data. Later version probably finds better names for variables, but now, I use default names from NetLogo experiment.
+
+Who is not interested in working with megabytes of `*.csv files`, might use compiled `*.RData`, there are two files: `shortData.RData`, which is main data file from experiments running only 365 steps in 2D opinion space, these data are extended by extra simulations with low size of small-world network neighborhood, very narrow boundary and high probability of speaking; and `shortData1D.RData`, which is same data (365 steps, extra narrow network neighborhood, extra narrow boundary, extra high probability of speaking), but in 1D opinion space.  
+
+For avoiding statistical artifact we sampling data -- 1,000 observations from 2D data and 1,000 observations from 1D data.  
+
+Now we load and join these data:
+```{r loading}
+load("shortData.RData")
+load("shortData1D.RData")
+# df = slice_sample(filter(res, boundary > 0.2), n = 1000) %>% 
+#   add_row(slice_sample(filter(res1D, boundary > 0.2), n = 1000))
+df = slice_sample(res, n = 1000) %>% 
+  add_row(slice_sample(res1D, n = 1000))
+
+```
+
+
+
+## Regressions
+
+On the two following pages, there are 4 regressions in 2 tables (I'm starting with `stargazer`, later I will produce better output, but for now...). The first table uses ESBG polarization measure, after 365 and 3650 steps, the second uses my normalized polarization measure after same number of steps.
+
+\pagebreak
+
+```{r regression1, echo=FALSE}
+# Without opinion dimensions
+n = lm(normalized_365~id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`, df) 
+e = (lm(ESBG_365~id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`, df))
+
+# Full model: With opinion dimensions
+nf = (lm(normalized_365~opinions+id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`, df))
+ef = (lm(ESBG_365~opinions+id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`, df))
+
+stargazer(e, ef, n, nf, type = "text")
+
+```
+
+WHOOOOOOOOOOOOOOAA! One more opinion dimension supresses polarization hugely! note that in 2D world the average polarization was around 0.15 (only in scenarios using identity!), so the effects of opinion dimension here means that in 1D world is the polarization doubled! We will construct exact graph for it later so we will se precise figures, but since now we know that opinion dimensions have effect! The logical step is to simulate same thing in 4D opinion space and see the change of polarization with increase of opinion dimensions.
+
+But at least for now we have another interesting story -- adding dimensions probably suppresses polarization. It seems that opinion dimensions are bridges, not walls, now it seems that introducing more dimensions is equivalent of building bridges. We don't exactly simulate this, we now just simulate 1D and 2D worlds and we compare polarization in them. But `bulding bridges hypothesis` (adding new dimension/opinion/issue to the polarized debate) is testable and simulable -- we prepare simulation for X dimensions, but then we let it start and run in X-1 dimensions and after 365 steps we increase dimensions back to X and let it run another 365 steps, and we store results/states at the start, 365 steps and at the end (730 steps). But firstly it is needed to explore effect of number of opinion dimensions -- is it linear? still decreasing? or some strange kind of non-linear effect?   
+<!-- \pagebreak -->
+
+```{r regression2, echo=FALSE}
+anova(e, ef)
+lrtest(e, ef)
+print("")
+paste("BIC comparison:", round(BIC(ef) - BIC(e), 1)) 
+print("")
+
+
+anova(n, nf)
+lrtest(n, nf)
+print("")
+paste("BIC comparison:", round(BIC(nf) - BIC(n), 1)) 
+print("")
+
+```
+
+### Note:
+
+1. Variables `mode:vaguely-speak` and `use_identity?` are binary, `n-neis` is measured on scale 1--64, and all other variables (`id_threshold`, `boundary` etc.) are measured on scale 0--1.
+
+
+### Note on polarization measures:
+
+Please notice, that both polarization measures differ in effect of variable `boundary` on them. It happened when I introduced just for sure very low level of `boundary` variable (0.1 besides standard margin 0.22--0.34). From previous analyses I know that low value of this variable has polarization effect, so I was wandering, why Genetic algorithms (GAs) find best fitness (i.e., highest values of polarization for sum of both measures) for `boundary == 0.28` and I was a bit unsure whether this relatively wider value is not mistake. So I introduced also value 0.1 for variable `boundary` and I have been running simulations since Friday. 
+
+Narrow boundary (0.1) very probably produces not two, but several groups, probably all relatively dense. `Normalized` polarization is sensitive to density (i.e. tight aggregation around group's mean) and distance of groups, so if the groups are evenly distributed in opinion space, it produces relatively high `normalized` polarization. On the other hand, `ESBG` is very sensitive to distributions in two groups of equal sizes, their density (i.e. tight aggregation around goup's mean) and distance. When we receive 4 or 5 dense groups, evenly distributed over opinion space, `ESBG` assesses it as low polarization.   
+
+That is why both measures differ regarding estimation of effect of narrow boundaries and why GAs find wider boundaries as part of most polarizing set of parameters. During GAs I used sum of both polarization measures as fitness parameter. With value of boundary 0.28 and right combination of other parameters we receive high polarization in both measures, with narrow boundary we receive higher polarization through `normalized` measure, but much weaker through `ESBG` measure, so when we sum both measures, we receive higher combined polarization with wider boundaries than with narrow ones. 
+
+I also introduced high value of `probability of speaking`, 0.95, just to be sure this variable makes really no difference -- but here the previous results are confirmed, now even with such a high values, `probability of speaking` still makes no difference, so if this assurance will be confirmed with the rest of extra simulations (now are done 40 sets out of 150, i.e. now we are on 25%, but we might be quite sure...), then in further explorations we might set `probability of speaking` to some constant value -- may be to 0.49 which was found by GA, or to 1, but the value 0.49 seems more realistic to me, since not everyone talks always.
+
+
+
+## Checking the meaning of 'boundary' and 'probability of speaking'  
+
+### Boundary
+
+```{r regression3, echo=FALSE}
+# Without boundary
+nb = (lm(normalized_365~opinions+id_threshold+`use_identity?`+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`, df))
+eb = (lm(ESBG_365~opinions+id_threshold+`use_identity?`+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`, df))
+
+# Without probability of speaking
+nps = (lm(normalized_365~opinions+id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`tolerance-level`+`p-random`+`n-neis`, df))
+eps = (lm(ESBG_365~opinions+id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`tolerance-level`+`p-random`+`n-neis`, df))
+
+
+anova(eb, ef)
+lrtest(eb, ef)
+print("")
+paste("BIC comparison:", round(BIC(ef) - BIC(eb), 1)) 
+print("")
+
+
+anova(nb, nf)
+lrtest(nb, nf)
+print("")
+paste("BIC comparison:", round(BIC(nf) - BIC(nb), 1)) 
+print("")
+
+```
+
+YES!! So, Boundary is significant, BICs -12 or -60 tell us that boundary improves model really significantly! I also made model comparison on data without average boundary = 0.1, and it shows that meaning of this variable, i.e. its effect, decreases significantly. It means that including simulations with low value of boundary is important.
+
+
+### Probability of speaking  
+
+```{r regression4, echo=FALSE}
+
+anova(eps, ef)
+lrtest(eps, ef)
+print("")
+paste("BIC comparison:", round(BIC(ef) - BIC(eps), 1)) 
+print("")
+
+
+anova(nps, nf)
+lrtest(nps, nf)
+print("")
+paste("BIC comparison:", round(BIC(nf) - BIC(nps), 1)) 
+print("")
+```
+
+YES!!! We might be sure that probability of speaking is not important, so we might neglect it. 
+
+
+
+## Graph  
+
+Now, let's show our results graphically!  
+
+### Sampling  
+
+Just for not exhausting machine too much and assuring us we have enough observations for key variables. I sample 5,000 observations for 4 combinations of opinion dimension and identity use:
+
+```{r sampling}
+
+res_sample = sample_n(res[res$`use_identity?` & res$boundary > 0.2,], 1500) %>%
+  add_row(sample_n(res[!res$`use_identity?` & res$boundary > 0.2,], 1500)) %>%
+  add_row(sample_n(res1D[res1D$`use_identity?` & res1D$boundary > 0.2,], 1500)) %>%
+  add_row(sample_n(res1D[!res1D$`use_identity?` & res1D$boundary > 0.2,], 1500)) %>% 
+  add_row(sample_n(res[res$`use_identity?` & res$boundary < 0.2,], 500)) %>%
+  add_row(sample_n(res[!res$`use_identity?` & res$boundary < 0.2,], 500)) %>%
+  add_row(sample_n(res1D[res1D$`use_identity?` & res1D$boundary < 0.2,], 500)) %>%
+  add_row(sample_n(res1D[!res1D$`use_identity?` & res1D$boundary < 0.2,], 500))
+
+
+```
+
+### Drawing graphs  
+
+```{r graph, fig.width=8, fig.height=10}
+df = res_sample %>%  
+  rename(ESBG = ESBG_365, normalized = normalized_365, identity = `use_identity?`) %>% 
+  group_by(opinions, identity, id_threshold, boundary, mode) %>% 
+  summarise(ESBG = mean(ESBG), normalized = mean(normalized)) %>% 
+  pivot_longer(cols = c(ESBG, normalized), names_to = "polarization_measure", values_to = "polarization")
+
+ggplot(df, aes(x = factor(boundary), y = polarization, fill = factor(id_threshold))) +
+  facet_wrap(vars(polarization_measure, mode, identity, opinions)) +
+  geom_col(position = position_dodge()) +
+  labs(title = "Comparison of average polarization in standard (365 steps) simulations\nby opinion dimensions, polarization measure, identity use (TRUE/FALSE), identity threshold (0.4, 0.5, 0.6), \nboundary(0.1, 0.22, 0.28, 0.34) and mode (speaking/listening)") +
+  theme_minimal()
+
+
+df %>% filter(identity) %>% 
+  ggplot(aes(x = factor(boundary), y = polarization, fill = factor(id_threshold))) +
+  facet_wrap(vars(mode, polarization_measure, opinions), ncol=2) +
+  geom_col(position = position_dodge()) +
+  labs(title = "Comparison of average polarization in standard (365 steps) simulations\nby opinion dimensions, polarization measure, identity threshold (0.4, 0.5, 0.6), \nboundary(0.1, 0.22, 0.28, 0.34) and mode (speaking/listening)") +
+  theme_minimal()
+
+```
+
+OK, results for 1D and boundary = 0.1 are not simulated yet, so we have to wait a while...
+
