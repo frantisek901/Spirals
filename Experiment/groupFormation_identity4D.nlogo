@@ -1518,7 +1518,7 @@ n-neis
 n-neis
 1
 500
-64.0
+52.0
 1
 1
 NIL
@@ -1533,7 +1533,7 @@ p-random
 p-random
 0
 0.5
-0.27
+0.05
 0.01
 1
 NIL
@@ -1573,7 +1573,7 @@ p-speaking-level
 p-speaking-level
 0
 1
-0.543
+0.95
 0.001
 1
 NIL
@@ -1588,7 +1588,7 @@ boundary
 boundary
 0.01
 1
-0.22
+0.1
 0.01
 1
 NIL
@@ -1600,7 +1600,7 @@ INPUTBOX
 781
 70
 RS
-24.0
+1.0
 1
 0
 Number
@@ -1787,7 +1787,7 @@ Y-opinion
 Y-opinion
 1
 50
-4.0
+2.0
 1
 1
 NIL
@@ -1908,7 +1908,7 @@ CHOOSER
 mode
 mode
 "openly-listen" "vaguely-speak"
-0
+1
 
 PLOT
 967
@@ -1987,7 +1987,7 @@ max-ticks
 max-ticks
 100
 10000
-1000.0
+365.0
 100
 1
 NIL
@@ -2041,7 +2041,7 @@ record-each-n-steps
 record-each-n-steps
 100
 10000
-1000.0
+365.0
 100
 1
 NIL
@@ -2111,7 +2111,7 @@ conformity-level
 conformity-level
 0
 1
-0.36
+0.45
 0.01
 1
 NIL
@@ -2182,7 +2182,7 @@ INPUTBOX
 1389
 242
 N_centroids
-2.0
+7.0
 1
 0
 Number
@@ -2249,7 +2249,7 @@ SWITCH
 258
 centroid_color?
 centroid_color?
-1
+0
 1
 -1000
 
@@ -2316,7 +2316,7 @@ SWITCH
 196
 use_identity?
 use_identity?
-0
+1
 1
 -1000
 
@@ -7115,7 +7115,7 @@ NetLogo 6.2.2
       <value value="40"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="centroid_color?">
-      <value value="false"/>
+      <value value="true"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="conformity-drawn">
       <value value="&quot;uniform&quot;"/>
@@ -7316,7 +7316,7 @@ NetLogo 6.2.2
       <value value="40"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="centroid_color?">
-      <value value="false"/>
+      <value value="true"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="conformity-drawn">
       <value value="&quot;uniform&quot;"/>
