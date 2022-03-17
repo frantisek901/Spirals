@@ -54,10 +54,21 @@ Now we load and join these data:
 ```{r loading}
 load("shortData.RData")
 load("shortData1D.RData")
-# df = slice_sample(filter(res, boundary > 0.2), n = 1000) %>% 
-#   add_row(slice_sample(filter(res1D, boundary > 0.2), n = 1000))
-df = slice_sample(res, n = 1000) %>% 
-  add_row(slice_sample(res1D, n = 1000))
+load("shortData4D.RData")
+
+# We control the ratios of boundary and identity use
+df = sample_n(res4D[res4D$`use_identity?` & res4D$boundary > 0.2,], 900) %>%
+  add_row(sample_n(res4D[!res4D$`use_identity?` & res4D$boundary > 0.2,], 900)) %>% 
+  add_row(sample_n(res4D[res4D$`use_identity?` & res4D$boundary < 0.2,], 300)) %>%
+  add_row(sample_n(res4D[!res4D$`use_identity?` & res4D$boundary < 0.2,], 300)) %>% 
+  add_row(sample_n(res[res$`use_identity?` & res$boundary > 0.2,], 900)) %>%
+  add_row(sample_n(res[!res$`use_identity?` & res$boundary > 0.2,], 900)) %>%
+  add_row(sample_n(res[res$`use_identity?` & res$boundary < 0.2,], 300)) %>%
+  add_row(sample_n(res[!res$`use_identity?` & res$boundary < 0.2,], 300)) %>%
+  add_row(sample_n(res1D[res1D$`use_identity?` & res1D$boundary > 0.2,], 900)) %>%
+  add_row(sample_n(res1D[!res1D$`use_identity?` & res1D$boundary > 0.2,], 900)) %>% 
+  add_row(sample_n(res1D[res1D$`use_identity?` & res1D$boundary < 0.2,], 300)) %>%
+  add_row(sample_n(res1D[!res1D$`use_identity?` & res1D$boundary < 0.2,], 300))
 
 ```
 
@@ -75,8 +86,8 @@ n = lm(normalized_365~id_threshold+`use_identity?`+boundary+mode+`conformity-lev
 e = (lm(ESBG_365~id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`, df))
 
 # Full model: With opinion dimensions
-nf = (lm(normalized_365~opinions+id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`, df))
-ef = (lm(ESBG_365~opinions+id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`, df))
+nf = (lm(normalized_365~factor(opinions)+id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`, df))
+ef = (lm(ESBG_365~factor(opinions)+id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`, df))
 
 stargazer(e, ef, n, nf, type = "text")
 
@@ -126,12 +137,12 @@ I also introduced high value of `probability of speaking`, 0.95, just to be sure
 
 ```{r regression3, echo=FALSE}
 # Without boundary
-nb = (lm(normalized_365~opinions+id_threshold+`use_identity?`+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`, df))
-eb = (lm(ESBG_365~opinions+id_threshold+`use_identity?`+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`, df))
+nb = (lm(normalized_365~factor(opinions)+id_threshold+`use_identity?`+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`, df))
+eb = (lm(ESBG_365~factor(opinions)+id_threshold+`use_identity?`+mode+`conformity-level`+`p-speaking-level`+`tolerance-level`+`p-random`+`n-neis`, df))
 
 # Without probability of speaking
-nps = (lm(normalized_365~opinions+id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`tolerance-level`+`p-random`+`n-neis`, df))
-eps = (lm(ESBG_365~opinions+id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`tolerance-level`+`p-random`+`n-neis`, df))
+nps = (lm(normalized_365~factor(opinions)+id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`tolerance-level`+`p-random`+`n-neis`, df))
+eps = (lm(ESBG_365~factor(opinions)+id_threshold+`use_identity?`+boundary+mode+`conformity-level`+`tolerance-level`+`p-random`+`n-neis`, df))
 
 
 anova(eb, ef)
@@ -178,45 +189,27 @@ YES!!! We might be sure that probability of speaking is not important, so we mig
 
 Now, let's show our results graphically!  
 
-### Sampling  
-
-Just for not exhausting machine too much and assuring us we have enough observations for key variables. I sample 5,000 observations for 4 combinations of opinion dimension and identity use:
-
-```{r sampling}
-
-res_sample = sample_n(res[res$`use_identity?` & res$boundary > 0.2,], 1500) %>%
-  add_row(sample_n(res[!res$`use_identity?` & res$boundary > 0.2,], 1500)) %>%
-  add_row(sample_n(res1D[res1D$`use_identity?` & res1D$boundary > 0.2,], 1500)) %>%
-  add_row(sample_n(res1D[!res1D$`use_identity?` & res1D$boundary > 0.2,], 1500)) %>% 
-  add_row(sample_n(res[res$`use_identity?` & res$boundary < 0.2,], 500)) %>%
-  add_row(sample_n(res[!res$`use_identity?` & res$boundary < 0.2,], 500)) %>%
-  add_row(sample_n(res1D[res1D$`use_identity?` & res1D$boundary < 0.2,], 500)) %>%
-  add_row(sample_n(res1D[!res1D$`use_identity?` & res1D$boundary < 0.2,], 500))
-
-
-```
 
 ### Drawing graphs  
 
 ```{r graph, fig.width=8, fig.height=10}
-df = res_sample %>%  
-  rename(ESBG = ESBG_365, normalized = normalized_365, identity = `use_identity?`) %>% 
+dfg = rename(df, ESBG = ESBG_365, normalized = normalized_365, identity = `use_identity?`) %>% 
   group_by(opinions, identity, id_threshold, boundary, mode) %>% 
   summarise(ESBG = mean(ESBG), normalized = mean(normalized)) %>% 
   pivot_longer(cols = c(ESBG, normalized), names_to = "polarization_measure", values_to = "polarization")
 
-ggplot(df, aes(x = factor(boundary), y = polarization, fill = factor(id_threshold))) +
-  facet_wrap(vars(polarization_measure, mode, identity, opinions)) +
+ggplot(dfg, aes(x = factor(boundary), y = polarization, fill = factor(id_threshold))) +
+  facet_wrap(vars(polarization_measure, mode, identity, opinions), ncol=6) +
   geom_col(position = position_dodge()) +
-  labs(title = "Comparison of average polarization in standard (365 steps) simulations\nby opinion dimensions, polarization measure, identity use (TRUE/FALSE), identity threshold (0.4, 0.5, 0.6), \nboundary(0.1, 0.22, 0.28, 0.34) and mode (speaking/listening)") +
+  labs(title = "Comparison of average polarization in standard (365 steps) simulations\nby opinion dimensions (1, 2, 4), polarization measure (ESBG/normalized), identity use (TRUE/FALSE), identity threshold (0.4, 0.5, 0.6), \nboundary(0.1, 0.22, 0.28, 0.34) and mode (speaking/listening)") +
   theme_minimal()
 
 
-df %>% filter(identity) %>% 
+dfg %>% filter(identity) %>% 
   ggplot(aes(x = factor(boundary), y = polarization, fill = factor(id_threshold))) +
-  facet_wrap(vars(mode, polarization_measure, opinions), ncol=2) +
+  facet_wrap(vars(mode, polarization_measure, opinions), ncol=3) +
   geom_col(position = position_dodge()) +
-  labs(title = "Comparison of average polarization in standard (365 steps) simulations\nby opinion dimensions, polarization measure, identity threshold (0.4, 0.5, 0.6), \nboundary(0.1, 0.22, 0.28, 0.34) and mode (speaking/listening)") +
+  labs(title = "Comparison of average polarization in standard (365 steps) simulations\nby opinion dimensions (1, 2, 4), polarization measure (ESBG/normalized), identity threshold (0.4, 0.5, 0.6), \nboundary(0.1, 0.22, 0.28, 0.34) and mode (speaking/listening)") +
   theme_minimal()
 
 ```
