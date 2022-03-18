@@ -2,7 +2,7 @@
 
 ## Encoding: windows-1250
 ## Created:  2022-03-03 Francesco
-## Edited:   2022-03-16 Francesco
+## Edited:   2022-03-17 Francesco
 
 
 ## NOTES:
@@ -28,6 +28,7 @@ library(readxl)
 library(writexl)
 library(ggplot2)
 library(knitr)
+library(sjmisc)
 
 
 # My own functon for renaming in Tidyverse
@@ -56,6 +57,7 @@ res = read_csv("experiment01part01.csv", skip = 6) %>%
   add_row(read_csv("experiment01part16.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
   add_row(read_csv("experiment01part17a.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
   add_row(read_csv("experiment01part17b.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
+  add_row(read_csv("experiment01part17b2.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
   add_row(read_csv("experiment01part18a.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
   add_row(read_csv("experiment01part18b.csv", skip = 6) %>% mutate(mean_path_final = as.numeric(mean_path_final))) %>%
   select(-c(3:4, 7, 9:12, 14:15, 17:18, 20:21, 23:27, 29, 32, 34:35, 38, 40:43, 45:47)) %>%
@@ -99,13 +101,19 @@ res1D = read_csv("experiment01part21.csv", skip = 6) %>%
   add_row(read_csv("experiment01part22.csv", skip = 6) %>%  mutate(`[run number]` = as.numeric(`[run number]`))) %>%
   add_row(read_csv("experiment01part22b.csv", skip = 6) %>%
             mutate(`[run number]` = as.numeric(`[run number]`), mean_path_final = as.numeric(mean_path_final))) %>%
+  add_row(read_csv("experiment01part22b2.csv", skip = 6) %>%
+            mutate(`[run number]` = as.numeric(`[run number]`), mean_path_final = as.numeric(mean_path_final))) %>%
   add_row(read_csv("experiment01part23.csv", skip = 6) %>%
             mutate(`[run number]` = as.numeric(`[run number]`), mean_path_final = as.numeric(mean_path_final))) %>%
   add_row(read_csv("experiment01part23b.csv", skip = 6) %>%
             mutate(`[run number]` = as.numeric(`[run number]`), mean_path_final = as.numeric(mean_path_final))) %>%
   add_row(read_csv("experiment01part27a.csv", skip = 6) %>%
             mutate(`[run number]` = as.numeric(`[run number]`), mean_path_final = as.numeric(mean_path_final))) %>%
+  add_row(read_csv("experiment01part27a2.csv", skip = 6) %>%
+            mutate(`[run number]` = as.numeric(`[run number]`), mean_path_final = as.numeric(mean_path_final))) %>%
   add_row(read_csv("experiment01part27b.csv", skip = 6) %>%
+            mutate(`[run number]` = as.numeric(`[run number]`), mean_path_final = as.numeric(mean_path_final))) %>%
+  add_row(read_csv("experiment01part27b2.csv", skip = 6) %>%
             mutate(`[run number]` = as.numeric(`[run number]`), mean_path_final = as.numeric(mean_path_final))) %>%
   add_row(read_csv("experiment01part28a.csv", skip = 6) %>%
             mutate(`[run number]` = as.numeric(`[run number]`), mean_path_final = as.numeric(mean_path_final))) %>%
@@ -127,11 +135,6 @@ res1D = read_csv("experiment01part21.csv", skip = 6) %>%
 long1D = read_csv("experiment01part21LONG01.csv", skip = 6) %>%
   mutate(mean_path_final = as.numeric(mean_path_final)) %>%
   add_row(read_csv("experiment01part23LONG01.csv", skip = 6) %>%  mutate(mean_path_final = as.numeric(mean_path_final))) %>%
-  # add_row(read_csv("experiment01part01LONG02.csv", skip = 6)) %>%
-  # add_row(read_csv("experiment01part01LONG02b.csv", skip = 6)) %>%
-  # add_row(read_csv("experiment01part01LONG03.csv", skip = 6)) %>%
-  # add_row(read_csv("experiment01part01LONG04.csv", skip = 6)) %>%
-  # add_row(read_csv("experiment01part03LONG.csv", skip = 6)) %>%
   select(-c(6, 15:47)) %>%
   mutate(
     iqr_op1_start = upper_op1_start - lower_op1_start,
@@ -149,6 +152,8 @@ res4D = read_csv("experiment01part31.csv", skip = 6) %>%
   mutate(`[run number]` = as.numeric(`[run number]`)) %>%
   mutate(mean_path_final = as.numeric(mean_path_final)) %>%
   add_row(read_csv("experiment01part31b.csv", skip = 6) %>%
+            mutate(`[run number]` = as.numeric(`[run number]`), mean_path_final = as.numeric(mean_path_final))) %>%
+  add_row(read_csv("experiment01part31c.csv", skip = 6) %>%
             mutate(`[run number]` = as.numeric(`[run number]`), mean_path_final = as.numeric(mean_path_final))) %>%
   add_row(read_csv("experiment01part33.csv", skip = 6) %>%
             mutate(`[run number]` = as.numeric(`[run number]`), mean_path_final = as.numeric(mean_path_final))) %>%
