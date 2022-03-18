@@ -1,7 +1,7 @@
 ---
 title: "Report II."
 author: "František Kalvas"
-date: '2022-03-17'
+date: '2022-03-18'
 output:
   word_document: default
   pdf_document: default
@@ -198,6 +198,7 @@ dfg = rename(df, ESBG = ESBG_365, normalized = normalized_365, identity = `use_i
   summarise(ESBG = mean(ESBG), normalized = mean(normalized)) %>% 
   pivot_longer(cols = c(ESBG, normalized), names_to = "polarization_measure", values_to = "polarization")
 
+
 ggplot(dfg, aes(x = factor(boundary), y = polarization, fill = factor(id_threshold))) +
   facet_wrap(vars(polarization_measure, mode, identity, opinions), ncol=6) +
   geom_col(position = position_dodge()) +
@@ -205,11 +206,27 @@ ggplot(dfg, aes(x = factor(boundary), y = polarization, fill = factor(id_thresho
   theme_minimal()
 
 
+dfg %>% filter(!identity) %>% 
+  ggplot(aes(x = factor(boundary), y = polarization, fill = factor(id_threshold))) +
+  facet_wrap(vars(polarization_measure, mode, opinions), ncol=3) +
+  geom_col(position = position_dodge()) +
+  labs(title = "Comparison of average polarization in standard (365 steps) simulations\nby opinion dimensions (1, 2, 4), polarization measure (ESBG/normalized),  \nboundary(0.1, 0.22, 0.28, 0.34) and mode (speaking/listening)") +
+  theme_minimal()
+
+
 dfg %>% filter(identity) %>% 
   ggplot(aes(x = factor(boundary), y = polarization, fill = factor(id_threshold))) +
-  facet_wrap(vars(mode, polarization_measure, opinions), ncol=3) +
+  facet_wrap(vars(polarization_measure, mode, opinions), ncol=3) +
   geom_col(position = position_dodge()) +
   labs(title = "Comparison of average polarization in standard (365 steps) simulations\nby opinion dimensions (1, 2, 4), polarization measure (ESBG/normalized), \nidentity threshold (0.4, 0.5, 0.6), \nboundary(0.1, 0.22, 0.28, 0.34) and mode (speaking/listening)") +
+  theme_minimal()
+
+
+dfg %>% filter(identity, polarization_measure == "ESBG") %>% 
+  ggplot(aes(x = factor(boundary), y = polarization, fill = factor(id_threshold))) +
+  facet_wrap(vars(mode, opinions), ncol=3) +
+  geom_col(position = position_dodge()) +
+  labs(title = "Comparison of average polarization in standard (365 steps) simulations using ESBG polarization measure\nby opinion dimensions (1, 2, 4), identity threshold (0.4, 0.5, 0.6), \nboundary(0.1, 0.22, 0.28, 0.34) and mode (speaking/listening)") +
   theme_minimal()
 
 ```
