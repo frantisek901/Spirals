@@ -1,0 +1,235 @@
+---
+title: "Report III."
+author: "František Kalvas"
+date: '2022-03-18'
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+## Encoding: UTF-8
+
+rm(list=ls())
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Main focus of the third report is to present reduced model. We agreed during meeting at 2022-03-18 that we: 
+
+  a. will use only ESBG measure (not to uncertain reader whether the results are case of model or polarization measure)
+  b. will omit the 'vaguely-speak' mode (since it's not intuitive and we hardly finding natural examples)
+  c. rename variables (see details bellow)
+
+
+```{r echo=FALSE, include=FALSE}
+library(stargazer)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(lmtest)
+library(forcats)
+library(sjmisc)
+library(jtools)
+library(huxtable)
+library(knitr)
+
+
+# My own functon for renaming in Tidyverse
+prejmenuj = function(data, positions, new.names) {
+  names(data)[positions] = new.names
+  data
+}
+```
+
+
+
+## Loading data
+
+Data are at <http://github.com/frantisek901/Spirals/Experiment>. Experiment is still running and I, FranČesko, from time to time actualize the `*.csv` files at GitHub, then I run script `experiment.R` which loads the data. Later version probably finds better names for variables, but now, I use default names from NetLogo experiment.
+
+Who is not interested in working with megabytes of `*.csv files`, might use compiled `*.RData`, there are three files: `shortData1D.RData`, `shortData.RData` and `shortData4D.RData`, which are main data files from experiments running only 365 steps in 1D, 2D and 4D opinion spaces, these data are extended by extra simulations with low size of small-world network neighborhood, very narrow boundary and high probability of speaking.  
+
+For avoiding statistical artifact we sampling data -- for each combination of important variables same number of observations/simulations. Here we must note, that per 1 simulation not using identity we have 3 simulations using identity, since it makes no sense to vary `Narrownes of identity group` in case we are not using identity in the model.  
+
+Now we load and join these data and factorize and rename selected variables:  
+
+```{r loading}
+## Loading stored data
+load("shortData.RData")
+load("shortData1D.RData")
+load("shortData4D.RData")
+
+
+## Filtering data objects
+res = filter(res, mode == "openly-listen")
+res1D = filter(res1D, mode == "openly-listen")
+res4D = filter(res4D, mode == "openly-listen")
+
+
+## We control the ratios of boundary and identity use
+num = 300
+df =      sample_n(res4D[res4D$`use_identity?` & res4D$boundary == 0.1 & res4D$id_threshold == 0.39,], num) %>%
+  add_row(sample_n(res4D[res4D$`use_identity?` & res4D$boundary == 0.1 & res4D$id_threshold == 0.49,], num)) %>% 
+  add_row(sample_n(res4D[res4D$`use_identity?` & res4D$boundary == 0.1 & res4D$id_threshold == 0.59,], num)) %>% 
+  add_row(sample_n(res4D[!res4D$`use_identity?` & res4D$boundary == 0.1,], num)) %>% 
+  add_row(sample_n(res4D[res4D$`use_identity?` & res4D$boundary == 0.22 & res4D$id_threshold == 0.39,], num)) %>%
+  add_row(sample_n(res4D[res4D$`use_identity?` & res4D$boundary == 0.22 & res4D$id_threshold == 0.49,], num)) %>% 
+  add_row(sample_n(res4D[res4D$`use_identity?` & res4D$boundary == 0.22 & res4D$id_threshold == 0.59,], num)) %>% 
+  add_row(sample_n(res4D[!res4D$`use_identity?` & res4D$boundary == 0.22,], num)) %>% 
+  add_row(sample_n(res4D[res4D$`use_identity?` & res4D$boundary == 0.28 & res4D$id_threshold == 0.39,], num)) %>%
+  add_row(sample_n(res4D[res4D$`use_identity?` & res4D$boundary == 0.28 & res4D$id_threshold == 0.49,], num)) %>% 
+  add_row(sample_n(res4D[res4D$`use_identity?` & res4D$boundary == 0.28 & res4D$id_threshold == 0.59,], num)) %>% 
+  add_row(sample_n(res4D[!res4D$`use_identity?` & res4D$boundary == 0.28,], num)) %>% 
+  add_row(sample_n(res4D[res4D$`use_identity?` & res4D$boundary == 0.34 & res4D$id_threshold == 0.39,], num)) %>%
+  add_row(sample_n(res4D[res4D$`use_identity?` & res4D$boundary == 0.34 & res4D$id_threshold == 0.49,], num)) %>% 
+  add_row(sample_n(res4D[res4D$`use_identity?` & res4D$boundary == 0.34 & res4D$id_threshold == 0.59,], num)) %>% 
+  add_row(sample_n(res4D[!res4D$`use_identity?` & res4D$boundary == 0.34,], num)) %>% 
+
+  add_row(sample_n(res1D[res1D$`use_identity?` & res1D$boundary == 0.1 & res1D$id_threshold == 0.39,], num)) %>%
+  add_row(sample_n(res1D[res1D$`use_identity?` & res1D$boundary == 0.1 & res1D$id_threshold == 0.49,], num)) %>% 
+  add_row(sample_n(res1D[res1D$`use_identity?` & res1D$boundary == 0.1 & res1D$id_threshold == 0.59,], num)) %>% 
+  add_row(sample_n(res1D[!res1D$`use_identity?` & res1D$boundary == 0.1,], num)) %>% 
+  add_row(sample_n(res1D[res1D$`use_identity?` & res1D$boundary == 0.22 & res1D$id_threshold == 0.39,], num)) %>%
+  add_row(sample_n(res1D[res1D$`use_identity?` & res1D$boundary == 0.22 & res1D$id_threshold == 0.49,], num)) %>% 
+  add_row(sample_n(res1D[res1D$`use_identity?` & res1D$boundary == 0.22 & res1D$id_threshold == 0.59,], num)) %>% 
+  add_row(sample_n(res1D[!res1D$`use_identity?` & res1D$boundary == 0.22,], num)) %>% 
+  add_row(sample_n(res1D[res1D$`use_identity?` & res1D$boundary == 0.28 & res1D$id_threshold == 0.39,], num)) %>%
+  add_row(sample_n(res1D[res1D$`use_identity?` & res1D$boundary == 0.28 & res1D$id_threshold == 0.49,], num)) %>% 
+  add_row(sample_n(res1D[res1D$`use_identity?` & res1D$boundary == 0.28 & res1D$id_threshold == 0.59,], num)) %>% 
+  add_row(sample_n(res1D[!res1D$`use_identity?` & res1D$boundary == 0.28,], num)) %>% 
+  add_row(sample_n(res1D[res1D$`use_identity?` & res1D$boundary == 0.34 & res1D$id_threshold == 0.39,], num)) %>%
+  add_row(sample_n(res1D[res1D$`use_identity?` & res1D$boundary == 0.34 & res1D$id_threshold == 0.49,], num)) %>% 
+  add_row(sample_n(res1D[res1D$`use_identity?` & res1D$boundary == 0.34 & res1D$id_threshold == 0.59,], num)) %>% 
+  add_row(sample_n(res1D[!res1D$`use_identity?` & res1D$boundary == 0.34,], num)) %>% 
+  
+  add_row(sample_n(res[res$`use_identity?` & res$boundary == 0.1 & res$id_threshold == 0.39,], num)) %>%
+  add_row(sample_n(res[res$`use_identity?` & res$boundary == 0.1 & res$id_threshold == 0.49,], num)) %>% 
+  add_row(sample_n(res[res$`use_identity?` & res$boundary == 0.1 & res$id_threshold == 0.59,], num)) %>% 
+  add_row(sample_n(res[!res$`use_identity?` & res$boundary == 0.1,], num)) %>% 
+  add_row(sample_n(res[res$`use_identity?` & res$boundary == 0.22 & res$id_threshold == 0.39,], num)) %>%
+  add_row(sample_n(res[res$`use_identity?` & res$boundary == 0.22 & res$id_threshold == 0.49,], num)) %>% 
+  add_row(sample_n(res[res$`use_identity?` & res$boundary == 0.22 & res$id_threshold == 0.59,], num)) %>% 
+  add_row(sample_n(res[!res$`use_identity?` & res$boundary == 0.22,], num)) %>% 
+  add_row(sample_n(res[res$`use_identity?` & res$boundary == 0.28 & res$id_threshold == 0.39,], num)) %>%
+  add_row(sample_n(res[res$`use_identity?` & res$boundary == 0.28 & res$id_threshold == 0.49,], num)) %>% 
+  add_row(sample_n(res[res$`use_identity?` & res$boundary == 0.28 & res$id_threshold == 0.59,], num)) %>% 
+  add_row(sample_n(res[!res$`use_identity?` & res$boundary == 0.28,], num)) %>% 
+  add_row(sample_n(res[res$`use_identity?` & res$boundary == 0.34 & res$id_threshold == 0.39,], num)) %>%
+  add_row(sample_n(res[res$`use_identity?` & res$boundary == 0.34 & res$id_threshold == 0.49,], num)) %>% 
+  add_row(sample_n(res[res$`use_identity?` & res$boundary == 0.34 & res$id_threshold == 0.59,], num)) %>% 
+  add_row(sample_n(res[!res$`use_identity?` & res$boundary == 0.34,], num)) %>% 
+
+  ## Selecting variables:
+  select(opinions, boundary, `use_identity?`, id_threshold, `conformity-level`, `p-speaking-level`, 
+         `tolerance-level`, `p-random`, `n-neis`, ESBG_365) %>%  
+  
+  ## Changing some variables to factors:
+  mutate(#id_threshold = if_else(!`use_identity?`, NA_real_, id_threshold),
+         opinions = factor(opinions), boundary = factor(boundary), id_threshold = factor(id_threshold),
+         identity = if_else(`use_identity?`, "Identity used", "Identity not used") %>% factor()) %>% 
+  relocate(identity, .after = `use_identity?`) %>% select(-`use_identity?`) %>% 
+
+  ## Renaming variables according 2022-03-18 meeting:
+  prejmenuj(1:10, c("Opinion dimensions:", "Acceptability of different opinion:", "Identity:", 
+                    "Narrowness of identity group:", "conformity", "speaking", "tolerance", "random links",
+                    "close links", "ESBG"))
+
+```
+
+
+
+## Regressions
+
+With new package `jtools` I succeeded in formatting results into nice table.
+
+```{r regression1, echo=T, message=FALSE, warning=FALSE}
+# Control variables
+ec = (lm(ESBG~conformity+speaking+tolerance+`random links`+`close links`, df))
+
+# boundary + ec
+eb = (lm(ESBG~`Acceptability of different opinion:`+conformity+speaking+tolerance+`random links`+`close links`, df))
+
+# identity + eb
+ei = (lm(ESBG~`Narrowness of identity group:`+`Identity:`+`Acceptability of different opinion:`+conformity+speaking+tolerance+`random links`+`close links`, df))
+
+# Full model: opinions + ei
+ef = (lm(ESBG~`Opinion dimensions:`+`Narrowness of identity group:`+`Identity:`+`Acceptability of different opinion:`+conformity+speaking+tolerance+`random links`+`close links`, df))
+
+# Only used variables
+eu = (lm(ESBG~`Opinion dimensions:`+`Narrowness of identity group:`+`Identity:`+`Acceptability of different opinion:`, df))
+
+# Only used variables with interactions
+eui = (lm(ESBG~`Identity:`+`Narrowness of identity group:`*`Acceptability of different opinion:`*`Opinion dimensions:`, df))
+
+export_summs(ec, eb, ei, ef, eu)
+export_summs(eu, eui)
+```
+
+The improvement by key variables is evident, BIC clearly show this, BIC difference of full model and model only with selected variables is `r BIC(ef) - BIC(eu)`. Also BIC shows that 3-way interaction improves the model significantly: `r BIC(eui) - BIC(eu)`.  
+
+
+### NOTE:  
+
+We renamed variables and I also factorized in principle numerical variables that are using only 3 or 4 values. Here is table with old names, new names and minimum value (contrast):  
+
+```{r table with names, echo=FALSE}
+tibble(
+  "Old name" = c("opinions", "boundary", "use_identity?", "id_threshold"),
+  "New name" = c("Opinion dimensions", "Acceptability of different opinion",
+                 "Identity", "Narrowness of identity group"),
+  "Minimum or contrast (old value/ new value)" = c("1", "0.1", "FALSE/ Identity not used", "0.39")) %>% 
+  kable()
+
+```
+
+I hope it help in interpreting results.  
+
+Also note that we stopped using old variable `mode`, since we can naturally interprept only mode `openly-listen`, but we still have problem to naturally explain and work with mode `vaguely-speak`, so we stick with the only one mode we know how to work with.  
+
+Now, again, just for sure, we compare BIC of medels:  
+
+```{r regression2, echo=TRUE}
+paste("BIC comparison of full vs. selected variables model:", round(BIC(ef) - BIC(eu), 1)) 
+paste("BIC comparison of main effects vs. interactions model:", round(BIC(eui) - BIC(eu), 1)) 
+
+```
+
+\pagebreak
+
+## Graph  
+
+Now, let's show our results graphically!  
+
+
+### Drawing graphs
+
+```{r graph, fig.width=8, fig.height=6}
+dfg = df %>% 
+  group_by(`Opinion dimensions:`, `Identity:`, `Narrowness of identity group:`, `Acceptability of different opinion:`) %>%
+  summarise(ESBG = mean(ESBG)) %>% ungroup() %>% group_by(`Opinion dimensions:`, `Identity:`) %>% 
+  arrange(`Opinion dimensions:`, `Identity:`, `Narrowness of identity group:`, `Acceptability of different opinion:`)
+
+
+ggplot(dfg, aes(x = `Acceptability of different opinion:`, y = ESBG, 
+                fill = `Narrowness of identity group:`)) +
+  facet_wrap(vars(`Identity:`, `Opinion dimensions:`), ncol=3) +
+  geom_col(position = position_dodge()) +
+  labs(title = "ChangeK of polarization in simulations by 'Opinion dimensions' (1, 2, 4), 'Identity' (used/not used), \n'Narrowness of identity group' (0.39, 0.49, 0.59) and 'Average acceptability of different opinions' (0.1, 0.22, 0.28, 0.34)",
+       x = "Average acceptability of different opinions", y = "Polarization") +
+  theme_minimal() +
+  theme(legend.position = "top")
+
+
+ggplot(dfg, aes(x = `Acceptability of different opinion:`, y = ESBG, 
+                col = `Narrowness of identity group:`, group = `Narrowness of identity group:`)) +
+  facet_wrap(vars(`Identity:`, `Opinion dimensions:`), ncol=3) +
+  geom_point() + geom_line() +
+  labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4), 'Identity' (used/not used), \n'Narrowness of identity group' (0.39, 0.49, 0.59) and 'Average acceptability of different opinions' (0.1, 0.22, 0.28, 0.34)",
+       x = "Average acceptability of different opinions", y = "Polarization") +
+  theme_minimal() +
+  theme(legend.position = "top")
+
+```
+
