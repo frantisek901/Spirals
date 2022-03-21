@@ -189,6 +189,17 @@ save(res4D, file = "shortData4D.RData")
 
 
 
+# Loading and saving data for hunting the phase transition: --------------------------
+
+phase = read_csv("experiment01part39a.csv", skip = 6) %>% select(1:48, ESBG = ESBSG_polarization_final) %>%
+  add_row(read_csv("experiment01part39b.csv", skip = 6) %>% select(1:48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part29a.csv", skip = 6) %>% select(1:48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part29b.csv", skip = 6) %>% select(1:48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part19a.csv", skip = 6) %>% select(1:48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part19b.csv", skip = 6) %>% select(1:48, ESBG = ESBSG_polarization_final))
+
+save(phase, file = "phase.RData")
+
 # Some graphs -------------------------------------------------------------
 
 sample_n(res, 10000) %>%

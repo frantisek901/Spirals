@@ -1,0 +1,108 @@
+---
+title: "Seeking for the phase-transition"
+author: "František Kalvas"
+date: '2022-03-21'
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+## Encoding: UTF-8
+
+rm(list=ls())
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Main focus of this side project is to find phase-transition which happen when we are changing boundary/`acceptability of different opinion`. Result should be a simple graph showing how ESBG polarization changes with change of `acceptability of different opinion`.  
+  
+
+```{r echo=FALSE, include=FALSE}
+library(stargazer)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(lmtest)
+library(forcats)
+library(sjmisc)
+library(jtools)
+library(huxtable)
+library(knitr)
+
+
+# My own functon for renaming in Tidyverse
+prejmenuj = function(data, positions, new.names) {
+  names(data)[positions] = new.names
+  data
+}
+```
+
+
+
+## Loading data
+
+Data are at <http://github.com/frantisek901/Spirals/Experiment>. Experiment is still running and I, FranČesko, from time to time actualize the `*.csv` files at GitHub, then I run script `experiment.R` which loads the data. But now, 2022-03-21, at least 60% of simulations are done (we are running 6 experiments, 3 are completely done, 3 are at 60% or more). Who is not interested in working with megabytes of `*.csv files`, might use compiled `phase.RData`.  
+
+<!-- For avoiding statistical artifact we sampling data -- for each combination of important variables same number of observations/simulations. Here we must note, that per 1 simulation not using identity we have 3 simulations using identity, since it makes no sense to vary `Narrownes of identity group` in case we are not using identity in the model.   -->
+
+Now we load and aggregate these data and factorize and rename selected variables:  
+
+```{r loading}
+## Loading stored data
+load("phase.RData")
+
+df = phase %>% 
+  ## Selecting variables:
+  select(opinions, boundary, `use_identity?`, id_threshold, ESBG) %>%  
+  
+  ## Changing some variables to factors:
+  mutate(#id_threshold = if_else(!`use_identity?`, NA_real_, id_threshold),
+         opinions = factor(opinions), #boundary = factor(boundary), 
+         id_threshold = factor(id_threshold),
+         identity = if_else(`use_identity?`, "Identity used", "Identity not used") %>% factor()) %>% 
+  relocate(identity, .after = `use_identity?`) %>% select(-`use_identity?`) %>% 
+  
+  ## Summarising:
+  group_by(opinions, boundary, identity, id_threshold) %>% 
+  summarise(ESBG = mean(ESBG)) %>% ungroup() %>% 
+
+  ## Renaming variables according 2022-03-18 meeting:
+  prejmenuj(1:4, c("Opinion dimensions:", "Acceptability of different opinion:", "Identity:", 
+                    "Narrowness of identity group:"))
+
+```
+
+
+
+## Graph  
+
+Now, let's show our results graphically!  
+
+
+```{r graph, fig.width=8, fig.height=6}
+df %>% 
+  ggplot(aes(x = `Acceptability of different opinion:`, y = ESBG, 
+                fill = `Narrowness of identity group:`)) +
+  facet_wrap(vars(`Identity:`, `Opinion dimensions:`), ncol=3) +
+  geom_col(position = position_dodge()) +
+  labs(title = "ChangeK of polarization in simulations by 'Opinion dimensions' (1, 2, 4), 'Identity' (used/not used), \n'Narrowness of identity group' (0.39, 0.49, 0.59) and 'Average acceptability of different opinions' (0.1, 0.22, 0.28, 0.34)",
+       x = "Average acceptability of different opinions", y = "Polarization") +
+  theme_minimal() +
+  theme(legend.position = "top")
+
+
+df %>% 
+  ggplot(aes(x = `Acceptability of different opinion:`, y = ESBG, 
+                col = `Narrowness of identity group:`, group = `Narrowness of identity group:`)) +
+  facet_wrap(vars(`Identity:`, `Opinion dimensions:`), ncol=3) +
+  geom_point() + geom_line() +
+  labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4), 'Identity' (used/not used), \n'Narrowness of identity group' (0.39, 0.49, 0.59) and 'Average acceptability of different opinions' (0.1, 0.22, 0.28, 0.34)",
+       x = "Average acceptability of different opinions", y = "Polarization") +
+  theme_minimal() +
+  theme(legend.position = "top")
+
+```
+
