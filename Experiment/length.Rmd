@@ -1,0 +1,259 @@
+---
+title: "Analyzing effect of simulation length"
+author: 
+  - name: "František Kalvas"
+    url: https://github.com/frantisek901/Spirals/Experiment
+    affiliation: Department of Sociology, University of West Bohemia in Pilsen
+    affiliation_url: https://les.zcu.cz
+date: '2022-03-24'
+output: 
+  html_document: 
+    toc: true
+    toc_float: true
+    code_folding: hide
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+## Encoding: UTF-8
+
+rm(list=ls())
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Main focus of this side project is to find phase-transition which happen when we are changing boundary/`acceptability of different opinion`. Result should be a simple graph showing how ESBG polarization changes with change of `acceptability of different opinion`.  
+  
+
+```{r echo=FALSE, include=FALSE}
+library(stargazer)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(lmtest)
+library(forcats)
+library(sjmisc)
+library(jtools)
+library(huxtable)
+library(knitr)
+
+
+# My own functon for renaming in Tidyverse
+prejmenuj = function(data, positions, new.names) {
+  names(data)[positions] = new.names
+  data
+}
+```
+
+
+
+## Loading data
+
+Data are at <http://github.com/frantisek901/Spirals/Experiment>. Experiment is done, I actualized the `*.csv` files at GitHub, then I ran script `experiment.R` which loads the data. Now, 2022-03-23, we are completely done. Who is not interested in working with megabytes of `*.csv files`, might use compiled `phase.RData`.  
+
+
+Now we load, join and aggregate these data and factorize and rename selected variables:  
+
+```{r loading, message=FALSE}
+## Loading stored data
+load("shortData1D.RData")
+load("longData1D.RData")
+load("shortData.RData")
+load("longData.RData")
+
+
+## Joining data
+df = inner_join(
+  long1D %>% select(RS:`[step]`, ESBG_ls = ESBSG_polarization_start, ESBG_lf = ESBG_3650, -`max-ticks`) %>% 
+    prejmenuj(c(3, 5:7, 10:12), c("identity", "conformity", "neis", "random", "tolerance", "speaking", "step_lf")), 
+  res1D %>% select(RS:`[step]`, ESBG_ss = ESBSG_polarization_start, ESBG_sf = ESBG_365, -`max-ticks`) %>% 
+    prejmenuj(c(3, 5:7, 10:12), c("identity", "conformity", "neis", "random", "tolerance", "speaking", "step_sf"))
+  ) %>% 
+  add_row(
+    inner_join(
+      long %>% select(c(2, 3, 13, 5, 17, 8, 7, 9:12, 18), 
+                      ESBG_ls = ESBSG_polarization_start, ESBG_lf = ESBG_3650, -`max-ticks`) %>% 
+        prejmenuj(c(3, 5:7, 10:12), c("identity", "conformity", "neis", "random", "tolerance", "speaking", "step_lf")), 
+      res %>% select(c(2, 3, 12, 4, 13, 7, 6, 8:11, 14), 
+                     ESBG_ss = ESBSG_polarization_start, ESBG_sf = ESBG_365, -`max-ticks`) %>%
+        prejmenuj(c(3, 5:7, 10:12), c("identity", "conformity", "neis", "random", "tolerance", "speaking", "step_sf"))
+      )
+    ) %>% 
+  
+  ## Balancing files to get them proportionally same:
+  distinct() %>%  # here we leave out duplicate observations -- I checked that these dulicities have same results
+  filter((opinions == 1 & RS <= 10) | (opinions == 2 & RS > 10 & RS <= 20), neis > 13, mode == "openly-listen") %>% 
+ 
+  ## Creating needed variables:
+  mutate(
+    id_threshold = if_else(identity, id_threshold, NA_real_) %>% factor(exclude = ""),
+    ESBG_diff = ESBG_lf - ESBG_sf,
+    ESBG_dcat = case_when(
+      ESBG_diff <= -0.1                     ~ "Decrease",
+      ESBG_diff <= -0.01 & ESBG_diff > -0.1 ~ "Slight decrease",
+      ESBG_diff >= 0.01 & ESBG_diff < 0.1   ~ "Slight increase",
+      ESBG_diff >= 0.1                      ~ "Increase",
+      TRUE                                  ~ "Roughly equal"
+    ) %>% factor(levels = c("Decrease", "Slight decrease", "Roughly equal", "Slight increase", "Increase")),
+    across(.cols = c(opinions:mode, tolerance, speaking), ~factor(.x))
+  )
+
+## Removing not needed objects:
+rm(long, long1D, res, res1D)
+
+```
+
+
+
+## Graphs: Description  
+
+Now, let's show our results graphically!  
+
+### Change of polarization  
+
+```{r  fig.width=8, fig.height=4, warning=FALSE}
+df %>% filter(ESBG_dcat != "Roughly equal") %>% 
+  ggplot() +
+  aes(x = ESBG_diff, fill = ESBG_dcat) +
+  geom_histogram(alpha = 0.75, 
+                 breaks = seq(-0.7004, 0.8004, 0.01)) +
+  scale_y_log10() +
+  labs(title = "Increases and decreases after 365+ steps (diference of short and longer run)",
+       x = "Diference in polarization measured by ESBG", y = "Count (log10 scale)", fill = "") +
+  theme_light() +
+  theme(legend.position = "top")
+
+df %>% frq(ESBG_dcat, show.na = F) %>% kable()
+
+```
+
+OK, it's obvious that in long run polarization decreases more than increases. Note that we omit observations from interval of smallest differences (-0.01; +0.01), in this narrow interval is `r frq(df$ESBG_diff_cat)[[1]][["raw.prc"]][3]` % of all observations. Decrease is case of `r frq(df$ESBG_diff_cat)[[1]][["raw.prc"]][1]` %, slight decrease is `r frq(df$ESBG_diff_cat)[[1]][["raw.prc"]][2]` %  and slight increase `r frq(df$ESBG_diff_cat)[[1]][["raw.prc"]][4]` % and increase is case of `r frq(df$ESBG_diff_cat)[[1]][["raw.prc"]][5]` % of observations.
+
+
+```{r fig.width=8, fig.height=4, warning=FALSE}
+df %>% 
+  ggplot() +
+  aes(x = ESBG_dcat, fill = ESBG_dcat) +
+  geom_bar() +
+  labs(title = "Change of polarization after long run",
+       x = "", y = "Count (linear scale)") +
+  guides(fill = "none") +
+  theme_minimal() +
+  theme(legend.position = "top")
+
+```
+
+This is less evident but still evident that there is more decrease than increase. Previous graph wass better.
+
+
+
+### Natural end of simulations   
+
+```{r warning=FALSE, message=FALSE}
+df %>% filter(step_lf < 3649) %>% 
+  ggplot() +
+  aes(x = step_lf) +
+  geom_histogram(fill = "steelblue", alpha = 0.6) +
+  scale_y_log10() +
+  scale_x_log10() +
+  labs(title = "Length of naturally ended simulations",
+       x = "Steps (log10 scale)", y = "Count (log10 scale)") +
+  theme_light() 
+
+```
+
+We see three waves of natural ends: around 500 steps, around 1000 steps and around 3000 steps. But we have to note that 
+`r frq(df$step_lf)[[1]][["raw.prc"]][length(frq(df$step_lf)[[1]][["raw.prc"]]) - 1]` % of simalations didn't end naturally even after 3650 steps.
+
+
+## Inspection of `df`
+
+Let's check whether the reduced file is balanced:
+
+```{r}
+df %>% group_by(opinions, identity) %>% frq(RS, show.na = F)
+df %>% frq(opinions, show.na = F)
+df %>% group_by(opinions) %>% frq(identity)
+df %>% group_by(opinions) %>% frq(boundary, show.na = F) 
+df %>% group_by(opinions) %>% frq(conformity, show.na = F)
+df %>% group_by(opinions) %>% frq(neis, show.na = F)
+df %>% group_by(opinions) %>% frq(random, show.na = F)
+df %>% group_by(opinions) %>% frq(mode, show.na = F)
+df %>% group_by(opinions, identity) %>% frq(id_threshold, show.na = F)
+df %>% group_by(opinions) %>% frq(tolerance, show.na = F)
+df %>% group_by(opinions) %>% frq(speaking, show.na = F)
+
+```
+OK, everything is ballanced now!
+
+
+
+## Regression: What does drive change?
+
+```{r regression}
+m = df %>% 
+  lm(ESBG_diff~opinions+identity+id_threshold+boundary+conformity+neis+random+tolerance+speaking, data = .)
+summary(m, digits = 3)
+m[["coefficients"]]  %>%  sort() %>% kable()
+
+f = df %>% 
+  lm(ESBG_diff~opinions*identity*id_threshold*conformity*tolerance*speaking*boundary+neis+random, data = .)
+r = (100 * summary(f)[["r.squared"]]) %>% round(2)
+
+paste("We just estimated full model, it would be exhausting to present here all 450 variables and interastions, we just report R2:", r, "%.")
+
+```
+
+
+OK, what do we learn? 
+
+1) The change of polarization in long run is hardly predictable in nature -- only `r r` % of variability is explained by the full model (all variables as factors, despite network all other interactions). So it means that `r 100 - r` % of variability is fully random: we might try explain it via initial random conditions or course of simulation.
+2) The strongest predictors are: `opinions` (+), `id_threshold` / `Narrowness of identity group` (+), `conformity` (+), `identity` / `Identity use` (-).
+3) It is interesting that `boundary`/`Acceptability of different opinion` doesn't seem so much important predictor -- we find during looking for phase transition that this variable is key for polarization level, so now it seems that despite this, this variable is not important for the margin of change in the long run.
+
+
+
+## Graphs: What does drive change?   
+
+
+
+```{r}
+df %>% filter(ESBG_dcat != "Roughly equal") %>%
+  ggplot() +
+  aes(y = ESBG_diff, x = id_threshold, fill = id_threshold, col = id_threshold ) +
+  geom_boxplot(alpha = 0.1) +
+  geom_jitter(alpha = 0.05, width = 0.3) +
+  labs(caption = "Note: We omitted narrow region (-0.01; +0.01) around zero, around no change.",
+       title = "General influence of `Narrowness of identity group` on change of polarization",
+       y = "Change of polarization")+
+  guides(fill = "none", color = "none") +
+  theme_light()
+
+```
+
+
+
+```{r fig.width=12, fig.height=8}
+df %>% filter(ESBG_dcat != "Roughly equal") %>%
+  ggplot() +
+  aes(y = ESBG_diff, x = id_threshold, fill = id_threshold, col = id_threshold ) +
+  facet_wrap(vars(boundary, opinions, conformity), nrow = 3) +
+  geom_boxplot(alpha = 0.1) +
+  geom_jitter(alpha = 0.05, width = 0.3) +
+  labs(caption = "Note: We omitted narrow region (-0.01; +0.01) around zero, around no change.") +
+  theme_light() +
+  theme(legend.position = "top")
+
+```
+
+
+
+
+
+
+
+
+ 
+ 
