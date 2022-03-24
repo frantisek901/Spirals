@@ -200,6 +200,24 @@ phase = read_csv("experiment01part39a.csv", skip = 6) %>% select(1:48, ESBG = ES
 
 save(phase, file = "phase.RData")
 
+
+
+# Loading and saving data for hunting two-way phase transition: --------------------------
+
+phase2w = read_csv("experiment01part41.csv", skip = 6) %>% select(2, 3, identity = `use_identity?`, 5, 6, 48, ESBG = ESBSG_polarization_final) %>%
+  add_row(read_csv("experiment01part42.csv", skip = 6) %>% select(2, 3, identity = `use_identity?`, 5, 6, 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part42b.csv", skip = 6) %>% select(2, 3, identity = `use_identity?`, 5, 6, 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part43.csv", skip = 6) %>% select(2, 4, identity = `use_identity?`, 5, 6, 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part44.csv", skip = 6) %>% select(2, 4, identity = `use_identity?`, 5, 6, 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part44b.csv", skip = 6) %>% select(2, 4, identity = `use_identity?`, 5, 6, 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part45.csv", skip = 6) %>% select(2, 4, identity = `use_identity?`, 5, 6, 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part46.csv", skip = 6) %>% select(2, 4, identity = `use_identity?`, 5, 6, 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part46b.csv", skip = 6) %>% select(2, 4, identity = `use_identity?`, 5, 6, 48, ESBG = ESBSG_polarization_final))
+
+save(phase2w, file = "phase2w.RData")
+
+
+
 # Some graphs -------------------------------------------------------------
 
 sample_n(res, 10000) %>%
