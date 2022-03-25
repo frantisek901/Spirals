@@ -67,7 +67,7 @@ load("phase2w.RData")
 ## Preparing individual data 'dfi'
 dfi = phase2w %>% 
   ## Filtering variables:
-  filter(RS <= 16 | (RS >= 61 & RS <= 81), identity)
+  filter(RS <= 18 | (RS >= 61 & RS <= 84), identity)
 
 
 ## Summarising 'dfi' into 'dfs':
@@ -265,11 +265,18 @@ p1s
 # f = lm(ESBG ~ factor(opinions)*factor(id_threshold)*factor(boundary), data = filter(dfi, identity))
 # fs = summary(f)
 
+
+
+# I just wanna know how much variability we can explain by the full model. OK, we might explain `r (100 * fs[['r.squared']]) %>% round(1)` %, it means there is `r (100 - 100 * fs[['r.squared']]) %>% round(1)` % of variability, which is unexplainable in principle! Resp. we can't explain it by any variable which we manipulated during simulation experiments. As I mentioned above, we might try explain it via detailed description of initial condition (however randomly generated) or via description of the course of the simulation.  
+# 
+# BTW, the full model is not the best, fully factorised model with main effects only is the best (difference in BIC `r round(BIC(f) - BIC(p1), 1)`), this model is better regarding the BIC than the non-factorized model with main effects (difference in BIC `r round(BIC(p1) - BIC(m), 1)`). Just for order, the model with factorized main effects explained  `r (100 * summary(p1)[['r.squared']]) %>% round(1)` % and the model with non-factorized main effects `r (100 * summary(m)[['r.squared']]) %>% round(1)` % of variability.
+
+
+
+
 ```
 
 
-<!-- I just wanna know how much variability we can explain by the full model. OK, we might explain `r (100 * fs[['r.squared']]) %>% round(1)` %, it means there is `r (100 - 100 * fs[['r.squared']]) %>% round(1)` % of variability, which is unexplainable in principle! Resp. we can't explain it by any variable which we manipulated during simulation experiments. As I mentioned above, we might try explain it via detailed description of initial condition (however randomly generated) or via description of the course of the simulation.   -->
 
-<!-- BTW, the full model is not the best, fully factorised model with main effects only is the best (difference in BIC `r round(BIC(f) - BIC(p1), 1)`), this model is better regarding the BIC than the non-factorized model with main effects (difference in BIC `r round(BIC(p1) - BIC(m), 1)`). Just for order, the model with factorized main effects explained  `r (100 * summary(p1)[['r.squared']]) %>% round(1)` % and the model with non-factorized main effects `r (100 * summary(m)[['r.squared']]) %>% round(1)` % of variability. -->
 
 
