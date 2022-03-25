@@ -63,15 +63,11 @@ Now we load and aggregate these data and factorize and rename selected variables
 ## Loading stored data
 load("phase2w.RData")
 
+
 ## Preparing individual data 'dfi'
 dfi = phase2w %>% 
   ## Filtering variables:
-  filter(RS <= 12 | (RS >= 61 & RS <= 74), identity) %>%  
-  
-  ## Changing some variables to factors:
-  mutate(id_threshold = factor(id_threshold),
-         boundary = factor(boundary),
-         opinions = factor(opinions))
+  filter(RS <= 16 | (RS >= 61 & RS <= 81), identity)
 
 
 ## Summarising 'dfi' into 'dfs':
@@ -93,16 +89,18 @@ Now, let's show our results graphically!
 
 ### Color maps  
 
-```{r color map, fig.width=8, fig.height=25, warning=FALSE}
+```{r color map, fig.width=8, fig.height=6, warning=FALSE}
 dfs %>% 
   ggplot() +
   aes(x = `Acceptability of different opinion:`, fill = ESBG, label = round(ESBG, 2),
       y = `Narrowness of identity group:`) +
-  facet_wrap(vars(`Opinion dimensions:`), ncol=1) +
-  geom_point(alpha = 1, size = 13, shape = 22, col = "white") +
-  geom_text(color = "white", size = 3) +
+  facet_wrap(vars(`Opinion dimensions:`), ncol=3) +
+  geom_point(alpha = 1, size = 2, shape = 22, col = "white") +
+  # geom_text(color = "white", size = 1) +
   scale_fill_gradient2(low = "green", mid = "red", high = "black", midpoint = 0.3) +
-  labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4),\n'Narrowness of identity group' (0.35--0.6, NA) and\n'Average acceptability of different opinions' (0.05--0.3)",
+  scale_y_continuous(breaks = seq(0.05, 0.85, 0.05)) +
+  scale_x_continuous(breaks = seq(0.05, 0.50, 0.05)) +
+  labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4), 'Narrowness of identity group' (0.05--0.85) and\n'Average acceptability of different opinions' (0.05--0.5)",
        x = "Average acceptability of different opinions", 
        caption = "Note: Value 'NA' in 'Narrowness of identity group' indicates that identity constraint is not used.") +
   guides(alpha = "none") +
@@ -121,14 +119,15 @@ dfs %>%
 
 For the first graph on pulped clouds we aggregate `Acceptability of different opinion` into 13 categories (we just round 121 original values to 2 digits). Two different levels of polarization are seeable here, but it doesn't look like clouds...   
 
-```{r graph1, fig.width=8, fig.height=14, warning=FALSE}
+```{r graph1, fig.width=8, fig.height=8, warning=FALSE}
 ## For presenting variability we try now boxplots on individual data (non-aggregated):
 dfi %>%
-  filter(id_threshold %in% seq(0.36, 0.6, 0.03)) %>% 
+  filter(id_threshold %in% seq(0.05, 0.85, 0.1)) %>% 
   # sample_n(2000) %>%
   ## Selecting variables:
   select(opinions, boundary, id_threshold, ESBG) %>% 
-  mutate(boundary = as.numeric(as.character(boundary))) %>% 
+  mutate(id_threshold = factor(id_threshold),
+         opinions = factor(opinions)) %>% 
   
   ## Renaming variables according 2022-03-18 meeting:
   prejmenuj(1:3, c("Opinion dimensions:", "Acceptability of different opinion:",  
@@ -143,7 +142,7 @@ dfi %>%
   facet_wrap(vars(`Narrowness of identity group:`, `Opinion dimensions:`), ncol=3) +
   geom_boxplot(alpha = 0.2) +
   geom_jitter(alpha = 0.2) +
-  scale_x_continuous(breaks = seq(0.05, 0.30, 0.05)) +
+  scale_x_continuous(breaks = seq(0.05, 0.50, 0.05)) +
   labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4),\n'Narrowness of identity group' (0.36--0.6) and 'Average acceptability of different opinions' (0.05--0.3)",
        x = "Average acceptability of different opinions", y = "Polarization") +
   theme_minimal() +
@@ -157,12 +156,15 @@ Now same graph, but with every value:
 ```{r graph2, fig.width=8, fig.height=32, warning=FALSE}
 ## For presenting variability we try now boxplots on individual data (non-aggregated):
 dfi %>%
-  filter(id_threshold %in% seq(0.35, 0.6, 0.01)) %>% 
+  filter(id_threshold %in% seq(0.05, 0.85, 0.01)) %>% 
   # sample_n(2000) %>%
   ## Selecting variables:
   select(opinions, boundary, id_threshold, ESBG) %>% 
-  mutate(boundary = as.numeric(as.character(boundary))) %>% 
   
+  ## Changing some variables to factors:
+  mutate(id_threshold = factor(id_threshold),
+         opinions = factor(opinions)) %>% 
+ 
   ## Renaming variables according 2022-03-18 meeting:
   prejmenuj(1:3, c("Opinion dimensions:", "Acceptability of different opinion:",  
                     "Narrowness of identity group:")) %>% 
@@ -176,7 +178,7 @@ dfi %>%
   facet_wrap(vars(`Narrowness of identity group:`, `Opinion dimensions:`), ncol=3) +
   geom_boxplot(alpha = 0.2) +
   geom_jitter(alpha = 0.2) +
-  scale_x_continuous(breaks = seq(0.05, 0.30, 0.05)) +
+  scale_x_continuous(breaks = seq(0.05, 0.50, 0.05)) +
   labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4),\n'Narrowness of identity group' (0.35--0.6) and 'Average acceptability of different opinions' (0.05--0.3)",
        x = "Average acceptability of different opinions", y = "Polarization") +
   theme_minimal() +
@@ -189,16 +191,18 @@ Now, same data but slightly different graph
 ```{r graph3, fig.width=8, fig.height=10, warning=FALSE}
 ## For presenting variability we try now boxplots on individual data (non-aggregated):
 dfi %>%
-  filter(id_threshold %in% seq(0.35, 0.6, 0.05)) %>% 
+  filter(id_threshold %in% seq(0.05, 0.85, 0.1)) %>% 
   # sample_n(2000) %>%
   ## Selecting variables:
   select(opinions, boundary, id_threshold, ESBG) %>% 
-  mutate(boundary = as.numeric(as.character(boundary))) %>% 
+
+  ## Changing some variables to factors:
+  mutate(id_threshold = factor(id_threshold),
+         opinions = factor(opinions)) %>% 
 
   ## Renaming variables according 2022-03-18 meeting:
   prejmenuj(1:3, c("Opinion dimensions:", "Acceptability of different opinion:",  
                     "Narrowness of identity group:")) %>% 
-
 
   ## Graph itself:
   ggplot(aes(x = `Acceptability of different opinion:`, y = ESBG, 
@@ -207,7 +211,7 @@ dfi %>%
              group = `Acceptability of different opinion:`)) +
   facet_wrap(vars(`Narrowness of identity group:`, `Opinion dimensions:`), ncol=3) +
   geom_point(alpha = 0.15) +
-  scale_x_continuous(breaks = seq(0.05, 0.30, 0.05)) +
+  scale_x_continuous(breaks = seq(0.05, 0.50, 0.05)) +
   labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4),\n'Narrowness of identity group' (0.35--0.6) and 'Average acceptability of different opinions' (0.05--0.3)",
        x = "Average acceptability of different opinions", y = "Polarization") +
   theme_minimal() +
@@ -218,16 +222,18 @@ dfi %>%
 ```{r graph4, fig.width=8, fig.height=30, warning=FALSE}
 ## For presenting variability we try now boxplots on individual data (non-aggregated):
 dfi %>%
-  filter(id_threshold %in% seq(0.35, 0.6, 0.01)) %>% 
+  filter(id_threshold %in% seq(0.05, 0.85, 0.01)) %>% 
   # sample_n(2000) %>%
   ## Selecting variables:
-  select(opinions, boundary, id_threshold, ESBG) %>% 
-  mutate(boundary = as.numeric(as.character(boundary))) %>% 
+  select(opinions, boundary, id_threshold, ESBG) %>%  
+  
+  ## Changing some variables to factors:
+  mutate(id_threshold = factor(id_threshold),
+         opinions = factor(opinions)) %>% 
   
   ## Renaming variables according 2022-03-18 meeting:
   prejmenuj(1:3, c("Opinion dimensions:", "Acceptability of different opinion:",  
                     "Narrowness of identity group:")) %>% 
-
 
   ## Graph itself:
   ggplot(aes(x = `Acceptability of different opinion:`, y = ESBG, 
@@ -236,7 +242,7 @@ dfi %>%
              group = `Acceptability of different opinion:`)) +
   facet_wrap(vars(`Narrowness of identity group:`, `Opinion dimensions:`), ncol=3) +
   geom_point(alpha = 0.15) +
-  scale_x_continuous(breaks = seq(0.05, 0.30, 0.05)) +
+  scale_x_continuous(breaks = seq(0.05, 0.50, 0.05)) +
   labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4),\n'Narrowness of identity group' (0.35--0.6) and 'Average acceptability of different opinions' (0.05--0.3)",
        x = "Average acceptability of different opinions", y = "Polarization") +
   theme_minimal() +
@@ -249,14 +255,14 @@ dfi %>%
 
 ```{r regression}
 
-m = lm(ESBG ~ opinions+as.numeric(id_threshold)+as.numeric(boundary), data = filter(dfi, identity))
+m = lm(ESBG ~ opinions+id_threshold+boundary, data = filter(dfi, identity))
 ms = summary(m)
 
-p1 = lm(ESBG ~ opinions+id_threshold+boundary, data = filter(dfi, identity))
+p1 = lm(ESBG ~ factor(opinions)+factor(id_threshold)+factor(boundary), data = filter(dfi, identity))
 p1s = summary(p1)
 p1s
 
-f = lm(ESBG ~ opinions*id_threshold*boundary, data = filter(dfi, identity))
+f = lm(ESBG ~ factor(opinions)*factor(id_threshold)*factor(boundary), data = filter(dfi, identity))
 fs = summary(f)
 
 ```
