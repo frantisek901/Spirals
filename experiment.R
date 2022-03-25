@@ -212,7 +212,16 @@ phase2w = read_csv("experiment01part41.csv", skip = 6) %>% select(2, 3, identity
   add_row(read_csv("experiment01part44b.csv", skip = 6) %>% select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part45.csv", skip = 6) %>% select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part46.csv", skip = 6) %>% select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
-  add_row(read_csv("experiment01part46b.csv", skip = 6) %>% select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final))
+  add_row(read_csv("experiment01part46b.csv", skip = 6) %>% select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part51.csv", skip = 6) %>% select(2, 3, identity = 4, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part52.csv", skip = 6) %>% select(2, 3, identity = 4, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part53.csv", skip = 6) %>% select(2, 3, identity = 4, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part54.csv", skip = 6) %>% select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part55.csv", skip = 6) %>% select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part56.csv", skip = 6) %>% select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part57.csv", skip = 6) %>% select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part58.csv", skip = 6) %>% select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part59.csv", skip = 6) %>% select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final))
 
 save(phase2w, file = "phase2w.RData")
 
