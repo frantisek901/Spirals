@@ -5,7 +5,7 @@ author:
     url: https://github.com/frantisek901/Spirals/Experiment
     affiliation: Department of Sociology, University of West Bohemia in Pilsen
     affiliation_url: https://les.zcu.cz
-date: '2022-03-25'
+date: '2022-03-26'
 output: 
   html_document: 
     toc: true
@@ -29,10 +29,11 @@ Main focus of this side project is to find phase-transition which happen when we
 Note: Experiment is still running, we are at 26 complete sets of all values combinations out of 120. Also note, that it seems that we are not done yet, we probably will need more sets than 120 and more values of `Narrowness of identity group`.
   
 
-```{r echo=FALSE, include=FALSE}
+```{r echo=FALSE, include=FALSE, message=FALSE}
 library(stargazer)
 library(dplyr)
 library(tidyr)
+library(readr)
 library(ggplot2)
 library(lmtest)
 library(forcats)
@@ -49,6 +50,50 @@ prejmenuj = function(data, positions, new.names) {
 }
 ```
 
+## Processing `*.csv` files
+
+```{r data processing, echo=FALSE, message=FALSE}
+## Now we need to run it, since experiment is still running, but later, after data finalization, we might comment this out:
+phase2w = read_csv("experiment01part41.csv", skip = 6) %>% 
+            select(2, 3, identity = 4, 5, 6, step = 48, ESBG = ESBSG_polarization_final) %>%
+  add_row(read_csv("experiment01part42.csv", skip = 6) %>% 
+            select(2, 3, identity = 4, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part42b.csv", skip = 6) %>% 
+            select(2, 3, identity = 4, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part43.csv", skip = 6) %>% 
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part44.csv", skip = 6) %>% 
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part44b.csv", skip = 6) %>% 
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part45.csv", skip = 6) %>% 
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part46.csv", skip = 6) %>% 
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part46b.csv", skip = 6) %>% 
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part51.csv", skip = 6) %>% 
+            select(2, 3, identity = 4, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part52.csv", skip = 6) %>% 
+            select(2, 3, identity = 4, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part53.csv", skip = 6) %>% 
+            select(2, 3, identity = 4, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part54.csv", skip = 6) %>% 
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part55.csv", skip = 6) %>% 
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part56.csv", skip = 6) %>% 
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part57.csv", skip = 6) %>%
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part58.csv", skip = 6) %>% 
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part59.csv", skip = 6) %>% 
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final))
+
+save(phase2w, file = "phase2w.RData")
+
+```
 
 
 ## Loading data
@@ -67,7 +112,9 @@ load("phase2w.RData")
 ## Preparing individual data 'dfi'
 dfi = phase2w %>% 
   ## Filtering variables:
-  filter(RS <= 18 | (RS >= 61 & RS <= 84), identity)
+  filter(RS <= 11, identity) %>%  #  | (RS >= 61 & RS <= 96),  
+  ## Denormalizing ESBG:
+  mutate(ESBG = ESBG * sqrt(opinions))
 
 
 ## Summarising 'dfi' into 'dfs':
@@ -81,37 +128,72 @@ dfs = dfi %>%
 
 ```
 
+#### NOTE:  
+
+I de-normalized ESBG, i.e. I multiply. I just noticed that systematically ESBG is lower and also much denser in higher dimensions. I have also substantive/philosophical reasons for this de-normalization, now I will try it and describe the reasons for de-normalization later in detail. But just briefly: 
+
+I think that agents do not know in how many dimensions they are and what is the maximum posible distance, they feel polarisation reegarding the other group not regarding the group and the possible maxima of distance, let's do following thought experiment:
+
+Our agents living in 1D, they discuss just one topic, they are divided in two camps of equal size and these two camps are at the poles -1 and +1 of their opinion space, the polarization is maximal, ESBG is 1. Then we take this strange world on a string and put it on the table, now they are in 2D world, their distance is same since the don't change it, they should stil feel polarization of margin ESBG=1 since nothing changed. Then we recognize that table is in the roomm -- 3D, then we rocignize time -- 4D... But polarization should be still same, since these agent don't change their positions.
+
+So, this was the argument :-) and now let's look, how results change after de-normalization of ESBG...
+
+GREAT! Results look GREAT! Now the polarization is more ballanced over dimensions, but still, even after de-normalization, holds true that the more dimensions the less polarization.  
 
 
-## Graph  
+
+# Graphs  
 
 Now, let's show our results graphically!  
 
-### Color maps  
+## Color maps  
 
-```{r color map, fig.width=8, fig.height=6, warning=FALSE}
+```{r color map1, fig.width=8, fig.height=6, warning=FALSE}
 dfs %>% 
   ggplot() +
-  aes(x = `Acceptability of different opinion:`, fill = ESBG, label = round(ESBG, 2),
+  aes(x = `Acceptability of different opinion:`, col = ESBG, fill = ESBG,
       y = `Narrowness of identity group:`) +
   facet_wrap(vars(`Opinion dimensions:`), ncol=3) +
-  geom_point(alpha = 1, size = 2, shape = 22, col = "white") +
-  # geom_text(color = "white", size = 1) +
+  geom_point(alpha = 1, size = 1.75, shape = 22) +
   scale_fill_gradient2(low = "green", mid = "red", high = "black", midpoint = 0.3) +
+  scale_color_gradient2(low = "green", mid = "red", high = "black", midpoint = 0.3) +
   scale_y_continuous(breaks = seq(0.05, 0.85, 0.05)) +
   scale_x_continuous(breaks = seq(0.05, 0.50, 0.05)) +
   labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4), 'Narrowness of identity group' (0.05--0.85) and\n'Average acceptability of different opinions' (0.05--0.5)",
-       x = "Average acceptability of different opinions", 
-       caption = "Note: Value 'NA' in 'Narrowness of identity group' indicates that identity constraint is not used.") +
+       x = "Average acceptability of different opinions") +
   guides(alpha = "none") +
   theme_minimal() +
   theme(legend.position = "top")  
 
 ```
 
-1) the more dimensions the less polarization,
-2) the least polarized region is quarter of circle in the right bottom corner, then the left-hand side stripe, and the most polarized is the resting region (the most polarized part of this region seems to move with change of dimensions, but may be it is the artifact of low number of simulations -- sometimes it is upper-right corner, sometimes upper border, sometimes right border)
+1) I love these pictures! Whole my life I'd like to produce something meaningful looking like this -- and here I am!
+2) the more dimensions the less polarization,
+3) the least polarized region is quarter of circle in the right bottom corner, then the left-hand side stripe, and the most polarized is the resting region (the most polarized part of this region seems to move with change of dimensions, but may be it is the artifact of low number of simulations -- sometimes it is upper-right corner, sometimes upper border, sometimes right border)
 
+Just for a try, same map, but more detailed and with panels organized in column insted of in a row:
+
+
+```{r color map2, fig.width=8, fig.height=40, warning=FALSE}
+dfs %>% 
+  ggplot() +
+  aes(x = `Acceptability of different opinion:`, fill = ESBG, col = ESBG, label = round(100*ESBG, 0),
+      y = `Narrowness of identity group:`) +
+  facet_wrap(vars(`Opinion dimensions:`), ncol=1) +
+  geom_point(alpha = 1, size = 6.6, shape = 22) +
+  geom_text(color = "white", size = 2) +
+  scale_fill_gradient2(low = "green", mid = "red", high = "black", midpoint = 0.3) +
+  scale_color_gradient2(low = "green", mid = "red", high = "black", midpoint = 0.3) +
+  scale_y_continuous(breaks = seq(0.05, 0.85, 0.05), labels = seq(0.05, 0.85, 0.05)) +
+  scale_x_continuous(breaks = seq(0.05, 0.50, 0.05), labels = seq(0.05, 0.50, 0.05)) +
+  labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4), 'Narrowness of identity group' (0.05--0.85) and\n'Average acceptability of different opinions' (0.05--0.5)",
+       x = "Average acceptability of different opinions", 
+       caption = "Note: Numbers indicate polarization, they are equal to `round(100 * ESBG, 0)`.") +
+  guides(alpha = "none") +
+  theme_minimal() +
+  theme(legend.position = "top")  
+
+```
 
 
 
@@ -119,10 +201,10 @@ dfs %>%
 
 For the first graph on pulped clouds we aggregate `Acceptability of different opinion` into 13 categories (we just round 121 original values to 2 digits). Two different levels of polarization are seeable here, but it doesn't look like clouds...   
 
-```{r graph1, fig.width=8, fig.height=8, warning=FALSE}
+```{r graph1, fig.width=8, fig.height=12, warning=FALSE}
 ## For presenting variability we try now boxplots on individual data (non-aggregated):
 dfi %>%
-  filter(id_threshold %in% seq(0.05, 0.85, 0.1)) %>% 
+  filter(round(100 * id_threshold, 0) %in% seq(5, 85, 10)) %>% 
   # sample_n(2000) %>%
   ## Selecting variables:
   select(opinions, boundary, id_threshold, ESBG) %>% 
@@ -143,8 +225,9 @@ dfi %>%
   geom_boxplot(alpha = 0.2) +
   geom_jitter(alpha = 0.2) +
   scale_x_continuous(breaks = seq(0.05, 0.50, 0.05)) +
-  labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4),\n'Narrowness of identity group' (0.36--0.6) and 'Average acceptability of different opinions' (0.05--0.3)",
+  labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4),\n'Narrowness of identity group' (0.05--0.85) and 'Average acceptability of different opinions' (0.05--0.5)",
        x = "Average acceptability of different opinions", y = "Polarization") +
+  guides(fill = "none", color = "none") +
   theme_minimal() +
   theme(legend.position = "top")  
 
@@ -153,11 +236,10 @@ dfi %>%
 
 Now same graph, but with every value:
 
-```{r graph2, fig.width=8, fig.height=32, warning=FALSE}
+```{r graph2, fig.width=8, fig.height=90, warning=FALSE}
 ## For presenting variability we try now boxplots on individual data (non-aggregated):
 dfi %>%
-  filter(id_threshold %in% seq(0.05, 0.85, 0.01)) %>% 
-  # sample_n(2000) %>%
+  # sample_n(20000) %>%
   ## Selecting variables:
   select(opinions, boundary, id_threshold, ESBG) %>% 
   
@@ -179,8 +261,9 @@ dfi %>%
   geom_boxplot(alpha = 0.2) +
   geom_jitter(alpha = 0.2) +
   scale_x_continuous(breaks = seq(0.05, 0.50, 0.05)) +
-  labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4),\n'Narrowness of identity group' (0.35--0.6) and 'Average acceptability of different opinions' (0.05--0.3)",
+  labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4),\n'Narrowness of identity group' (0.05--0.85) and 'Average acceptability of different opinions' (0.05--0.5)",
        x = "Average acceptability of different opinions", y = "Polarization") +
+  guides(fill = "none", color = "none") +
   theme_minimal() +
   theme(legend.position = "top")  
 
@@ -188,10 +271,10 @@ dfi %>%
 
 Now, same data but slightly different graph
 
-```{r graph3, fig.width=8, fig.height=10, warning=FALSE}
-## For presenting variability we try now boxplots on individual data (non-aggregated):
+```{r graph3, fig.width=8, fig.height=12, warning=FALSE}
+## For presenting variability we try now scatter plot only on individual data (non-aggregated):
 dfi %>%
-  filter(id_threshold %in% seq(0.05, 0.85, 0.1)) %>% 
+  filter(round(100 * id_threshold, 0) %in% seq(5, 85, 10)) %>% 
   # sample_n(2000) %>%
   ## Selecting variables:
   select(opinions, boundary, id_threshold, ESBG) %>% 
@@ -212,17 +295,17 @@ dfi %>%
   facet_wrap(vars(`Narrowness of identity group:`, `Opinion dimensions:`), ncol=3) +
   geom_point(alpha = 0.15) +
   scale_x_continuous(breaks = seq(0.05, 0.50, 0.05)) +
-  labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4),\n'Narrowness of identity group' (0.35--0.6) and 'Average acceptability of different opinions' (0.05--0.3)",
+  labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4),\n'Narrowness of identity group' (0.05--0.85) and 'Average acceptability of different opinions' (0.05--0.5)",
        x = "Average acceptability of different opinions", y = "Polarization") +
+  guides(fill = "none", color = "none") +
   theme_minimal() +
   theme(legend.position = "top")
 ```
 
 
-```{r graph4, fig.width=8, fig.height=30, warning=FALSE}
-## For presenting variability we try now boxplots on individual data (non-aggregated):
+```{r graph4, fig.width=8, fig.height=90, warning=FALSE}
+## For presenting variability we try now scatter plot on individual data (non-aggregated):
 dfi %>%
-  filter(id_threshold %in% seq(0.05, 0.85, 0.01)) %>% 
   # sample_n(2000) %>%
   ## Selecting variables:
   select(opinions, boundary, id_threshold, ESBG) %>%  
@@ -245,8 +328,147 @@ dfi %>%
   scale_x_continuous(breaks = seq(0.05, 0.50, 0.05)) +
   labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4),\n'Narrowness of identity group' (0.35--0.6) and 'Average acceptability of different opinions' (0.05--0.3)",
        x = "Average acceptability of different opinions", y = "Polarization") +
+  guides(fill = "none", color = "none") +
   theme_minimal() +
   theme(legend.position = "top")
+```
+
+
+### Pulped clouds: Exchanging `Acceptability` and `Narrowness`    
+
+
+For this set of graph we flip the perspective -- we set `Acceptability of different opinion` as slicing variable, associated with color/fill, on the X axis we assign `Narrowness of identity group`. Let's hope, it helps understand the 2-way phase transition better.  
+
+```{r graph5, fig.width=8, fig.height=12, warning=FALSE}
+## For presenting variability we try now boxplots on individual data (non-aggregated):
+dfi %>%
+  filter(round(100 * boundary, 1) %in% seq(5, 50, 5)) %>% 
+  # sample_n(2000) %>%
+  ## Selecting variables:
+  select(opinions, boundary, id_threshold, ESBG) %>% 
+  mutate(boundary = factor(boundary),
+         opinions = factor(opinions)) %>% 
+  
+  ## Renaming variables according 2022-03-18 meeting:
+  prejmenuj(1:3, c("Opinion dimensions:", "Acceptability of different opinion:",  
+                    "Narrowness of identity group:")) %>% 
+
+  ## Graph itself:
+  ggplot() +
+  aes(fill = `Acceptability of different opinion:`, y = ESBG, 
+      x = `Narrowness of identity group:`,
+      group = `Narrowness of identity group:`,
+      col = `Acceptability of different opinion:`) +
+  facet_wrap(vars(`Acceptability of different opinion:`, `Opinion dimensions:`), ncol=3) +
+  geom_boxplot(alpha = 0.2) +
+  geom_jitter(alpha = 0.2) +
+  scale_x_continuous(breaks = seq(0.05, 0.850, 0.1)) +
+  labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4),\n'Narrowness of identity group' (0.05--0.85) and 'Average acceptability of different opinions' (0.05--0.5)",
+       x = "Average acceptability of different opinions", y = "Polarization") +
+  guides(fill = "none", color = "none") +
+  theme_minimal() +
+  theme(legend.position = "top")  
+
+```
+
+
+Now same graph, but with every value:
+
+```{r graph6, fig.width=8, fig.height=48, warning=FALSE}
+## For presenting variability we try now boxplots on individual data (non-aggregated):
+dfi %>%
+  # sample_n(2000) %>%
+  ## Selecting variables:
+  select(opinions, boundary, id_threshold, ESBG) %>% 
+  mutate(boundary = factor(boundary),
+         opinions = factor(opinions)) %>% 
+  
+  ## Renaming variables according 2022-03-18 meeting:
+  prejmenuj(1:3, c("Opinion dimensions:", "Acceptability of different opinion:",  
+                    "Narrowness of identity group:")) %>% 
+
+  ## Graph itself:
+  ggplot() +
+  aes(fill = `Acceptability of different opinion:`, y = ESBG, 
+      x = `Narrowness of identity group:`,
+      group = `Narrowness of identity group:`, 
+      col = `Acceptability of different opinion:`) +
+  facet_wrap(vars(`Acceptability of different opinion:`, `Opinion dimensions:`), ncol=3) +
+  geom_boxplot(alpha = 0.2) +
+  geom_jitter(alpha = 0.2) +
+  scale_x_continuous(breaks = seq(0.05, 0.85, 0.1)) +
+  labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4),\n'Narrowness of identity group' (0.05--0.85) and 'Average acceptability of different opinions' (0.05--0.5)",
+       y = "Polarization") +
+  guides(fill = "none", color = "none") +
+  theme_minimal() +
+  theme(legend.position = "top")  
+
+```
+
+Now, same data but slightly different graph
+
+```{r graph7, fig.width=8, fig.height=12, warning=FALSE}
+## For presenting variability we try now boxplots on individual data (non-aggregated):
+dfi %>%
+  filter(round(100 * boundary, 0) %in% seq(5, 50, 5)) %>% 
+  # sample_n(2000) %>%
+  ## Selecting variables:
+  select(opinions, boundary, id_threshold, ESBG) %>% 
+
+  ## Changing some variables to factors:
+  mutate(boundary = factor(boundary),
+         opinions = factor(opinions)) %>% 
+
+  ## Renaming variables according 2022-03-18 meeting:
+  prejmenuj(1:3, c("Opinion dimensions:", "Acceptability of different opinion:",  
+                    "Narrowness of identity group:")) %>% 
+
+  ## Graph itself:
+  ggplot(aes(fill = `Acceptability of different opinion:`, y = ESBG, 
+             x = `Narrowness of identity group:`,
+             col = `Acceptability of different opinion:`)) +
+  facet_wrap(vars(`Acceptability of different opinion:`, `Opinion dimensions:`), ncol=3) +
+  geom_point(alpha = 0.15) +
+  scale_x_continuous(breaks = seq(0.05, 0.85, 0.1)) +
+  labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4),\n'Narrowness of identity group' (0.05--0.85) and 'Average acceptability of different opinions' (0.05--0.5)",
+       x = "Average acceptability of different opinions", y = "Polarization") +
+  guides(fill = "none", color = "none") +
+  theme_minimal() +
+  theme(legend.position = "top")
+
+```
+
+
+Now, same graph again with complete data:
+
+```{r graph8, fig.width=8, fig.height=48, warning=FALSE}
+## For presenting variability we try now boxplots on individual data (non-aggregated):
+dfi %>%
+  # sample_n(2000) %>%
+  ## Selecting variables:
+  select(opinions, boundary, id_threshold, ESBG) %>% 
+
+  ## Changing some variables to factors:
+  mutate(boundary = factor(boundary),
+         opinions = factor(opinions)) %>% 
+
+  ## Renaming variables according 2022-03-18 meeting:
+  prejmenuj(1:3, c("Opinion dimensions:", "Acceptability of different opinion:",  
+                    "Narrowness of identity group:")) %>% 
+
+  ## Graph itself:
+  ggplot(aes(fill = `Acceptability of different opinion:`, y = ESBG, 
+             x = `Narrowness of identity group:`,
+             col = `Acceptability of different opinion:`)) +
+  facet_wrap(vars(`Acceptability of different opinion:`, `Opinion dimensions:`), ncol=3) +
+  geom_point(alpha = 0.15) +
+  scale_x_continuous(breaks = seq(0.05, 0.85, 0.1)) +
+  labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4),\n'Narrowness of identity group' (0.05--0.85) and 'Average acceptability of different opinions' (0.05--0.5)",
+       x = "Average acceptability of different opinions", y = "Polarization") +
+  guides(fill = "none", color = "none") +
+  theme_minimal() +
+  theme(legend.position = "top")
+
 ```
 
 
@@ -255,7 +477,7 @@ dfi %>%
 
 ```{r regression}
 
-m = lm(ESBG ~ opinions+id_threshold+boundary, data = filter(dfi, identity))
+m = lm(ESBG ~ factor(opinions)+id_threshold+boundary, data = filter(dfi, identity))
 ms = summary(m)
 
 p1 = lm(ESBG ~ factor(opinions)+factor(id_threshold)+factor(boundary), data = filter(dfi, identity))
@@ -266,17 +488,16 @@ p1s
 # fs = summary(f)
 
 
-
-# I just wanna know how much variability we can explain by the full model. OK, we might explain `r (100 * fs[['r.squared']]) %>% round(1)` %, it means there is `r (100 - 100 * fs[['r.squared']]) %>% round(1)` % of variability, which is unexplainable in principle! Resp. we can't explain it by any variable which we manipulated during simulation experiments. As I mentioned above, we might try explain it via detailed description of initial condition (however randomly generated) or via description of the course of the simulation.  
-# 
-# BTW, the full model is not the best, fully factorised model with main effects only is the best (difference in BIC `r round(BIC(f) - BIC(p1), 1)`), this model is better regarding the BIC than the non-factorized model with main effects (difference in BIC `r round(BIC(p1) - BIC(m), 1)`). Just for order, the model with factorized main effects explained  `r (100 * summary(p1)[['r.squared']]) %>% round(1)` % and the model with non-factorized main effects `r (100 * summary(m)[['r.squared']]) %>% round(1)` % of variability.
-
-
-
-
 ```
 
 
+
+# I just wanna know how much variability we can explain by the full model. But I am not able to estimate the full model, since with fully factorized variables there are `11 177` (!sic) variables and interactions. Dataset is rich enough for this, but memory of my PC is not :-) Later we might try estimate the explanation by full model on Unity. But preliminary estimate shows that we pay more than 10,000 degrees of freedom by including all the interactions, but we get something around of 2 more percent points of variability explained -- it totally doesn't worth for such a high price! 
+
+
+OK, by `fully factorized main effects only` model  we might explain `r (100 * p1s[['r.squared']]) %>% round(1)` %, it means there is `r (100 - 100 * p1s[['r.squared']]) %>% round(1)` % of variability, which is unexplainable in principle! Resp. we can't explain it by any variable which we manipulated during simulation experiments. As I mentioned above, we might try explain it via detailed description of initial condition (however randomly generated) or via description of the course of the simulation.  
+
+ BTW, `fully factorized model with main effects only` is the best (difference in BIC `r round((BIC(p1) - BIC(m))/1000, 0)`k), this model is better regarding the BIC than the `non-factorized main effects` model. Just for order, the model with `non-factorized main effects` explains `r (100 * summary(m)[['r.squared']]) %>% round(1)` % of variability.
 
 
 
