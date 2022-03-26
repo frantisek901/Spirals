@@ -22,7 +22,7 @@ rm(list=ls())
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Introduction
+# Introduction
 
 Main focus of this side project is to find phase-transition which happen when we are changing boundary/`Acceptability of different opinion` and `Narrowness of identity group`. Result should be a simple graph showing how ESBG polarization changes with change of `Acceptability of different opinion` and `Narrowness of identity group`.  
 
@@ -50,7 +50,7 @@ prejmenuj = function(data, positions, new.names) {
 }
 ```
 
-## Processing `*.csv` files
+## Processing raw data files
 
 ```{r data processing, echo=FALSE, message=FALSE}
 ## Now we need to run it, since experiment is still running, but later, after data finalization, we might comment this out:
@@ -98,7 +98,7 @@ save(phase2w, file = "phase2w.RData")
 
 ## Loading data
 
-Data are at <http://github.com/frantisek901/Spirals/Experiment>. Experiment is still running and I, FranČesko, from time to time actualize the `*.csv` files at GitHub, then I run script `experiment.R` which loads the data. Now, 2022-03-25, we are at 20 %, roughly. Who is not interested in working with megabytes of `*.csv files`, might use compiled `phase2w.RData`.  
+Data are at <https://github.com/frantisek901/Spirals/tree/master/Experiment>. Experiment is still running and I, FranČesko, from time to time actualize the `*.csv` files at GitHub, then I run script `experiment.R` which loads the data. Now, 2022-03-25, we are at 20 %, roughly. Who is not interested in working with megabytes of `*.csv files`, might use compiled `phase2w.RData`.  
 
 <!-- For avoiding statistical artifact we sampling data -- for each combination of important variables same number of observations/simulations. Here we must note, that per 1 simulation not using identity we have 3 simulations using identity, since it makes no sense to vary `Narrownes of identity group` in case we are not using identity in the model.   -->
 
@@ -112,7 +112,7 @@ load("phase2w.RData")
 ## Preparing individual data 'dfi'
 dfi = phase2w %>% 
   ## Filtering variables:
-  filter(RS <= 11, identity) %>%  #  | (RS >= 61 & RS <= 96),  
+  filter(RS <= 12, identity) %>%  #  | (RS >= 61 & RS <= 96),  
   ## Denormalizing ESBG:
   mutate(ESBG = ESBG * sqrt(opinions))
 
@@ -148,6 +148,8 @@ Now, let's show our results graphically!
 
 ## Color maps  
 
+### Smaller maps, one by one  
+
 ```{r color map1, fig.width=8, fig.height=6, warning=FALSE}
 dfs %>% 
   ggplot() +
@@ -171,8 +173,10 @@ dfs %>%
 2) the more dimensions the less polarization,
 3) the least polarized region is quarter of circle in the right bottom corner, then the left-hand side stripe, and the most polarized is the resting region (the most polarized part of this region seems to move with change of dimensions, but may be it is the artifact of low number of simulations -- sometimes it is upper-right corner, sometimes upper border, sometimes right border)
 
-Just for a try, same map, but more detailed and with panels organized in column insted of in a row:
 
+### Detailed maps: one after one  
+
+Just for a try, same map, but more detailed and with panels organized in column insted of in a row:
 
 ```{r color map2, fig.width=8, fig.height=40, warning=FALSE}
 dfs %>% 
@@ -197,9 +201,11 @@ dfs %>%
 
 
 
-### Pulped clouds  
+## Pulped clouds  
 
 For the first graph on pulped clouds we aggregate `Acceptability of different opinion` into 13 categories (we just round 121 original values to 2 digits). Two different levels of polarization are seeable here, but it doesn't look like clouds...   
+
+### Acceptability: reduced boxplot
 
 ```{r graph1, fig.width=8, fig.height=12, warning=FALSE}
 ## For presenting variability we try now boxplots on individual data (non-aggregated):
@@ -233,6 +239,9 @@ dfi %>%
 
 ```
 
+
+
+### Acceptability: full boxplot
 
 Now same graph, but with every value:
 
@@ -269,6 +278,9 @@ dfi %>%
 
 ```
 
+
+### Acceptability: reduced scatter plot  
+
 Now, same data but slightly different graph
 
 ```{r graph3, fig.width=8, fig.height=12, warning=FALSE}
@@ -303,6 +315,9 @@ dfi %>%
 ```
 
 
+
+### Acceptability: full scatter plot  
+
 ```{r graph4, fig.width=8, fig.height=90, warning=FALSE}
 ## For presenting variability we try now scatter plot on individual data (non-aggregated):
 dfi %>%
@@ -334,10 +349,12 @@ dfi %>%
 ```
 
 
-### Pulped clouds: Exchanging `Acceptability` and `Narrowness`    
+## Pulped clouds: Exchanging `Acceptability` and `Narrowness`    
 
 
 For this set of graph we flip the perspective -- we set `Acceptability of different opinion` as slicing variable, associated with color/fill, on the X axis we assign `Narrowness of identity group`. Let's hope, it helps understand the 2-way phase transition better.  
+
+### Narrownes: reduced boxplot
 
 ```{r graph5, fig.width=8, fig.height=12, warning=FALSE}
 ## For presenting variability we try now boxplots on individual data (non-aggregated):
@@ -372,6 +389,8 @@ dfi %>%
 ```
 
 
+### Narrownes: full boxplot
+
 Now same graph, but with every value:
 
 ```{r graph6, fig.width=8, fig.height=48, warning=FALSE}
@@ -404,6 +423,9 @@ dfi %>%
   theme(legend.position = "top")  
 
 ```
+
+
+### Narrownes: reduced scatter plot
 
 Now, same data but slightly different graph
 
@@ -439,6 +461,8 @@ dfi %>%
 ```
 
 
+### Narrownes: full scatter plot  
+
 Now, same graph again with complete data:
 
 ```{r graph8, fig.width=8, fig.height=48, warning=FALSE}
@@ -473,7 +497,7 @@ dfi %>%
 
 
 
-## Regression   
+# Regression   
 
 ```{r regression}
 
@@ -492,12 +516,12 @@ p1s
 
 
 
-# I just wanna know how much variability we can explain by the full model. But I am not able to estimate the full model, since with fully factorized variables there are `11 177` (!sic) variables and interactions. Dataset is rich enough for this, but memory of my PC is not :-) Later we might try estimate the explanation by full model on Unity. But preliminary estimate shows that we pay more than 10,000 degrees of freedom by including all the interactions, but we get something around of 2 more percent points of variability explained -- it totally doesn't worth for such a high price! 
+I just wanna know how much variability we can explain by the full model. But I am not able to estimate the full model, since with fully factorized variables there are `11 177` (!sic) variables and interactions. Dataset is rich enough for this, but memory of my PC is not :-) Later we might try estimate the explanation by full model on Unity. But preliminary estimate shows that we pay more than 10,000 degrees of freedom by including all the interactions, but we get something around of 2 more percent points of variability explained -- it totally doesn't worth for such a high price! 
 
 
 OK, by `fully factorized main effects only` model  we might explain `r (100 * p1s[['r.squared']]) %>% round(1)` %, it means there is `r (100 - 100 * p1s[['r.squared']]) %>% round(1)` % of variability, which is unexplainable in principle! Resp. we can't explain it by any variable which we manipulated during simulation experiments. As I mentioned above, we might try explain it via detailed description of initial condition (however randomly generated) or via description of the course of the simulation.  
 
- BTW, `fully factorized model with main effects only` is the best (difference in BIC `r round((BIC(p1) - BIC(m))/1000, 0)`k), this model is better regarding the BIC than the `non-factorized main effects` model. Just for order, the model with `non-factorized main effects` explains `r (100 * summary(m)[['r.squared']]) %>% round(1)` % of variability.
+BTW, `fully factorized model with main effects only` is the best (difference in BIC `r round((BIC(p1) - BIC(m))/1000, 0)`k), this model is better regarding the BIC than the `non-factorized main effects` model. Just for order, the model with `non-factorized main effects` explains `r (100 * summary(m)[['r.squared']]) %>% round(1)` % of variability.
 
 
 
