@@ -5,7 +5,7 @@ author:
     url: https://github.com/frantisek901/Spirals/Experiment
     affiliation: Department of Sociology, University of West Bohemia in Pilsen
     affiliation_url: https://les.zcu.cz
-date: '2022-03-26'
+date: '2022-03-27'
 output: 
   html_document: 
     toc: true
@@ -66,11 +66,15 @@ phase2w = read_csv("experiment01part41.csv", skip = 6) %>%
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part44b.csv", skip = 6) %>% 
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part44c.csv", skip = 6) %>% 
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part45.csv", skip = 6) %>% 
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part46.csv", skip = 6) %>% 
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part46b.csv", skip = 6) %>% 
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part46c.csv", skip = 6) %>% 
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part51.csv", skip = 6) %>% 
             select(2, 3, identity = 4, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
@@ -80,16 +84,23 @@ phase2w = read_csv("experiment01part41.csv", skip = 6) %>%
             select(2, 3, identity = 4, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part54.csv", skip = 6) %>% 
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part54b.csv", skip = 6) %>% 
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part55.csv", skip = 6) %>% 
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part56.csv", skip = 6) %>% 
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part57.csv", skip = 6) %>%
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part57b.csv", skip = 6) %>%
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part57c.csv", skip = 6) %>%
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part58.csv", skip = 6) %>% 
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part59.csv", skip = 6) %>% 
-            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final))
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>% 
+  unique()
 
 save(phase2w, file = "phase2w.RData")
 
@@ -109,10 +120,14 @@ Now we load and aggregate these data and factorize and rename selected variables
 load("phase2w.RData")
 
 
+## Firstly, we have to find, what is the highest complete RS, i.e. set of all parameters' combinations simulated:
+RS_complete = (phase2w %>% group_by(RS) %>% summarise(n = n()) %>% filter(n == max(n)))$RS 
+
+
 ## Preparing individual data 'dfi'
 dfi = phase2w %>% 
   ## Filtering variables:
-  filter(RS <= 12, identity) %>%  #  | (RS >= 61 & RS <= 96),  
+  filter(RS %in% RS_complete, identity) %>%  #  | (RS >= 61 & RS <= 96),  
   ## Denormalizing ESBG:
   mutate(ESBG = ESBG * sqrt(opinions))
 
@@ -381,7 +396,7 @@ dfi %>%
   geom_jitter(alpha = 0.2) +
   scale_x_continuous(breaks = seq(0.05, 0.850, 0.1)) +
   labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4),\n'Narrowness of identity group' (0.05--0.85) and 'Average acceptability of different opinions' (0.05--0.5)",
-       x = "Average acceptability of different opinions", y = "Polarization") +
+      y = "Polarization") +
   guides(fill = "none", color = "none") +
   theme_minimal() +
   theme(legend.position = "top")  
@@ -453,7 +468,7 @@ dfi %>%
   geom_point(alpha = 0.15) +
   scale_x_continuous(breaks = seq(0.05, 0.85, 0.1)) +
   labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4),\n'Narrowness of identity group' (0.05--0.85) and 'Average acceptability of different opinions' (0.05--0.5)",
-       x = "Average acceptability of different opinions", y = "Polarization") +
+       y = "Polarization") +
   guides(fill = "none", color = "none") +
   theme_minimal() +
   theme(legend.position = "top")
@@ -488,7 +503,7 @@ dfi %>%
   geom_point(alpha = 0.15) +
   scale_x_continuous(breaks = seq(0.05, 0.85, 0.1)) +
   labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4),\n'Narrowness of identity group' (0.05--0.85) and 'Average acceptability of different opinions' (0.05--0.5)",
-       x = "Average acceptability of different opinions", y = "Polarization") +
+        y = "Polarization") +
   guides(fill = "none", color = "none") +
   theme_minimal() +
   theme(legend.position = "top")
