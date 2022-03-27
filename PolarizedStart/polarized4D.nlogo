@@ -1434,7 +1434,6 @@ end
 to-report use_identity?
   report true
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 219
@@ -1538,7 +1537,7 @@ n-neis
 n-neis
 1
 500
-6.0
+52.0
 1
 1
 NIL
@@ -1553,7 +1552,7 @@ p-random
 p-random
 0
 0.5
-0.05
+0.27
 0.01
 1
 NIL
@@ -1568,7 +1567,7 @@ opinions
 opinions
 1
 50
-4.0
+2.0
 1
 1
 NIL
@@ -1608,7 +1607,7 @@ boundary
 boundary
 0.01
 1
-0.3
+0.45
 0.01
 1
 NIL
@@ -1620,7 +1619,7 @@ INPUTBOX
 781
 70
 RS
-1.0
+240.0
 1
 0
 Number
@@ -1807,7 +1806,7 @@ Y-opinion
 Y-opinion
 1
 50
-4.0
+2.0
 1
 1
 NIL
@@ -2087,7 +2086,7 @@ tolerance-level
 tolerance-level
 0
 1.1
-0.65
+0.648
 0.01
 1
 NIL
@@ -2202,7 +2201,7 @@ INPUTBOX
 1389
 242
 N_centroids
-2.0
+3.0
 1
 0
 Number
@@ -2293,7 +2292,7 @@ id_threshold
 id_threshold
 0.01
 1
-0.7
+0.35
 0.01
 1
 NIL
@@ -2422,7 +2421,7 @@ SWITCH
 495
 create-links-randomly?
 create-links-randomly?
-0
+1
 1
 -1000
 
@@ -2501,7 +2500,7 @@ polrzd_opnns
 polrzd_opnns
 0
 16
-3.0
+1.0
 1
 1
 NIL
@@ -2516,7 +2515,7 @@ polrzd_dist
 polrzd_dist
 0
 1
-0.35
+0.7
 0.01
 1
 NIL
@@ -9248,6 +9247,600 @@ NetLogo 6.2.2
     </enumeratedValueSet>
     <enumeratedValueSet variable="n-neis">
       <value value="52"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="record-each-n-steps">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="20"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="draw_id_threshold">
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="boundary-drawn">
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="tolerance-drawn">
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="p-speaking-drawn">
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="use_opponents_ratio?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="1010"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="d_threshold">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="identity_levels">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="record-length">
+      <value value="40"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="conformity-drawn">
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="dissatisfied_updates_opinion">
+      <value value="0.41"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="create-links-randomly?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N-agents">
+      <value value="129"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="construct-name?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid-redundancies?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK-benchmark?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="min-comm-neis">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="threshold_drawn">
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="identity_type">
+      <value value="&quot;global&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="cut-links-randomly?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="record?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="network-change">
+      <value value="&quot;link&quot;"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="regularExperimentPart75" repetitions="1" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="366"/>
+    <metric>betweenness_start</metric>
+    <metric>eigenvector_start</metric>
+    <metric>clustering_start</metric>
+    <metric>mean_path_start</metric>
+    <metric>normalized_polarization_start</metric>
+    <metric>ESBSG_polarization_start</metric>
+    <metric>mean_op1_start</metric>
+    <metric>mean_op2_start</metric>
+    <metric>mean_op3_start</metric>
+    <metric>mean_op4_start</metric>
+    <metric>sd_op1_start</metric>
+    <metric>sd_op2_start</metric>
+    <metric>sd_op3_start</metric>
+    <metric>sd_op4_start</metric>
+    <metric>median_op1_start</metric>
+    <metric>median_op2_start</metric>
+    <metric>median_op3_start</metric>
+    <metric>median_op4_start</metric>
+    <metric>lower_op1_start</metric>
+    <metric>lower_op2_start</metric>
+    <metric>lower_op3_start</metric>
+    <metric>lower_op4_start</metric>
+    <metric>upper_op1_start</metric>
+    <metric>upper_op2_start</metric>
+    <metric>upper_op3_start</metric>
+    <metric>upper_op4_start</metric>
+    <metric>betweenness_final</metric>
+    <metric>eigenvector_final</metric>
+    <metric>clustering_final</metric>
+    <metric>mean_path_final</metric>
+    <metric>normalized_polarization_final</metric>
+    <metric>ESBSG_polarization_final</metric>
+    <metric>mean_op1_final</metric>
+    <metric>mean_op2_final</metric>
+    <metric>mean_op3_final</metric>
+    <metric>mean_op4_final</metric>
+    <metric>sd_op1_final</metric>
+    <metric>sd_op2_final</metric>
+    <metric>sd_op3_final</metric>
+    <metric>sd_op4_final</metric>
+    <metric>median_op1_final</metric>
+    <metric>median_op2_final</metric>
+    <metric>median_op3_final</metric>
+    <metric>median_op4_final</metric>
+    <metric>lower_op1_final</metric>
+    <metric>lower_op2_final</metric>
+    <metric>lower_op3_final</metric>
+    <metric>lower_op4_final</metric>
+    <metric>upper_op1_final</metric>
+    <metric>upper_op2_final</metric>
+    <metric>upper_op3_final</metric>
+    <metric>upper_op4_final</metric>
+    <steppedValueSet variable="RS" first="1" step="1" last="240"/>
+    <enumeratedValueSet variable="opinions">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="boundary" first="0.05" step="0.1" last="0.45"/>
+    <steppedValueSet variable="id_threshold" first="0.05" step="0.1" last="0.85"/>
+    <enumeratedValueSet variable="polrzd_opnns">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polrzd_dist">
+      <value value="0.35"/>
+      <value value="0.7"/>
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polrzd_ratio">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="conformity-level">
+      <value value="0.45"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="tolerance-level">
+      <value value="0.648"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="p-speaking-level">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="mode">
+      <value value="&quot;openly-listen&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="p-random">
+      <value value="0.27"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-neis">
+      <value value="7"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="record-each-n-steps">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="20"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="draw_id_threshold">
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="boundary-drawn">
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="tolerance-drawn">
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="p-speaking-drawn">
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="use_opponents_ratio?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="1010"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="d_threshold">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="identity_levels">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="record-length">
+      <value value="40"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="conformity-drawn">
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="dissatisfied_updates_opinion">
+      <value value="0.41"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="create-links-randomly?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N-agents">
+      <value value="129"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="construct-name?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid-redundancies?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK-benchmark?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="min-comm-neis">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="threshold_drawn">
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="identity_type">
+      <value value="&quot;global&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="cut-links-randomly?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="record?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="network-change">
+      <value value="&quot;link&quot;"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="regularExperimentPart76" repetitions="1" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="366"/>
+    <metric>betweenness_start</metric>
+    <metric>eigenvector_start</metric>
+    <metric>clustering_start</metric>
+    <metric>mean_path_start</metric>
+    <metric>normalized_polarization_start</metric>
+    <metric>ESBSG_polarization_start</metric>
+    <metric>mean_op1_start</metric>
+    <metric>mean_op2_start</metric>
+    <metric>mean_op3_start</metric>
+    <metric>mean_op4_start</metric>
+    <metric>sd_op1_start</metric>
+    <metric>sd_op2_start</metric>
+    <metric>sd_op3_start</metric>
+    <metric>sd_op4_start</metric>
+    <metric>median_op1_start</metric>
+    <metric>median_op2_start</metric>
+    <metric>median_op3_start</metric>
+    <metric>median_op4_start</metric>
+    <metric>lower_op1_start</metric>
+    <metric>lower_op2_start</metric>
+    <metric>lower_op3_start</metric>
+    <metric>lower_op4_start</metric>
+    <metric>upper_op1_start</metric>
+    <metric>upper_op2_start</metric>
+    <metric>upper_op3_start</metric>
+    <metric>upper_op4_start</metric>
+    <metric>betweenness_final</metric>
+    <metric>eigenvector_final</metric>
+    <metric>clustering_final</metric>
+    <metric>mean_path_final</metric>
+    <metric>normalized_polarization_final</metric>
+    <metric>ESBSG_polarization_final</metric>
+    <metric>mean_op1_final</metric>
+    <metric>mean_op2_final</metric>
+    <metric>mean_op3_final</metric>
+    <metric>mean_op4_final</metric>
+    <metric>sd_op1_final</metric>
+    <metric>sd_op2_final</metric>
+    <metric>sd_op3_final</metric>
+    <metric>sd_op4_final</metric>
+    <metric>median_op1_final</metric>
+    <metric>median_op2_final</metric>
+    <metric>median_op3_final</metric>
+    <metric>median_op4_final</metric>
+    <metric>lower_op1_final</metric>
+    <metric>lower_op2_final</metric>
+    <metric>lower_op3_final</metric>
+    <metric>lower_op4_final</metric>
+    <metric>upper_op1_final</metric>
+    <metric>upper_op2_final</metric>
+    <metric>upper_op3_final</metric>
+    <metric>upper_op4_final</metric>
+    <steppedValueSet variable="RS" first="1" step="1" last="240"/>
+    <enumeratedValueSet variable="opinions">
+      <value value="3"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="boundary" first="0.05" step="0.1" last="0.45"/>
+    <steppedValueSet variable="id_threshold" first="0.05" step="0.1" last="0.85"/>
+    <enumeratedValueSet variable="polrzd_opnns">
+      <value value="1"/>
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polrzd_dist">
+      <value value="0.35"/>
+      <value value="0.7"/>
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polrzd_ratio">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="conformity-level">
+      <value value="0.45"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="tolerance-level">
+      <value value="0.648"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="p-speaking-level">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="mode">
+      <value value="&quot;openly-listen&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="p-random">
+      <value value="0.27"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-neis">
+      <value value="7"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="record-each-n-steps">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="20"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="draw_id_threshold">
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="boundary-drawn">
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="tolerance-drawn">
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="p-speaking-drawn">
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="use_opponents_ratio?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="1010"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="d_threshold">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="identity_levels">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="record-length">
+      <value value="40"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="conformity-drawn">
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="dissatisfied_updates_opinion">
+      <value value="0.41"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="create-links-randomly?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N-agents">
+      <value value="129"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="construct-name?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid-redundancies?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK-benchmark?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="min-comm-neis">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="threshold_drawn">
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="identity_type">
+      <value value="&quot;global&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="cut-links-randomly?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="record?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="network-change">
+      <value value="&quot;link&quot;"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="regularExperimentPart77" repetitions="1" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="366"/>
+    <metric>betweenness_start</metric>
+    <metric>eigenvector_start</metric>
+    <metric>clustering_start</metric>
+    <metric>mean_path_start</metric>
+    <metric>normalized_polarization_start</metric>
+    <metric>ESBSG_polarization_start</metric>
+    <metric>mean_op1_start</metric>
+    <metric>mean_op2_start</metric>
+    <metric>mean_op3_start</metric>
+    <metric>mean_op4_start</metric>
+    <metric>sd_op1_start</metric>
+    <metric>sd_op2_start</metric>
+    <metric>sd_op3_start</metric>
+    <metric>sd_op4_start</metric>
+    <metric>median_op1_start</metric>
+    <metric>median_op2_start</metric>
+    <metric>median_op3_start</metric>
+    <metric>median_op4_start</metric>
+    <metric>lower_op1_start</metric>
+    <metric>lower_op2_start</metric>
+    <metric>lower_op3_start</metric>
+    <metric>lower_op4_start</metric>
+    <metric>upper_op1_start</metric>
+    <metric>upper_op2_start</metric>
+    <metric>upper_op3_start</metric>
+    <metric>upper_op4_start</metric>
+    <metric>betweenness_final</metric>
+    <metric>eigenvector_final</metric>
+    <metric>clustering_final</metric>
+    <metric>mean_path_final</metric>
+    <metric>normalized_polarization_final</metric>
+    <metric>ESBSG_polarization_final</metric>
+    <metric>mean_op1_final</metric>
+    <metric>mean_op2_final</metric>
+    <metric>mean_op3_final</metric>
+    <metric>mean_op4_final</metric>
+    <metric>sd_op1_final</metric>
+    <metric>sd_op2_final</metric>
+    <metric>sd_op3_final</metric>
+    <metric>sd_op4_final</metric>
+    <metric>median_op1_final</metric>
+    <metric>median_op2_final</metric>
+    <metric>median_op3_final</metric>
+    <metric>median_op4_final</metric>
+    <metric>lower_op1_final</metric>
+    <metric>lower_op2_final</metric>
+    <metric>lower_op3_final</metric>
+    <metric>lower_op4_final</metric>
+    <metric>upper_op1_final</metric>
+    <metric>upper_op2_final</metric>
+    <metric>upper_op3_final</metric>
+    <metric>upper_op4_final</metric>
+    <steppedValueSet variable="RS" first="1" step="1" last="240"/>
+    <enumeratedValueSet variable="opinions">
+      <value value="4"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="boundary" first="0.05" step="0.1" last="0.45"/>
+    <steppedValueSet variable="id_threshold" first="0.05" step="0.1" last="0.85"/>
+    <enumeratedValueSet variable="polrzd_opnns">
+      <value value="1"/>
+      <value value="2"/>
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polrzd_dist">
+      <value value="0.35"/>
+      <value value="0.7"/>
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polrzd_ratio">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="conformity-level">
+      <value value="0.45"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="tolerance-level">
+      <value value="0.648"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="p-speaking-level">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="mode">
+      <value value="&quot;openly-listen&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="p-random">
+      <value value="0.27"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-neis">
+      <value value="7"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
       <value value="365"/>
