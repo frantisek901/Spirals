@@ -5,7 +5,7 @@ author:
     url: https://github.com/frantisek901/Spirals/Experiment
     affiliation: Department of Sociology, University of West Bohemia in Pilsen
     affiliation_url: https://les.zcu.cz
-date: '2022-03-27'
+date: '2022-03-28'
 output: 
   html_document: 
     toc: true
@@ -80,15 +80,25 @@ phase2w = read_csv("experiment01part41.csv", skip = 6) %>%
             select(2, 3, identity = 4, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part52.csv", skip = 6) %>% 
             select(2, 3, identity = 4, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part52b.csv", skip = 6) %>% 
+            select(2, 3, identity = 4, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part53.csv", skip = 6) %>% 
+            select(2, 3, identity = 4, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part53b.csv", skip = 6) %>% 
             select(2, 3, identity = 4, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part54.csv", skip = 6) %>% 
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part54b.csv", skip = 6) %>% 
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part54c.csv", skip = 6) %>% 
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part55.csv", skip = 6) %>% 
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part55b.csv", skip = 6) %>% 
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part56.csv", skip = 6) %>% 
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part56b.csv", skip = 6) %>% 
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part57.csv", skip = 6) %>%
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
@@ -99,6 +109,8 @@ phase2w = read_csv("experiment01part41.csv", skip = 6) %>%
   add_row(read_csv("experiment01part58.csv", skip = 6) %>% 
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part59.csv", skip = 6) %>% 
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>% 
+  add_row(read_csv("experiment01part59b.csv", skip = 6) %>% 
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>% 
   unique()
 
