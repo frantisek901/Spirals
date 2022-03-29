@@ -60,14 +60,6 @@ phase2w = read_csv("experiment01part41.csv", skip = 6) %>%
             select(2, 3, identity = 4, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part42b.csv", skip = 6) %>% 
             select(2, 3, identity = 4, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
-  ## TO-DO: Something is wrong with the following hash-out file/code -- find and kill the bug!
-  #  Ajajajajajaj..... I rewrite file Part51b.csv mistakenly over the Part55.csv... 
-  #  Now I started simulations on Part51b.csv again with right name, and I will try to restore Part55.csv...
-  #  Trying...
-  add_row(read_csv("experiment01part55.csv", skip = 6) %>%
-            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
-  add_row(read_csv("experiment01part55b.csv", skip = 6) %>%
-            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part43.csv", skip = 6) %>% 
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part44.csv", skip = 6) %>% 
@@ -86,7 +78,7 @@ phase2w = read_csv("experiment01part41.csv", skip = 6) %>%
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part51.csv", skip = 6) %>% 
             select(2, 3, identity = 4, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
-  add_row(x= read_csv("experiment01part51b.csv", skip = 6) %>% 
+  add_row(read_csv("experiment01part51b.csv", skip = 6) %>% 
             select(2, 3, identity = 4, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part51c.csv", skip = 6) %>% 
             select(2, 3, identity = 4, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
@@ -106,6 +98,10 @@ phase2w = read_csv("experiment01part41.csv", skip = 6) %>%
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part54c.csv", skip = 6) %>% 
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part55.csv", skip = 6) %>%
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part55b.csv", skip = 6) %>%
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part56.csv", skip = 6) %>% 
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part56b.csv", skip = 6) %>% 
@@ -123,9 +119,8 @@ phase2w = read_csv("experiment01part41.csv", skip = 6) %>%
   add_row(read_csv("experiment01part59.csv", skip = 6) %>% 
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>% 
   add_row(read_csv("experiment01part59b.csv", skip = 6) %>% 
-            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) 
-# %>% 
-#   unique()
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  unique()
 
 save(phase2w, file = "phase2w.RData")
 

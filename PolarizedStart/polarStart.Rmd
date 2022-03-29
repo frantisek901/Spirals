@@ -60,6 +60,8 @@ polarStart = read_csv("polarizedPart72.csv.csv", skip = 6) %>%
             select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
   add_row(read_csv("polarizedPart74.csv.csv", skip = 6) %>% 
             select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
+  add_row(read_csv("polarizedPart74b.csv.csv", skip = 6) %>% 
+            select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
   add_row(read_csv("polarizedPart75.csv.csv", skip = 6) %>% 
             select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
   add_row(read_csv("polarizedPart76.csv.csv", skip = 6) %>% 
