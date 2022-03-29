@@ -98,6 +98,8 @@ phase2w = read_csv("experiment01part41.csv", skip = 6) %>%
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part54c.csv", skip = 6) %>% 
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
+  add_row(read_csv("experiment01part54d.csv", skip = 6) %>% 
+            select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part55.csv", skip = 6) %>%
             select(2, 4, identity = 3, 5, 6, step = 48, ESBG = ESBSG_polarization_final)) %>%
   add_row(read_csv("experiment01part55b.csv", skip = 6) %>%
