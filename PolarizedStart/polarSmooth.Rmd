@@ -104,8 +104,8 @@ dfi = polarSmooth %>%
   mutate(start = start * sqrt(opinions), final = final * sqrt(opinions), change = final - start,
          change_cat = case_when(
            change <= -0.2                  ~ "Decrease",
-           change > -0.2 & change <= -0.1 ~ "Slight decrease",
-           change < +0.2 & change >= +0.1 ~ "Slight increase",
+           change > -0.2 & change <= -0.05 ~ "Slight decrease",
+           change < +0.2 & change >= +0.05 ~ "Slight increase",
            change >= +0.2                  ~ "Increase",
            TRUE                            ~ "No big change"
          ) %>% factor(levels = c("Decrease", "Slight decrease", "No big change", "Slight increase", "Increase")))
@@ -415,7 +415,7 @@ Same data, slightly different graphics:
 ```{r graph6, fig.width=8, fig.height=24, warning=FALSE}
 ## For presenting variability we try now boxplots on individual data (non-aggregated):
 dfi %>%
-  mutate(acceptability = factor(acceptability),
+  mutate(acceptability = factor(acceptability) %>%  fct_rev(),
          grouper = paste(acceptability, pol_dist, pol_ops, sep = "; ")) %>% 
 
   ## Graph itself:
@@ -425,7 +425,7 @@ dfi %>%
       group = narrowness,
       col = acceptability) +
   facet_wrap(vars(grouper), ncol=9) +
-  geom_point(alpha = 0.25) +
+  geom_point(alpha = 0.03) +
   scale_x_continuous(breaks = seq(0.15, 0.75, 0.2)) +
   labs(title = "Change of polarization during simulations by \n'Narrowness of identity group' (0.05--0.85), 'Average acceptability of different opinions' (0.05--0.5),\n'Polarized opinions' (1, 2, 3) and 'Distance of polarized groups' (0.35, 0.7, 1)",
        x = "Narrownes of identity group", y = "Polarization change") +
