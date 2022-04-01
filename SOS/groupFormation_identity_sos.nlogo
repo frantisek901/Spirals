@@ -1585,7 +1585,7 @@ N-agents
 N-agents
 10
 1000
-130.0
+129.0
 1
 1
 NIL
@@ -1869,7 +1869,7 @@ Y-opinion
 Y-opinion
 1
 50
-2.0
+4.0
 1
 1
 NIL
@@ -1912,7 +1912,7 @@ updating
 updating
 1
 50
-4.0
+1.0
 1
 1
 NIL
@@ -2265,7 +2265,7 @@ INPUTBOX
 1389
 242
 N_centroids
-7.0
+1.0
 1
 0
 Number
@@ -2550,7 +2550,7 @@ identity_levels
 identity_levels
 2
 10
-5.0
+10.0
 1
 1
 NIL
@@ -2614,7 +2614,7 @@ SWITCH
 576
 identity-repulsion?
 identity-repulsion?
-0
+1
 1
 -1000
 
@@ -2625,15 +2625,15 @@ SWITCH
 582
 graded-identity?
 graded-identity?
-0
+1
 1
 -1000
 
 SLIDER
-1181
-597
-1353
-630
+1077
+577
+1249
+610
 identity-xoffset
 identity-xoffset
 0.05
