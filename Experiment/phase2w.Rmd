@@ -148,7 +148,7 @@ load("phase2w.RData")
 
 ## Firstly, we have to find, what is the highest complete RS, i.e. set of all parameters' combinations simulated:
 RS_complete = (phase2w %>% group_by(RS) %>% summarise(n = n()) %>% filter(n == max(n)))$RS 
-
+RS_complete = 1:120
 
 ## Preparing individual data 'dfi'
 dfi = phase2w %>% 
