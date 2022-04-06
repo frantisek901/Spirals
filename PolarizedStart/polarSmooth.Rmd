@@ -71,6 +71,46 @@ polarSmooth = read_csv("polarizedPart81.csv", skip = 6) %>%
   add_row(read_csv("polarizedPart88.csv", skip = 6) %>% 
             select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
   add_row(read_csv("polarizedPart89.csv", skip = 6) %>% 
+            select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
+  add_row(read_csv("polarP91RS10.csv", skip = 6) %>% 
+            select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
+  add_row(read_csv("polarP92RS10.csv", skip = 6) %>% 
+            select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
+  add_row(read_csv("polarP93RS10.csv", skip = 6) %>% 
+            select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
+  add_row(read_csv("polarP94RS10.csv", skip = 6) %>% 
+            select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
+  add_row(read_csv("polarP91RS20.csv", skip = 6) %>% 
+            select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
+  add_row(read_csv("polarP92RS20.csv", skip = 6) %>% 
+            select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
+  add_row(read_csv("polarP93RS20.csv", skip = 6) %>% 
+            select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
+  add_row(read_csv("polarP94RS20.csv", skip = 6) %>% 
+            select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
+  add_row(read_csv("polarP91RS30.csv", skip = 6) %>% 
+            select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
+  add_row(read_csv("polarP92RS30.csv", skip = 6) %>% 
+            select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
+  add_row(read_csv("polarP93RS30.csv", skip = 6) %>% 
+            select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
+  add_row(read_csv("polarP94RS30.csv", skip = 6) %>% 
+            select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
+  add_row(read_csv("polarP91RS40.csv", skip = 6) %>% 
+            select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
+  add_row(read_csv("polarP92RS40.csv", skip = 6) %>% 
+            select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
+  add_row(read_csv("polarP93RS40.csv", skip = 6) %>% 
+            select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
+  add_row(read_csv("polarP94RS50.csv", skip = 6) %>% 
+            select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
+  add_row(read_csv("polarP91RS50.csv", skip = 6) %>% 
+            select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
+  add_row(read_csv("polarP92RS50.csv", skip = 6) %>% 
+            select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
+  add_row(read_csv("polarP93RS50.csv", skip = 6) %>% 
+            select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final)) %>%
+  add_row(read_csv("polarP94RS10.csv", skip = 6) %>% 
             select(2:7, neis = 14, step = 50, start = ESBSG_polarization_start, final = ESBSG_polarization_final))
 
 save(polarSmooth, file = "polarSmooth.RData")
@@ -92,6 +132,7 @@ load("polarSmooth.RData")
 ## Firstly, we have to find, what is the highest complete RS, i.e. set of all parameters' combinations simulated:
 RS_complete = (polarSmooth %>%
                  group_by(RS) %>% summarise(n = n()) %>% filter(n == max(n)))$RS 
+RS_complete = 1:120
 
 
 ## Preparing individual data 'dfi'
@@ -174,14 +215,14 @@ OK, so we see that polarization rather increases than decreases. Decrease higher
 
 ## Color maps  
 
-```{r color map1, fig.width=8, fig.height=9.2, warning=FALSE}
+```{r color map1, fig.width=8, fig.height=16, warning=FALSE}
 dfs %>% 
   ggplot() +
   aes(x = acceptability, col = change, fill = change, label = round(100*change, 0),
       y = narrowness) +
   facet_wrap(vars(pol_dist, pol_ops), ncol=3) +
-  geom_point(alpha = 1, size = 4, shape = 22) +
-  geom_text(color = "white", size = 1.5) +  
+  geom_point(alpha = 1, size = 1.7, shape = 22) +
+  # geom_text(color = "white", size = 1) +  
   scale_fill_gradient2(low = "blue", mid = "yellow", high = "black", midpoint = 0) +
   scale_color_gradient2(low = "blue", mid = "yellow", high = "black", midpoint= 0) +
   scale_y_continuous(breaks = seq(0.05, 0.85, 0.1)) +
@@ -206,14 +247,14 @@ dfs %>%
 Let's now do the same maps, but for the initial and final state of polarization.
 
 
-```{r color map2, fig.width=8, fig.height=9.2, warning=FALSE}
+```{r color map2, fig.width=8, fig.height=16, warning=FALSE}
 dfs %>% 
   ggplot() +
   aes(x = acceptability, col = start, fill = start, label = round(100*start, 0),
       y = narrowness) +
   facet_wrap(vars(pol_dist, pol_ops), ncol=3) +
-  geom_point(alpha = 1, size = 4, shape = 22) +
-  geom_text(color = "white", size = 1.5) +  
+  geom_point(alpha = 1, size = 1.7, shape = 22) +
+  # geom_text(color = "white", size = 1.5) +  
   scale_fill_gradient2(low = "blue", mid = "yellow", high = "black", midpoint = 0) +
   scale_color_gradient2(low = "blue", mid = "yellow", high = "black", midpoint = 0) +
   scale_y_continuous(breaks = seq(0.05, 0.85, 0.1)) +
@@ -227,14 +268,14 @@ dfs %>%
 ```
 
 
-```{r color map3, fig.width=8, fig.height=9.2, warning=FALSE}
+```{r color map3, fig.width=8, fig.height=16, warning=FALSE}
 dfs %>% 
   ggplot() +
   aes(x = acceptability, col = final, fill = final, label = round(100*final, 0),
       y = narrowness) +
   facet_wrap(vars(pol_dist, pol_ops), ncol=3) +
-  geom_point(alpha = 1, size = 4, shape = 22) +
-  geom_text(color = "white", size = 1.5) +  
+  geom_point(alpha = 1, size = 1.7, shape = 22) +
+  # geom_text(color = "white", size = 1.5) +  
   scale_fill_gradient2(low = "blue", mid = "yellow", high = "black", midpoint = 0.4) +
   scale_color_gradient2(low = "blue", mid = "yellow", high = "black", midpoint = 0.4) +
   scale_y_continuous(breaks = seq(0.05, 0.85, 0.1)) +
@@ -254,39 +295,39 @@ dfs %>%
 
 ### Pulped clouds  
 
-```{r graph1, fig.width=8, fig.height=6, warning=FALSE}
-## For presenting variability we try now boxplots on individual data (non-aggregated):
-dfi %>%
-  filter(round(100 * acceptability, 0) %in% seq(4, 50, 10)) %>%
-  ## Selecting variables:
-  mutate(acceptability = factor(acceptability),
-         grouper = paste(acceptability, pol_dist, pol_ops, sep = "; ")) %>% 
+<!-- ```{r graph1, fig.width=8, fig.height=6, warning=FALSE} -->
+<!-- ## For presenting variability we try now boxplots on individual data (non-aggregated): -->
+<!-- dfi %>% -->
+<!--   filter(round(100 * acceptability, 0) %in% seq(4, 50, 10)) %>% -->
+<!--   ## Selecting variables: -->
+<!--   mutate(acceptability = factor(acceptability), -->
+<!--          grouper = paste(acceptability, pol_dist, pol_ops, sep = "; ")) %>%  -->
 
-  # ## Renaming variables according 2022-03-18 meeting:
-  # prejmenuj(1:3, c("Opinion dimensions:", "Acceptability of different opinion:",
-  #                   "Narrowness of identity group:")) %>%
+<!--   # ## Renaming variables according 2022-03-18 meeting: -->
+<!--   # prejmenuj(1:3, c("Opinion dimensions:", "Acceptability of different opinion:", -->
+<!--   #                   "Narrowness of identity group:")) %>% -->
 
-  ## Graph itself:
-  ggplot() +
-  aes(fill = acceptability, y = final,
-      x = narrowness,
-      group = narrowness,
-      col = acceptability) +
-  facet_wrap(vars(grouper), ncol=9) +
-  geom_boxplot(alpha = 0.2) +
-  geom_jitter(alpha = 0.2) +
-  scale_x_continuous(breaks = seq(0.05, 0.850, 0.20)) +
-  labs(title = "Final polarization in simulations by \n'Narrowness of identity group' (0.05--0.85), 'Average acceptability of different opinions' (0.05--0.5),\n'Polarized opinions' (1, 2, 3) and 'Distance of polarized groups' (0.35, 0.7, 1)",
-       x = "Narrownes of identity group", y = "Polarization") +
-  guides(fill = "none", color = "none") +
-  theme_light() +
-  theme(legend.position = "top")
+<!--   ## Graph itself: -->
+<!--   ggplot() + -->
+<!--   aes(fill = acceptability, y = final, -->
+<!--       x = narrowness, -->
+<!--       group = narrowness, -->
+<!--       col = acceptability) + -->
+<!--   facet_wrap(vars(grouper), ncol=9) + -->
+<!--   geom_boxplot(alpha = 0.2) + -->
+<!--   geom_jitter(alpha = 0.2) + -->
+<!--   scale_x_continuous(breaks = seq(0.05, 0.850, 0.20)) + -->
+<!--   labs(title = "Final polarization in simulations by \n'Narrowness of identity group' (0.05--0.85), 'Average acceptability of different opinions' (0.05--0.5),\n'Polarized opinions' (1, 2, 3) and 'Distance of polarized groups' (0.35, 0.7, 1)", -->
+<!--        x = "Narrownes of identity group", y = "Polarization") + -->
+<!--   guides(fill = "none", color = "none") + -->
+<!--   theme_light() + -->
+<!--   theme(legend.position = "top") -->
 
-```
+<!-- ``` -->
 
-Same data, slightly different graphics:
+<!-- Same data, slightly different graphics: -->
 
-```{r graph2, fig.width=8, fig.height=24, warning=FALSE}
+```{r graph2, fig.width=8, fig.height=60, warning=FALSE}
 ## For presenting variability we try now boxplots on individual data (non-aggregated):
 dfi %>%
   # filter(round(100 * acceptability, 0) %in% seq(4, 50, 10)) %>%
@@ -319,39 +360,39 @@ dfi %>%
 
 ### Pulped clouds: Exchanging `Acceptability` and `Narrowness`
 
-```{r graph3, fig.width=8, fig.height=12, warning=FALSE}
-## For presenting variability we try now boxplots on individual data (non-aggregated):
-dfi %>%
-  filter(round(100 * narrowness, 0) %in% seq(5, 85, 8)) %>%
-  ## Selecting variables:
-  mutate(narrowness = factor(narrowness),
-          grouper = paste(narrowness, pol_dist, pol_ops, sep = "; ")) %>% 
+<!-- ```{r graph3, fig.width=8, fig.height=12, warning=FALSE} -->
+<!-- ## For presenting variability we try now boxplots on individual data (non-aggregated): -->
+<!-- dfi %>% -->
+<!--   filter(round(100 * narrowness, 0) %in% seq(5, 85, 8)) %>% -->
+<!--   ## Selecting variables: -->
+<!--   mutate(narrowness = factor(narrowness), -->
+<!--           grouper = paste(narrowness, pol_dist, pol_ops, sep = "; ")) %>%  -->
 
-  # ## Renaming variables according 2022-03-18 meeting:
-  # prejmenuj(1:3, c("Opinion dimensions:", "Acceptability of different opinion:",
-  #                   "Narrowness of identity group:")) %>%
+<!--   # ## Renaming variables according 2022-03-18 meeting: -->
+<!--   # prejmenuj(1:3, c("Opinion dimensions:", "Acceptability of different opinion:", -->
+<!--   #                   "Narrowness of identity group:")) %>% -->
 
-  ## Graph itself:
-  ggplot() +
-  aes(x = acceptability, y = final,
-      fill = narrowness,
-      col = narrowness,
-      group = acceptability) +
-  facet_wrap(vars(grouper), ncol=9) +
-  geom_boxplot(alpha = 0.2) +
-  geom_jitter(alpha = 0.2) +
-  scale_x_continuous(breaks = seq(0.05, 0.850, 0.20)) +
-  labs(title = "Final polarization in simulations by \n'Narrowness of identity group' (0.05--0.85), 'Average acceptability of different opinions' (0.05--0.5),\n'Polarized opinions' (1, 2, 3) and 'Distance of polarized groups' (0.35, 0.7, 1)",
-       x = "Acceptability of different opinion", y = "Polarization") +
-  guides(fill = "none", color = "none") +
-  theme_light() +
-  theme(legend.position = "top")
+<!--   ## Graph itself: -->
+<!--   ggplot() + -->
+<!--   aes(x = acceptability, y = final, -->
+<!--       fill = narrowness, -->
+<!--       col = narrowness, -->
+<!--       group = acceptability) + -->
+<!--   facet_wrap(vars(grouper), ncol=9) + -->
+<!--   geom_boxplot(alpha = 0.2) + -->
+<!--   geom_jitter(alpha = 0.2) + -->
+<!--   scale_x_continuous(breaks = seq(0.05, 0.850, 0.20)) + -->
+<!--   labs(title = "Final polarization in simulations by \n'Narrowness of identity group' (0.05--0.85), 'Average acceptability of different opinions' (0.05--0.5),\n'Polarized opinions' (1, 2, 3) and 'Distance of polarized groups' (0.35, 0.7, 1)", -->
+<!--        x = "Acceptability of different opinion", y = "Polarization") + -->
+<!--   guides(fill = "none", color = "none") + -->
+<!--   theme_light() + -->
+<!--   theme(legend.position = "top") -->
 
-```
+<!-- ``` -->
 
-Same data, slightly different graphics:
+<!-- Same data, slightly different graphics: -->
 
-```{r graph4, fig.width=8, fig.height=24, warning=FALSE}
+```{r graph4, fig.width=8, fig.height=120, warning=FALSE}
 ## For presenting variability we try now boxplots on individual data (non-aggregated):
 dfi %>%
   # filter(round(100 * narrowness, 0) %in% seq(5, 85, 10)) %>%
@@ -386,33 +427,33 @@ dfi %>%
 
 ### Pulped clouds  
 
-```{r graph5, fig.width=8, fig.height=24, warning=FALSE}
-## For presenting variability we try now boxplots on individual data (non-aggregated):
-dfi %>%
-  mutate(acceptability = factor(acceptability),
-         grouper = paste(acceptability, pol_dist, pol_ops, sep = "; ")) %>% 
+<!-- ```{r graph5, fig.width=8, fig.height=24, warning=FALSE} -->
+<!-- ## For presenting variability we try now boxplots on individual data (non-aggregated): -->
+<!-- dfi %>% -->
+<!--   mutate(acceptability = factor(acceptability), -->
+<!--          grouper = paste(acceptability, pol_dist, pol_ops, sep = "; ")) %>%  -->
 
-  ## Graph itself:
-  ggplot() +
-  aes(fill = acceptability, y = change,
-      x = narrowness,
-      group = narrowness,
-      col = acceptability) +
-  facet_wrap(vars(grouper), ncol=9) +
-  geom_boxplot(alpha = 0.2) +
-  geom_jitter(alpha = 0.2) +
-  scale_x_continuous(breaks = seq(0.05, 0.850, 0.20)) +
-  labs(title = "Change of polarization during simulations by \n'Narrowness of identity group' (0.05--0.85), 'Average acceptability of different opinions' (0.05--0.5),\n'Polarized opinions' (1, 2, 3) and 'Distance of polarized groups' (0.35, 0.7, 1)",
-       x = "Narrownes of identity group", y = "Polarization change") +
-  guides(fill = "none", color = "none") +
-  theme_light() +
-  theme(legend.position = "top")
+<!--   ## Graph itself: -->
+<!--   ggplot() + -->
+<!--   aes(fill = acceptability, y = change, -->
+<!--       x = narrowness, -->
+<!--       group = narrowness, -->
+<!--       col = acceptability) + -->
+<!--   facet_wrap(vars(grouper), ncol=9) + -->
+<!--   geom_boxplot(alpha = 0.2) + -->
+<!--   geom_jitter(alpha = 0.2) + -->
+<!--   scale_x_continuous(breaks = seq(0.05, 0.850, 0.20)) + -->
+<!--   labs(title = "Change of polarization during simulations by \n'Narrowness of identity group' (0.05--0.85), 'Average acceptability of different opinions' (0.05--0.5),\n'Polarized opinions' (1, 2, 3) and 'Distance of polarized groups' (0.35, 0.7, 1)", -->
+<!--        x = "Narrownes of identity group", y = "Polarization change") + -->
+<!--   guides(fill = "none", color = "none") + -->
+<!--   theme_light() + -->
+<!--   theme(legend.position = "top") -->
 
-```
+<!-- ``` -->
 
-Same data, slightly different graphics:
+<!-- Same data, slightly different graphics: -->
 
-```{r graph6, fig.width=8, fig.height=24, warning=FALSE}
+```{r graph6, fig.width=8, fig.height=60, warning=FALSE}
 ## For presenting variability we try now boxplots on individual data (non-aggregated):
 dfi %>%
   mutate(acceptability = factor(acceptability) %>%  fct_rev(),
@@ -439,33 +480,33 @@ dfi %>%
 
 ### Pulped clouds: Exchanging `Acceptability` and `Narrowness`   
 
-```{r graph7, fig.width=8, fig.height=24, warning=FALSE}
-## For presenting variability we try now boxplots on individual data (non-aggregated):
-dfi %>%
-  mutate(narrowness = factor(narrowness),
-         grouper = paste(narrowness, pol_dist, pol_ops, sep = "; ")) %>% 
+<!-- ```{r graph7, fig.width=8, fig.height=24, warning=FALSE} -->
+<!-- ## For presenting variability we try now boxplots on individual data (non-aggregated): -->
+<!-- dfi %>% -->
+<!--   mutate(narrowness = factor(narrowness), -->
+<!--          grouper = paste(narrowness, pol_dist, pol_ops, sep = "; ")) %>%  -->
 
-  ## Graph itself:
-  ggplot() +
-  aes(x = acceptability, y = change,
-      fill = narrowness,
-      col = narrowness,
-      group = acceptability) +
-  facet_wrap(vars(grouper), ncol=9) +
-  geom_boxplot(alpha = 0.2) +
-  geom_jitter(alpha = 0.2) +
-  scale_x_continuous(breaks = seq(0.15, 0.50, 0.15)) +
-  labs(title = "Change of polarization during simulations by\n'Narrowness of identity group' (0.05--0.85), 'Average acceptability of different opinions' (0.05--0.5),\n'Polarized opinions' (1, 2, 3) and 'Distance of polarized groups' (0.35, 0.7, 1)",
-       x = "Acceptability of different opinion", y = "Polarization change") +
-  guides(fill = "none", color = "none") +
-  theme_light() +
-  theme(legend.position = "top")
+<!--   ## Graph itself: -->
+<!--   ggplot() + -->
+<!--   aes(x = acceptability, y = change, -->
+<!--       fill = narrowness, -->
+<!--       col = narrowness, -->
+<!--       group = acceptability) + -->
+<!--   facet_wrap(vars(grouper), ncol=9) + -->
+<!--   geom_boxplot(alpha = 0.2) + -->
+<!--   geom_jitter(alpha = 0.2) + -->
+<!--   scale_x_continuous(breaks = seq(0.15, 0.50, 0.15)) + -->
+<!--   labs(title = "Change of polarization during simulations by\n'Narrowness of identity group' (0.05--0.85), 'Average acceptability of different opinions' (0.05--0.5),\n'Polarized opinions' (1, 2, 3) and 'Distance of polarized groups' (0.35, 0.7, 1)", -->
+<!--        x = "Acceptability of different opinion", y = "Polarization change") + -->
+<!--   guides(fill = "none", color = "none") + -->
+<!--   theme_light() + -->
+<!--   theme(legend.position = "top") -->
 
-```
+<!-- ``` -->
 
-Same data, slightly different graphics:
+<!-- Same data, slightly different graphics: -->
 
-```{r graph8, fig.width=8, fig.height=24, warning=FALSE}
+```{r graph8, fig.width=8, fig.height=120, warning=FALSE}
 ## For presenting variability we try now boxplots on individual data (non-aggregated):
 dfi %>%
   mutate(narrowness = factor(narrowness),
