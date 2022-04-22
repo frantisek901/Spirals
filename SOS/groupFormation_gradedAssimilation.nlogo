@@ -779,10 +779,20 @@ to change-opinion-HK
 
 
       ;; ad 2: updating/weighting 'val' by 'Conformity' and own opinion
-      let my item i opinion-position
+      let myOpinion item i opinion-position
 
-      let val mean (map ([her -> my + ( her - my ) * Conformity * current-opinion-weight]) ([item i opinion-position] of influentials))
+
+      ;; using 'map' to combine the different elements from speaker and listener and add it to a list across which we can take mean.
+      ;; Conformity is of the listener, opinion weight is of the influencer with respect to the current listener.
+      let val mean (map ([her -> myOpinion + ([item i opinion-position] of her - myOpinion ) * Conformity * [current-opinion-weight] of her]) (sort-on [who] influentials))
       set val precision val 3
+
+      ;; is this cheating? For repulsion I have to cap the values at the extremes or they just repel each other out of the map. :(
+      if opinion-repulsion? or identity-repulsion? [
+        if val > 1 [ set val 1 ]
+        if val < -1 [ set val -1]
+      ]
+
 
       ;; ad 3: assigning the value 'val'
       set opinion-position replace-item i opinion-position val
@@ -1336,6 +1346,10 @@ to getPlace
   ;; then we rotate the agent towards the future place
   facexy ((item (X-opinion - 1) opinion-position) * max-pxcor) ((item (Y-opinion - 1) opinion-position) * max-pycor)
 
+  show (item (X-opinion - 1) opinion-position) * max-pxcor
+  show (item (Y-opinion - 1) opinion-position) * max-pycor
+
+
   ;; lastly we move agent on the place given by opinion dimensions chosen for X and Y coordinates
   set xcor (item (X-opinion - 1) opinion-position) * max-pxcor
   set ycor (item (Y-opinion - 1) opinion-position) * max-pycor
@@ -1694,7 +1708,7 @@ boundary
 boundary
 0.01
 1
-0.27
+0.51
 0.01
 1
 NIL
@@ -1718,7 +1732,7 @@ SWITCH
 43
 set-seed?
 set-seed?
-0
+1
 1
 -1000
 
@@ -2289,7 +2303,7 @@ INPUTBOX
 1389
 242
 N_centroids
-5.0
+4.0
 1
 0
 Number
@@ -2688,7 +2702,7 @@ opinion-sigmoid-steepness
 opinion-sigmoid-steepness
 0
 200
-200.0
+25.0
 5
 1
 NIL
@@ -2701,7 +2715,7 @@ SWITCH
 605
 opinion-repulsion?
 opinion-repulsion?
-1
+0
 1
 -1000
 
