@@ -137,7 +137,6 @@ to setup
 
   ;; We initialize small-world network with random seed
   if set-seed? [random-seed RS]
-  show random 60
   if HK-benchmark? [set n-neis (N-agents - 1) / 2]
   nw:generate-watts-strogatz turtles comms N-agents n-neis p-random [
     fd (max-pxcor - 1)
@@ -147,7 +146,6 @@ to setup
   ;; To avoid some random artificialities due to small-world network generation,
   ;; we have to set random seed again.
   if set-seed? [random-seed RS]
-  show random 60
   ;; Then we migh initialize agents/turtles
   ask turtles [
     ;; NOTE: In the code line above we consume still same number of pseudorandom numbers despite the number of polarized opinions,
@@ -157,8 +155,10 @@ to setup
     set Last-opinion Opinion-position  ;; ...set last opinion as present opinion...
     set Record n-values record-length [0]  ;; ... we prepare indicator of turtle's stability, at all positions we set 0 as non-stability...
 
-    set random-junk random-float 0
-    set random-junk random-float 0
+    ;;Consuming 2 RN's for get-speaking and speaking procedures
+    consume-random-number
+    consume-random-number
+
     set Uncertainty get-uncertainty  ;;... setting value of Uncertainty.
 
     set Tolerance get-tolerance  ;; Setting individual tolerance level, as well as ...
@@ -207,6 +207,10 @@ to setup
   if construct-name? [set file-name-core (word RS "_" N-agents "_" p-random "_" n-neis "_" opinions "_" updating "_" boundary "_" boundary-drawn "_" mode)]
   ;; recording itself
   compute-initial-macro-state-of-simulation
+end
+
+to consume-random-number
+   set random-junk random-float 0
 end
 
 ;; Just envelope for updating agent at the begining of GO procedure
@@ -378,6 +382,10 @@ end
 
 to preparing-myself
   ;; Updating speaking, color and place
+
+  ;; instead of "set speak? speaking" we consume an RN
+  consume-random-number
+
   getColor
   getPlace
 
@@ -1290,7 +1298,7 @@ N-agents
 N-agents
 10
 1000
-130.0
+131.0
 1
 1
 NIL
@@ -1372,7 +1380,7 @@ INPUTBOX
 781
 70
 RS
-20.0
+50.0
 1
 0
 Number
@@ -1742,7 +1750,7 @@ max-ticks
 max-ticks
 100
 10000
-365.0
+1000.0
 100
 1
 NIL
@@ -1786,7 +1794,7 @@ record-each-n-steps
 record-each-n-steps
 100
 10000
-365.0
+1500.0
 100
 1
 NIL
@@ -1927,7 +1935,7 @@ INPUTBOX
 1389
 242
 N_centroids
-4.0
+5.0
 1
 0
 Number
