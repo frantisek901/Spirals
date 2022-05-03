@@ -1130,81 +1130,6 @@ end
 
 
 ;; Sub-routine which opens/creates *.csv file and stores there states of all turtles
-to record-state-of-simulation
-  ;; setting working directory
-  ;set-current-directory directory
-
-  ;; seting 'file-name'
-  let file-name (word "Sims/Nodes01_" file-name-core "_" ticks ".csv")
-
-  ;;;; File creation and opening: NODES
-  ;; If file exists at the start we delete it to start with clean file
-  if file-exists? file-name [file-delete file-name]
-  file-open file-name ;; This opens existing file (at the end) or creates file if doesn't exist (at the begining)
-
-    ;; Constructing list for the first row with variable names:
-    let row (list "ID" "Uncertainty" "pSpeaking" "Speaks")
-    foreach range Opinions [i -> set row lput (word "Opinion" (i + 1)) row]
-
-    ;; Writing the variable names in the first row at the start
-    file-print list-to-string (row)
-
-  ;; For writing states itself we firstly need to create list of sorted turtles 'srt'
-  let srt sort agents
-  ;; Then we iterate over the list 'srt':
-  foreach srt [t -> ask t [  ;; every turtle in the list...
-    set row (list (word "Nei" who)  Uncertainty P-Speaking (ifelse-value (speak?)[1][0]))  ;; stores in list ROW its ID, Uncertainty, P-Speaking and whether speaks...
-    foreach Opinion-position [op -> set row lput (precision(op) 3) row]  ;; Opinions ...
-    file-print list-to-string (row)
-    file-flush  ;; for larger simulations with many agents it will be safer flush the file after each row
-  ]]
-
-  ;; Finally, we close the file
-  file-close
-  file-close
-
-
-  ;;;; File creation and opening: LINKS
-  ;; seting 'file-name' for links.
-  set file-name (word "Sims/Links01_" file-name-core "_" ticks ".csv")
-
-  ;;;; File creation and opening
-  ;; If file exists at the start we delete it to start with clean file
-  if file-exists? file-name [file-delete file-name]
-  file-open file-name ;; This opens existing file (at the end) or creates file if doesn't exist (at the begining)
-
-    ;; Constructing list for the first row with variable names:
-    set row (list "ID1" "ID2" "Communication" "Distance")
-
-    ;; Writing the variable names in the first row at the start
-    file-print list-to-string (row)
-
-  ;; We need to prepare counters and other auxilliary varibles for doubled cycle:
-  let i 0
-  let j 1
-  let iMax (count agents - 2)
-  let jMax (count agents - 1)
-  let mine []
-  let her []
-
-  ;; Now double while cycle!
-  while [i <= iMax] [  ;; Iterating over all turtles except the last one
-    set j i + 1
-    while [j <= jMax][  ;; Second cycle iterates over all turtles with index higher than 'i'
-      set mine ([opinion-position] of turtle i) ;; First opinion for measuring distance...
-      set her ([opinion-position] of turtle j)  ;; Second opinion...
-      set row (list i j (ifelse-value (is-comm? comm i j) [1][0]) opinion-distance2 (mine) (her))  ;; Construction of the 'row'
-      file-print list-to-string (row)  ;; Writing the row...
-      file-flush  ;; for larger simulations with many agents it will be safer flush the file after each row
-      set j j + 1 ;; Updating counter of second cycle
-    ]
-    set i i + 1  ;; Updating counter of the first cycle
-  ]
-
-  ;; Finally, we close the file
-  file-close
-  file-close
-end
 
 
 ;; Subroutine for computing aggregate/macro state of simulation
@@ -1828,23 +1753,6 @@ file-name-core
 1
 0
 String
-
-BUTTON
-1319
-116
-1404
-149
-RECORD!
-record-state-of-simulation
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
 
 SWITCH
 1171
