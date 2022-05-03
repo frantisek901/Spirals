@@ -104,7 +104,7 @@ undirected-link-breed [comms comm]
 undirected-link-breed [l-distances l-distance]
 
 turtles-own [Opinion-position Uncertainty Record Last-opinion
-  Conformity Satisfied? group distance_to_centroid Group-threshold Identity-group Opponents-ratio id-threshold-level]
+  Conformity group distance_to_centroid Group-threshold Identity-group Opponents-ratio id-threshold-level]
 l-distances-own [l-weight]
 comms-own [op-weight]
 
