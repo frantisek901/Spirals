@@ -100,17 +100,15 @@
 extensions [nw]
 
 breed [centroids centroid]
-undirected-link-breed [comms comm]
 undirected-link-breed [l-distances l-distance]
 
 turtles-own [Opinion-position Uncertainty Record Last-opinion
-  Conformity group distance_to_centroid Group-threshold Identity-group Opponents-ratio id-threshold-level]
+  Conformity group distance_to_centroid Group-threshold Identity-group id-threshold-level]
 l-distances-own [l-weight]
-comms-own [op-weight]
 
-globals [main-Record components positions network-changes agents positions_clusters
+globals [main-Record components positions agents positions_clusters
   polarisation normalized_polarisation unweighted_polarisation unweighted_normalized_polarisation ESBG_polarisation id_threshold_set
-  betweenness_start eigenvector_start clustering_start modularity_start mean_path_start normalized_polarization_start ESBSG_polarization_start
+   mean_path_start normalized_polarization_start ESBSG_polarization_start
   mean_op1_start mean_op2_start sd_op1_start sd_op2_start median_op1_start median_op2_start
   lower_op1_start lower_op2_start upper_op1_start upper_op2_start
   mean_op3_start mean_op4_start sd_op3_start sd_op4_start median_op3_start median_op4_start
@@ -138,11 +136,9 @@ to setup
 
   ;; We initialize small-world network with random seed
   if set-seed? [random-seed RS]
-  if HK-benchmark? [set n-neis (N-agents - 1) / 2]
-  nw:generate-watts-strogatz turtles comms N-agents n-neis p-random [
-    fd (max-pxcor - 1)
-    set size (max-pxcor / 10)
-  ]
+
+  create-turtles N-agents
+
 
   ;; To avoid some random artificialities due to small-world network generation,
   ;; we have to set random seed again.
@@ -164,7 +160,7 @@ to setup
     set Conformity get-conformity  ;; setting individual conformity level, and ...
     set Group-threshold get-group-threshold  ;; Individual sensitivity for group tightness/threshold.
     set Identity-group no-turtles  ;; Now, we just initialize it, later may be... we use it also here meaningfully.
-    set Opponents-ratio 0  ;; Fraction of opponents
+
     getColor  ;; Coloring the agents according their opinion.
     getPlace  ;; Moving agents to the opinion space according their opinions.
   ]
@@ -176,8 +172,7 @@ to setup
 
   ;; Coloring patches according the number of agents/turtles on them.
   ask patches [set pcolor patch-color]
-  ;; Hiding links so to improve simulation speed performance.
-  ask comms [set hidden? TRUE]
+
   ;; Setting the indicator of change for the whole simulation, again as non-stable.
   set main-Record n-values record-length [0]
   ;; Setting communication and distances links' weights
@@ -195,8 +190,6 @@ to setup
     ;; ie to mimic this block.
   ]
 
-  ;; Setting control variable of network changes
-  set network-changes 0
   ;; Compute polarisation
   ;compute-polarisation-repeatedly  ;; We are computing it in next command after reseting ticks, so we save computer time here.
 
@@ -204,7 +197,7 @@ to setup
 
   ;;;; Finally, we record initial state of simulation
   ;; If we want we could construct filename to contain all important parameters shaping initial condition, so the name is unique stamp of initial state!
-  if construct-name? [set file-name-core (word RS "_" N-agents "_" p-random "_" n-neis "_" opinions "_" updating "_" boundary "_" boundary-drawn "_" mode)]
+  if construct-name? [set file-name-core (word RS "_" N-agents "_" opinions "_" updating "_" boundary "_" boundary-drawn "_" mode)]
   ;; recording itself
   compute-initial-macro-state-of-simulation
 end
@@ -302,10 +295,6 @@ to go
       if model = "HK" [change-opinion-HK]
   ]
 
-  ;; The main algorithm might produce lonely agents, now we connect them to one/more other speaking agent/s
-  ;; connect-loners
-
-
   ;;;; Final part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Recoloring patches, agents, computing how model settled down
   updating-patches-and-globals
@@ -316,7 +305,7 @@ to go
   ;; 1) We reached state, where no turtle changes for RECORD-LENGTH steps, i.e. average of MAIN-RECORD (list of averages of turtles/agents RECORD) is 1 or
   ;; 2) We reached number of steps specified in MAX-TICKS
   recording-situation-and-computing-polarisation
-  if (mean main-Record = 1 and network-changes <= 5) or ticks = max-ticks [stop]
+  if (mean main-Record = 1) or ticks = max-ticks [stop]
 end
 
 
@@ -330,8 +319,6 @@ to prepare-everything-for-the-step
   ;; Just checking and avoiding runtime errors part of code
   avoiding-run-time-errors
 
-  ;; Before a round erasing indicator of change
-  set network-changes 0
 
   ;; Update group identities via Louvain
   ifelse use_identity? [
@@ -373,7 +360,8 @@ to mimic-compute-identity-thresholds
   ;;
 
   ;; splitting into a major and minor group as 80%-20%. The 80% takes on either the highest (right skew) or lowest values of threshold.
-  let eighty_percent_size int N-agents * 0.8
+  let eighty_percent_size int (N-agents * 0.8)
+  show eighty_percent_size
   let major_partition n-of eighty_percent_size agents
   let minor_partition agents with [ not member? self major_partition]
   let junkvariable 0
@@ -418,41 +406,12 @@ end
 ;;        they update neighborhood only in case of dissatisfaction.
 
 
-;; Procedure for connecting agents with not enough comm-neigbours
-to connect-loners
-  ;; We check whether each agent has enough neighbors
-  ask agents with [count comm-neighbors < min-comm-neis] [
-    ;; !!!WARNING!!!: If there are many agents classified as 'loners',
-    ;; then early running agents might connect some later going agents,
-    ;; and then might happen that when later running agent runs this algorithm,
-    ;; she has enough connections (because she was connected by earlier running agents).
-    ;; SOLUTION: Check before creating new link whetwer agent is still demanding these new links.
-
-    ;; Defining needed agentset and variables:
-    let potentials other agents  ; We set 'potentials' to all other speaking agents and then...
-    let p count potentials  ; 'p' stands for potentials
-
-    ;; Catch of potential BUG via 'if' structure --
-    ;;   a) if there is no-one speaking, then the lone agent has to wait until the next round.
-    ;;   b) if agent was demanding new links, but was served by previous demanders, then needs no new link
-    if p > 0 and count comm-neighbors < min-comm-neis [
-        let n min-comm-neis - count comm-neighbors  ; 'n' stands for needed
-        let ap ifelse-value(p >= n)[n][p]  ; 'ap' stands for asked potentials
-        create-comms-with ifelse-value (create-links-randomly?) [n-of ap potentials][min-n-of ap potentials [opinion-distance]]  ;... it depends on scenario: we choose randomly or with the closest opinion
-    ]
-  ]
-
-  ;; P.S. Just hiding links for better speed of code -- when we change/cut a link, all links become visible and that slows down the simulation.
-  ask comms [set hidden? TRUE]
-end
-
-
 ;; sub-routine for updating opinion position of turtle according the Hegselmann-Krause (2002) model
 to change-opinion-HK
   ;; initialization of agent set 'influentials' containing agents whose opinion positions uses updating agent
   let influentials no-turtles
   ;; 1) updating agent uses only visible link neighbors in small-world network who are also members of her Identity group
-  let visibles (turtle-set filter [vis -> member? vis Identity-Group] sort comm-neighbors)
+  let visibles (turtle-set filter [vis -> member? vis Identity-Group] sort other agents)
 
   ;; 2) we have different modes for finding influentials:
   ;; 2.1) in mode "openly-listen" agent looks inside his boundary (opinion +/- uncertainty),
@@ -603,8 +562,8 @@ to recording-situation-and-computing-polarisation
   ;; Finishing condition:
   ;; 1) We reached state, where no turtle changes for RECORD-LENGTH steps, i.e. average of MAIN-RECORD (list of averages of turtles/agents RECORD) is 1 or
   ;; 2) We reached number of steps specified in MAX-TICKS
-  if ((mean main-Record = 1 and network-changes <= 5) or ticks = max-ticks) [compute-polarisation-repeatedly]
-  if ((mean main-Record = 1 and network-changes <= 5) or ticks = max-ticks) [compute-final-macro-state-of-simulation]
+  if ((mean main-Record = 1) or ticks = max-ticks) [compute-polarisation-repeatedly]
+  if ((mean main-Record = 1) or ticks = max-ticks) [compute-final-macro-state-of-simulation]
 
   ;; Recording and computing polarisation on the fly...
   ;if (ticks / polarisation-each-n-steps) = floor (ticks / polarisation-each-n-steps) [compute-polarisation-repeatedly]
@@ -720,20 +679,7 @@ end
 
 ;; Envelope for combined update of weights of all links
 to update-links-weights
-  update-comms-weights
   update-l-distances-weights
-end
-
-
-;; Sub-routine for updating Communication links' weights,
-;; according opinion distance of both their ends
-to update-comms-weights
-  ;; We use function 'opinion-distance2', which needs two opinion positions as input and
-  ;; receives their distance as output, but this distance is converted to weight:
-  ;; weight = 1 means that both positions are same, weight = 0 means that their distance is maximal,
-  ;; i.e. both positions are in oposit corners of respective N-dimensional space.
-  ask comms [set op-weight opinion-distance2 ([opinion-position] of end1) ([opinion-position] of end2)]
-  ask comms [set hidden? TRUE]
 end
 
 
@@ -1041,13 +987,6 @@ end
 
 ;; Subroutine for computing aggregate/macro state of simulation
 to compute-initial-macro-state-of-simulation
-    ;; Network
-    nw:set-context turtles comms ;; Setting context for the network measures
-    set betweenness_start mean [nw:betweenness-centrality] of turtles
-    set eigenvector_start mean [nw:eigenvector-centrality] of turtles
-    set clustering_start mean [nw:clustering-coefficient] of turtles
-    ;modularity_start
-    set mean_path_start nw:mean-path-length
 
     ;; Polarisation
     compute-polarisation-repeatedly ;; Firstly we have to compute polarization
@@ -1087,13 +1026,6 @@ to compute-initial-macro-state-of-simulation
 end
 
 to compute-final-macro-state-of-simulation
-    ;; Network
-    nw:set-context turtles comms ;; Setting context for the network measures
-    set betweenness_final mean [nw:betweenness-centrality] of turtles
-    set eigenvector_final mean [nw:eigenvector-centrality] of turtles
-    set clustering_final mean [nw:clustering-coefficient] of turtles
-    ;modularity_final
-    set mean_path_final nw:mean-path-length
 
     ;; Polarisation
     compute-polarisation-repeatedly ;; Firstly we have to compute polarization
@@ -1232,36 +1164,6 @@ NIL
 HORIZONTAL
 
 SLIDER
-10
-352
-102
-385
-n-neis
-n-neis
-1
-500
-59.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-102
-352
-194
-385
-p-random
-p-random
-0
-0.5
-0.27
-0.01
-1
-NIL
-HORIZONTAL
-
-SLIDER
 102
 42
 194
@@ -1277,10 +1179,10 @@ NIL
 HORIZONTAL
 
 CHOOSER
-1077
-502
-1169
-547
+128
+154
+220
+199
 model
 model
 "HK"
@@ -1302,10 +1204,10 @@ NIL
 HORIZONTAL
 
 INPUTBOX
-674
-10
-781
-70
+1
+441
+108
+501
 RS
 50.0
 1
@@ -1313,10 +1215,10 @@ RS
 Number
 
 SWITCH
-781
-10
-874
-43
+109
+441
+202
+474
 set-seed?
 set-seed?
 0
@@ -1402,10 +1304,10 @@ boundary-drawn
 1
 
 PLOT
-967
-256
-1127
-376
+996
+130
+1156
+250
 Distribution of 'Uncertainty'
 NIL
 NIL
@@ -1453,28 +1355,11 @@ NIL
 NIL
 1
 
-BUTTON
-583
-458
-643
-491
-Show links
-ask comms [set hidden? FALSE]
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
 SLIDER
-931
-10
-1023
-43
+9
+292
+101
+325
 X-opinion
 X-opinion
 1
@@ -1486,10 +1371,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-931
-42
-1023
-75
+9
+324
+101
+357
 Y-opinion
 Y-opinion
 1
@@ -1501,10 +1386,10 @@ NIL
 HORIZONTAL
 
 PLOT
-674
-224
-968
-432
+670
+129
+993
+337
 Developement of opinions
 NIL
 NIL
@@ -1529,10 +1414,10 @@ PENS
 "Op11" 1.0 0 -13791810 true "" "if opinions >= 11 [plot mean [item 10 opinion-position] of turtles]"
 
 SLIDER
-931
-74
-1023
-107
+9
+356
+101
+389
 updating
 updating
 1
@@ -1544,10 +1429,10 @@ NIL
 HORIZONTAL
 
 PLOT
-674
-107
-998
-227
+671
+10
+995
+130
 Stability of turtles (average)
 NIL
 NIL
@@ -1565,10 +1450,10 @@ PENS
 "ESBG" 1.0 0 -11221820 true "" "plot ESBG_polarisation"
 
 BUTTON
-1403
-161
-1475
-194
+671
+381
+743
+414
 avg. Record
 show mean [mean Record] of agents
 NIL
@@ -1582,10 +1467,10 @@ NIL
 1
 
 MONITOR
-1404
-117
-1476
-162
+672
+336
+744
+381
 avg. Record
 mean [mean Record] of agents
 3
@@ -1593,10 +1478,10 @@ mean [mean Record] of agents
 11
 
 SLIDER
-1023
-10
-1134
-43
+101
+292
+212
+325
 record-length
 record-length
 10
@@ -1608,38 +1493,20 @@ NIL
 HORIZONTAL
 
 CHOOSER
-1392
-198
-1484
-243
+126
+199
+218
+244
 mode
 mode
 "openly-listen" "vaguely-speak"
 0
 
-PLOT
-967
-375
-1127
-495
-Distribution of 'Tolerance'
-NIL
-NIL
-0.0
-1.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 0.05 1 -16777216 true "" "histogram [Tolerance] of agents"
-
 INPUTBOX
-1171
-10
-1423
-116
+997
+251
+1249
+357
 file-name-core
 1_129_0.1_16_2_2_0.4_uniform_1_uniform_openly-listen
 1
@@ -1647,10 +1514,10 @@ file-name-core
 String
 
 SWITCH
-1171
-116
-1319
-149
+927
+361
+1075
+394
 construct-name?
 construct-name?
 1
@@ -1658,10 +1525,10 @@ construct-name?
 -1000
 
 SWITCH
-1171
-148
-1274
-181
+927
+393
+1030
+426
 record?
 record?
 1
@@ -1669,10 +1536,10 @@ record?
 -1000
 
 SLIDER
-1023
-42
-1134
-75
+101
+324
+212
+357
 max-ticks
 max-ticks
 100
@@ -1683,40 +1550,11 @@ max-ticks
 NIL
 HORIZONTAL
 
-SWITCH
-1274
-148
-1396
-181
-HK-benchmark?
-HK-benchmark?
-1
-1
--1000
-
-PLOT
-1127
-375
-1287
-495
-Distribution of 'Outspokeness'
-NIL
-NIL
-0.0
-1.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 0.05 1 -16777216 true "" "histogram [P-speaking] of agents"
-
 SLIDER
-1023
-74
-1171
-107
+10
+389
+158
+422
 record-each-n-steps
 record-each-n-steps
 100
@@ -1728,40 +1566,21 @@ NIL
 HORIZONTAL
 
 SWITCH
-781
-43
-929
-76
+110
+476
+260
+509
 avoid-redundancies?
 avoid-redundancies?
 1
 1
 -1000
 
-PLOT
-767
-432
-967
-552
-Number of network changes
-NIL
-NIL
-0.0
-10.0
-0.0
-100.0
-true
-true
-"" ""
-PENS
-"changed" 1.0 0 -16777216 true "" "plot network-changes / count agents * 100"
-"satisfied" 1.0 0 -2674135 true "" "plot count (agents with [Satisfied?]) / count agents * 100"
-
 SLIDER
-10
-429
-124
-462
+8
+247
+131
+280
 conformity-level
 conformity-level
 0
@@ -1774,45 +1593,13 @@ HORIZONTAL
 
 CHOOSER
 10
-385
+154
 129
-430
+199
 conformity-drawn
 conformity-drawn
 "constant" "uniform"
 1
-
-CHOOSER
-128
-385
-220
-430
-network-change
-network-change
-"link" "community"
-0
-
-MONITOR
-674
-432
-768
-477
-NIL
-network-changes
-17
-1
-11
-
-SWITCH
-10
-462
-150
-495
-cut-links-randomly?
-cut-links-randomly?
-1
-1
--1000
 
 BUTTON
 545
@@ -1832,10 +1619,10 @@ NIL
 1
 
 INPUTBOX
-1316
-182
-1389
-242
+2
+501
+75
+561
 N_centroids
 2.0
 1
@@ -1843,10 +1630,10 @@ N_centroids
 Number
 
 SLIDER
-1021
-193
-1171
-226
+777
+438
+927
+471
 Centroids_change
 Centroids_change
 0.00000001
@@ -1858,10 +1645,10 @@ NIL
 HORIZONTAL
 
 PLOT
-1127
-256
-1287
-376
+995
+10
+1155
+130
 Distribution of 'Conformity'
 NIL
 NIL
@@ -1876,10 +1663,10 @@ PENS
 "default" 0.05 1 -16777216 true "" "histogram [Conformity] of agents"
 
 MONITOR
-643
-507
-768
-552
+380
+523
+505
+568
 NIL
 normalized_polarisation
 17
@@ -1887,10 +1674,10 @@ normalized_polarisation
 11
 
 MONITOR
-967
-507
-1068
-552
+504
+523
+605
+568
 NIL
 ESBG_polarisation
 17
@@ -1898,10 +1685,10 @@ ESBG_polarisation
 11
 
 SWITCH
-1021
-225
-1171
-258
+777
+470
+927
+503
 centroid_color?
 centroid_color?
 0
@@ -1909,10 +1696,10 @@ centroid_color?
 -1000
 
 SWITCH
-1171
-224
-1319
-257
+927
+469
+1075
+502
 killing_centroids?
 killing_centroids?
 0
@@ -1935,10 +1722,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-1001
-127
-1171
-160
+757
+372
+927
+405
 polarisation-each-n-steps
 polarisation-each-n-steps
 0
@@ -1950,10 +1737,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-1171
-191
-1276
-224
+927
+436
+1032
+469
 polar_repeats
 polar_repeats
 1
@@ -1965,10 +1752,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-1021
-160
-1172
-193
+765
+405
+916
+438
 d_threshold
 d_threshold
 0
@@ -1980,10 +1767,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-643
-476
-767
-509
+583
+459
+707
+492
 ESBG_furthest_out
 ESBG_furthest_out
 0
@@ -2005,10 +1792,10 @@ threshold_drawn
 1
 
 PLOT
-1287
-256
-1447
-378
+1155
+10
+1315
+132
 Distribution of 'Group threshold'
 NIL
 NIL
@@ -2023,10 +1810,10 @@ PENS
 "default" 0.05 1 -16777216 true "" "histogram [group-threshold] of agents"
 
 PLOT
-1287
-375
-1447
-495
+1155
+129
+1315
+249
 Distribution od 'Size of identity group'
 NIL
 NIL
@@ -2040,37 +1827,11 @@ false
 PENS
 "default" 10.0 1 -16777216 true "" "histogram [count Identity-group] of agents"
 
-SWITCH
-149
-462
-306
-495
-create-links-randomly?
-create-links-randomly?
-1
-1
--1000
-
 SLIDER
-118
-429
-219
-462
-min-comm-neis
-min-comm-neis
-0
-10
-5.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-0
-530
-172
-563
+180
+534
+352
+567
 mimic_identity_levels
 mimic_identity_levels
 0
@@ -2082,10 +1843,10 @@ NIL
 HORIZONTAL
 
 CHOOSER
-0
-565
-169
-610
+180
+567
+349
+612
 mimic_draw_id_threshold
 mimic_draw_id_threshold
 "uniform" "Left-skewed" "Right-skewed"
