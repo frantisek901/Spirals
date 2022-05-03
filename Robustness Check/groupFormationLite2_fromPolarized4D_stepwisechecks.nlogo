@@ -166,7 +166,7 @@ to setup
   ask agents [create-l-distances-with other agents]  ;; Creating full network for computing groups and polarisation
   ask l-distances [set hidden? true]  ;; Hiding links for saving comp. resources
 
-  compute-identity-thresholds
+
   ;; Coloring patches according the number of agents/turtles on them.
   ask patches [set pcolor patch-color]
   ;; Hiding links so to improve simulation speed performance.
@@ -177,8 +177,7 @@ to setup
   update-links-weights
   ;; Setting agents' identity groups
   ifelse use_identity? [
-    if identity_type = "global" [set-group-identities]
-    if identity_type = "individual" [set-individual-group-identities]
+    set-group-identities
   ][
     ask agents [set Identity-group agents]
   ]
@@ -283,80 +282,6 @@ end
 ;end
 
 
-; Setting identity groups individually via threshold levels to account for differences in sensitivity to group relationships
-to set-individual-group-identities
-  foreach range identity_levels[ i ->
-    let idthresh item i id_threshold_set
-    ;; Cleaning environment
-    ask centroids [die]
-
-    ;; Detection of clusters via Louvain: Detection itself
-    let selected-agents agents with [2 < count my-l-distances with [l-weight >= idthresh]]  ;; Note: We take into account only not loosely connected agents
-    nw:set-context selected-agents l-distances with [l-weight >= idthresh]  ;; For starting centroids we take into account only not loosely connected agents, but later we set groups for all.
-    let communities nw:louvain-communities
-
-    ;repeat N-agents [set communities nw:louvain-communities]
-    set N_centroids length communities
-
-    ;; Computing clusters' mean 'opinion-position'
-    set positions_clusters [] ;; List with all positions of all clusters
-    foreach communities [c ->
-      let one []  ;; List for one position of one cluster
-      foreach range opinions [o -> set one lput precision (mean [item o opinion-position] of c) 3 one]
-
-      set positions_clusters lput one positions_clusters
-    ]
-
-
-    ;; Preparation of centroids -- feedeing them with communities
-    create-centroids N_centroids [
-      set heading (who - min [who] of centroids)
-      set Opinion-position item heading positions_clusters  ;; We set opinions, we try to do it smoothly...
-      set shape "circle"
-      set size 1.5
-      set color 5 + (who - min [who] of centroids) * 10
-      getPlace
-    ]
-
-    ;; Assignment of agents to groups
-    ask agents [set group [who] of min-one-of centroids [opinion-distance]]  ;; Sic! Here we intentionally use all agents, including loosely connected.
-
-
-    ;; Computation of centroids possitions
-    compute-centroids-positions (agents)
-
-    ;; Iterating cycle -- looking for good match of centroids
-    while [sum [opinion-distance3 (Last-opinion) (Opinion-position)] of centroids > Centroids_change] [
-
-      ;; turtles compute whether they are in right cluster and
-      ask agents [set group [who] of min-one-of centroids [opinion-distance]]
-
-      ;; Computation of centroids possitions
-      compute-centroids-positions (agents)
-    ]
-
-    ;; Saving Identity group as agent-set
-    ask agents with [id-threshold-level = i] [
-      set Identity-group agents with [group = [group] of myself]
-      if count Identity-group < 3 [set Identity-group agents]
-    ]
-
-
-    ;; Killing centroids without connected agents
-    ask centroids [
-      let wom who
-      if (not any? agents with [group = wom]) [die]
-    ]
-    set N_centroids count centroids
-
-    ;; Final coloring and killing of centroids
-    if centroid_color? [ask agents [set color (5 + 10 * (group - min [who] of centroids))]]
-    if killing_centroids? [ask centroids [die]]
-  ]
-
-end
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;   G O !   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -433,8 +358,8 @@ to prepare-everything-for-the-step
   ;; Update group identities via Louvain
   ifelse use_identity? [
     update-l-distances-weights
-    if identity_type = "global" [set-group-identities]
-    if identity_type = "individual" [set-individual-group-identities] ; and (ticks mod identity_update = 0)
+    set-group-identities
+
   ][
     ask agents [set Identity-group agents]
   ]
@@ -452,54 +377,6 @@ to preparing-myself
 
   ;; storing previous opinion position as 'Last-opinion'
   set Last-opinion Opinion-position
-end
-
-;; for computing thresholds and assigning levels to each agent as per drawing parameters
-to compute-identity-thresholds
-
-  ;; computing values
-  set id_threshold_set n-values identity_levels [0]
-  foreach range identity_levels [ i -> set id_threshold_set replace-item i id_threshold_set precision (i / (identity_levels)) 3]
-  ;set id_threshold_set replace-item (identity_levels - 1) id_threshold_set 0.999   ;; since 1 throws an error
-
-  ;; now implementing distribution possibilities
-  ;;
-
-  ;; splitting into a major and minor group as 80%-20%. The 80% takes on either the highest (right skew) or lowest values of threshold.
-  let eighty_percent_size int N-agents * 0.8
-  let major_partition n-of eighty_percent_size agents
-  let minor_partition agents with [ not member? self major_partition]
-  ifelse (draw_id_threshold = "uniform")[
-    ask agents [ set id-threshold-level random identity_levels ]
-  ][
-    ifelse (identity_levels > 3)[
-      ;; if identity levels > 3, only the highest two or lowest two levels will contain 80% of the population
-      ask major_partition [
-        let dice random 2
-        set id-threshold-level dice
-        if(draw_id_threshold = "right-skewed") [ set id-threshold-level (id-threshold-level + identity_levels - 2) ]
-      ]
-      ask minor_partition [
-        let dice random (identity_levels - 2)
-        set id-threshold-level dice
-        if(draw_id_threshold = "left-skewed") [ set id-threshold-level (id-threshold-level + 2) ]
-      ]
-    ][
-
-      ;; if identity levels < 4, only use one level for major partition
-
-      ask major_partition [
-        if(draw_id_threshold = "right-skewed") [ set id-threshold-level identity_levels ]
-        if(draw_id_threshold = "left-skewed") [ set id-threshold-level 0 ]
-      ]
-      ask minor_partition [
-        let dice random (identity_levels - 1)
-        set id-threshold-level dice
-        if(draw_id_threshold = "left-skewed") [ set id-threshold-level (id-threshold-level + 1) ]
-      ]
-    ]
-  ]
-
 end
 
 
@@ -2195,7 +2072,7 @@ INPUTBOX
 1389
 242
 N_centroids
-5.0
+2.0
 1
 0
 Number
@@ -2398,16 +2275,6 @@ false
 PENS
 "default" 10.0 1 -16777216 true "" "histogram [count Identity-group] of agents"
 
-CHOOSER
-106
-307
-198
-352
-identity_type
-identity_type
-"global" "individual"
-0
-
 SWITCH
 149
 462
@@ -2459,31 +2326,6 @@ use_opponents_ratio?
 1
 1
 -1000
-
-SLIDER
-1177
-534
-1292
-567
-identity_levels
-identity_levels
-2
-10
-5.0
-1
-1
-NIL
-HORIZONTAL
-
-CHOOSER
-123
-526
-261
-571
-draw_id_threshold
-draw_id_threshold
-"uniform" "left-skewed" "right-skewed"
-0
 
 @#$#@#$#@
 ## WHAT IS IT?
