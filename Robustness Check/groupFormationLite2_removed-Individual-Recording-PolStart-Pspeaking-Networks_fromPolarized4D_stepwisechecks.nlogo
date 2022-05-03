@@ -159,7 +159,7 @@ to setup
     set Uncertainty get-uncertainty  ;;... setting value of Uncertainty.
 
     ;;set Tolerance get-tolerance
-    mimick-get-tolerance
+    mimic-get-tolerance
 
     set Conformity get-conformity  ;; setting individual conformity level, and ...
     set Group-threshold get-group-threshold  ;; Individual sensitivity for group tightness/threshold.
@@ -172,7 +172,7 @@ to setup
   ask agents [create-l-distances-with other agents]  ;; Creating full network for computing groups and polarisation
   ask l-distances [set hidden? true]  ;; Hiding links for saving comp. resources
 
-  mimick-compute-identity-thresholds
+  mimic-compute-identity-thresholds
 
   ;; Coloring patches according the number of agents/turtles on them.
   ask patches [set pcolor patch-color]
@@ -192,7 +192,7 @@ to setup
   ask agents [
     ;;set Satisfied? get-satisfaction
     set random-junk 0 ;;to maintain state of RNG after removing previous line
-    ;; ie to mimick this block.
+    ;; ie to mimic this block.
   ]
 
   ;; Setting control variable of network changes
@@ -361,12 +361,12 @@ to preparing-myself
 end
 
 
-to mimick-compute-identity-thresholds
+to mimic-compute-identity-thresholds
   ;; Function that is structurally same, but does not change any non-local varaibles
 
   ;; computing values
-  let junkarray n-values identity_levels [0]
-  foreach range identity_levels [ i -> set junkarray replace-item i junkarray precision (i / (identity_levels)) 3]
+  let junkarray n-values mimic_identity_levels [0]
+  foreach range mimic_identity_levels [ i -> set junkarray replace-item i junkarray precision (i / (mimic_identity_levels)) 3]
   ;set id_threshold_set replace-item (identity_levels - 1) id_threshold_set 0.999   ;; since 1 throws an error
 
   ;; now implementing distribution possibilities
@@ -377,63 +377,38 @@ to mimick-compute-identity-thresholds
   let major_partition n-of eighty_percent_size agents
   let minor_partition agents with [ not member? self major_partition]
   let junkvariable 0
-  ifelse (mimick_draw_id_threshold = "uniform")[
-    ask agents [ set junkvariable random identity_levels ]
+  ifelse (mimic_draw_id_threshold = "uniform")[
+    ask agents [ set junkvariable random mimic_identity_levels ]
   ][
-    ifelse (identity_levels > 3)[
+    ifelse (mimic_identity_levels > 3)[
       ;; if identity levels > 3, only the highest two or lowest two levels will contain 80% of the population
       ask major_partition [
         let dice random 2
         set id-threshold-level dice
-        if(mimick_draw_id_threshold = "right-skewed") [ set junkvariable (id-threshold-level + identity_levels - 2) ]
+        if(mimic_draw_id_threshold = "right-skewed") [ set junkvariable (id-threshold-level + mimic_identity_levels - 2) ]
       ]
       ask minor_partition [
-        let dice random (identity_levels - 2)
+        let dice random (mimic_identity_levels - 2)
         set junkvariable dice
-        if(mimick_draw_id_threshold = "left-skewed") [ set junkvariable (id-threshold-level + 2) ]
+        if(mimic_draw_id_threshold = "left-skewed") [ set junkvariable (id-threshold-level + 2) ]
       ]
     ][
       ;; if identity levels < 4, only use one level for major partition
 
       ask major_partition [
-        if(mimick_draw_id_threshold = "right-skewed") [ set junkvariable identity_levels ]
-        if(mimick_draw_id_threshold = "left-skewed") [ set junkvariable 0 ]
+        if(mimic_draw_id_threshold = "right-skewed") [ set junkvariable mimic_identity_levels ]
+        if(mimic_draw_id_threshold = "left-skewed") [ set junkvariable 0 ]
       ]
       ask minor_partition [
-        let dice random (identity_levels - 1)
+        let dice random (mimic_identity_levels - 1)
         set id-threshold-level dice
-        if(mimick_draw_id_threshold = "left-skewed") [ set junkvariable (id-threshold-level + 1) ]
+        if(mimic_draw_id_threshold = "left-skewed") [ set junkvariable (id-threshold-level + 1) ]
       ]
     ]
   ]
 
 end
 
-;; subroutine for leaving the neighborhood and joining a new one -- agent is decided to leave, we just process it here
-to leave-the-neighborhood-join-a-new-one
-  ;; Firstly, we have to count agents neighbors, to determine how many links agent has to create in the main part of the procedure
-  let to-visibles my-comms
-  let nei-size count to-visibles
-
-  ;; Secondly, we cut off all the links
-  ask to-visibles [die]
-
-  ;; Catching possible error with not enough visible agents for creating 'comms'
-  let speaking-others other agents
-  if (nei-size > count speaking-others) [set nei-size count speaking-others]
-
-  ;; Thirdly, random VS intentional construction of new neighborhood.
-  ifelse create-links-randomly? [
-    ;; We set new neighborhood randomly or...
-    create-comms-with n-of nei-size speaking-others
-  ][
-    ;; ...creates it out of the closest neighbors.
-    create-comms-with min-n-of nei-size speaking-others [opinion-distance]
-  ]
-
-  ;; P.S. Just hiding links for better speed of code -- when we change/cut a link, all links become visible and that slows down the simulation.
-  ask comms [set hidden? TRUE]
-end
 
 ;; TO-DO: agents should cut-off only neighbors that they previously heard speak,
 ;;        we probably should create their memory whom they heard speak and onlythose agents might cut-off.
@@ -441,30 +416,6 @@ end
 ;; Note:  Now I implement it in modest variant: agent cuts off the most annoying/random presently speaking agent --
 ;;        there must be at least one, since agents are satisfied by the rule with the empty neighborhood and
 ;;        they update neighborhood only in case of dissatisfaction.
-
-;; subroutine for changing one link
-to rewire-one-link
-  ;; Firstly, we find speaking agents who are both: in Identity group and connected by communication link.
-  let visibles comm-neighbors
-
-  ;; Cutting-off of the link itself:
-  let a-visible one-of visibles
-  let annoyer max-one-of visibles [opinion-distance]
-  ask one-of my-comms with [other-end = ifelse-value (cut-links-randomly?) [a-visible][annoyer]] [die]
-
-  ;; Secondly, we choose for the agent a new speaking partner with the random/most-close opinion
-  ;let cha count my-comms
-  let potentials other agents with [not comm-neighbor? myself]
-  ;if 128 != (count potentials + cha) [show "!!!!!!!!!!!!!!!!!!!MISTAKE!!!!!!!!!!!!!!!!!!!! wrong potentials/my-comms" show ticks]
-  ;if count potentials = 0 [show "!!!!!!!!!!!!!!!!!!!MISTAKE!!!!!!!!!!!!!!!!!!!! zero potentials" show ticks]
-  let a-partner one-of potentials
-  let the-partner min-one-of potentials [opinion-distance]
-  create-comm-with ifelse-value (create-links-randomly?) [a-partner] [the-partner]
-  ;if not (count my-comms > cha) [show "!!!!!!!!!!!!!!!!!!!MISTAKE!!!!!!!!!!!!!!!!!!!! no link created!" show ticks]
-
-  ;; P.S. Just hiding links for better speed of code -- when we change/cut a link, all links become visible and that slows down the simulation.
-  ask comms [set hidden? TRUE]
-end
 
 
 ;; Procedure for connecting agents with not enough comm-neigbours
@@ -1012,7 +963,7 @@ to-report get-conformity
 end
 
 ;; Sub-routine for assigning value of tolerance
-to mimick-get-tolerance
+to mimic-get-tolerance
   ;;Consume same number of pseudorandoms as get-tolerance
   consume-random-number
 
@@ -2116,12 +2067,12 @@ NIL
 HORIZONTAL
 
 SLIDER
-1297
-551
-1469
-584
-identity_levels
-identity_levels
+0
+530
+172
+563
+mimic_identity_levels
+mimic_identity_levels
 0
 13
 5.0
@@ -2131,12 +2082,12 @@ NIL
 HORIZONTAL
 
 CHOOSER
-992
-587
-1161
-632
-mimick_draw_id_threshold
-mimick_draw_id_threshold
+0
+565
+169
+610
+mimic_draw_id_threshold
+mimic_draw_id_threshold
 "uniform" "Left-skewed" "Right-skewed"
 0
 
