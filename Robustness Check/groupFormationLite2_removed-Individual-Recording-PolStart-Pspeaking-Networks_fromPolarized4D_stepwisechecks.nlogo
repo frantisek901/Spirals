@@ -172,6 +172,7 @@ to setup
   ask agents [create-l-distances-with other agents]  ;; Creating full network for computing groups and polarisation
   ask l-distances [set hidden? true]  ;; Hiding links for saving comp. resources
 
+  mimick-compute-identity-thresholds
 
   ;; Coloring patches according the number of agents/turtles on them.
   ask patches [set pcolor patch-color]
@@ -191,6 +192,7 @@ to setup
   ask agents [
     ;;set Satisfied? get-satisfaction
     set random-junk 0 ;;to maintain state of RNG after removing previous line
+    ;; ie to mimick this block.
   ]
 
   ;; Setting control variable of network changes
@@ -358,6 +360,54 @@ to preparing-myself
   set Last-opinion Opinion-position
 end
 
+
+to mimick-compute-identity-thresholds
+  ;; Function that is structurally same, but does not change any non-local varaibles
+
+  ;; computing values
+  let junkarray n-values identity_levels [0]
+  foreach range identity_levels [ i -> set junkarray replace-item i junkarray precision (i / (identity_levels)) 3]
+  ;set id_threshold_set replace-item (identity_levels - 1) id_threshold_set 0.999   ;; since 1 throws an error
+
+  ;; now implementing distribution possibilities
+  ;;
+
+  ;; splitting into a major and minor group as 80%-20%. The 80% takes on either the highest (right skew) or lowest values of threshold.
+  let eighty_percent_size int N-agents * 0.8
+  let major_partition n-of eighty_percent_size agents
+  let minor_partition agents with [ not member? self major_partition]
+  let junkvariable 0
+  ifelse (mimick_draw_id_threshold = "uniform")[
+    ask agents [ set junkvariable random identity_levels ]
+  ][
+    ifelse (identity_levels > 3)[
+      ;; if identity levels > 3, only the highest two or lowest two levels will contain 80% of the population
+      ask major_partition [
+        let dice random 2
+        set id-threshold-level dice
+        if(mimick_draw_id_threshold = "right-skewed") [ set junkvariable (id-threshold-level + identity_levels - 2) ]
+      ]
+      ask minor_partition [
+        let dice random (identity_levels - 2)
+        set junkvariable dice
+        if(mimick_draw_id_threshold = "left-skewed") [ set junkvariable (id-threshold-level + 2) ]
+      ]
+    ][
+      ;; if identity levels < 4, only use one level for major partition
+
+      ask major_partition [
+        if(mimick_draw_id_threshold = "right-skewed") [ set junkvariable identity_levels ]
+        if(mimick_draw_id_threshold = "left-skewed") [ set junkvariable 0 ]
+      ]
+      ask minor_partition [
+        let dice random (identity_levels - 1)
+        set id-threshold-level dice
+        if(mimick_draw_id_threshold = "left-skewed") [ set junkvariable (id-threshold-level + 1) ]
+      ]
+    ]
+  ]
+
+end
 
 ;; subroutine for leaving the neighborhood and joining a new one -- agent is decided to leave, we just process it here
 to leave-the-neighborhood-join-a-new-one
@@ -1737,31 +1787,6 @@ avoid-redundancies?
 1
 -1000
 
-SLIDER
-1177
-500
-1293
-533
-tolerance-level
-tolerance-level
-0
-1.1
-1.1
-0.01
-1
-NIL
-HORIZONTAL
-
-CHOOSER
-1293
-500
-1385
-545
-tolerance-drawn
-tolerance-drawn
-"constant" "uniform"
-1
-
 PLOT
 767
 432
@@ -1861,7 +1886,7 @@ INPUTBOX
 1389
 242
 N_centroids
-5.0
+2.0
 1
 0
 Number
@@ -2091,30 +2116,29 @@ NIL
 HORIZONTAL
 
 SLIDER
-10
-494
-192
-527
-dissatisfied_updates_opinion
-dissatisfied_updates_opinion
+1297
+551
+1469
+584
+identity_levels
+identity_levels
 0
+13
+5.0
 1
-0.41
-0.01
 1
 NIL
 HORIZONTAL
 
-SWITCH
-191
-494
-345
-527
-use_opponents_ratio?
-use_opponents_ratio?
-1
-1
--1000
+CHOOSER
+992
+587
+1161
+632
+mimick_draw_id_threshold
+mimick_draw_id_threshold
+"uniform" "Left-skewed" "Right-skewed"
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
