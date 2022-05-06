@@ -1,0 +1,7 @@
+"BehaviorSpace results (NetLogo 6.2.2)"
+"groupFormationLite-Networkfree.nlogo"
+"robCheck010"
+"05/06/2022 10:53:46:841 -0400"
+"min-pxcor","max-pxcor","min-pycor","max-pycor"
+"-5","5","-5","5"
+"[run number]","RS","id_threshold","opinions","boundary","conformity-level","record?","updating","set-seed?","polar_repeats","model","max-ticks","Centroids_change","boundary-drawn","polarisation-each-n-steps","mode","d_threshold","record-each-n-steps","ESBG_furthest_out","record-length","centroid_color?","use_identity?","conformity-drawn","N_centroids","killing_centroids?","N-agents","construct-name?","avoid-redundancies?","HK-benchmark?","threshold_drawn","X-opinion","Y-opinion","[step]","normalized_polarization_start","ESBSG_polarization_start","mean_op1_start","mean_op2_start","mean_op3_start","mean_op4_start","sd_op1_start","sd_op2_start","sd_op3_start","sd_op4_start","median_op1_start","median_op2_start","median_op3_start","median_op4_start","lower_op1_start","lower_op2_start","lower_op3_start","lower_op4_start","upper_op1_start","upper_op2_start","upper_op3_start","upper_op4_start","normalized_polarization_final","ESBSG_polarization_final","mean_op1_final","mean_op2_final","mean_op3_final","mean_op4_final","sd_op1_final","sd_op2_final","sd_op3_final","sd_op4_final","median_op1_final","median_op2_final","median_op3_final","median_op4_final","lower_op1_final","lower_op2_final","lower_op3_final","lower_op4_final","upper_op1_final","upper_op2_final","upper_op3_final","upper_op4_final"
