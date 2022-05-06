@@ -3,3 +3,6 @@
 .RData
 .Ruserdata
 *.tmp.nlogo
+*.html
+PolarizedStart\*.html
+
