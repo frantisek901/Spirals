@@ -61,6 +61,7 @@ df = read_csv("rob010.csv", skip = 6) %>%
 
 noInt = lm(ESBG~`use_identity?`+id_threshold+boundary+opinions+`conformity-level`, df)
 full = lm(ESBG~`use_identity?`+id_threshold*boundary*opinions+`conformity-level`, df)
+summary(noInt)
 summary(full)
 stargazer(noInt, full, type = "text")
 
