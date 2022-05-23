@@ -348,8 +348,8 @@ dfi %>%
   facet_wrap(vars(`Narrowness of identity group:`, `Opinion dimensions:`), ncol=3) +
   geom_point(alpha = 0.15) +
   scale_x_continuous(breaks = seq(0.05, 0.50, 0.05)) +
-  labs(title = "Change of polarization in simulations by 'Opinion dimensions' (1, 2, 4),\n'Narrowness of identity group' (0.05--0.85) and 'Average acceptability of different opinions' (0.05--0.5)",
-       x = "Average acceptability of different opinions", y = "Polarization") +
+  labs(title = "Polarization in simulations by 'Opinion dimensions' (1, 2, 4),\n'Salience of identity' (0.05--0.85) and 'Openness of communication norms' (0.05--0.5)",
+       x = "Openness of communication norms", y = "Polarization") +
   guides(fill = "none", color = "none") +
   theme_minimal() +
   theme(legend.position = "top")
