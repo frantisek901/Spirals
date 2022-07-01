@@ -1,0 +1,16 @@
+
+Dear Francesko,
+I have some (hopefully) good news.In short the new file is ready and uploaded on the GitHub. The final file with all features removed is "groupFormationLite-Networkfree.nlogo"
+I have some reasons to believe that the robustness check for the remaining features (except the network) we had discussed is unnecessary. Please check if my reasoning is sound:
+Basically I am able to fully recapture the exact state of the simulation (I visually checked opinion space after ~60 ticks for each change I made) for the same random seed and parameters after removing (a) P-speaking; (b) Individual identity; (c) Network changes (ie, satisfaction and tolerance). This was achieved by either (a) replacing the procedures with code blocks that only consume the same number of pseudo-random numbers; or (b) in case of one procedure ('compute-identity-thresholds') rewriting the procedure to only manipulate local variables since it was hard to tell how many pseudo-random numbers this procedure consumed.
+
+Hence I am uploading a file "groupFormationLite2_removed-Individual-Recording-PolStart-Pspeaking-Networks_fromPolarized4D_stepwisechecks.nlogo" with these features (except the comms network) removed. For comparison I am also uploading a control file "fromPolarized4D-Control.nlogo" which is the same as the starting file from Github "polarized4D.nlogo" but with the polarized start feature removed. This is the file I used to compare states with.
+
+Therefore I think the robustness check needs to be performed only on the groupFormationLite-Networkfree.nlogo file.
+
+Also, from examining the code thoroughly I think the comms network were only mentioned where they are relevant, and so I don't expect that there is any interference with other features of the model. I think your code is very clearly separated in this way, so I am optimistic about this robustness check. :)
+Do let me know if you want me to help with anything else, or need me to explain something.
+Sincerely,Ashwin
+
+
+
