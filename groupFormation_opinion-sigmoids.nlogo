@@ -139,7 +139,6 @@ to setup
   ;; Then we migh initialize agents/turtles
   ask turtles [
     set Opinion-position n-values opinions [precision (1 - random-float 2) 3]  ;; We set opinions...
-    show Opinion-position
     set Last-opinion Opinion-position  ;; ...set last opinion as present opinion...
     set Record n-values record-length [0]  ;; ... we prepare indicator of turtle's stability, at all positions we set 0 as non-stability...
     set P-speaking get-speaking  ;; ...assigning individual probability of speaking...
@@ -170,7 +169,7 @@ to setup
     compute-identity-thresholds
   ]
 
-  if use_sigmoids? [
+  if use_opinion_sigmoid? or use_identity_sigmoid? [
     get-sigmoids ;;getting sigmoid parameters for opinion and identity influence probabilities
   ]
 
@@ -384,7 +383,7 @@ to go
 
   ;;;; Main part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ask agents [
-    if who = 10 [show random 10]
+;    if who = 10 [show random 10]
     ;; Firstly, we have to determine satisfaction with the neighborhood via 'get-satisfaction' sub-routine
     set Satisfied? get-satisfaction
     ;; NOTE: Updating of 'Satisfied?' in sub-routine 'prepare-everything-for-the-step' leads to run-time errors.
@@ -651,27 +650,39 @@ to change-opinion-HK
   ;; initialization of agent set 'influentials' containing agents whose opinion positions uses updating agent
   let influentials no-turtles
   ;; 1) updating agent uses only visible link neighbors in small-world network who are also members of her Identity group
-  let visibles (turtle-set filter [vis -> member? vis Identity-Group] sort comm-neighbors with [speak?])
+  let neighbs turtle-set nobody
+  let visibles turtle-set nobody
+
+  ifelse use_identity_sigmoid?[
+    set neighbs turtle-set sort comm-neighbors with [speak?]
+    ask neighbs [
+            roll-identity-dice ([Identity-group] of self) ([Identity-group] of myself)
+    ]
+    set visibles neighbs with [identity-dice = true]
+  ]
+  [
+    set visibles (turtle-set filter [vis -> member? vis Identity-Group] sort comm-neighbors with [speak?])
+  ]
 
   ;; 2) we have different modes for finding influentials:
   ;; 2.1) in mode "openly-listen" agent looks inside his boundary (opinion +/- uncertainty),
   ;;      i.e. agent takes opinions not that much far from her opinion
   if mode = "openly-listen" [
     ;; we compute 'lim-dist' -- it is the numerical distance in given opinion space
-    let lim-dist (Uncertainty * sqrt(opinions * 4))
-    ;; we set as influentials agents with opinion not further than 'lim-dist'
-    set influentials visibles with [opinion-distance <= lim-dist]
-
-    ;; NOW we roll probabilistic dice based on opinion distance from influencer - if an agent is too far they are less likely to be heard this time.
-
-    if use_sigmoids? [
+    if-else use_opinion_sigmoid?
+    [
+      ;; NOW we roll probabilistic dice based on opinion distance from influencer - if an agent is too far they are less likely to be heard this time.
       ;; first find out which agent is going to be heard this time.
-      ask influentials [
+      ask visibles [
         roll-opinion-dice ([opinion-position] of myself) (true)
       ]
-
       ;; now only hear from them
-      set influentials influentials with [opinion-dice = true]
+      set influentials visibles with [opinion-dice = true]
+    ][
+      ;;Use the classical HK if not using the sigmoid
+      let lim-dist (Uncertainty * sqrt(opinions * 4))
+      ;; we set as influentials agents with opinion not further than 'lim-dist'
+      set influentials visibles with [opinion-distance <= lim-dist]
     ]
   ]
 
@@ -680,7 +691,19 @@ to change-opinion-HK
   if mode = "vaguely-speak"  [
     ;; Note: Here is used the 'Uncetainty' value of called agent, agent who might be used for updating,
     ;;       not 'Uncertainty' of calling agent who updates her opinion.
-    set influentials visibles with [opinion-distance <= (Uncertainty * sqrt(opinions * 4))]
+
+
+    if-else use_opinion_sigmoid? [
+      ;; first find out which agent is going to be heard this time.
+      ask visibles [
+        roll-opinion-dice ([opinion-position] of myself) (false)
+      ]
+      ;; now only hear from them
+      set influentials visibles with [opinion-dice = true]
+    ][
+      ;;Use the classical HK in mode vaguely speak if not using the sigmoid
+      set influentials visibles with [opinion-distance <= (Uncertainty * sqrt(opinions * 4))]
+    ]
   ]
 
   ;; 3) we also add the updating agent into 'influentials'
@@ -728,11 +751,44 @@ end
 
 to get-sigmoids
   ask turtles [
-    set opinion-sigmoid-xOffset precision (random-normal mean-opinion-sigmoid-xOffset std-opinion-sigmoid-xOffset) 3
-    set opinion-sigmoid-steepness precision (random-normal mean-opinion-sigmoid-steepness std-opinion-sigmoid-steepness) 3
 
-    set identity-sigmoid-xOffset precision (random-normal mean-identity-sigmoid-xOffset std-identity-sigmoid-xOffset) 3
-    set identity-sigmoid-steepness precision (random-normal mean-identity-sigmoid-steepness std-identity-sigmoid-steepness) 3
+    set opinion-sigmoid-xOffset precision (random-normal mean-opinion-sigmoid-xOffset std-opinion-sigmoid-xOffset) 3
+    while [opinion-sigmoid-xOffset > 1 or opinion-sigmoid-xOffset < 0] [
+      set opinion-sigmoid-xOffset precision (random-normal mean-opinion-sigmoid-xOffset std-opinion-sigmoid-xOffset) 3
+    ]
+
+    set opinion-sigmoid-steepness precision (random-normal mean-opinion-sigmoid-steepness std-opinion-sigmoid-steepness) 3
+    while [opinion-sigmoid-steepness > 1 or opinion-sigmoid-steepness < 0] [
+      set opinion-sigmoid-steepness precision (random-normal mean-opinion-sigmoid-steepness std-opinion-sigmoid-steepness) 3
+    ]
+
+
+    ;; CHECK WITH TEAM: If the below switch is true, then should we use the exact same values for every turtle for both sigmoids, or just draw from
+    ;; the same distribution?
+    if-else opinion_sigmoid_used_for_identity? [
+
+      set identity-sigmoid-xOffset precision (random-normal mean-opinion-sigmoid-xOffset std-opinion-sigmoid-xOffset) 3
+      while [identity-sigmoid-xOffset > 1 or identity-sigmoid-xOffset < 0] [
+        set identity-sigmoid-xOffset precision (random-normal mean-opinion-sigmoid-xOffset std-opinion-sigmoid-xOffset) 3
+      ]
+
+      set identity-sigmoid-steepness precision (random-normal mean-opinion-sigmoid-steepness std-opinion-sigmoid-steepness) 3
+      while [identity-sigmoid-steepness > 1 or identity-sigmoid-steepness < 0] [
+        set identity-sigmoid-steepness precision (random-normal mean-opinion-sigmoid-steepness std-opinion-sigmoid-steepness) 3
+      ]
+
+    ][
+
+      set identity-sigmoid-xOffset precision (random-normal mean-identity-sigmoid-xOffset std-identity-sigmoid-xOffset) 3
+      while [identity-sigmoid-xOffset > 1 or identity-sigmoid-xOffset < 0] [
+        set identity-sigmoid-xOffset precision (random-normal mean-identity-sigmoid-xOffset std-identity-sigmoid-xOffset) 3
+      ]
+
+      set identity-sigmoid-steepness precision (random-normal mean-identity-sigmoid-steepness std-identity-sigmoid-steepness) 3
+      while [identity-sigmoid-steepness > 1 or identity-sigmoid-steepness < 0] [
+        set identity-sigmoid-steepness precision (random-normal mean-identity-sigmoid-steepness std-identity-sigmoid-steepness) 3
+      ]
+    ]
   ]
 
 
@@ -754,33 +810,61 @@ to-report compute-sigmoid [x xOffset steepness repulsion]
 
   ifelse repulsion = false [
     ;; sigmoid that outputs from 1 to 0 as x increases from 0 to 1
-    report precision (1 / (1 + exp (steepness * maxSteepness * (x - xOffset - 0.5)))) 1
+    report precision (1 / (1 + exp (steepness * maxSteepness * (x - xOffset)))) 1
   ][
     ;;sigmoid that outputs from 1 to -1 as x increases from 0 to 1
-    report precision (2 / (1 + exp (steepness * maxSteepness * (x - xOffset - 0.5))) - 1) 1
+    report precision (2 / (1 + exp (steepness * maxSteepness * (x - xOffset))) - 1) 1
   ]
 end
 
 to roll-opinion-dice [ her-opinion openly-listen? ]
+  let probability-of-interaction 1
+
   if-else openly-listen? [
-    let probability-of-interaction compute-sigmoid (opinion-distance3 (opinion-position) (her-opinion)) ([opinion-sigmoid-xOffset] of myself)
+    set probability-of-interaction compute-sigmoid (opinion-distance3 (opinion-position) (her-opinion)) ([opinion-sigmoid-xOffset] of myself)
     ([opinion-sigmoid-steepness] of myself) (false)
   ][
     ;; for mode vaguely speak the sigmoid used is of the influential
-    let probability-of-interaction compute-sigmoid (opinion-distance3 (opinion-position) (her-opinion)) (opinion-sigmoid-xOffset)
+    set probability-of-interaction compute-sigmoid (opinion-distance3 (opinion-position) (her-opinion)) (opinion-sigmoid-xOffset)
     (opinion-sigmoid-steepness) (false)
   ]
 
     set opinion-dice ifelse-value (random 1 < probability-of-interaction) [true] [false]
 end
 
-;to roll-identity-dice-for-all [ her-group-opinion ]
-;  ask turtles[
+to roll-identity-dice [ her-identity-group my-identity-group ]
+  let her-centroid-position n-values opinions [0]
+  let my-centroid-position n-values opinions [0]
+  let probability-of-interaction 1
+
+  let step 0
+
+  while [step < opinions] [
+    let her-val  precision (mean [item step opinion-position] of her-identity-group) 3
+    set her-centroid-position replace-item step her-centroid-position her-val
+
+
+    let my-val  precision (mean [item step opinion-position] of my-identity-group) 3
+    set my-centroid-position replace-item step my-centroid-position my-val
+
+    set step step + 1
+    ]
+
+
+
+    set probability-of-interaction compute-sigmoid (opinion-distance3 (her-centroid-position) (my-centroid-position)) ([identity-sigmoid-xOffset] of myself)
+    ([identity-sigmoid-steepness] of myself) (false)
+
+    set identity-dice ifelse-value (random 1 < probability-of-interaction) [true] [false]
+end
+
+;to roll-identity-dice [ her-group-opinion ]
+;
 ;    let probability-of-interaction compute-sigmoid (opinion-distance3 (opinion-position) (her-group-opinion)) ([opinion-sigmoid-xOffset] of myself)
 ;    ([opinion-sigmoid-steepness] of myself) (false)
 ;
 ;    set identity-dice ifelse-value (random 1 < probability-of-interaction) [true] [false]
-;  ]
+;
 ;end
 
 
@@ -893,6 +977,7 @@ to updating-patches-and-globals
     ;; we take 1 if opinion is same, we take 0 if opinion changes, then
     ;; we put 1/0 on the start of the list Record, but we omit the last item from Record
     set Record fput ifelse-value (Last-opinion = Opinion-position) [1][0] but-last Record
+
   ]
   ;; Then we might update it for the whole:
   set main-Record fput precision (mean [mean Record] of agents) 3 but-last main-Record
@@ -1215,8 +1300,8 @@ to-report get-group-threshold
                                                            [precision (random-float (2 * id_threshold)) 3]
                                                            [precision (1 - (random-float (2 * (1 - id_threshold)))) 3]]
   if threshold_drawn = "normal" [ set gtValue precision (random-normal id_threshold id_threshold-std) 3
-                                                           if (gtValue > 1) [set gtValue 1]
-                                                           if (gtValue < 0) [set gtValue 0]]
+                                  while [gtValue > 1 or gtValue < 0] [ set gtValue precision (random-normal id_threshold id_threshold-std) 3]
+  ]
   report gtValue
 end
 
@@ -1232,8 +1317,8 @@ to-report get-conformity
                                                            [precision (random-float (2 * conformity-level)) 3]
                                                            [precision (1 - (random-float (2 * (1 - conformity-level)))) 3]]
   if conformity-drawn = "normal" [ set cValue precision (random-normal conformity-level conformity-std) 3
-                                                           if (cValue > 1) [set cValue 1]
-                                                           if (cValue < 0) [set cValue 0]]
+                                   while [cValue > 1 or cValue < 0] [ set cValue precision (random-normal conformity-level conformity-std) 3]
+  ]
   report cValue
 end
 
@@ -1248,8 +1333,8 @@ to-report get-tolerance
                                                            [precision (random-float (2 * tolerance-level)) 3]
                                                            [precision (1 - (random-float (2 * (1 - tolerance-level)))) 3]]
   if tolerance-drawn = "normal" [set tValue precision (random-normal tolerance-level tolerance-std) 3
-                                                     if (tValue > 1) [set tValue 1]
-                                                     if (tValue < 0) [set tValue 0]]
+                                 while [tValue > 1 or tValue < 0] [ set tValue precision (random-normal tolerance-level tolerance-std) 3]
+  ]
   report tValue
 end
 
@@ -1280,8 +1365,8 @@ to-report get-uncertainty
   if boundary-drawn = "constant" [set uValue boundary + random-float 0]  ;; NOTE! 'random-float 0' is here for consuming one pseudorandom number to cunsume same number of pseudorandom numbers as "uniform"
   if boundary-drawn = "uniform" [set uValue precision (random-float (2 * boundary)) 3]
   if boundary-drawn = "normal" [set uValue precision (random-normal boundary boundary-std) 3
-                                                     if (uValue > 1) [set uValue 1]
-                                                     if (uValue < 0) [set uValue 0]]
+                                while [uValue > 1 or uValue < 0] [ set uValue precision (random-normal  boundary boundary-std) 3]
+  ]
   ;; reporting value back for assigning
   report uValue
 end
@@ -1591,7 +1676,7 @@ boundary
 boundary
 0.01
 1
-1.0
+0.48
 0.01
 1
 NIL
@@ -2186,7 +2271,7 @@ INPUTBOX
 1389
 242
 N_centroids
-2.0
+4.0
 1
 0
 Number
@@ -2541,7 +2626,7 @@ boundary-std
 boundary-std
 0
 1
-0.95
+0.3
 0.05
 1
 NIL
@@ -2556,7 +2641,7 @@ mean-opinion-sigmoid-steepness
 mean-opinion-sigmoid-steepness
 0
 1
-0.5
+0.45
 0.05
 1
 NIL
@@ -2586,7 +2671,7 @@ std-opinion-sigmoid-steepness
 std-opinion-sigmoid-steepness
 0
 1
-0.0
+0.42
 0.01
 1
 NIL
@@ -2599,9 +2684,9 @@ SLIDER
 586
 mean-opinion-sigmoid-xOffset
 mean-opinion-sigmoid-xOffset
--0.5
+0
+1
 0.5
--0.2
 0.05
 1
 NIL
@@ -2616,7 +2701,7 @@ std-opinion-sigmoid-xOffset
 std-opinion-sigmoid-xOffset
 0
 1
-0.0
+0.36
 0.01
 1
 NIL
@@ -2631,7 +2716,7 @@ mean-identity-sigmoid-steepness
 mean-identity-sigmoid-steepness
 0
 1
-0.5
+0.8
 0.05
 1
 NIL
@@ -2646,7 +2731,7 @@ std-identity-sigmoid-steepness
 std-identity-sigmoid-steepness
 0
 1
-0.2
+0.21
 0.01
 1
 NIL
@@ -2659,9 +2744,9 @@ SLIDER
 586
 mean-identity-sigmoid-xOffset
 mean-identity-sigmoid-xOffset
--0.5
+0
+1
 0.5
-0.0
 0.05
 1
 NIL
@@ -2685,10 +2770,32 @@ HORIZONTAL
 SWITCH
 947
 631
-1081
+1121
 664
-use_sigmoids?
-use_sigmoids?
+use_opinion_sigmoid?
+use_opinion_sigmoid?
+0
+1
+-1000
+
+SWITCH
+660
+635
+912
+668
+opinion_sigmoid_used_for_identity?
+opinion_sigmoid_used_for_identity?
+1
+1
+-1000
+
+SWITCH
+1160
+631
+1337
+664
+use_identity_sigmoid?
+use_identity_sigmoid?
 0
 1
 -1000
