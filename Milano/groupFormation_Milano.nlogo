@@ -10,7 +10,7 @@
 ;;
 
 ;; Created:  2021-10-21 FranCesko
-;; Edited:   2022-08-01 FranCesko
+;; Edited:   2022-08-02 FranCesko
 ;; Encoding: windows-1250
 ;; NetLogo:  6.2.2
 ;;
@@ -104,16 +104,14 @@ to setup
     set Opinion-position n-values opinions [precision (1 - random-float 2) 3]  ;; We set opinions...
     set Last-opinion Opinion-position  ;; ...set last opinion as present opinion...
     set Record n-values record-length [0]  ;; ... we prepare indicator of turtle's stability, at all positions we set 0 as non-stability...
-    set Uncertainty get-uncertainty  ;;... setting value of Uncertainty.
     set Conformity get-conformity  ;; setting individual conformity level, and ...
+    set Uncertainty get-uncertainty  ;;... setting value of Uncertainty.
     set Group-threshold get-group-threshold  ;; Individual sensitivity for group tightness/threshold.
     set Identity-group no-turtles  ;; Now, we just initialize it, later may be... we use it also here meaningfully.
+    get-sigmoids ;;getting sigmoid parameters for opinion and identity influence probabilities
     getColor  ;; Coloring the agents according their opinion.
     getPlace  ;; Moving agents to the opinion space according their opinions.
   ]
-
-  ;; Setting sigmoids is quite complex procedure, that's why we do it separately here:
-  get-sigmoids ;;getting sigmoid parameters for opinion and identity influence probabilities
 
   ;; We also have to set up some globals and create links for measuring opinion distances:
   set agents turtle-set turtles  ;; Note: If we just write 'set agents turtles', then variable 'agents' is a synonym for 'turtles', so it will contain in the future created centroids!
@@ -121,11 +119,11 @@ to setup
   ask l-distances [set hidden? true]  ;; Hiding links for saving comp. resources
 
   ;; If we use 'individual' perceptions of identity groups, we have to set up levels of identity sensitivity:
-  if identity_type = "individual" [
+  if use_identity? and identity_type = "individual" [
     compute-identity-thresholds
   ]
   ;; If we use 'global' perception, then there is only one level and each agent has same value of 'group-threshold':
-  if identity_type = "global" [
+  if use_identity? and identity_type = "global" [
     ;; Firstly, we set 'id_threshold_set' as list of one constant value: 'id_threshold':
     set id_threshold_set lput id_threshold []
 
@@ -465,44 +463,6 @@ to roll-identity-dice [ her-identity-group my-identity-group ]
 end
 
 
-to get-sigmoids
-  ask turtles [
-    set opinion-sigmoid-xOffset precision (random-normal mean-opinion-sigmoid-xOffset std-opinion-sigmoid-xOffset) 3
-    while [opinion-sigmoid-xOffset > 1 or opinion-sigmoid-xOffset < 0] [
-      set opinion-sigmoid-xOffset precision (random-normal mean-opinion-sigmoid-xOffset std-opinion-sigmoid-xOffset) 3
-    ]
-
-    set opinion-sigmoid-steepness precision (random-normal mean-opinion-sigmoid-steepness std-opinion-sigmoid-steepness) 3
-    while [opinion-sigmoid-steepness > 1 or opinion-sigmoid-steepness < 0] [
-      set opinion-sigmoid-steepness precision (random-normal mean-opinion-sigmoid-steepness std-opinion-sigmoid-steepness) 3
-    ]
-
-    ;; NOTE: If the below switch is true, then we just draw from the same distribution, but we might draw different values.
-    if-else opinion_sigmoid_used_for_identity? [
-      set identity-sigmoid-xOffset precision (random-normal mean-opinion-sigmoid-xOffset std-opinion-sigmoid-xOffset) 3
-      while [identity-sigmoid-xOffset > 1 or identity-sigmoid-xOffset < 0] [
-        set identity-sigmoid-xOffset precision (random-normal mean-opinion-sigmoid-xOffset std-opinion-sigmoid-xOffset) 3
-      ]
-
-      set identity-sigmoid-steepness precision (random-normal mean-opinion-sigmoid-steepness std-opinion-sigmoid-steepness) 3
-      while [identity-sigmoid-steepness > 1 or identity-sigmoid-steepness < 0] [
-        set identity-sigmoid-steepness precision (random-normal mean-opinion-sigmoid-steepness std-opinion-sigmoid-steepness) 3
-      ]
-    ][
-      set identity-sigmoid-xOffset precision (random-normal mean-identity-sigmoid-xOffset std-identity-sigmoid-xOffset) 3
-      while [identity-sigmoid-xOffset > 1 or identity-sigmoid-xOffset < 0] [
-        set identity-sigmoid-xOffset precision (random-normal mean-identity-sigmoid-xOffset std-identity-sigmoid-xOffset) 3
-      ]
-
-      set identity-sigmoid-steepness precision (random-normal mean-identity-sigmoid-steepness std-identity-sigmoid-steepness) 3
-      while [identity-sigmoid-steepness > 1 or identity-sigmoid-steepness < 0] [
-        set identity-sigmoid-steepness precision (random-normal mean-identity-sigmoid-steepness std-identity-sigmoid-steepness) 3
-      ]
-    ]
-  ]
-end
-
-
 ;; sub-routine for computing opinion distance of two comparing agents
 to-report opinion-distance
   ;; we store in temporary variable the opinion of the called and compared agent
@@ -761,23 +721,6 @@ to compute-centroids-positions [sel-agents]
 end
 
 
-;; Sub-routine for assigning value of group threshold
-to-report get-group-threshold
-  ;; We have to initialize empty temporary variable
-  let gtValue 0
-
-  ;; Then we draw the value according the chosen method
-  if threshold_drawn = "constant" [set gtValue id_threshold + random-float 0]  ;; NOTE! 'random-float 0' is here for consuming one pseudorandom number to cunsume same number of pseudorandom numbers as "uniform
-  if threshold_drawn = "uniform" [set gtValue ifelse-value (id_threshold < 0.5)
-                                                           [precision (random-float (2 * id_threshold)) 3]
-                                                           [precision (1 - (random-float (2 * (1 - id_threshold)))) 3]]
-  if threshold_drawn = "normal" [ set gtValue precision (random-normal id_threshold id_threshold-std) 3
-                                  while [gtValue > 1 or gtValue < 0] [ set gtValue precision (random-normal id_threshold id_threshold-std) 3]
-  ]
-  report gtValue
-end
-
-
 ;; Sub-routine for assigning value of conformity
 to-report get-conformity
   ;; We have to initialize empty temporary variable
@@ -789,9 +732,26 @@ to-report get-conformity
                                                            [precision (random-float (2 * conformity-level)) 3]
                                                            [precision (1 - (random-float (2 * (1 - conformity-level)))) 3]]
   if conformity-drawn = "normal" [ set cValue precision (random-normal conformity-level conformity-std) 3
-                                   while [cValue > 1 or cValue < 0] [ set cValue precision (random-normal conformity-level conformity-std) 3]
+                                   while [cValue >= 1 or cValue <= 0] [ set cValue precision (random-normal conformity-level conformity-std) 3]
   ]
   report cValue
+end
+
+
+;; Sub-routine for assigning value of group threshold
+to-report get-group-threshold
+  ;; We have to initialize empty temporary variable
+  let gtValue 0
+
+  ;; Then we draw the value according the chosen method
+  if threshold_drawn = "constant" [set gtValue id_threshold + random-float 0]  ;; NOTE! 'random-float 0' is here for consuming one pseudorandom number to cunsume same number of pseudorandom numbers as "uniform
+  if threshold_drawn = "uniform" [set gtValue ifelse-value (id_threshold < 0.5)
+                                                           [precision (random-float (2 * id_threshold)) 3]
+                                                           [precision (1 - (random-float (2 * (1 - id_threshold)))) 3]]
+  if threshold_drawn = "normal" [ set gtValue precision (random-normal id_threshold id_threshold-std) 3
+                                  while [gtValue >= 1 or gtValue <= 0] [ set gtValue precision (random-normal id_threshold id_threshold-std) 3]
+  ]
+  report gtValue
 end
 
 
@@ -804,10 +764,28 @@ to-report get-uncertainty
   if boundary-drawn = "constant" [set uValue boundary + random-float 0]  ;; NOTE! 'random-float 0' is here for consuming one pseudorandom number to cunsume same number of pseudorandom numbers as "uniform"
   if boundary-drawn = "uniform" [set uValue precision (random-float (2 * boundary)) 3]
   if boundary-drawn = "normal" [set uValue precision (random-normal boundary boundary-std) 3
-                                while [uValue > 1 or uValue < 0] [ set uValue precision (random-normal  boundary boundary-std) 3]
+                                while [uValue >= 1 or uValue <= 0] [ set uValue precision (random-normal  boundary boundary-std) 3]
   ]
   ;; reporting value back for assigning
   report uValue
+end
+
+
+;; Sub procedure for generating needed parameters for sigmoids
+to get-sigmoids
+  ;; Opinion ones
+  set opinion-sigmoid-xOffset Uncertainty
+  set opinion-sigmoid-steepness precision (random-normal mean-opinion-sigmoid-steepness std-opinion-sigmoid-steepness) 3
+  while [opinion-sigmoid-steepness > 1 or opinion-sigmoid-steepness < 0] [
+    set opinion-sigmoid-steepness precision (random-normal mean-opinion-sigmoid-steepness std-opinion-sigmoid-steepness) 3
+  ]
+
+  ;; Identity ones
+  set identity-sigmoid-xOffset Group-threshold
+  set identity-sigmoid-steepness precision (random-normal mean-identity-sigmoid-steepness std-identity-sigmoid-steepness) 3
+  while [identity-sigmoid-steepness > 1 or identity-sigmoid-steepness < 0] [
+    set identity-sigmoid-steepness precision (random-normal mean-identity-sigmoid-steepness std-identity-sigmoid-steepness) 3
+  ]
 end
 
 
@@ -976,7 +954,7 @@ boundary
 boundary
 0.01
 1
-0.5
+0.35
 0.01
 1
 NIL
@@ -1350,7 +1328,7 @@ INPUTBOX
 502
 521
 N_centroids
-3.0
+1.0
 1
 0
 Number
@@ -1617,7 +1595,7 @@ boundary-std
 boundary-std
 0
 1
-0.0
+0.15
 0.05
 1
 NIL
@@ -1625,9 +1603,9 @@ HORIZONTAL
 
 SLIDER
 10
-327
+295
 208
-360
+328
 mean-opinion-sigmoid-steepness
 mean-opinion-sigmoid-steepness
 0
@@ -1639,10 +1617,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-208
-326
-339
-359
+228
+294
+338
+327
 maxSteepness
 maxSteepness
 0
@@ -1654,42 +1632,12 @@ NIL
 HORIZONTAL
 
 SLIDER
-10
-360
-199
-393
+11
+328
+200
+361
 std-opinion-sigmoid-steepness
 std-opinion-sigmoid-steepness
-0
-1
-0.1
-0.01
-1
-NIL
-HORIZONTAL
-
-SLIDER
-10
-393
-197
-426
-mean-opinion-sigmoid-xOffset
-mean-opinion-sigmoid-xOffset
-0
-1
-0.4
-0.05
-1
-NIL
-HORIZONTAL
-
-SLIDER
-10
-426
-188
-459
-std-opinion-sigmoid-xOffset
-std-opinion-sigmoid-xOffset
 0
 1
 0.0
@@ -1699,25 +1647,25 @@ NIL
 HORIZONTAL
 
 SLIDER
-10
-459
-212
-492
+11
+361
+213
+394
 mean-identity-sigmoid-steepness
 mean-identity-sigmoid-steepness
 0
 1
-0.8
+0.2
 0.05
 1
 NIL
 HORIZONTAL
 
 SLIDER
-10
-492
-200
-525
+11
+394
+201
+427
 std-identity-sigmoid-steepness
 std-identity-sigmoid-steepness
 0
@@ -1727,47 +1675,6 @@ std-identity-sigmoid-steepness
 1
 NIL
 HORIZONTAL
-
-SLIDER
-212
-459
-408
-492
-mean-identity-sigmoid-xOffset
-mean-identity-sigmoid-xOffset
-0
-1
-0.6
-0.05
-1
-NIL
-HORIZONTAL
-
-SLIDER
-200
-493
-381
-526
-std-identity-sigmoid-xOffset
-std-identity-sigmoid-xOffset
-0
-1
-0.0
-0.01
-1
-NIL
-HORIZONTAL
-
-SWITCH
-10
-294
-262
-327
-opinion_sigmoid_used_for_identity?
-opinion_sigmoid_used_for_identity?
-1
-1
--1000
 
 SLIDER
 209
