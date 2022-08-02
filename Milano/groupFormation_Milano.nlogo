@@ -1,39 +1,21 @@
 ;; Model for study of mutual interaction between public opinion and network structure.
-;; RQ: How polarisation of public opinion shapes the network structure
-;;     and how the network structure shapes public opinion and influences individual opinions?
+;; RQ: How does identity and opinion openness influence polarisation of public opinion?
 ;;
 ;; This code is from project of Mike, Ashley, Ashwin and FranCesko,
 ;; we apply Hegselmann-Krausse model in more than 1D and look how agents adapt in >1D opinion space and whether they form groups,
-;; then we include small-world network (Watts-Strogatz) as another constraint, features of spiral of silence, and
-;; individual assignment of uncertainity, tollerance, comformity and outspokeness.
+;; then we include individual assignment of openness and identity sensitivity.
 ;;
 ;; !!!EXPERIMENTAL FEATURE: IDENTITY!!!
 ;; !!!SUPER EXPERIMENTAL: INDIVIDUAL IDENTITY VISION!!!
 ;;
 
 ;; Created:  2021-10-21 FranCesko
-;; Edited:   2022-02-09 FranCesko
+;; Edited:   2022-08-01 FranCesko
 ;; Encoding: windows-1250
 ;; NetLogo:  6.2.2
 ;;
 
-;; IDEA: What about simply employ Spiral of Silence?
-;;       Just simply -- general parameter on scale (0; 1> and probability of speaking her attitude/opinion,
-;;       baseline is p==1, everybody speaks always, if p==0.5 so everybody has 0.5 probability to speak her opinion/attitude at given step,
-;;       if succeeds - speaks in given step, if not - falls silent for the respective step.
-;;       In HK mechanism, agent computes mean opinion of all speaking agents who are inside 'opinion boundary' (are not further than threshold).
-;;       In Defuant, agent randomly takes one speaking agent inside the 'opinion boundary' and sets opinon as average of their opinions.
-;; DONE!
-;;
-;; IDEA: Handle P-speaking as Uncertainty -- besides constant value for every agent, create random mode (random uniform for the start),
-;;       where all agents will have their own value of speaking probability which they will follow.
-;; DONE!
-;;
 ;; IDEA: Choose, how many opinions agents update: sometimes 1, 2, 3, 4 ...
-;; DONE!
-;;
-;; IDEA: Employ Schelling principle -- if the agents are unhappy in their neighborhood,
-;;       the cut off all the links and create new set of links, i.e., join new neighborhood.
 ;; DONE!
 ;;
 ;; IDEA: Give weights to opinions... Taken from media, or from interpersonal communication:
@@ -98,210 +80,155 @@
 extensions [nw]
 
 breed [centroids centroid]
-undirected-link-breed [comms comm]
 undirected-link-breed [l-distances l-distance]
 
-turtles-own [Opinion-position P-speaking Speak? Uncertainty Record Last-opinion
-  Tolerance Conformity Satisfied? group distance_to_centroid Group-threshold Identity-group Opponents-ratio id-threshold-level
-  opinion-sigmoid-xOffset opinion-sigmoid-steepness opinion-dice identity-sigmoid-xOffset identity-sigmoid-steepness identity-dice]
+turtles-own [Opinion-position Last-opinion Uncertainty Record Conformity Group-threshold Identity-group Group-memberships group distance_to_centroid
+  opinion-sigmoid-xOffset opinion-sigmoid-steepness opinion-dice? identity-sigmoid-xOffset identity-sigmoid-steepness identity-dice?]
 l-distances-own [l-weight]
-comms-own [op-weight]
 
-globals [main-Record components positions network-changes agents positions_clusters
+globals [main-Record components positions agents positions_clusters
   polarisation normalized_polarisation unweighted_polarisation unweighted_normalized_polarisation ESBG_polarisation id_threshold_set]
 
 
 ;; Initialization and setup
 to setup
-  ;; Redundant conditions which should be avoided -- if the boundary is drawn as constant, then is completely same whether agents vaguely speak or openly listen,
-  ;; seme case is for probability speaking of 100%, then it's same whether individual probability is drawn as constant or uniform, result is still same: all agents has probability 100%.
-  if avoid-redundancies? and mode = "vaguely-speak" and boundary-drawn = "constant" [stop]
-  if avoid-redundancies? and p-speaking-level = 1 and p-speaking-drawn = "uniform" [stop]
-  ;; these two conditions cover 7/16 of all simulations, approx. the half! This code should stop them from running.
-
   ;; We erase the world and clean patches
   ca
   ask patches [set pcolor patch-color]
 
-  ;; We initialize small-world network with random seed
-  if set-seed? [random-seed RS]
-
-  if HK-benchmark? [set n-neis (N-agents - 1) / 2]
-  nw:generate-watts-strogatz turtles comms N-agents n-neis p-random [
-    fd (max-pxcor - 1)
-    set size (max-pxcor / 10)
-  ]
-
-  ;; To avoid some random artificialities due to small-world network generation,
-  ;; we have to set random seed again.
+  ;; To avoid some random artificialities we have to set random seed again.
   if set-seed? [random-seed RS]
 
   ;; Then we migh initialize agents/turtles
-  ask turtles [
+  crt N-agents [
     set Opinion-position n-values opinions [precision (1 - random-float 2) 3]  ;; We set opinions...
     set Last-opinion Opinion-position  ;; ...set last opinion as present opinion...
     set Record n-values record-length [0]  ;; ... we prepare indicator of turtle's stability, at all positions we set 0 as non-stability...
-    set P-speaking get-speaking  ;; ...assigning individual probability of speaking...
-
-    set speak? speaking  ;; ...checking whether agent speaks...
-
     set Uncertainty get-uncertainty  ;;... setting value of Uncertainty.
-
-
-    set Tolerance get-tolerance  ;; Setting individual tolerance level, as well as ...
-
     set Conformity get-conformity  ;; setting individual conformity level, and ...
-
     set Group-threshold get-group-threshold  ;; Individual sensitivity for group tightness/threshold.
-
     set Identity-group no-turtles  ;; Now, we just initialize it, later may be... we use it also here meaningfully.
-    set Opponents-ratio 0  ;; Fraction of opponents
     getColor  ;; Coloring the agents according their opinion.
-
     getPlace  ;; Moving agents to the opinion space according their opinions.
-
   ]
+
+  ;; Setting sigmoids is quite complex procedure, that's why we do it separately here:
+  get-sigmoids ;;getting sigmoid parameters for opinion and identity influence probabilities
+
+  ;; We also have to set up some globals and create links for measuring opinion distances:
   set agents turtle-set turtles  ;; Note: If we just write 'set agents turtles', then variable 'agents' is a synonym for 'turtles', so it will contain in the future created centroids!
   ask agents [create-l-distances-with other agents]  ;; Creating full network for computing groups and polarisation
   ask l-distances [set hidden? true]  ;; Hiding links for saving comp. resources
 
+  ;; If we use 'individual' perceptions of identity groups, we have to set up levels of identity sensitivity:
   if identity_type = "individual" [
     compute-identity-thresholds
   ]
+  ;; If we use 'global' perception, then there is only one level and each agent has same value of 'group-threshold':
+  if identity_type = "global" [
+    ;; Firstly, we set 'id_threshold_set' as list of one constant value: 'id_threshold':
+    set id_threshold_set lput id_threshold []
 
-  if use_opinion_sigmoid? or use_identity_sigmoid? [
-    get-sigmoids ;;getting sigmoid parameters for opinion and identity influence probabilities
+    ;; Secondly, we set 'group-threshold' of agents to the constant value:
+    ask agents [
+      set Group-threshold id_threshold
+      set Group-memberships lput (N-agents + 1) []
+    ]
   ]
 
   ;; Coloring patches according the number of agents/turtles on them.
   ask patches [set pcolor patch-color]
-  ;; Hiding links so to improve simulation speed performance.
-  ask comms [set hidden? TRUE]
   ;; Setting the indicator of change for the whole simulation, again as non-stable.
-  set main-Record n-values record-length [0]
-  ;; Setting communication and distances links' weights
-  update-links-weights
+  set Main-record n-values record-length [0]
+  ;; Setting distances links' weights
+  update-l-distances-weights
   ;; Setting agents' identity groups
   ifelse use_identity? [
-    if identity_type = "global" [set-group-identities]
-    if identity_type = "individual" [set-individual-group-identities]
+    ;; Everything is prepared for equal processing in both cases of 'global' and 'individual' perception of identity groups,
+    ;; that's why we use only one procedure here for both scenarios. But we handle them equally:
+    ;; we process it for all identity levels -- in case of global, there is just one.
+    set-group-identities
   ][
-    ask agents [set Identity-group agents]
+    ask agents [
+      set Group-memberships lput (N-agents + 1) []
+      set Identity-group agents
+    ]
   ]
-  ;; update satisfaction
-  ask agents [set Satisfied? get-satisfaction]
 
-  ;; Setting control variable of network changes
-  set network-changes 0
   ;; Compute polarisation
   compute-polarisation-repeatedly
 
   reset-ticks
-
-  ;;;; Finally, we record initial state of simulation
-  ;; If we want we could construct filename to contain all important parameters shaping initial condition, so the name is unique stamp of initial state!
-  if construct-name? [set file-name-core (word RS "_" N-agents "_" p-random "_" n-neis "_" opinions "_" updating "_" boundary "_" boundary-drawn "_" p-speaking-level "_"  p-speaking-drawn "_" mode)]
-  ;; recording itself
-  if record? [record-state-of-simulation]
 end
 
 
-;; Just envelope for updating agent at the begining of GO procedure
-to set-group-identities
-  ;; Cleaning environment
-  ask centroids [die]
+;; for computing thresholds and assigning levels to each agent as per drawing parameters
+to compute-identity-thresholds
+  ;; Computing values:
+  ;; We know that id_threshold lower than 0.4 produces one identity group, that's why the most tolerant group/level
+  ;; will have threshold 0.4. We also know that thresholds beyond 0.80 fracture the public to many groups and it makes
+  ;; no sense use higher threshold than 0.8, so that's why the most intolerant group/level will have threshold 0.8.
+  ;; If we will use just two identity levels, they will be 0.4 and 0.8. If we will use more levels, we will smoothly
+  ;; distribute them between 0.4 and 0.8.
+  set id_threshold_set n-values identity_levels [max_id_level]
+  foreach range (identity_levels - 1) [i -> set id_threshold_set replace-item i id_threshold_set precision (min_id_level + (i * ((max_id_level - min_id_level) / (identity_levels - 1)))) 3]
+  ;print id_threshold_set
 
-  ;; Detection of clusters via Louvain: Detection itself
-  let selected-agents agents with [2 < count my-l-distances with [l-weight >= id_threshold]]  ;; Note: We take into account only not loosely connected agents
-  nw:set-context selected-agents l-distances with [l-weight >= id_threshold]  ;; For starting centroids we take into account only not loosely connected agents, but later we set groups for all.
-  let communities nw:louvain-communities
-  ;repeat N-agents [set communities nw:louvain-communities]
-  set N_centroids length communities
-
-  ;; Computing clusters' mean 'opinion-position'
-  set positions_clusters [] ;; List with all positions of all clusters
-  foreach communities [c ->
-    let one []  ;; List for one position of one cluster
-    foreach range opinions [o -> set one lput precision (mean [item o opinion-position] of c) 3 one]
-    set positions_clusters lput one positions_clusters
-  ]
-
-  ;; Preparation of centroids -- feedeing them with communities
-  create-centroids N_centroids [
-    set heading (who - min [who] of centroids)
-    set Opinion-position item heading positions_clusters  ;; We set opinions, we try to do it smoothly...
-    set shape "circle"
-    set size 1.5
-    set color 5 + (who - min [who] of centroids) * 10
-    getPlace
-  ]
-
-  ;; Assignment of agents to groups
-  ask agents [set group [who] of min-one-of centroids [opinion-distance]]  ;; Sic! Here we intentionally use all agents, including loosely connected.
-
-  ;; Computation of centroids possitions
-  compute-centroids-positions (agents)
-
-  ;; Iterating cycle -- looking for good match of centroids
-  while [sum [opinion-distance3 (Last-opinion) (Opinion-position)] of centroids > Centroids_change] [
-
-    ;; turtles compute whether they are in right cluster and
-    ask agents [set group [who] of min-one-of centroids [opinion-distance]]
-
-    ;; Computation of centroids possitions
-    compute-centroids-positions (agents)
-  ]
-
-  ;; Saving Identity group as agent-set
+  ;; Now implementing distribution possibilities:
+  ;; We "ceiling" values 'group-threshold' of agents to the values of 'id_threshold_set', i.e.
+  ;; we find the closest higher value of 'id_threshold_set' to the 'group-threshold' of agent and
+  ;; change it for the closest value of 'id_threshold_set'.
   ask agents [
-    set Identity-group agents with [group = [group] of myself]
-    if count Identity-group < 3 [set Identity-group agents]
+    ;; Firstly, we have to process the 'id_threshold_set': substract it from 'group-threshold' of agent.
+    let diff map [v -> abs(v - Group-threshold)] id_threshold_set
+
+    ;; Secondly, we have to find the position of minimal 'diff':
+    let pos position (min diff) diff
+
+    ;; Thirdly, we have to check, whether the closest value of 'id_threshold_set' is higher,
+    ;; if not, we have to point agent to the higher value, i.e. 'set pos pos  + 1",
+    ;; and also check whether the 'pos' points on correct items on 'id_threshold_set', i.e.
+    ;; whether we do/not jump out of range. In case we point 'outside the list',
+    ;; we have to set 'pos' to maximal value.
+    if not (pos = (length id_threshold_set - 1) or Group-threshold < item pos id_threshold_set) [set pos pos + 1]
+    ;type (word group-threshold "; " pos "; " diff "; ")
+
+    ;; Finally, we set 'group-threshold' as the closest value of 'id_threshold_set':
+    set Group-threshold item pos id_threshold_set
+    ;print group-threshold
   ]
 
-  ;; Killing centroids without connected agents
-  ask centroids [
-    let wom who
-    if (not any? agents with [group = wom]) [die]
+  ;; Very lastly, we have to check whether all values of 'id_threshold_set' are represented in the agents,
+  ;; it is possible, that for some low SD of random normal distributions of 'id_threshold' some values of
+  ;; 'id_threshold_set' would not be represented by any agent.
+  ;; Then it is obsolete to perform Louvain for non-represented values of 'id_threshold_set'. So...
+  ;; Now we go through 'id_threshold_set' list value by value and only represented remain.
+  let repre []
+  foreach id_threshold_set [v ->
+    if 0 < count agents with [Group-threshold = v] [set repre lput v repre]
   ]
-  set N_centroids count centroids
-
-  ;; Final coloring and killing of centroids
-  if centroid_color? [ask agents [set color (5 + 10 * (group - min [who] of centroids))]]
-  if killing_centroids? [ask centroids [die]]
+  set id_threshold_set repre
+  ;print id_threshold_set
 end
 
 
+; Setting identity groups via threshold levels to account for differences in sensitivity to group relationships
+to set-group-identities
+  ;; Firstly, we have to erase lists 'Group-memberships' of agents,
+  ;; since every step we have to fill it by new IDs of identity centroids:
+  ask agents [set Group-memberships []]
 
-
-;to set-individual-group-identities
-;  ask agents [
-;    ;; Cleaning environment
-;    set Identity-group no-turtles
-;    let my-Group-threshold Group-threshold
-;
-;    ;; Detection of clusters via Louvain: Detection itself
-;    ;let selected-agents agents with [2 < count my-l-distances with [l-weight >= my-Group-threshold]]  ;; Note: We take into account only not loosely connected agents
-;    nw:set-context agents l-distances with [l-weight >= my-Group-threshold]  ;; For starting centroids we take into account only not loosely connected agents, but later we set groups for all.
-;    let communities nw:louvain-communities  ;; Louvain detection of communitites
-;    foreach communities [c -> if member? self c [set Identity-group c]]  ;; Looking for 'self' in communities -- community which includes '(my)self' is set as Identity group.
-;    if count Identity-group < 3 [set Identity-group agents]  ;; CHECK: If Identity group is (almost) empty, then set all agents as Identity group
-;  ]
-;end
-
-
-; Setting identity groups individually via threshold levels to account for differences in sensitivity to group relationships
-to set-individual-group-identities
-  foreach range identity_levels[ i ->
-    let idthresh item i id_threshold_set
+  ;; Secondly, we go one effective ID threshold level after another, perform Louvain and k-means clusters for every level and store memberships.
+  foreach id_threshold_set [ idtl ->
+    ;; For being sure, that we don't miss Ashwin's old variable in the following code:
+    let idthresh idtl
     ;; Cleaning environment
     ask centroids [die]
 
     ;; Detection of clusters via Louvain: Detection itself
-    let selected-agents agents with [2 < count my-l-distances with [l-weight >= idthresh]]  ;; Note: We take into account only not loosely connected agents
-    nw:set-context selected-agents l-distances with [l-weight >= idthresh]  ;; For starting centroids we take into account only not loosely connected agents, but later we set groups for all.
+    let selected-agents agents with [2 <= count my-l-distances with [l-weight >= idtl]]  ;; Note: We take into account only not loosely connected agents
+    nw:set-context selected-agents l-distances with [l-weight >= idtl]  ;; For starting centroids we take into account only not loosely connected agents, but later we set groups for all.
     let communities nw:louvain-communities
-
-    ;repeat N-agents [set communities nw:louvain-communities]
     set N_centroids length communities
 
     ;; Computing clusters' mean 'opinion-position'
@@ -309,10 +236,8 @@ to set-individual-group-identities
     foreach communities [c ->
       let one []  ;; List for one position of one cluster
       foreach range opinions [o -> set one lput precision (mean [item o opinion-position] of c) 3 one]
-
       set positions_clusters lput one positions_clusters
     ]
-
 
     ;; Preparation of centroids -- feedeing them with communities
     create-centroids N_centroids [
@@ -327,7 +252,6 @@ to set-individual-group-identities
     ;; Assignment of agents to groups
     ask agents [set group [who] of min-one-of centroids [opinion-distance]]  ;; Sic! Here we intentionally use all agents, including loosely connected.
 
-
     ;; Computation of centroids possitions
     compute-centroids-positions (agents)
 
@@ -341,12 +265,14 @@ to set-individual-group-identities
       compute-centroids-positions (agents)
     ]
 
-    ;; Saving Identity group as agent-set
-    ask agents with [id-threshold-level = i] [
+    ;; Saving Identity group as agent-set -- NOTE: Very probably will be obsolete in the future...
+    ask agents with [Group-threshold = idtl] [
       set Identity-group agents with [group = [group] of myself]
-      if count Identity-group < 3 [set Identity-group agents]
+      if count Identity-group <= 2 [set Identity-group agents]
     ]
 
+    ;; Storing ID of in-groups for the present identity level
+    ask agents [set Group-memberships lput group Group-memberships]
 
     ;; Killing centroids without connected agents
     ask centroids [
@@ -359,7 +285,6 @@ to set-individual-group-identities
     if centroid_color? [ask agents [set color (5 + 10 * (group - min [who] of centroids))]]
     if killing_centroids? [ask centroids [die]]
   ]
-
 end
 
 
@@ -372,44 +297,14 @@ end
 ;; Main routine
 to go
   ;;;; Preparation part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Redundant conditions which should be avoided -- if the boundary is drawn as constant, then is completely same whether agents vaguely speak or openly listen,
-  ;; seme case is for probability speaking of 100%, then it's same whether individual probability is drawn as constant or uniform, result is still same: all agents has probability 100%.
-  if avoid-redundancies? and mode = "vaguely-speak" and boundary-drawn = "constant" [stop]
-  if avoid-redundancies? and p-speaking-level = 1 and p-speaking-drawn = "uniform" [stop]
-
   ;; All preparations of agents, globals, avoiding errors etc. in one sub-routine
   prepare-everything-for-the-step
 
-
   ;;;; Main part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ask agents [
-;    if who = 10 [show random 10]
-    ;; Firstly, we have to determine satisfaction with the neighborhood via 'get-satisfaction' sub-routine
-    set Satisfied? get-satisfaction
-    ;; NOTE: Updating of 'Satisfied?' in sub-routine 'prepare-everything-for-the-step' leads to run-time errors.
-
-    ;; Mechanism of own opinion or network change -- decision and rossolution
-    ;; In case of dissatisfaction agents changes network
-    if not satisfied? [change-of-network]
-
-    ;; Now it's implemented, that agents update opinion with probability regulated by
-    ;; slider 'dissatisfied_updates_opinion' or value of variable 'Opponents-ratio'
-    ;; in cases they are still not satisfied with their network neighborhood
-    ;; TO-DO: Discuss this with the team!
-    let value ifelse-value (use_opponents_ratio?) [1 - Opponents-ratio][dissatisfied_updates_opinion]
-    ;if who = 10 [show random 10]
-    if Satisfied? or value > random-float 1 [
-      ;if not satisfied? [show "I'm not satisfied!!!" show ticks]
-      if model = "HK" [change-opinion-HK]
-      ;; Note: Now here is only Hegselmann-Krause algorithm, but in the future we might easily employ other algorithms here!
-
-      ;if not satisfied? [show Opponents-ratio show value]
-    ]
+    if model = "HK" [change-opinion-HK]
+    ;; Note: Now here is only Hegselmann-Krause algorithm, but in the future we might easily employ other algorithms here!
   ]
-
-  ;; The main algorithm might produce lonely agents, now we connect them to one/more other speaking agent/s
-  connect-loners
-
 
   ;;;; Final part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Recoloring patches, agents, computing how model settled down
@@ -418,11 +313,11 @@ to go
   tick
 
   ;; Finishing condition:
-  ;; 1) We reached state, where no turtle changes for RECORD-LENGTH steps, i.e. average of MAIN-RECORD (list of averages of turtles/agents RECORD) is 1 or
-  ;; 2) We reached number of steps specified in MAX-TICKS
+  ;; 1) We reached number of steps specified in MAX-TICKS
   recording-situation-and-computing-polarisation
-  if (mean main-Record = 1 and network-changes <= 5) or ticks = max-ticks [stop]
+  if ticks = max-ticks [stop]
 end
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -435,26 +330,24 @@ to prepare-everything-for-the-step
   ;; Just checking and avoiding runtime errors part of code
   avoiding-run-time-errors
 
-  ;; Before a round erasing indicator of change
-  set network-changes 0
-
   ;; Update group identities via Louvain
   ifelse use_identity? [
     update-l-distances-weights
-    if identity_type = "global" [set-group-identities]
-    if identity_type = "individual" [set-individual-group-identities] ; and (ticks mod identity_update = 0)
+    set-group-identities
   ][
-    ask agents [set Identity-group agents]
+    ask agents [
+      set Group-memberships lput (N-agents + 1) []
+      set Identity-group agents
+    ]
   ]
 
-  ;; speaking, coloring, updating and SATISFACTION!!!
+  ;; Coloring and updating
   ask agents [preparing-myself]
 end
 
 
 to preparing-myself
-  ;; Updating speaking, color and place
-  set speak? speaking
+  ;; Updating color and place
   getColor
   getPlace
 
@@ -462,249 +355,38 @@ to preparing-myself
   set Last-opinion Opinion-position
 end
 
-;; for computing thresholds and assigning levels to each agent as per drawing parameters
-to compute-identity-thresholds
-
-  ;; computing values
-  set id_threshold_set n-values identity_levels [0]
-  foreach range identity_levels [ i -> set id_threshold_set replace-item i id_threshold_set precision (i / (identity_levels)) 3]
-  ;set id_threshold_set replace-item (identity_levels - 1) id_threshold_set 0.999   ;; since 1 throws an error
-
-  ;; now implementing distribution possibilities
-  ;;
-
-  ;; splitting into a major and minor group as 80%-20%. The 80% takes on either the highest (right skew) or lowest values of threshold.
-  let eighty_percent_size int N-agents * 0.8
-  let major_partition n-of eighty_percent_size agents
-  let minor_partition agents with [ not member? self major_partition]
-  ifelse (draw_id_threshold_levels = "uniform")[
-    ask agents [ set id-threshold-level random identity_levels ]
-  ][
-    ifelse (identity_levels > 3)[
-      ;; if identity levels > 3, only the highest two or lowest two levels will contain 80% of the population
-      ask major_partition [
-        let dice random 2
-        set id-threshold-level dice
-        if(draw_id_threshold_levels = "right-skewed") [ set id-threshold-level (id-threshold-level + identity_levels - 2) ]
-      ]
-      ask minor_partition [
-        let dice random (identity_levels - 2)
-        set id-threshold-level dice
-        if(draw_id_threshold_levels = "left-skewed") [ set id-threshold-level (id-threshold-level + 2) ]
-      ]
-    ][
-
-      ;; if identity levels < 4, only use one level for major partition
-
-      ask major_partition [
-        if(draw_id_threshold_levels = "right-skewed") [ set id-threshold-level identity_levels ]
-        if(draw_id_threshold_levels = "left-skewed") [ set id-threshold-level 0 ]
-      ]
-      ask minor_partition [
-        let dice random (identity_levels - 1)
-        set id-threshold-level dice
-        if(draw_id_threshold_levels = "left-skewed") [ set id-threshold-level (id-threshold-level + 1) ]
-      ]
-    ]
-  ]
-
-end
-
-
-;; sub-routine computing whether the agent is satisfied with the neighborhood
-to-report get-satisfaction
-  ;; initialization of agent set 'opponents' containing agents whose opinion positions are key for agent's satisfaction
-  let opponents nobody
-  ;; 1) updating agent uses only visible link neighbors in small-world network
-  let visibles comm-neighbors with [speak?]
-  ;; TO-DO: Discuss with Mike, Ashwin and Ashley what scope in Identity group and what in comm-neis.
-  ;;        Now I use the IG only for updating opinion in HK, not used in rewiring of comm network, not for satisfaction etc.
-
-  ;; 2) we have different modes for finding supporters:
-  ;; 2.1) in mode "I got them!" agent looks outside her boundary (opinion +/- uncertainty),
-  ;;      i.e. agent takes as opponents agents that are too far from her opinion
-  if mode = "openly-listen" [
-    ;; we compute 'lim-dist' -- it is the numerical distance in given opinion space
-    let lim-dist (Uncertainty * sqrt(opinions * 4))
-    ;; we set as opponents agents with opinion further than 'lim-dist'
-    set opponents visibles with [opinion-distance > lim-dist]
-  ]
-
-  ;; 2.1) in mode "They got me!" agent looks outside whose boundaries (opinion +/- uncertainty) she is,
-  ;;       i.e. she takes as opponents agents that speak with such a low uncertainty that it doesn't match her own opinion
-  if mode = "vaguely-speak"  [
-    ;; Note: Here is used the 'Uncetainty' value of called agent, agent who might be used for updating,
-    ;;       not 'Uncertainty' of calling agent who updates her own opinion.
-    set opponents visibles with [opinion-distance > (Uncertainty * sqrt(opinions * 4))]
-  ]
-  ;; Now we can return the True/False value, whether the agent is satisfied
-  ;; (among visible network neighbors from identity group are not too much opponents)
-  set Opponents-ratio ifelse-value (count visibles > 0) [precision (count opponents / count visibles) 3][0]  ;; In case no visibles are in the neighborhood, no opponent is there.
-  report ifelse-value (count visibles > 0) [Opponents-ratio <= Tolerance][TRUE]  ;; In case no visibles are in the neighborhood, then agent is happy.
-end
-
-
-;; envelope controlling the way, how we change the network
-to change-of-network
-  if network-change = "link" [rewire-one-link]
-  if network-change = "community" [leave-the-neighborhood-join-a-new-one]
-  ;; Note: here might be other ways in the future, that's why the 'ifelse' structure is not used here
-
-  ;; We advance the counter of network changes -- now, one just happened.
-  set network-changes network-changes + 1
-
-  ;; We check if the changing of network helps
-  set Satisfied? get-satisfaction
-end
-
-
-;; subroutine for leaving the neighborhood and joining a new one -- agent is decided to leave, we just process it here
-to leave-the-neighborhood-join-a-new-one
-  ;; Firstly, we have to count agents neighbors, to determine how many links agent has to create in the main part of the procedure
-  let to-visibles my-comms with [[speak?] of other-end]
-  let nei-size count to-visibles
-
-  ;; Secondly, we cut off all the links
-  ask to-visibles [die]
-
-  ;; Catching possible error with not enough visible agents for creating 'comms'
-  let speaking-others other agents with [speak?]
-  if (nei-size > count speaking-others) [set nei-size count speaking-others]
-
-  ;; Thirdly, random VS intentional construction of new neighborhood.
-  ifelse create-links-randomly? [
-    ;; We set new neighborhood randomly or...
-    create-comms-with n-of nei-size speaking-others
-  ][
-    ;; ...creates it out of the closest neighbors.
-    create-comms-with min-n-of nei-size speaking-others [opinion-distance]
-  ]
-
-  ;; P.S. Just hiding links for better speed of code -- when we change/cut a link, all links become visible and that slows down the simulation.
-  ask comms [set hidden? TRUE]
-end
-
-;; TO-DO: agents should cut-off only neighbors that they previously heard speak,
-;;        we probably should create their memory whom they heard speak and onlythose agents might cut-off.
-;;
-;; Note:  Now I implement it in modest variant: agent cuts off the most annoying/random presently speaking agent --
-;;        there must be at least one, since agents are satisfied by the rule with the empty neighborhood and
-;;        they update neighborhood only in case of dissatisfaction.
-
-;; subroutine for changing one link
-to rewire-one-link
-  ;; Firstly, we find speaking agents who are both: in Identity group and connected by communication link.
-  let visibles comm-neighbors with [speak?]
-
-  ;; Cutting-off of the link itself:
-  let a-visible one-of visibles
-  let annoyer max-one-of visibles [opinion-distance]
-  ask one-of my-comms with [other-end = ifelse-value (cut-links-randomly?) [a-visible][annoyer]] [die]
-
-  ;; Secondly, we choose for the agent a new speaking partner with the random/most-close opinion
-  ;let cha count my-comms
-  let potentials other agents with [speak? and not comm-neighbor? myself]
-  ;if 128 != (count potentials + cha) [show "!!!!!!!!!!!!!!!!!!!MISTAKE!!!!!!!!!!!!!!!!!!!! wrong potentials/my-comms" show ticks]
-  ;if count potentials = 0 [show "!!!!!!!!!!!!!!!!!!!MISTAKE!!!!!!!!!!!!!!!!!!!! zero potentials" show ticks]
-  let a-partner one-of potentials
-  let the-partner min-one-of potentials [opinion-distance]
-  create-comm-with ifelse-value (create-links-randomly?) [a-partner] [the-partner]
-  ;if not (count my-comms > cha) [show "!!!!!!!!!!!!!!!!!!!MISTAKE!!!!!!!!!!!!!!!!!!!! no link created!" show ticks]
-
-  ;; P.S. Just hiding links for better speed of code -- when we change/cut a link, all links become visible and that slows down the simulation.
-  ask comms [set hidden? TRUE]
-end
-
-
-;; Procedure for connecting agents with not enough comm-neigbours
-to connect-loners
-  ;; We check whether each agent has enough neighbors
-  ask agents with [count comm-neighbors < min-comm-neis] [
-    ;; !!!WARNING!!!: If there are many agents classified as 'loners',
-    ;; then early running agents might connect some later going agents,
-    ;; and then might happen that when later running agent runs this algorithm,
-    ;; she has enough connections (because she was connected by earlier running agents).
-    ;; SOLUTION: Check before creating new link whetwer agent is still demanding these new links.
-
-    ;; Defining needed agentset and variables:
-    let potentials other agents with [speak?]  ; We set 'potentials' to all other speaking agents and then...
-    let p count potentials  ; 'p' stands for potentials
-
-    ;; Catch of potential BUG via 'if' structure --
-    ;;   a) if there is no-one speaking, then the lone agent has to wait until the next round.
-    ;;   b) if agent was demanding new links, but was served by previous demanders, then needs no new link
-    if p > 0 and count comm-neighbors < min-comm-neis [
-        let n min-comm-neis - count comm-neighbors  ; 'n' stands for needed
-        let ap ifelse-value(p >= n)[n][p]  ; 'ap' stands for asked potentials
-        create-comms-with ifelse-value (create-links-randomly?) [n-of ap potentials][min-n-of ap potentials [opinion-distance]]  ;... it depends on scenario: we choose randomly or with the closest opinion
-    ]
-  ]
-
-  ;; P.S. Just hiding links for better speed of code -- when we change/cut a link, all links become visible and that slows down the simulation.
-  ask comms [set hidden? TRUE]
-end
-
 
 ;; sub-routine for updating opinion position of turtle according the Hegselmann-Krause (2002) model
 to change-opinion-HK
   ;; initialization of agent set 'influentials' containing agents whose opinion positions uses updating agent
   let influentials no-turtles
-  ;; 1) updating agent uses only visible link neighbors in small-world network who are also members of her Identity group
+  ;; 1) updating agent uses only other agents who pass identity check and opinion proximity check
   let neighbs turtle-set nobody
-  let visibles turtle-set nobody
 
-  ifelse use_identity_sigmoid?[
-    set neighbs turtle-set sort comm-neighbors with [speak?]
-    ask neighbs [
-            roll-identity-dice ([Identity-group] of self) ([Identity-group] of myself)
-    ]
-    set visibles neighbs with [identity-dice = true]
+  ;; Since rolling opinion dice is computationally less demanding, we start with opinion dice:
+  ;; NOW we roll probabilistic dice based on opinion distance from influencer - if an agent is too far they are less likely to be heard this time.
+  ;; first find out which agent is going to be heard this time.
+  ask other agents [
+    roll-opinion-dice ([opinion-position] of myself)
   ]
-  [
-    set visibles (turtle-set filter [vis -> member? vis Identity-Group] sort comm-neighbors with [speak?])
+  ;; now only follow them, the successful rollers...
+  set neighbs other agents with [opinion-dice?]
+
+  ;; Setting my 'Identity-group':
+  let level position Group-threshold id_threshold_set
+  let my-group-id item level Group-memberships
+  set Identity-group agents with [my-group-id = item level Group-memberships]
+
+  ;; Sigmoid code:
+  ask neighbs [
+    ;; Firstly, each neighbor has to set her 'Identity-group' according 'level'
+    let her-group-id item level Group-memberships
+    set Identity-group agents with [her-group-id = item level Group-memberships]
+
+    ;; Secondly, we roll the identity dice...
+    roll-identity-dice ([Identity-group] of self) ([Identity-group] of myself)
   ]
-
-  ;; 2) we have different modes for finding influentials:
-  ;; 2.1) in mode "openly-listen" agent looks inside his boundary (opinion +/- uncertainty),
-  ;;      i.e. agent takes opinions not that much far from her opinion
-  if mode = "openly-listen" [
-    ;; we compute 'lim-dist' -- it is the numerical distance in given opinion space
-    if-else use_opinion_sigmoid?
-    [
-      ;; NOW we roll probabilistic dice based on opinion distance from influencer - if an agent is too far they are less likely to be heard this time.
-      ;; first find out which agent is going to be heard this time.
-      ask visibles [
-        roll-opinion-dice ([opinion-position] of myself) (true)
-      ]
-      ;; now only hear from them
-      set influentials visibles with [opinion-dice = true]
-    ][
-      ;;Use the classical HK if not using the sigmoid
-      let lim-dist (Uncertainty * sqrt(opinions * 4))
-      ;; we set as influentials agents with opinion not further than 'lim-dist'
-      set influentials visibles with [opinion-distance <= lim-dist]
-    ]
-  ]
-
-  ;; 2.1) in mode "vaguely-speak" agent looks inside whose boundaries (opinion +/- uncertainty)
-  ;;       she is, i.e. agents takes opinions spoken with such a big uncertainty that it matches her own opinion
-  if mode = "vaguely-speak"  [
-    ;; Note: Here is used the 'Uncetainty' value of called agent, agent who might be used for updating,
-    ;;       not 'Uncertainty' of calling agent who updates her opinion.
-
-
-    if-else use_opinion_sigmoid? [
-      ;; first find out which agent is going to be heard this time.
-      ask visibles [
-        roll-opinion-dice ([opinion-position] of myself) (false)
-      ]
-      ;; now only hear from them
-      set influentials visibles with [opinion-dice = true]
-    ][
-      ;;Use the classical HK in mode vaguely speak if not using the sigmoid
-      set influentials visibles with [opinion-distance <= (Uncertainty * sqrt(opinions * 4))]
-    ]
-  ]
+  set influentials neighbs with [identity-dice?]
 
   ;; 3) we also add the updating agent into 'influentials'
   set influentials (turtle-set self influentials)
@@ -727,13 +409,6 @@ to change-opinion-HK
       ;; note: since we use while-loop, we go through each item of the 'op-list', step by step, iteration by iteration.
       let i (item step op-list)
 
-      ;; then we update dimension of index 'i' drawn from the 'op-list' in the previous line:
-      ;; 1) we compute average position in given dimension of the calling/updating agent and all other agents from agent set 'influentials'
-      ;;    by the command '(mean [item i opinion-position] of influentials)', and
-      ;; 2) the new value of opinion 'val' is not directly average, but it is weighted by the 'Conformity' (individual trait),
-      ;;    the closer 'Conformity' to 1, the closer agent jumps into the mean of others, the closer to 0, the less agent moves.
-      ;; 3) we set value as new opinion position by command 'set opinion-position replace-item i opinion-position X' where 'X' is the mean opinion (ad 1, see line above)
-
       ;; ad 1: averge position computation
       let val  precision (mean [item i opinion-position] of influentials) 3 ;; NOTE: H-K model really assumes that agent adopts immediatelly the 'consesual' position
       ;; ad 2: updating/weighting 'val' by 'Conformity' and own opinion
@@ -749,9 +424,49 @@ to change-opinion-HK
 end
 
 
+to roll-opinion-dice [her-opinion]
+  let probability-of-interaction 1
+  let op-dist opinion-distance3 (opinion-position) (her-opinion)
+  set probability-of-interaction compute-sigmoid (op-dist) ([opinion-sigmoid-xOffset] of myself) ([opinion-sigmoid-steepness] of myself)
+  set opinion-dice? (random 1) < probability-of-interaction
+end
+
+
+;;subroutine for computing inverted (y decreases as x increases) sigmoid of input
+to-report compute-sigmoid [x xOffset steepness]
+  ;; Slider 'maxSteepness' determines maximum possible steepness of the sigmoids
+  ifelse not Repulsion? [  ;; Note: Now we control repulsion by the global switch 'Repulsion?'
+    ;; sigmoid that outputs from 1 to 0 as x increases from 0 to 1
+    report precision (1 / (1 + exp (steepness * maxSteepness * (x - xOffset)))) 1
+  ][
+    ;;sigmoid that outputs from 1 to -1 as x increases from 0 to 1
+    report precision (2 / (1 + exp (steepness * maxSteepness * (x - xOffset))) - 1) 1
+  ]
+end
+
+
+to roll-identity-dice [ her-identity-group my-identity-group ]
+  let her-centroid-position n-values opinions [0]
+  let my-centroid-position n-values opinions [0]
+  let probability-of-interaction 1
+  let step 0
+
+  while [step < opinions] [
+    let her-val  precision (mean [item step opinion-position] of her-identity-group) 3
+    set her-centroid-position replace-item step her-centroid-position her-val
+    let my-val  precision (mean [item step opinion-position] of my-identity-group) 3
+    set my-centroid-position replace-item step my-centroid-position my-val
+    set step step + 1
+  ]
+
+  let id-grp-dist (opinion-distance3 (her-centroid-position) (my-centroid-position))
+  set probability-of-interaction compute-sigmoid (id-grp-dist) ([identity-sigmoid-xOffset] of myself) ([identity-sigmoid-steepness] of myself)
+  set identity-dice? (random 1) < probability-of-interaction
+end
+
+
 to get-sigmoids
   ask turtles [
-
     set opinion-sigmoid-xOffset precision (random-normal mean-opinion-sigmoid-xOffset std-opinion-sigmoid-xOffset) 3
     while [opinion-sigmoid-xOffset > 1 or opinion-sigmoid-xOffset < 0] [
       set opinion-sigmoid-xOffset precision (random-normal mean-opinion-sigmoid-xOffset std-opinion-sigmoid-xOffset) 3
@@ -762,11 +477,8 @@ to get-sigmoids
       set opinion-sigmoid-steepness precision (random-normal mean-opinion-sigmoid-steepness std-opinion-sigmoid-steepness) 3
     ]
 
-
-    ;; CHECK WITH TEAM: If the below switch is true, then should we use the exact same values for every turtle for both sigmoids, or just draw from
-    ;; the same distribution?
+    ;; NOTE: If the below switch is true, then we just draw from the same distribution, but we might draw different values.
     if-else opinion_sigmoid_used_for_identity? [
-
       set identity-sigmoid-xOffset precision (random-normal mean-opinion-sigmoid-xOffset std-opinion-sigmoid-xOffset) 3
       while [identity-sigmoid-xOffset > 1 or identity-sigmoid-xOffset < 0] [
         set identity-sigmoid-xOffset precision (random-normal mean-opinion-sigmoid-xOffset std-opinion-sigmoid-xOffset) 3
@@ -776,9 +488,7 @@ to get-sigmoids
       while [identity-sigmoid-steepness > 1 or identity-sigmoid-steepness < 0] [
         set identity-sigmoid-steepness precision (random-normal mean-opinion-sigmoid-steepness std-opinion-sigmoid-steepness) 3
       ]
-
     ][
-
       set identity-sigmoid-xOffset precision (random-normal mean-identity-sigmoid-xOffset std-identity-sigmoid-xOffset) 3
       while [identity-sigmoid-xOffset > 1 or identity-sigmoid-xOffset < 0] [
         set identity-sigmoid-xOffset precision (random-normal mean-identity-sigmoid-xOffset std-identity-sigmoid-xOffset) 3
@@ -790,82 +500,7 @@ to get-sigmoids
       ]
     ]
   ]
-
-
-  ;  [set tValue precision (random-normal tolerance-level tolerance-std) 3
-;                                                     if (tValue > 1) [set tValue 1]
-;                                                     if (tValue < 0) [set tValue 0]]
-
-
 end
-
-
-
-
-
-;;subroutine for computing inverted (y decreases as x increases) sigmoid of input
-to-report compute-sigmoid [x xOffset steepness repulsion]
-
-  ;;maxSteepness determines maximum possible steepness of the sigmoids
-
-  ifelse repulsion = false [
-    ;; sigmoid that outputs from 1 to 0 as x increases from 0 to 1
-    report precision (1 / (1 + exp (steepness * maxSteepness * (x - xOffset)))) 1
-  ][
-    ;;sigmoid that outputs from 1 to -1 as x increases from 0 to 1
-    report precision (2 / (1 + exp (steepness * maxSteepness * (x - xOffset))) - 1) 1
-  ]
-end
-
-to roll-opinion-dice [ her-opinion openly-listen? ]
-  let probability-of-interaction 1
-
-  if-else openly-listen? [
-    set probability-of-interaction compute-sigmoid (opinion-distance3 (opinion-position) (her-opinion)) ([opinion-sigmoid-xOffset] of myself)
-    ([opinion-sigmoid-steepness] of myself) (false)
-  ][
-    ;; for mode vaguely speak the sigmoid used is of the influential
-    set probability-of-interaction compute-sigmoid (opinion-distance3 (opinion-position) (her-opinion)) (opinion-sigmoid-xOffset)
-    (opinion-sigmoid-steepness) (false)
-  ]
-
-    set opinion-dice ifelse-value (random 1 < probability-of-interaction) [true] [false]
-end
-
-to roll-identity-dice [ her-identity-group my-identity-group ]
-  let her-centroid-position n-values opinions [0]
-  let my-centroid-position n-values opinions [0]
-  let probability-of-interaction 1
-
-  let step 0
-
-  while [step < opinions] [
-    let her-val  precision (mean [item step opinion-position] of her-identity-group) 3
-    set her-centroid-position replace-item step her-centroid-position her-val
-
-
-    let my-val  precision (mean [item step opinion-position] of my-identity-group) 3
-    set my-centroid-position replace-item step my-centroid-position my-val
-
-    set step step + 1
-    ]
-
-
-
-    set probability-of-interaction compute-sigmoid (opinion-distance3 (her-centroid-position) (my-centroid-position)) ([identity-sigmoid-xOffset] of myself)
-    ([identity-sigmoid-steepness] of myself) (false)
-
-    set identity-dice ifelse-value (random 1 < probability-of-interaction) [true] [false]
-end
-
-;to roll-identity-dice [ her-group-opinion ]
-;
-;    let probability-of-interaction compute-sigmoid (opinion-distance3 (opinion-position) (her-group-opinion)) ([opinion-sigmoid-xOffset] of myself)
-;    ([opinion-sigmoid-steepness] of myself) (false)
-;
-;    set identity-dice ifelse-value (random 1 < probability-of-interaction) [true] [false]
-;
-;end
 
 
 ;; sub-routine for computing opinion distance of two comparing agents
@@ -954,14 +589,11 @@ end
 
 to recording-situation-and-computing-polarisation
   ;; Finishing condition:
-  ;; 1) We reached state, where no turtle changes for RECORD-LENGTH steps, i.e. average of MAIN-RECORD (list of averages of turtles/agents RECORD) is 1 or
-  ;; 2) We reached number of steps specified in MAX-TICKS
-  if ((mean main-Record = 1 and network-changes <= 5) or ticks = max-ticks) [compute-polarisation-repeatedly]
-  if ((mean main-Record = 1 and network-changes <= 5) or ticks = max-ticks) and record? [record-state-of-simulation]
+  ;; 1) We reached number of steps specified in MAX-TICKS
+  if ticks = max-ticks [compute-polarisation-repeatedly]
 
   ;; Recording and computing polarisation on the fly...
   if (ticks / polarisation-each-n-steps) = floor (ticks / polarisation-each-n-steps) [compute-polarisation-repeatedly]
-  if (ticks / record-each-n-steps) = floor(ticks / record-each-n-steps) and record? [record-state-of-simulation]
 end
 
 
@@ -1072,25 +704,6 @@ to updating-centroids-opinion-position [cent0 cent1]
 end
 
 
-;; Envelope for combined update of weights of all links
-to update-links-weights
-  update-comms-weights
-  update-l-distances-weights
-end
-
-
-;; Sub-routine for updating Communication links' weights,
-;; according opinion distance of both their ends
-to update-comms-weights
-  ;; We use function 'opinion-distance2', which needs two opinion positions as input and
-  ;; receives their distance as output, but this distance is converted to weight:
-  ;; weight = 1 means that both positions are same, weight = 0 means that their distance is maximal,
-  ;; i.e. both positions are in oposit corners of respective N-dimensional space.
-  ask comms [set op-weight opinion-distance2 ([opinion-position] of end1) ([opinion-position] of end2)]
-  ask comms [set hidden? TRUE]
-end
-
-
 ;; Sub-routine for updating Distances links' weights,
 ;; according opinion distance of both their ends
 to update-l-distances-weights
@@ -1107,141 +720,17 @@ end
 to compute-polarisation-repeatedly
   ;; Initialization of temporal variables
   let r 0
-  let p []
-  let np []
-  let up []
-  let unp []
   let ap []
-  update-links-weights
+  update-l-distances-weights
 
   ;; Repeating cycle
   while [r < polar_repeats] [
-    compute-polarisation
-    set p lput polarisation p
-    set np lput normalized_polarisation np
-    set up lput unweighted_polarisation up
-    set unp lput unweighted_normalized_polarisation unp
     set ap lput Ash-polarisation ap
     set r r + 1
   ]
 
   ;; Setting variables back
-  set polarisation precision (mean p) 3
-  set normalized_polarisation precision (mean np) 3
-  set unweighted_polarisation precision (mean up) 3
-  set unweighted_normalized_polarisation precision (mean unp) 3
   set ESBG_polarisation precision (mean ap) 3
-end
-
-;; NOTE: Now I am iplementing it for N = 2 centroids, but I prepare code for easy generalisation for N > 2.
-to compute-polarisation
-  ;; Preparation
-  ask centroids [die]
-
-  ;; Detection of clusters via Louvain
-  let selected-agents agents with [2 < count my-l-distances with [l-weight >= d_threshold]]  ;; Note: We take into account only not loosely connected agents
-  nw:set-context selected-agents l-distances with [l-weight >= d_threshold]
-  let communities nw:louvain-communities
-  set N_centroids length communities
-
-  ;; Computing clusters' mean 'opinion-position'
-  let positions-clusters [] ;; List with all positions of all clusters
-  foreach communities [c ->
-    let one []  ;; List for one positio nof one cluster
-    foreach range opinions [o -> set one lput precision (mean [item o opinion-position] of c) 8 one]
-    set positions-clusters lput one positions-clusters
-  ]
-
-  ;; Preparation of centroids -- feedeing them with communities
-  create-centroids N_centroids [
-    set heading (who - min [who] of centroids)
-    set Opinion-position item heading positions-clusters  ;; We set opinions, we try to do it smoothly...
-    set shape "circle"
-    set size 1.5
-    set color 5 + (who - min [who] of centroids) * 10
-    getPlace
-  ]
-
-  ;; Assignment of agents to groups
-  ask selected-agents [set group [who] of min-one-of centroids [opinion-distance]]
-
-  ;; Computation of centroids possitions
-  compute-centroids-positions (selected-agents)
-
-  ;; Iterating cycle -- looking for good match of centroids
-  while [sum [opinion-distance3 (Last-opinion) (Opinion-position)] of centroids > Centroids_change] [
-
-    ;; turtles compute whether they are in right cluster and
-    ask selected-agents [set group [who] of min-one-of centroids [opinion-distance]]
-
-    ;; Computation of centroids possitions
-    compute-centroids-positions (selected-agents)
-  ]
-
-  ;; Killing centroids without connected agents
-  ask centroids [
-    let wom who
-    if (not any? agents with [group = wom]) [die]
-  ]
-  set N_centroids count centroids
-
-  ;; Catching the run-time error:
-  ;; If there is just one component since all agents has same opinion, then the polarisation algorithm does produce error --
-  ;; because of computing mean of empty list of distences: this list is empty since the only one existing centroid can't
-  ;; compute distance to itself via double 'while' structuresince 'ai' and 'aj' lists are empty.
-  ;; In this case it is obvious that polarisation is 0, so we set 'polarisation' and 'normalized_polarisation' to 0 directly via 'ifelse' structure
-  ifelse (count centroids < 2) [
-    set polarisation 0
-    set normalized_polarisation 0
-    set unweighted_polarisation 0
-    set unweighted_normalized_polarisation 0
-  ][
-    ;; Computing polarization -- preparation of lists and agents
-    let distances []
-    let diversity []
-    let unweighted_distances []
-    let unweighted_diversity []
-    let whos sort [who] of centroids  ;; List of 'who' of all centroids
-    ask selected-agents [set distance_to_centroid [opinion-distance] of centroid group]  ;; Each agent computes her distance to her centroid and stores it as 'distance_to_centroid'.
-
-    ;; Computing polarization -- distances of all centroids
-    let ai but-last whos  ;; List of all 'i' -- 'who' initializing distances computation
-    let aj but-first whos  ;; List of all 'j' -- 'who' of other end of distances computation
-    foreach ai [i ->
-      foreach aj [j ->
-        ;; Each distance is weighted by fraction of both centroid groups
-        ;; via formula '(N_centroids ^ 2) * (count agents with [group = i] / count agents) * (count agents with [group = j] / count agents)'
-        let weight (N_centroids ^ 2) * (count selected-agents with [group = i] / count selected-agents) * (count selected-agents with [group = j] / count selected-agents)
-        let cent-dist opinion-distance3 ([opinion-position] of centroid i) ([opinion-position] of centroid j)
-        set distances lput (weight * cent-dist) distances
-        set unweighted_distances lput cent-dist unweighted_distances
-      ]
-      set aj but-first aj
-    ]
-
-    ;; Computing polarization -- diversity in groups
-    foreach sort [who] of centroids [wg ->
-      let weight (count selected-agents with [group = wg] / count selected-agents)
-      let cent-div (mean [distance_to_centroid] of selected-agents with [group = wg])
-      set diversity lput (weight * cent-div) diversity
-      set unweighted_diversity lput cent-div unweighted_diversity
-    ]
-
-    ;; Computing polarization -- polarization indexes
-    ;; Note: Now it is computed to receive same result as for n=2 groups,
-    ;;       but might be needed to change it later to get better results for n>2 group,
-    ;;       but now it works fine without runtime errors with all numbers of groups.
-    set polarisation (mean distances) / (1 + 2 * mean diversity)  ;; Raw polarization computed as distance divided by heterogeinity in the groups.
-    set normalized_polarisation precision (polarisation / (2 * sqrt(opinions))) 3
-    set polarisation precision polarisation 3
-    set unweighted_polarisation (mean unweighted_distances) / (1 + 2 * mean unweighted_diversity)  ;; Raw unweighted polarization computed as unweighted distance divided by unweighted heterogeinity in the groups.
-    set unweighted_normalized_polarisation precision (unweighted_polarisation / (2 * sqrt(opinions))) 3
-    set unweighted_polarisation precision unweighted_polarisation 3
-  ]
-
-  ;; Final coloring and killing of centroids
-  if centroid_color? [ask selected-agents [set color (5 + 10 * (group - min [who] of centroids))]]
-  if killing_centroids? [ask centroids [die]]
 end
 
 
@@ -1272,24 +761,7 @@ to compute-centroids-positions [sel-agents]
 end
 
 
-;; reporter function for translating a list into one string of values divided by commas
-to-report list-to-string [LtS]
-  ;; Initializing empty string and counter
-  let str ""
-  let i 0
-
-  ;; Now we go through the list item by item and add them into string
-  while [i < length LtS][
-    set str (word str item i LtS)
-    set i i + 1
-    if (i < length LtS) [set str (word str ", ")]
-  ]
-
-  report str
-end
-
-
-;; Sub-routine for assigning value of tolerance
+;; Sub-routine for assigning value of group threshold
 to-report get-group-threshold
   ;; We have to initialize empty temporary variable
   let gtValue 0
@@ -1306,7 +778,7 @@ to-report get-group-threshold
 end
 
 
-;; Sub-routine for assigning value of tolerance
+;; Sub-routine for assigning value of conformity
 to-report get-conformity
   ;; We have to initialize empty temporary variable
   let cValue 0
@@ -1320,39 +792,6 @@ to-report get-conformity
                                    while [cValue > 1 or cValue < 0] [ set cValue precision (random-normal conformity-level conformity-std) 3]
   ]
   report cValue
-end
-
-;; Sub-routine for assigning value of tolerance
-to-report get-tolerance
-  ;; We have to initialize empty temporary variable
-  let tValue 0
-
-  ;; Then we draw the value according the chosen method
-  if tolerance-drawn = "constant" [set tValue tolerance-level + random-float 0]  ;; NOTE! 'random-float 0' is here for consuming one pseudorandom number to cunsume same number of pseudorandom numbers as "uniform
-  if tolerance-drawn = "uniform" [set tValue ifelse-value (tolerance-level < 0.5)
-                                                           [precision (random-float (2 * tolerance-level)) 3]
-                                                           [precision (1 - (random-float (2 * (1 - tolerance-level)))) 3]]
-  if tolerance-drawn = "normal" [set tValue precision (random-normal tolerance-level tolerance-std) 3
-                                 while [tValue > 1 or tValue < 0] [ set tValue precision (random-normal tolerance-level tolerance-std) 3]
-  ]
-  report tValue
-end
-
-
-;; Sub-routine for assigning value of p-speaking
-to-report get-speaking
-  ;; We have to initialize empty temporary variable
-
-    let pValue 0
-    ;; Then we draw the value according the chosen method
-    if p-speaking-drawn = "constant" [set pValue p-speaking-level + random-float 0]  ;; NOTE! 'random-float 0' is here for consuming one pseudorandom number to cunsume same number of pseudorandom numbers as "uniform"
-    if p-speaking-drawn = "uniform" [set pValue ifelse-value (p-speaking-level < 0.5)
-      [precision (random-float (2 * p-speaking-level)) 3]
-      [precision (1 - (random-float (2 * (1 - p-speaking-level)))) 3]]
-    if p-speaking-drawn = "function" [set pValue (precision(sqrt (sum (map [ x -> x * x ] opinion-position)) / sqrt opinions) 3) + random-float 0]  ;; NOTE! 'random-float 0' is here for consuming one pseudorandom number to cunsume same number of pseudorandom numbers as "uniform
-    ;; Report result back
-    report pValue
-
 end
 
 
@@ -1392,24 +831,8 @@ end
 ;; then we see at one place agents with different colors.
 to getColor
   ;; speaking agents are colored from very dark red (average -1) through red (average 0) to very light red (average +1)
-  ifelse speak? [
-    set color 15 + 4 * mean(opinion-position)
-    set size (max-pxcor / 10)
-  ]
-  ;; silent agent are white and of zero size, to just show the speaking one -- later we might parametrize this if we want...
-  [
-    set color white
-    set size 0
-  ]
-end
-
-
-;; Sub routine for dissolving whether agent speaks at the given round/step or not
-to-report speaking
-  ;; For the case of function we have to update P-speaking value
-  if p-speaking-drawn = "function" [set P-speaking precision(sqrt (sum (map [ x -> x * x ] opinion-position)) / sqrt opinions) 3]
-
-  report P-speaking > random-float 1
+  set color 15 + 4 * mean(opinion-position)
+  set size (max-pxcor / 10)
 end
 
 
@@ -1425,89 +848,11 @@ to avoiding-run-time-errors
   ;; if we want update more dimensions than exists in simulation, then we set 'updating' to max of dimensions, i.e. 'opinions'
   if updating > opinions [set updating opinions]
 end
-
-
-;; Sub-routine which opens/creates *.csv file and stores there states of all turtles
-to record-state-of-simulation
-  ;; setting working directory
-  ;set-current-directory directory
-
-  ;; seting 'file-name'
-  let file-name (word "Sims/Nodes01_" file-name-core "_" ticks ".csv")
-
-  ;;;; File creation and opening: NODES
-  ;; If file exists at the start we delete it to start with clean file
-  if file-exists? file-name [file-delete file-name]
-  file-open file-name ;; This opens existing file (at the end) or creates file if doesn't exist (at the begining)
-
-    ;; Constructing list for the first row with variable names:
-    let row (list "ID" "Uncertainty" "pSpeaking" "Speaks")
-    foreach range Opinions [i -> set row lput (word "Opinion" (i + 1)) row]
-
-    ;; Writing the variable names in the first row at the start
-    file-print list-to-string (row)
-
-  ;; For writing states itself we firstly need to create list of sorted turtles 'srt'
-  let srt sort agents
-  ;; Then we iterate over the list 'srt':
-  foreach srt [t -> ask t [  ;; every turtle in the list...
-    set row (list (word "Nei" who)  Uncertainty P-Speaking (ifelse-value (speak?)[1][0]))  ;; stores in list ROW its ID, Uncertainty, P-Speaking and whether speaks...
-    foreach Opinion-position [op -> set row lput (precision(op) 3) row]  ;; Opinions ...
-    file-print list-to-string (row)
-    file-flush  ;; for larger simulations with many agents it will be safer flush the file after each row
-  ]]
-
-  ;; Finally, we close the file
-  file-close
-  file-close
-
-
-  ;;;; File creation and opening: LINKS
-  ;; seting 'file-name' for links.
-  set file-name (word "Sims/Links01_" file-name-core "_" ticks ".csv")
-
-  ;;;; File creation and opening
-  ;; If file exists at the start we delete it to start with clean file
-  if file-exists? file-name [file-delete file-name]
-  file-open file-name ;; This opens existing file (at the end) or creates file if doesn't exist (at the begining)
-
-    ;; Constructing list for the first row with variable names:
-    set row (list "ID1" "ID2" "Communication" "Distance")
-
-    ;; Writing the variable names in the first row at the start
-    file-print list-to-string (row)
-
-  ;; We need to prepare counters and other auxilliary varibles for doubled cycle:
-  let i 0
-  let j 1
-  let iMax (count agents - 2)
-  let jMax (count agents - 1)
-  let mine []
-  let her []
-
-  ;; Now double while cycle!
-  while [i <= iMax] [  ;; Iterating over all turtles except the last one
-    set j i + 1
-    while [j <= jMax][  ;; Second cycle iterates over all turtles with index higher than 'i'
-      set mine ([opinion-position] of turtle i) ;; First opinion for measuring distance...
-      set her ([opinion-position] of turtle j)  ;; Second opinion...
-      set row (list i j (ifelse-value (is-comm? comm i j) [1][0]) opinion-distance2 (mine) (her))  ;; Construction of the 'row'
-      file-print list-to-string (row)  ;; Writing the row...
-      file-flush  ;; for larger simulations with many agents it will be safer flush the file after each row
-      set j j + 1 ;; Updating counter of second cycle
-    ]
-    set i i + 1  ;; Updating counter of the first cycle
-  ]
-
-  ;; Finally, we close the file
-  file-close
-  file-close
-end
 @#$#@#$#@
 GRAPHICS-WINDOW
-219
+343
 10
-667
+791
 459
 -1
 -1
@@ -1591,38 +936,8 @@ N-agents
 N-agents
 10
 1000
-132.0
+129.0
 1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-9
-75
-101
-108
-n-neis
-n-neis
-1
-500
-59.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-101
-75
-193
-108
-p-random
-p-random
-0
-0.5
-0.27
-0.01
 1
 NIL
 HORIZONTAL
@@ -1643,49 +958,34 @@ NIL
 HORIZONTAL
 
 CHOOSER
-0
-196
-92
-241
+197
+10
+289
+55
 model
 model
 "HK"
 0
 
 SLIDER
-90
-336
+102
+185
+208
 218
-369
-p-speaking-level
-p-speaking-level
-0
-1
-1.0
-0.001
-1
-NIL
-HORIZONTAL
-
-SLIDER
-92
-555
-198
-588
 boundary
 boundary
 0.01
 1
-0.48
+0.5
 0.01
 1
 NIL
 HORIZONTAL
 
 INPUTBOX
-674
+798
 10
-781
+905
 70
 RS
 50.0
@@ -1694,9 +994,9 @@ RS
 Number
 
 SWITCH
-781
+905
 10
-874
+998
 43
 set-seed?
 set-seed?
@@ -1705,9 +1005,9 @@ set-seed?
 -1000
 
 BUTTON
-435
+559
 491
-490
+614
 524
 inspect
 inspect turtle 0\nask turtle 0 [print opinion-position]
@@ -1722,9 +1022,9 @@ NIL
 1
 
 BUTTON
-490
+614
 491
-545
+669
 524
 sizes
 show sort remove-duplicates [count turtles-here] of turtles \nask patches [set plabel count turtles-here]
@@ -1739,9 +1039,9 @@ NIL
 1
 
 BUTTON
-379
+503
 491
-434
+558
 524
 HIDE!
 \nask turtles [set hidden? TRUE]
@@ -1756,9 +1056,9 @@ NIL
 1
 
 BUTTON
-379
+503
 458
-434
+558
 491
 SHOW!
 \nask turtles [set hidden? FALSE]\nask turtles [set size (max-pxcor / 10)]
@@ -1773,21 +1073,21 @@ NIL
 1
 
 CHOOSER
-0
-543
-92
-588
+10
+161
+102
+206
 boundary-drawn
 boundary-drawn
 "constant" "uniform" "normal"
-0
+2
 
 PLOT
-967
+1091
 256
-1127
+1251
 376
-Distribution of 'Uncertainty'
+ 'Uncertainty' Distribution
 NIL
 NIL
 0.0
@@ -1801,9 +1101,9 @@ PENS
 "default" 0.05 1 -16777216 true "" "histogram [Uncertainty] of agents"
 
 BUTTON
-434
+558
 458
-522
+646
 491
 avg. Unretainty
 show mean [Uncertainty] of turtles
@@ -1818,9 +1118,9 @@ NIL
 1
 
 BUTTON
-521
+645
 458
-583
+707
 491
 Hide links
 ask links [set hidden? TRUE]
@@ -1835,9 +1135,9 @@ NIL
 1
 
 BUTTON
-583
+707
 458
-643
+767
 491
 Show links
 ask links [set hidden? FALSE]
@@ -1852,9 +1152,9 @@ NIL
 1
 
 SLIDER
-931
+1055
 10
-1023
+1147
 43
 X-opinion
 X-opinion
@@ -1867,9 +1167,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-931
+1055
 42
-1023
+1147
 75
 Y-opinion
 Y-opinion
@@ -1882,9 +1182,9 @@ NIL
 HORIZONTAL
 
 PLOT
-674
+798
 224
-968
+1092
 432
 Developement of opinions
 NIL
@@ -1910,24 +1210,24 @@ PENS
 "Op11" 1.0 0 -13791810 true "" "if opinions >= 11 [plot mean [item 10 opinion-position] of turtles]"
 
 SLIDER
-931
+1055
 74
-1023
+1147
 107
 updating
 updating
 1
 50
-2.0
+1.0
 1
 1
 NIL
 HORIZONTAL
 
 PLOT
-674
+798
 107
-998
+1122
 227
 Stability of turtles (average)
 NIL
@@ -1935,22 +1235,20 @@ NIL
 0.0
 10.0
 0.0
-1.0
+0.2
 true
 true
 "" ""
 PENS
 "Turtles" 1.0 0 -16777216 true "" "plot mean [mean Record] of agents"
 "Main record" 1.0 0 -2674135 true "" "plot mean main-Record"
-"Normalized" 1.0 0 -13791810 true "" "plot normalized_polarisation"
-"Polarisation" 1.0 0 -13345367 true "" "plot polarisation"
 "ESBG" 1.0 0 -11221820 true "" "plot ESBG_polarisation"
 
 BUTTON
-1403
-161
-1475
-194
+1299
+142
+1371
+175
 avg. Record
 show mean [mean Record] of agents
 NIL
@@ -1964,10 +1262,10 @@ NIL
 1
 
 MONITOR
-1404
-117
-1476
-162
+1300
+98
+1372
+143
 avg. Record
 mean [mean Record] of agents
 3
@@ -1975,283 +1273,64 @@ mean [mean Record] of agents
 11
 
 SLIDER
-1023
+1147
 10
-1134
+1258
 43
 record-length
 record-length
 10
 100
-40.0
+15.0
 1
 1
 NIL
 HORIZONTAL
 
-CHOOSER
-0
-240
-92
-285
-mode
-mode
-"openly-listen" "vaguely-speak"
-0
-
-PLOT
-967
-375
-1127
-495
-Distribution of 'Tolerance'
-NIL
-NIL
-0.0
-1.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 0.05 1 -16777216 true "" "histogram [Tolerance] of agents"
-
-INPUTBOX
-1171
-10
-1423
-116
-file-name-core
-1_129_0.1_16_2_2_0.4_uniform_1_uniform_openly-listen
-1
-0
-String
-
-BUTTON
-1319
-116
-1404
-149
-RECORD!
-record-state-of-simulation
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SWITCH
-1171
-116
-1319
-149
-construct-name?
-construct-name?
-1
-1
--1000
-
-SWITCH
-1171
-148
-1274
-181
-record?
-record?
-1
-1
--1000
-
 SLIDER
-1023
+1147
 42
-1134
+1258
 75
 max-ticks
 max-ticks
 100
 10000
-1000.0
-100
+365.0
+5
 1
 NIL
 HORIZONTAL
 
-SWITCH
-1274
-148
-1396
-181
-HK-benchmark?
-HK-benchmark?
-1
-1
--1000
-
-CHOOSER
-121
-291
-218
-336
-p-speaking-drawn
-p-speaking-drawn
-"constant" "uniform" "function"
-0
-
-PLOT
-1127
-375
-1287
-495
-Distribution of 'Outspokeness'
-NIL
-NIL
-0.0
-1.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 0.05 1 -16777216 true "" "histogram [P-speaking] of agents"
-
 SLIDER
-1023
-74
-1171
-107
-record-each-n-steps
-record-each-n-steps
-100
-10000
-1500.0
-100
-1
-NIL
-HORIZONTAL
-
-SWITCH
-781
-43
-929
-76
-avoid-redundancies?
-avoid-redundancies?
-1
-1
--1000
-
-SLIDER
-439
-589
-560
-622
-tolerance-level
-tolerance-level
+108
+253
+229
+286
+conformity-level
+conformity-level
 0
-1.1
-0.5
+1
+0.3
 0.01
 1
 NIL
 HORIZONTAL
 
 CHOOSER
-320
-588
-439
-633
-tolerance-drawn
-tolerance-drawn
+10
+250
+108
+295
+conformity-drawn
+conformity-drawn
 "constant" "uniform" "normal"
 2
 
-PLOT
-767
-432
-967
-552
-Number of network changes
-NIL
-NIL
-0.0
-10.0
-0.0
-100.0
-true
-true
-"" ""
-PENS
-"changed" 1.0 0 -16777216 true "" "plot network-changes / count agents * 100"
-"satisfied" 1.0 0 -2674135 true "" "plot count (agents with [Satisfied?]) / count agents * 100"
-
-SLIDER
-438
-556
-559
-589
-conformity-level
-conformity-level
-0
-1
-0.78
-0.01
-1
-NIL
-HORIZONTAL
-
-CHOOSER
-320
-544
-439
-589
-conformity-drawn
-conformity-drawn
-"constant" "uniform" "normal"
-1
-
-CHOOSER
-27
-414
-119
-459
-network-change
-network-change
-"link" "community"
-0
-
-MONITOR
-674
-432
-768
-477
-NIL
-network-changes
-17
-1
-11
-
-SWITCH
-26
-459
-166
-492
-cut-links-randomly?
-cut-links-randomly?
-1
-1
--1000
-
 BUTTON
-545
+669
 491
-620
+744
 524
 polarisation
 compute-polarisation-repeatedly
@@ -2266,20 +1345,20 @@ NIL
 1
 
 INPUTBOX
-1316
-182
-1389
-242
+429
+461
+502
+521
 N_centroids
-4.0
+3.0
 1
 0
 Number
 
 SLIDER
-1021
+1145
 193
-1171
+1295
 226
 Centroids_change
 Centroids_change
@@ -2292,11 +1371,11 @@ NIL
 HORIZONTAL
 
 PLOT
-1127
+1251
 256
-1287
+1411
 376
-Distribution of 'Conformity'
+'Conformity' Distribution
 NIL
 NIL
 0.0
@@ -2310,21 +1389,10 @@ PENS
 "default" 0.05 1 -16777216 true "" "histogram [Conformity] of agents"
 
 MONITOR
-636
-508
-761
-553
-NIL
-normalized_polarisation
-17
-1
-11
-
-MONITOR
-967
-507
-1068
-552
+933
+435
+1034
+480
 NIL
 ESBG_polarisation
 17
@@ -2332,9 +1400,9 @@ ESBG_polarisation
 11
 
 SWITCH
-1021
+1145
 225
-1171
+1295
 258
 centroid_color?
 centroid_color?
@@ -2343,9 +1411,9 @@ centroid_color?
 -1000
 
 SWITCH
-1171
+1295
 224
-1319
+1424
 257
 killing_centroids?
 killing_centroids?
@@ -2354,24 +1422,24 @@ killing_centroids?
 -1000
 
 SLIDER
-91
-587
-198
-620
+101
+217
+208
+250
 id_threshold
 id_threshold
 0.01
 1
-0.5
+0.4
 0.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-1001
+1125
 127
-1171
+1295
 160
 polarisation-each-n-steps
 polarisation-each-n-steps
@@ -2384,9 +1452,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-1171
+1295
 191
-1276
+1400
 224
 polar_repeats
 polar_repeats
@@ -2399,10 +1467,10 @@ NIL
 HORIZONTAL
 
 SWITCH
-0
-165
-115
-198
+194
+53
+309
+86
 use_identity?
 use_identity?
 0
@@ -2410,9 +1478,9 @@ use_identity?
 -1000
 
 SLIDER
-1021
+1145
 160
-1172
+1296
 193
 d_threshold
 d_threshold
@@ -2425,36 +1493,36 @@ NIL
 HORIZONTAL
 
 SLIDER
-643
-476
-767
-509
+798
+434
+922
+467
 ESBG_furthest_out
 ESBG_furthest_out
 0
 100
-6.0
+5.0
 1
 1
 NIL
 HORIZONTAL
 
 CHOOSER
-0
-588
-92
-633
+10
+206
+102
+251
 threshold_drawn
 threshold_drawn
 "constant" "uniform" "normal"
-1
+2
 
 PLOT
-1287
-256
-1447
-378
-Distribution of 'Group threshold'
+1251
+375
+1411
+497
+'Group threshold' Distribution
 NIL
 NIL
 0.0
@@ -2465,14 +1533,14 @@ true
 false
 "" ""
 PENS
-"default" 0.05 1 -16777216 true "" "histogram [group-threshold] of agents"
+"default" 0.01 1 -16777216 true "" "histogram [group-threshold] of agents"
 
 PLOT
-1287
+1091
 375
-1447
+1251
 495
-Distribution od 'Size of identity group'
+'Size of identity group' Distribution 
 NIL
 NIL
 0.0
@@ -2483,179 +1551,102 @@ true
 false
 "" ""
 PENS
-"default" 10.0 1 -16777216 true "" "histogram [count Identity-group] of agents"
+"default" 1.0 1 -16777216 true "" "histogram [count Identity-group] of agents"
 
 CHOOSER
-92
-196
-184
-241
+10
+116
+102
+161
 identity_type
 identity_type
 "global" "individual"
-0
-
-SWITCH
-165
-459
-322
-492
-create-links-randomly?
-create-links-randomly?
 1
-1
--1000
 
 SLIDER
-119
-427
-220
-460
-min-comm-neis
-min-comm-neis
-0
+102
+118
+208
+151
+identity_levels
+identity_levels
+2
 10
-5.0
+8.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-26
-491
-208
-524
-dissatisfied_updates_opinion
-dissatisfied_updates_opinion
+207
+218
+330
+251
+id_threshold-std
+id_threshold-std
 0
 1
-0.41
+0.2
 0.01
 1
 NIL
 HORIZONTAL
 
-SWITCH
-207
-491
-361
-524
-use_opponents_ratio?
-use_opponents_ratio?
+SLIDER
+229
+253
+341
+286
+conformity-std
+conformity-std
+0
 1
+0.1
+0.05
 1
--1000
+NIL
+HORIZONTAL
 
 SLIDER
-12
-291
-118
-324
-identity_levels
-identity_levels
-2
+208
+185
+330
+218
+boundary-std
+boundary-std
+0
+1
+0.0
+0.05
+1
+NIL
+HORIZONTAL
+
+SLIDER
 10
-5.0
-1
-1
-NIL
-HORIZONTAL
-
-CHOOSER
-2
-121
-167
-166
-draw_id_threshold_levels
-draw_id_threshold_levels
-"uniform" "left-skewed" "right-skewed"
-0
-
-SLIDER
-197
-588
-320
-621
-id_threshold-std
-id_threshold-std
-0
-1
-0.5
-0.05
-1
-NIL
-HORIZONTAL
-
-SLIDER
-559
-556
-677
-589
-conformity-std
-conformity-std
-0
-1
-0.5
-0.05
-1
-NIL
-HORIZONTAL
-
-SLIDER
-559
-589
-677
-622
-tolerance-std
-tolerance-std
-0
-1
-0.5
-0.05
-1
-NIL
-HORIZONTAL
-
-SLIDER
-198
-555
-320
-588
-boundary-std
-boundary-std
-0
-1
-0.3
-0.05
-1
-NIL
-HORIZONTAL
-
-SLIDER
-699
-553
-898
-586
+327
+208
+360
 mean-opinion-sigmoid-steepness
 mean-opinion-sigmoid-steepness
 0
 1
-0.45
-0.05
+0.4
+0.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-1346
-495
-1448
-528
+208
+326
+339
+359
 maxSteepness
 maxSteepness
 0
-100
+300
 50.0
 5
 1
@@ -2663,55 +1654,55 @@ NIL
 HORIZONTAL
 
 SLIDER
-699
-586
-880
-619
+10
+360
+199
+393
 std-opinion-sigmoid-steepness
 std-opinion-sigmoid-steepness
 0
 1
-0.42
+0.1
 0.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-898
-553
-1085
-586
+10
+393
+197
+426
 mean-opinion-sigmoid-xOffset
 mean-opinion-sigmoid-xOffset
 0
 1
-0.5
+0.4
 0.05
 1
 NIL
 HORIZONTAL
 
 SLIDER
-880
-586
-1058
-619
+10
+426
+188
+459
 std-opinion-sigmoid-xOffset
 std-opinion-sigmoid-xOffset
 0
 1
-0.36
+0.0
 0.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-1086
-553
-1288
-586
+10
+459
+212
+492
 mean-identity-sigmoid-steepness
 mean-identity-sigmoid-steepness
 0
@@ -2723,80 +1714,99 @@ NIL
 HORIZONTAL
 
 SLIDER
-1059
-586
-1278
-619
+10
+492
+200
+525
 std-identity-sigmoid-steepness
 std-identity-sigmoid-steepness
 0
 1
-0.21
+0.0
 0.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-1288
-553
-1484
-586
+212
+459
+408
+492
 mean-identity-sigmoid-xOffset
 mean-identity-sigmoid-xOffset
 0
 1
-0.5
+0.6
 0.05
 1
 NIL
 HORIZONTAL
 
 SLIDER
-1277
-585
-1482
-618
+200
+493
+381
+526
 std-identity-sigmoid-xOffset
 std-identity-sigmoid-xOffset
 0
 1
-0.2
+0.0
 0.01
 1
 NIL
 HORIZONTAL
 
 SWITCH
-947
-631
-1121
-664
-use_opinion_sigmoid?
-use_opinion_sigmoid?
-0
-1
--1000
-
-SWITCH
-660
-635
-912
-668
+10
+294
+262
+327
 opinion_sigmoid_used_for_identity?
 opinion_sigmoid_used_for_identity?
 1
 1
 -1000
 
-SWITCH
-1160
-631
-1337
-664
-use_identity_sigmoid?
-use_identity_sigmoid?
+SLIDER
+209
+118
+336
+151
+min_id_level
+min_id_level
 0
+0.5
+0.15
+0.001
+1
+NIL
+HORIZONTAL
+
+SLIDER
+208
+150
+336
+183
+max_id_level
+max_id_level
+0.55
+1
+0.85
+0.001
+1
+NIL
+HORIZONTAL
+
+SWITCH
+194
+86
+295
+119
+Repulsion?
+Repulsion?
+1
 1
 -1000
 
