@@ -367,15 +367,7 @@ end
 
 ;; sub-routine for updating opinion position of turtle according the Hegselmann-Krause (2002) model
 to change-opinion-HK
-  ;; Since rolling opinion dice is computationally less demanding, we start with opinion dice:
-  ;; NOW we roll probabilistic dice based on opinion distance from influencer - if an agent is too far they are less likely to be heard this time.
-  ;; first find out which agent is going to be heard this time.
-  ask other agents [
-    roll-opinion-dice ([opinion-position] of myself)
-  ]
-  ;; now only follow them, the successful rollers...
-  let neighbs other agents with [opinion-dice?]
-
+  ;; Since rolling identity dice is computationally less demanding, we start with id dice:
   ;; Identity check -- preparation of myself:
   let my-group-id table:get Group-memberships Group-threshold
   let distance-matrix table:get Distance-matrices Group-threshold
@@ -383,7 +375,7 @@ to change-opinion-HK
   let my-i (my-group-id - last group-info)  ;; 'my-i' is distance matrix column we want to use, so we subtract group ID of myself from minimal group ID in respective level
 
   ;; Sigmoid code:
-  ask neighbs [
+  ask other agents [
     ;; Firstly, each neighbor has to find 'her-j', i.e. distance matrix row for identity check:
     let her-group-id table:get Group-memberships [Group-threshold] of myself
     let her-j  (her-group-id - last group-info)   ;; 'her-j' is distance matrix row we want to use, so we subtract group ID of self from minimal group ID in respective level
@@ -392,7 +384,15 @@ to change-opinion-HK
     let our-distance matrix:get distance-matrix my-i her-j  ;; After all the computations we finally get distance of centroids from distance matrix...
     roll-identity-dice (our-distance)
   ]
-  let influentials neighbs with [identity-dice?]
+  let neighbs other agents with [identity-dice?]
+
+  ;; NOW we roll probabilistic dice based on opinion distance from influencer - if an agent is too far they are less likely to be heard this time.
+  ;; first find out which agent is going to be heard this time.
+  ask neighbs [
+    roll-opinion-dice ([opinion-position] of myself)
+  ]
+  ;; now only follow them, the successful rollers...
+  let influentials neighbs with [opinion-dice?]
 
   ;; 3) we also add the updating agent into 'influentials'
   set influentials (turtle-set self influentials)
@@ -1404,7 +1404,7 @@ id_threshold
 id_threshold
 0.01
 1
-0.15
+0.5
 0.01
 1
 NIL
@@ -1702,7 +1702,7 @@ SWITCH
 117
 normalize_sigmoid_distances?
 normalize_sigmoid_distances?
-0
+1
 1
 -1000
 
