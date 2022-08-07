@@ -10,7 +10,7 @@
 ;;
 
 ;; Created:  2021-10-21 FranCesko
-;; Edited:   2022-08-03 FranCesko
+;; Edited:   2022-08-07 FranCesko
 ;; Encoding: windows-1250
 ;; NetLogo:  6.2.2
 ;;
@@ -79,6 +79,11 @@
 ;;
 ;; 7) compute centroids distances, store them in table of matrices for each id sensitivity level, store minimal WHO of centroid/group ID and number of groups for each level and
 ;;    use all of these to compute id sigmoid, instead of letting agents forming id groups as agentset selection in each identity check.
+;; DONE!
+;;
+;; 8) debug code for the 'use_identity?' FALSE, now code works only with 'use_identity?' TRUE
+;;
+;;
 ;;
 
 extensions [nw matrix table]
@@ -272,13 +277,12 @@ to set-group-identities
       let min-id last table:get IDs-and-ns-of-id-groups idtl  ;; We have to know ID of the first centroid of respective level...
       let max-id (min-id - 1 + first table:get IDs-and-ns-of-id-groups idtl)  ;; ... so do we have to know the last centroid's ID.
       let m []  ;; future distance matrix -- initialized as empty row list
-      let normalization ifelse-value (normalize_sigmoid_distances?) [1 / sqrt(4 * opinions)][1]
       let i min-id
       while [i <= max-id] [
         let j min-id
         let row []  ;; future row of distance matrix -- initialized as empty list
         while [j <= max-id] [
-          set row lput ifelse-value (j = i) [0][precision (normalization * opinion-distance3 ([opinion-position] of centroid i) ([opinion-position] of centroid j)) 3] row
+          set row lput ifelse-value (j = i) [0][precision (opinion-distance3 ([opinion-position] of centroid i) ([opinion-position] of centroid j)) 3] row
           set j j + 1
         ]
         set m lput row m
@@ -367,6 +371,7 @@ end
 
 ;; sub-routine for updating opinion position of turtle according the Hegselmann-Krause (2002) model
 to change-opinion-HK
+  ;; In the first block of code we have to determine INFLUENTIALS -- the agents to whom the  updating agents listens to
   ;; Since rolling identity dice is computationally less demanding, we start with id dice:
   ;; Identity check -- preparation of myself:
   let my-group-id table:get Group-memberships Group-threshold
@@ -385,6 +390,7 @@ to change-opinion-HK
     roll-identity-dice (our-distance)
   ]
   let neighbs other agents with [identity-dice?]
+  if show_dice_rolls? [print count neighbs]
 
   ;; NOW we roll probabilistic dice based on opinion distance from influencer - if an agent is too far they are less likely to be heard this time.
   ;; first find out which agent is going to be heard this time.
@@ -393,6 +399,7 @@ to change-opinion-HK
   ]
   ;; now only follow them, the successful rollers...
   let influentials neighbs with [opinion-dice?]
+  if show_dice_rolls? [print count influentials]
 
   ;; 3) we also add the updating agent into 'influentials'
   set influentials (turtle-set self influentials)
@@ -431,31 +438,29 @@ end
 
 
 to roll-opinion-dice [opinion-of-myself]
-  let normalization ifelse-value (normalize_sigmoid_distances?) [1 / sqrt(4 * opinions)][1]
-  let op-dist precision (normalization * opinion-distance3 (opinion-position) (opinion-of-myself)) 3
+  let op-dist precision (opinion-distance3 (opinion-position) (opinion-of-myself)) 3
   let probability-of-interaction compute-sigmoid (op-dist) ([opinion-sigmoid-xOffset] of myself) ([opinion-sigmoid-steepness] of myself)
-  set opinion-dice? (random 1) < probability-of-interaction
-  ;if probability-of-interaction < 1 [print (word "Opinion: " op-dist ", " [Uncertainty] of myself ", " probability-of-interaction)]
+  let dice (random-float 1)
+  set opinion-dice? dice < probability-of-interaction
+  if show_dice_rolls? and probability-of-interaction > 0 and probability-of-interaction < 1 [
+    print (word "Opinion distance: " op-dist ", Boundary: " [Uncertainty] of myself ", Sigmoidial probability: " probability-of-interaction ", Rolled dice: " dice "; Result: " opinion-dice?)]
 end
 
 
 ;;subroutine for computing inverted (y decreases as x increases) sigmoid of input
 to-report compute-sigmoid [x xOffset steepness]
-  ;; Slider 'maxSteepness' determines maximum possible steepness of the sigmoids
-  ifelse not Repulsion? [  ;; Note: Now we control repulsion by the global switch 'Repulsion?'
-    ;; sigmoid that outputs from 1 to 0 as x increases from 0 to 1
-    report precision (1 / (1 + exp (steepness * maxSteepness * (x - xOffset)))) 3
-  ][
-    ;;sigmoid that outputs from 1 to -1 as x increases from 0 to 1
-    report precision (2 / (1 + exp (steepness * maxSteepness * (x - xOffset))) - 1) 3
-  ]
+  ;; Slider 'maxSteepness' determines maximum possible steepness of the sigmoids.
+  ;; Sigmoid outputs from 1 to 0 as x increases from 0 to 1
+  report precision (1 / (1 + exp (steepness * maxSteepness * (x - xOffset)))) 3
 end
 
 
 to roll-identity-dice [our-distance]
   let probability-of-interaction compute-sigmoid (our-distance) ([identity-sigmoid-xOffset] of myself) ([identity-sigmoid-steepness] of myself)
-  set identity-dice? (random 1) < probability-of-interaction
-  ;if probability-of-interaction < 1 [print (word "Identity: " our-distance ", " probability-of-interaction ", " [Group-threshold] of myself)]
+  let dice (random-float 1)
+  set identity-dice? dice < probability-of-interaction
+  if show_dice_rolls? and probability-of-interaction > 0 and probability-of-interaction < 1 [
+    print (word "Group distance: " our-distance ", Identity distance threshold: " [identity-sigmoid-xOffset] of myself ", Sigmoidial probability: " probability-of-interaction " Rolled dice: " dice "; Result: " identity-dice?)]
 end
 
 
@@ -476,7 +481,7 @@ to-report opinion-distance
   ;; while loop going through each dimension, computiong distance in each dimension, squarring it and adding in the container
   while [step < opinions] [
     ;; computiong distance in each dimension, squarring it and adding in the container
-    set dist dist + (item step my - item step her) ^ 2
+    set dist dist + ((item step my - item step her) ^ 2)
 
     ;; advancing 'step' counter by 1
     set step step + 1
@@ -485,8 +490,11 @@ to-report opinion-distance
   ;; computing square-root of the container 'dist' -- computing Euclidean distance -- and setting it as 'dist'
   set dist sqrt dist
 
+  ;; Computing normalization constant according switch 'normalize_sigmoid_distances?':
+  let normalization ifelse-value (normalize_distances?) [1 / sqrt(4 * opinions)][1]
+
   ;; reporting Euclidean distance
-  report dist
+  report dist * normalization
 end
 
 
@@ -538,8 +546,11 @@ to-report opinion-distance3 [my her]
   ;; computing square-root of the container 'dist' -- computing Euclidean distance -- and setting it as 'dist'
   set dist sqrt dist
 
+  ;; Computing normalization constant according switch 'normalize_sigmoid_distances?':
+  let normalization ifelse-value (normalize_distances?) [1 / sqrt(4 * opinions)][1]
+
   ;; reporting weight of distance
-  report precision dist 10
+  report precision (dist * normalization) 10
 end
 
 
@@ -604,13 +615,18 @@ to-report Ash-polarisation
   ask a1 [set distance_to_centroid [opinion-distance] of centroid cent1]
 
   ;; Preparing final distances and diversity
-  let cent-dist opinion-distance3 ([opinion-position] of centroid cent0) ([opinion-position] of centroid cent1)
-  let div0 (mean [distance_to_centroid] of a0)
-  let div1 (mean [distance_to_centroid] of a1)
+  let normalization ifelse-value (normalize_distances?) [1][1 / sqrt(4 * opinions)]
+  ;; NOTE: If the switch 'normalize_distances?' is true, then functions 'opinion-distance' and 'opinion-distance3' compute normalized distances,
+  ;; then we must avoid normalization her, but if the switch is false, then the function computes plain distance and we must normalize here --
+  ;; so we use same concept and almost same code as in the functions 'opinion-distance' and 'opinion-distance3' here, but reversed:
+  ;; the true switch means no normalization here, the false switch means normalization here, so in the end we normalize values in ESBG polarization exactly once.
+  let cent-dist normalization * opinion-distance3 ([opinion-position] of centroid cent0) ([opinion-position] of centroid cent1)
+  let div0 normalization * (mean [distance_to_centroid] of a0)
+  let div1 normalization * (mean [distance_to_centroid] of a1)
 
   ;; Cleaning and reporting
   ask centroids with [who >= cent0] [die]
-  report (cent-dist / (1 + div0 + div1)) / sqrt(opinions * 4)
+  report (cent-dist / (1 + div0 + div1))
 end
 
 
@@ -777,7 +793,10 @@ to get-sigmoids
   ]
 
   ;; Identity ones
-  set identity-sigmoid-xOffset Group-threshold
+  set identity-sigmoid-xOffset precision (random-normal mean-identity-sigmoid-xOffset std-identity-sigmoid-xOffset) 3
+  while [identity-sigmoid-xOffset > 1 or identity-sigmoid-xOffset < 0] [
+    set identity-sigmoid-xOffset precision (random-normal mean-identity-sigmoid-xOffset std-identity-sigmoid-xOffset) 3
+  ]
   set identity-sigmoid-steepness precision (random-normal mean-identity-sigmoid-steepness std-identity-sigmoid-steepness) 3
   while [identity-sigmoid-steepness > 1 or identity-sigmoid-steepness < 0] [
     set identity-sigmoid-steepness precision (random-normal mean-identity-sigmoid-steepness std-identity-sigmoid-steepness) 3
@@ -950,7 +969,7 @@ boundary
 boundary
 0.01
 1
-0.15
+0.19
 0.01
 1
 NIL
@@ -1285,7 +1304,7 @@ conformity-level
 conformity-level
 0
 1
-0.3
+0.6
 0.01
 1
 NIL
@@ -1543,7 +1562,7 @@ id_threshold-std
 id_threshold-std
 0
 1
-0.05
+0.2
 0.01
 1
 NIL
@@ -1558,7 +1577,7 @@ conformity-std
 conformity-std
 0
 1
-0.1
+0.05
 0.05
 1
 NIL
@@ -1573,7 +1592,7 @@ boundary-std
 boundary-std
 0
 1
-0.05
+0.03
 0.01
 1
 NIL
@@ -1588,7 +1607,7 @@ mean-opinion-sigmoid-steepness
 mean-opinion-sigmoid-steepness
 0
 1
-0.2
+1.0
 0.01
 1
 NIL
@@ -1603,7 +1622,7 @@ maxSteepness
 maxSteepness
 0
 300
-200.0
+50.0
 5
 1
 NIL
@@ -1618,7 +1637,7 @@ std-opinion-sigmoid-steepness
 std-opinion-sigmoid-steepness
 0
 1
-0.05
+0.0
 0.01
 1
 NIL
@@ -1648,7 +1667,7 @@ std-identity-sigmoid-steepness
 std-identity-sigmoid-steepness
 0
 1
-0.05
+0.0
 0.01
 1
 NIL
@@ -1685,26 +1704,56 @@ NIL
 HORIZONTAL
 
 SWITCH
-209
-86
-310
-119
-Repulsion?
-Repulsion?
-1
+9
+84
+158
+117
+normalize_distances?
+normalize_distances?
+0
 1
 -1000
 
 SWITCH
-9
-84
-202
-117
-normalize_sigmoid_distances?
-normalize_sigmoid_distances?
+209
+86
+336
+119
+show_dice_rolls?
+show_dice_rolls?
 1
 1
 -1000
+
+SLIDER
+12
+427
+204
+460
+mean-identity-sigmoid-xOffset
+mean-identity-sigmoid-xOffset
+0
+1
+0.2
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+12
+461
+193
+494
+std-identity-sigmoid-xOffset
+std-identity-sigmoid-xOffset
+0
+1
+0.0
+0.01
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
