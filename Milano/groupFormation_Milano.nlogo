@@ -10,7 +10,7 @@
 ;;
 
 ;; Created:  2021-10-21 FranCesko
-;; Edited:   2022-08-07 FranCesko
+;; Edited:   2022-08-08 FranCesko
 ;; Encoding: windows-1250
 ;; NetLogo:  6.2.2
 ;;
@@ -106,7 +106,9 @@ to setup
   ask patches [set pcolor patch-color]
 
   ;; To avoid some random artificialities we have to set random seed again.
-  if set-seed? [random-seed RS]
+  let seed ifelse-value (set-seed?) [RS][new-seed]
+  random-seed seed
+  if not set-seed? [set RS seed]
 
   ;; Then we migh initialize agents/turtles
   crt N-agents [
@@ -123,16 +125,21 @@ to setup
 
   ;; We also have to set up some globals and create links for measuring opinion distances:
   set agents turtle-set turtles  ;; Note: If we just write 'set agents turtles', then variable 'agents' is a synonym for 'turtles', so it will contain in the future created centroids!
-  ask agents [create-l-distances-with other agents]  ;; Creating full network for computing groups and polarisation
-  ask l-distances [set hidden? true]  ;; Hiding links for saving comp. resources
 
-  ;; If we use 'individual' perceptions of identity groups, we have to set up levels of identity sensitivity:
-  if use_identity? and identity_type = "individual" [
+  ;; In case we don't use identity, we don't need to create links
+  if use_identity? [
+    ask agents [create-l-distances-with other agents]  ;; Creating full network for computing groups and polarisation
+    update-l-distances-weights  ;; Setting distances links' weights
+    ask l-distances [set hidden? true]  ;; Hiding links for saving comp. resources
+  ]
+
+  ;; Setting identity levels according identity scenario:
+  ifelse use_identity? and identity_type = "individual" [
+    ;; If we use 'individual' perceptions of identity groups, we have to set up levels of identity sensitivity:
     if identity_levels = 1 [set max_id_level id_threshold]
     compute-identity-thresholds
-  ]
-  ;; If we use 'global' perception, then there is only one level and each agent has same value of 'group-threshold':
-  if use_identity? and identity_type = "global" [
+  ][
+    ;; If we use 'global' perception, then there is only one level and each agent has same value of 'group-threshold':
     ;; Firstly, we set 'id_threshold_set' as list of one constant value: 'id_threshold':
     set id_threshold_set (list id_threshold)
 
@@ -142,17 +149,17 @@ to setup
     ]
   ]
 
+  ;; Setting agents' identity groups
+  ;; Everything is prepared for equal processing in all three cases of 'non-identity', 'global' and 'individual' perception of identity groups,
+  ;; that's why we use only one procedure here for all three scenarios. But we handle them equally:
+  ;; we process it for all identity levels -- in case of non-identity and global, there is just one.
+  if use_identity? [set-group-identities]
+
   ;; Coloring patches according the number of agents/turtles on them.
   ask patches [set pcolor patch-color]
+
   ;; Setting the indicator of change for the whole simulation, again as non-stable.
   set Main-record n-values record-length [0]
-  ;; Setting distances links' weights
-  update-l-distances-weights
-  ;; Setting agents' identity groups
-    ;; Everything is prepared for equal processing in both cases of 'global' and 'individual' perception of identity groups,
-    ;; that's why we use only one procedure here for both scenarios. But we handle them equally:
-    ;; we process it for all identity levels -- in case of global, there is just one.
-    set-group-identities
 
   ;; Compute polarisation
   compute-polarisation-repeatedly
@@ -208,13 +215,12 @@ to set-group-identities
   ;; Firstly, we have to erase lists 'Group-memberships' of agents,
   ;; since every step we have to fill it by new IDs of identity centroids:
   ask agents [set Group-memberships table:make]
-  set IDs-and-ns-of-id-groups table:make ;; We erase/create these global tables, as well.
+  ;; We erase/create these global tables, as well.
+  set IDs-and-ns-of-id-groups table:make  ;; NOTE: the key is the level of group sensitivity, stored is the list: the first value in the list is number of groups, second/last is the lowest ID of group centroid.
   set distance-matrices table:make
 
   ;; Secondly, we go one effective ID threshold level after another, perform Louvain and k-means clusters for every level and store memberships.
   foreach id_threshold_set [ idtl ->
-    ;; For being sure, that we don't miss Ashwin's old variable in the following code:
-    let idthresh idtl
     ;; Cleaning environment
     ask centroids [die]
 
@@ -270,7 +276,7 @@ to set-group-identities
 
     ;;;; Storing numbers and IDs of groups and centroid distances in tables
     ;; Firstly, number and lowest ID, it's the easiest
-    table:put IDs-and-ns-of-id-groups idtl (list N_centroids min [who] of centroids)
+    table:put IDs-and-ns-of-id-groups idtl (list N_centroids min [who] of centroids)  ;; NOTE: the first value in the list is number of groups, second/last is the lowest ID of group centroid.
 
     ;; Secondly, we fill in respective item in 'distance-matrices'
       ;; We create distance matrix ...
@@ -343,15 +349,10 @@ to prepare-everything-for-the-step
   ;; Just checking and avoiding runtime errors part of code
   avoiding-run-time-errors
 
-  ;; Update group identities via Louvain
-  ifelse use_identity? [
+  ;; Update group identities via Louvain -- only if we use group identity.
+  if use_identity? [
     update-l-distances-weights
     set-group-identities
-  ][
-    ask agents [
-      set Group-memberships table:make
-      table:put Group-memberships id_threshold (N-agents + 1)
-    ]
   ]
 
   ;; Coloring and updating
@@ -371,33 +372,44 @@ end
 
 ;; sub-routine for updating opinion position of turtle according the Hegselmann-Krause (2002) model
 to change-opinion-HK
+  ;; We define all other agents as NEIGHBS, i.e. potential INFLUENTIALS
+  let neighbs other agents
+
   ;; In the first block of code we have to determine INFLUENTIALS -- the agents to whom the  updating agents listens to
   ;; Since rolling identity dice is computationally less demanding, we start with id dice:
-  ;; Identity check -- preparation of myself:
-  let my-group-id table:get Group-memberships Group-threshold
-  let distance-matrix table:get Distance-matrices Group-threshold
-  let group-info table:get IDs-and-ns-of-id-groups Group-threshold
-  let my-i (my-group-id - last group-info)  ;; 'my-i' is distance matrix column we want to use, so we subtract group ID of myself from minimal group ID in respective level
+  ;; If we use identity, we check distance of group centroids of NEIGHBS and filter them out.
+  ;; In case we dont't use identity, them NEIGHBS are still all other agents.
+  if use_identity? [
+    ;; Identity check -- preparation of myself from global variables:
+    let my-group-id table:get Group-memberships Group-threshold
+    let distance-matrix table:get Distance-matrices Group-threshold
+    let group-info table:get IDs-and-ns-of-id-groups Group-threshold  ;; NOTE: the first value in the list is number of groups, second/last is the lowest ID of group centroid.
+    let my-i (my-group-id - last group-info)  ;; 'my-i' is distance matrix column we want to use, so we subtract group ID of myself from minimal group ID in respective level
 
-  ;; Sigmoid code:
-  ask other agents [
-    ;; Firstly, each neighbor has to find 'her-j', i.e. distance matrix row for identity check:
-    let her-group-id table:get Group-memberships [Group-threshold] of myself
-    let her-j  (her-group-id - last group-info)   ;; 'her-j' is distance matrix row we want to use, so we subtract group ID of self from minimal group ID in respective level
+    ;; Sigmoid code:
+    ask other agents [
+      ;; Firstly, each neighbor has to find 'her-j', i.e. distance matrix row for identity check:
+      let her-group-id table:get Group-memberships [Group-threshold] of myself
+      let her-j  (her-group-id - last group-info)   ;; 'her-j' is distance matrix row we want to use, so we subtract group ID of self from minimal group ID in respective level
 
-    ;; Secondly, we roll the identity dice...
-    let our-distance matrix:get distance-matrix my-i her-j  ;; After all the computations we finally get distance of centroids from distance matrix...
-    roll-identity-dice (our-distance)
+      ;; Secondly, we roll the identity dice...
+      let our-distance matrix:get distance-matrix my-i her-j  ;; After all the computations we finally get distance of centroids from distance matrix...
+      roll-identity-dice (our-distance)
+    ]
+
+    ;; Now we set successful AGENTS as NEIGHBS:
+    set neighbs other agents with [identity-dice?]
+    if show_dice_rolls? [print count neighbs]
   ]
-  let neighbs other agents with [identity-dice?]
-  if show_dice_rolls? [print count neighbs]
 
   ;; NOW we roll probabilistic dice based on opinion distance from influencer - if an agent is too far they are less likely to be heard this time.
   ;; first find out which agent is going to be heard this time.
   ask neighbs [
-    roll-opinion-dice ([opinion-position] of myself)
+    let op-dist opinion-distance3 (opinion-position) ([opinion-position] of myself) ;; Note: We compute opinion distance ('op-dist') of NEIGHBS member and updating agent and ...
+    roll-opinion-dice (precision op-dist 3)  ;; ... pass it rounded to 3 digits as the argument of ROLL-OPINION-DICE function.
   ]
-  ;; now only follow them, the successful rollers...
+
+  ;; now only follow them, the successful rollers and set them as INFLUENTIALS...
   let influentials neighbs with [opinion-dice?]
   if show_dice_rolls? [print count influentials]
 
@@ -437,13 +449,14 @@ to change-opinion-HK
 end
 
 
-to roll-opinion-dice [opinion-of-myself]
-  let op-dist precision (opinion-distance3 (opinion-position) (opinion-of-myself)) 3
-  let probability-of-interaction compute-sigmoid (op-dist) ([opinion-sigmoid-xOffset] of myself) ([opinion-sigmoid-steepness] of myself)
-  let dice (random-float 1)
-  set opinion-dice? dice < probability-of-interaction
-  if show_dice_rolls? and probability-of-interaction > 0 and probability-of-interaction < 1 [
-    print (word "Opinion distance: " op-dist ", Boundary: " [Uncertainty] of myself ", Sigmoidial probability: " probability-of-interaction ", Rolled dice: " dice "; Result: " opinion-dice?)]
+to roll-opinion-dice [op-dist]
+  ifelse opinion_sigmoid? [
+    let probability-of-interaction compute-sigmoid (op-dist) ([opinion-sigmoid-xOffset] of myself) ([opinion-sigmoid-steepness] of myself)
+    let dice (random-float 1)
+    set opinion-dice? dice < probability-of-interaction
+    if show_dice_rolls? and probability-of-interaction > 0 and probability-of-interaction < 1 [
+      print (word "Opinion distance: " op-dist ", Boundary: " [Uncertainty] of myself ", Sigmoidial probability: " probability-of-interaction ", Rolled dice: " dice "; Result: " opinion-dice?)]
+  ][set opinion-dice? op-dist <= [opinion-sigmoid-xOffset] of myself]  ;; If we don't use identity sigmoid, then we set 'identity-dice?' according sharp difference
 end
 
 
@@ -456,11 +469,13 @@ end
 
 
 to roll-identity-dice [our-distance]
-  let probability-of-interaction compute-sigmoid (our-distance) ([identity-sigmoid-xOffset] of myself) ([identity-sigmoid-steepness] of myself)
-  let dice (random-float 1)
-  set identity-dice? dice < probability-of-interaction
-  if show_dice_rolls? and probability-of-interaction > 0 and probability-of-interaction < 1 [
-    print (word "Group distance: " our-distance ", Identity distance threshold: " [identity-sigmoid-xOffset] of myself ", Sigmoidial probability: " probability-of-interaction " Rolled dice: " dice "; Result: " identity-dice?)]
+  ifelse identity_sigmoid? [
+    let probability-of-interaction compute-sigmoid (our-distance) ([identity-sigmoid-xOffset] of myself) ([identity-sigmoid-steepness] of myself)
+    let dice (random-float 1)
+    set identity-dice? dice < probability-of-interaction
+    if show_dice_rolls? and probability-of-interaction > 0 and probability-of-interaction < 1 [
+      print (word "Group distance: " our-distance ", Identity distance threshold: " [identity-sigmoid-xOffset] of myself ", Sigmoidial probability: " probability-of-interaction " Rolled dice: " dice "; Result: " identity-dice?)]
+  ][set identity-dice? our-distance <= [identity-sigmoid-xOffset] of myself]  ;; If we don't use opinion sigmoid, then we set 'opinion-dice?' according sharp difference
 end
 
 
@@ -744,7 +759,7 @@ to-report get-conformity
                                                            [precision (random-float (2 * conformity-level)) 3]
                                                            [precision (1 - (random-float (2 * (1 - conformity-level)))) 3]]
   if conformity-drawn = "normal" [ set cValue precision (random-normal conformity-level conformity-std) 3
-                                   while [cValue >= 1 or cValue <= 0] [ set cValue precision (random-normal conformity-level conformity-std) 3]
+                                   while [cValue > 1 or cValue <= 0] [ set cValue precision (random-normal conformity-level conformity-std) 3]
   ]
   report cValue
 end
@@ -761,7 +776,7 @@ to-report get-group-threshold
                                                            [precision (random-float (2 * id_threshold)) 3]
                                                            [precision (1 - (random-float (2 * (1 - id_threshold)))) 3]]
   if threshold_drawn = "normal" [ set gtValue precision (random-normal id_threshold id_threshold-std) 3
-                                  while [gtValue >= 1 or gtValue <= 0] [ set gtValue precision (random-normal id_threshold id_threshold-std) 3]
+                                  while [gtValue > 1 or gtValue <= 0] [ set gtValue precision (random-normal id_threshold id_threshold-std) 3]
   ]
   report gtValue
 end
@@ -776,7 +791,7 @@ to-report get-uncertainty
   if boundary-drawn = "constant" [set uValue boundary + random-float 0]  ;; NOTE! 'random-float 0' is here for consuming one pseudorandom number to cunsume same number of pseudorandom numbers as "uniform"
   if boundary-drawn = "uniform" [set uValue precision (random-float (2 * boundary)) 3]
   if boundary-drawn = "normal" [set uValue precision (random-normal boundary boundary-std) 3
-                                while [uValue >= 1 or uValue <= 0] [ set uValue precision (random-normal  boundary boundary-std) 3]
+                                while [uValue > 1 or uValue <= 0] [ set uValue precision (random-normal  boundary boundary-std) 3]
   ]
   ;; reporting value back for assigning
   report uValue
@@ -944,16 +959,16 @@ opinions
 opinions
 1
 50
-2.0
+1.0
 1
 1
 NIL
 HORIZONTAL
 
 CHOOSER
-197
+198
 10
-289
+290
 55
 model
 model
@@ -967,9 +982,9 @@ SLIDER
 218
 boundary
 boundary
-0.01
+0.0
 1
-0.19
+0.16
 0.01
 1
 NIL
@@ -981,7 +996,7 @@ INPUTBOX
 905
 70
 RS
-50.0
+-1.464728101E9
 1
 0
 Number
@@ -1073,14 +1088,14 @@ CHOOSER
 boundary-drawn
 boundary-drawn
 "constant" "uniform" "normal"
-2
+0
 
 PLOT
-1091
-256
-1251
-376
- 'Uncertainty' Distribution
+1122
+226
+1282
+346
+ 'Boundary' Distribution
 NIL
 NIL
 0.0
@@ -1168,7 +1183,7 @@ Y-opinion
 Y-opinion
 1
 50
-2.0
+1.0
 1
 1
 NIL
@@ -1211,7 +1226,7 @@ updating
 updating
 1
 50
-2.0
+1.0
 1
 1
 NIL
@@ -1237,28 +1252,11 @@ PENS
 "Main record" 1.0 0 -2674135 true "" "plot mean main-Record"
 "ESBG" 1.0 0 -11221820 true "" "plot ESBG_polarisation"
 
-BUTTON
-1299
-142
-1371
-175
-avg. Record
-show mean [mean Record] of agents
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
 MONITOR
-1300
-98
-1372
-143
+1036
+435
+1108
+480
 avg. Record
 mean [mean Record] of agents
 3
@@ -1304,7 +1302,7 @@ conformity-level
 conformity-level
 0
 1
-0.6
+0.5
 0.01
 1
 NIL
@@ -1343,16 +1341,16 @@ INPUTBOX
 502
 521
 N_centroids
-1.0
+2.0
 1
 0
 Number
 
 SLIDER
-1145
-193
-1295
-226
+1147
+74
+1297
+107
 Centroids_change
 Centroids_change
 0.00000001
@@ -1364,10 +1362,10 @@ NIL
 HORIZONTAL
 
 PLOT
-1251
-256
-1411
-376
+1122
+106
+1282
+226
 'Conformity' Distribution
 NIL
 NIL
@@ -1393,10 +1391,10 @@ ESBG_polarisation
 11
 
 SWITCH
-1145
-225
-1295
-258
+921
+480
+1042
+513
 centroid_color?
 centroid_color?
 0
@@ -1404,10 +1402,10 @@ centroid_color?
 -1000
 
 SWITCH
-1295
-224
-1424
-257
+793
+467
+922
+500
 killing_centroids?
 killing_centroids?
 0
@@ -1423,17 +1421,17 @@ id_threshold
 id_threshold
 0.01
 1
-0.5
+0.25
 0.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-1125
-127
-1295
-160
+1259
+10
+1429
+43
 polarisation-each-n-steps
 polarisation-each-n-steps
 0
@@ -1445,10 +1443,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-1295
-191
-1400
-224
+1258
+41
+1363
+74
 polar_repeats
 polar_repeats
 1
@@ -1460,21 +1458,21 @@ NIL
 HORIZONTAL
 
 SWITCH
-194
-53
-309
-86
+198
+54
+313
+87
 use_identity?
 use_identity?
-0
+1
 1
 -1000
 
 SLIDER
+1041
+481
 1145
-160
-1296
-193
+514
 d_threshold
 d_threshold
 0
@@ -1511,11 +1509,11 @@ threshold_drawn
 2
 
 PLOT
-1251
-375
-1411
-497
-'Group threshold' Distribution
+1282
+106
+1442
+226
+'id_threshold' Distribution
 NIL
 NIL
 0.0
@@ -1547,7 +1545,7 @@ identity_levels
 identity_levels
 1
 10
-7.0
+4.0
 1
 1
 NIL
@@ -1562,7 +1560,7 @@ id_threshold-std
 id_threshold-std
 0
 1
-0.2
+0.25
 0.01
 1
 NIL
@@ -1577,7 +1575,7 @@ conformity-std
 conformity-std
 0
 1
-0.05
+0.15
 0.05
 1
 NIL
@@ -1592,7 +1590,7 @@ boundary-std
 boundary-std
 0
 1
-0.03
+0.05
 0.01
 1
 NIL
@@ -1607,23 +1605,23 @@ mean-opinion-sigmoid-steepness
 mean-opinion-sigmoid-steepness
 0
 1
-1.0
+0.45
 0.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-228
-294
-338
-327
+192
+460
+343
+493
 maxSteepness
 maxSteepness
 0
-300
-50.0
-5
+700
+700.0
+10
 1
 NIL
 HORIZONTAL
@@ -1637,7 +1635,7 @@ std-opinion-sigmoid-steepness
 std-opinion-sigmoid-steepness
 0
 1
-0.0
+0.15
 0.01
 1
 NIL
@@ -1652,7 +1650,7 @@ mean-identity-sigmoid-steepness
 mean-identity-sigmoid-steepness
 0
 1
-1.0
+0.85
 0.05
 1
 NIL
@@ -1667,7 +1665,7 @@ std-identity-sigmoid-steepness
 std-identity-sigmoid-steepness
 0
 1
-0.0
+0.35
 0.01
 1
 NIL
@@ -1734,7 +1732,7 @@ mean-identity-sigmoid-xOffset
 mean-identity-sigmoid-xOffset
 0
 1
-0.2
+0.35
 0.01
 1
 NIL
@@ -1742,18 +1740,94 @@ HORIZONTAL
 
 SLIDER
 12
-461
+460
 193
-494
+493
 std-identity-sigmoid-xOffset
 std-identity-sigmoid-xOffset
 0
 1
-0.0
+0.1
 0.01
 1
 NIL
 HORIZONTAL
+
+PLOT
+1121
+345
+1282
+465
+'opinion-steepness' Distribution
+NIL
+NIL
+0.0
+1.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 0.05 1 -16777216 true "" "histogram [opinion-sigmoid-steepness] of agents "
+
+PLOT
+1282
+345
+1442
+465
+'identity-steepness' Distribution
+NIL
+NIL
+0.0
+1.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 0.05 1 -16777216 true "" "histogram [identity-sigmoid-steepness] of agents "
+
+PLOT
+1282
+225
+1442
+345
+'identity-xOffset' Distribution
+NIL
+NIL
+0.0
+1.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 0.05 1 -16777216 true "" "histogram [identity-sigmoid-xOffset] of agents "
+
+SWITCH
+208
+295
+338
+328
+opinion_sigmoid?
+opinion_sigmoid?
+1
+1
+-1000
+
+SWITCH
+213
+361
+342
+394
+identity_sigmoid?
+identity_sigmoid?
+0
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
