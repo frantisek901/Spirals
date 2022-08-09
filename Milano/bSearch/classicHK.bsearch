@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<!DOCTYPE search SYSTEM "behaviorsearch.dtd">
+<search>
+<bsearchVersionNumber>1,10</bsearchVersionNumber>
+<modelInfo>
+<modelFile>D:\ownCloud2\!!!Projekty\!Spirals\Milano\groupFormation_Milano.nlogo</modelFile>
+<modelSetupCommands>setup</modelSetupCommands>
+<modelStepCommands>go</modelStepCommands>
+<modelStopCondition/>
+<modelStepLimit>365</modelStepLimit>
+<modelMetricReporter>ESBG_polarisation</modelMetricReporter>
+<modelMeasureIf>true</modelMeasureIf>
+</modelInfo>
+<fitnessInfo>
+<fitnessMinimized>false</fitnessMinimized>
+<fitnessCollecting>AT_FINAL_STEP</fitnessCollecting>
+<fitnessSamplingReplications>5</fitnessSamplingReplications>
+<fitnessCombineReplications>MEAN</fitnessCombineReplications>
+</fitnessInfo>
+<searchSpace>
+<paramSpec>["conformity-level" [0.01 0.001 1]]</paramSpec>
+<paramSpec>["boundary" [0.01 0.001 0.5]]</paramSpec>
+<paramSpec>["n-agents" 129]</paramSpec>
+<paramSpec>["opinions" 1]</paramSpec>
+<paramSpec>["model" "HK"]</paramSpec>
+<paramSpec>["avoid_seed_control?" true]</paramSpec>
+<paramSpec>["set-seed?" false]</paramSpec>
+<paramSpec>["boundary-drawn" "constant"]</paramSpec>
+<paramSpec>["updating" 1]</paramSpec>
+<paramSpec>["record-length" 15]</paramSpec>
+<paramSpec>["max-ticks" 365]</paramSpec>
+<paramSpec>["conformity-drawn" "constant" ]</paramSpec>
+<paramSpec>["centroids_change" 1.0E-5]</paramSpec>
+<paramSpec>["centroid_color?" false]</paramSpec>
+<paramSpec>["killing_centroids?" true]</paramSpec>
+<paramSpec>["polarisation-each-n-steps" 365]</paramSpec>
+<paramSpec>["polar_repeats" 50]</paramSpec>
+<paramSpec>["use_identity?" false]</paramSpec>
+<paramSpec>["esbg_furthest_out" 5]</paramSpec>
+<paramSpec>["normalize_distances?" true]</paramSpec>
+<paramSpec>["show_dice_rolls?" false]</paramSpec>
+<paramSpec>["opinion_sigmoid?" false]</paramSpec>
+</searchSpace>
+<searchMethod type="MutationHillClimber">
+<searchMethodParameter name="mutation-rate" value="0.5"/>
+<searchMethodParameter name="restart-after-stall-count" value="5"/>
+</searchMethod>
+<chromosomeRepresentation type="MixedTypeChromosome"/>
+<caching>false</caching>
+<evaluationLimit>1100</evaluationLimit>
+<bestCheckingNumReplications>30</bestCheckingNumReplications>
+</search>
