@@ -10,7 +10,7 @@
 ;;
 
 ;; Created:  2021-10-21 FranCesko
-;; Edited:   2022-08-08 FranCesko
+;; Edited:   2022-08-09 FranCesko
 ;; Encoding: windows-1250
 ;; NetLogo:  6.2.2
 ;;
@@ -105,10 +105,13 @@ to setup
   ca
   ask patches [set pcolor patch-color]
 
-  ;; To avoid some random artificialities we have to set random seed again.
-  let seed ifelse-value (set-seed?) [RS][new-seed]
-  random-seed seed
-  if not set-seed? [set RS seed]
+  ;; To avoid some random artificialities we have to set random seed.
+  ;; But for BehaviorSearch we have to avoid seed control, since BeahaviorSearch does it.
+  if not avoid_seed_control? [  ;; Note: if switch 'avoid_seed_control?' is TRUE, then we avoid setting the seed.
+    let seed ifelse-value (set-seed?) [RS][new-seed]
+    random-seed seed
+    if not set-seed? [set RS seed]
+  ]
 
   ;; Then we migh initialize agents/turtles
   crt N-agents [
@@ -570,12 +573,10 @@ end
 
 
 to recording-situation-and-computing-polarisation
-  ;; Finishing condition:
-  ;; 1) We reached number of steps specified in MAX-TICKS
-  if ticks = max-ticks [compute-polarisation-repeatedly]
-
-  ;; Recording and computing polarisation on the fly...
-  if (ticks / polarisation-each-n-steps) = floor (ticks / polarisation-each-n-steps) [compute-polarisation-repeatedly]
+  ;; Recording condition:
+  ;; 1) We reached end, e.g. number of steps specified in MAX-TICKS
+  ;; 2) Recording and computing polarisation on the fly, e.g. we reached POLARISATION-EACH-N-STEPS
+  if (ticks = max-ticks) or (ticks / polarisation-each-n-steps) = floor (ticks / polarisation-each-n-steps) [compute-polarisation-repeatedly]
 end
 
 
@@ -607,11 +608,13 @@ to-report Ash-polarisation
   create-centroids 2 [set shape "square" set Opinion-position n-values opinions [precision (1 - random-float 2) 8]]
   let cent1 max [who] of centroids  ;; Storing 'who' of two new centroids
   let cent0 cent1 - 1
-  ask agents [set group (cent0 + (who mod 2))]  ;; Random assignment of agents to the groups
+  ;; Random assignment of agents to the groups -- we create random list of 'cent0s' and 'cent1s' of same length as agents number and then assign them based on agent's WHO
+  let membership shuffle (sentence n-values round (N-agents / 2) [cent0] n-values (ifelse-value (0 = N-agents mod 2) [N-agents / 2][(N-agents - 1) / 2]) [cent1])
+  ask agents [set group item who membership]
   updating-centroids-opinion-position (cent0) (cent1)  ;; Initial update
 
   ;; Iterating until centroids are stable
-  while [Centroids_change < sum [opinion-distance3 Opinion-position Last-opinion] of centroids with [who >= cent0]][
+  while [Centroids_change < sum [opinion-distance3 (Opinion-position) (Last-opinion)] of centroids with [who >= cent0]][
     update-agents-opinion-group (cent0) (cent1)
     updating-centroids-opinion-position (cent0) (cent1)
   ]
@@ -632,7 +635,7 @@ to-report Ash-polarisation
   ;; Preparing final distances and diversity
   let normalization ifelse-value (normalize_distances?) [1][1 / sqrt(4 * opinions)]
   ;; NOTE: If the switch 'normalize_distances?' is true, then functions 'opinion-distance' and 'opinion-distance3' compute normalized distances,
-  ;; then we must avoid normalization her, but if the switch is false, then the function computes plain distance and we must normalize here --
+  ;; then we must avoid normalization here, but if the switch is false, then the function computes plain distance and we must normalize here --
   ;; so we use same concept and almost same code as in the functions 'opinion-distance' and 'opinion-distance3' here, but reversed:
   ;; the true switch means no normalization here, the false switch means normalization here, so in the end we normalize values in ESBG polarization exactly once.
   let cent-dist normalization * opinion-distance3 ([opinion-position] of centroid cent0) ([opinion-position] of centroid cent1)
@@ -944,7 +947,7 @@ N-agents
 N-agents
 10
 1000
-129.0
+33.0
 1
 1
 NIL
@@ -959,7 +962,7 @@ opinions
 opinions
 1
 50
-1.0
+2.0
 1
 1
 NIL
@@ -996,7 +999,7 @@ INPUTBOX
 905
 70
 RS
--1.464728101E9
+1.746306217E9
 1
 0
 Number
@@ -1008,7 +1011,7 @@ SWITCH
 43
 set-seed?
 set-seed?
-0
+1
 1
 -1000
 
@@ -1183,7 +1186,7 @@ Y-opinion
 Y-opinion
 1
 50
-1.0
+2.0
 1
 1
 NIL
@@ -1191,9 +1194,9 @@ HORIZONTAL
 
 PLOT
 798
-224
+195
 1092
-432
+403
 Developement of opinions
 NIL
 NIL
@@ -1234,9 +1237,9 @@ HORIZONTAL
 
 PLOT
 798
-107
-1122
-227
+76
+1056
+196
 Stability of turtles (average)
 NIL
 NIL
@@ -1254,9 +1257,9 @@ PENS
 
 MONITOR
 1036
-435
+406
 1108
-480
+451
 avg. Record
 mean [mean Record] of agents
 3
@@ -1341,7 +1344,7 @@ INPUTBOX
 502
 521
 N_centroids
-2.0
+3.0
 1
 0
 Number
@@ -1381,9 +1384,9 @@ PENS
 
 MONITOR
 933
-435
+406
 1034
-480
+451
 NIL
 ESBG_polarisation
 17
@@ -1392,9 +1395,9 @@ ESBG_polarisation
 
 SWITCH
 921
-480
+451
 1042
-513
+484
 centroid_color?
 centroid_color?
 0
@@ -1403,9 +1406,9 @@ centroid_color?
 
 SWITCH
 793
-467
+438
 922
-500
+471
 killing_centroids?
 killing_centroids?
 0
@@ -1451,7 +1454,7 @@ polar_repeats
 polar_repeats
 1
 100
-20.0
+50.0
 1
 1
 NIL
@@ -1464,15 +1467,15 @@ SWITCH
 87
 use_identity?
 use_identity?
-1
+0
 1
 -1000
 
 SLIDER
-1041
-481
-1145
-514
+818
+470
+922
+503
 d_threshold
 d_threshold
 0
@@ -1485,14 +1488,14 @@ HORIZONTAL
 
 SLIDER
 798
-434
+405
 922
-467
+438
 ESBG_furthest_out
 ESBG_furthest_out
 0
 100
-5.0
+0.0
 1
 1
 NIL
@@ -1545,7 +1548,7 @@ identity_levels
 identity_levels
 1
 10
-4.0
+7.0
 1
 1
 NIL
@@ -1814,7 +1817,7 @@ SWITCH
 328
 opinion_sigmoid?
 opinion_sigmoid?
-1
+0
 1
 -1000
 
@@ -1826,6 +1829,17 @@ SWITCH
 identity_sigmoid?
 identity_sigmoid?
 0
+1
+-1000
+
+SWITCH
+905
+43
+1055
+76
+avoid_seed_control?
+avoid_seed_control?
+1
 1
 -1000
 
