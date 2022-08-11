@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <!DOCTYPE search SYSTEM "behaviorsearch.dtd">
 <search>
-<bsearchVersionNumber>1,10</bsearchVersionNumber>
+<bsearchVersionNumber>1.10</bsearchVersionNumber>
 <modelInfo>
-<modelFile>D:\ownCloud2\!!!Projekty\!Spirals\Milano\groupFormation_Milano.nlogo</modelFile>
+<modelFile>/home/kalvas.5/Spirals/Milano/groupFormation_Milano.nlogo</modelFile>
 <modelSetupCommands>setup</modelSetupCommands>
 <modelStepCommands>go</modelStepCommands>
 <modelStopCondition/>
@@ -47,6 +47,6 @@
 </searchMethod>
 <chromosomeRepresentation type="MixedTypeChromosome"/>
 <caching>false</caching>
-<evaluationLimit>1100</evaluationLimit>
+<evaluationLimit>5000</evaluationLimit>
 <bestCheckingNumReplications>30</bestCheckingNumReplications>
 </search>
