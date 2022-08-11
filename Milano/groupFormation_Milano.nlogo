@@ -987,7 +987,7 @@ boundary
 boundary
 0.0
 1
-0.16
+0.04
 0.01
 1
 NIL
@@ -999,7 +999,7 @@ INPUTBOX
 905
 70
 RS
-1.746306217E9
+1.0
 1
 0
 Number
@@ -1305,7 +1305,7 @@ conformity-level
 conformity-level
 0
 1
-0.5
+0.4
 0.01
 1
 NIL
@@ -1439,7 +1439,7 @@ polarisation-each-n-steps
 polarisation-each-n-steps
 0
 10000
-130.0
+400.0
 10
 1
 NIL
@@ -2508,20 +2508,20 @@ NetLogo 6.2.2
       <value value="false"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="RS01-15_complementOfHillClimbingSearchInClassicHK" repetitions="1" runMetricsEveryStep="true">
+  <experiment name="RS001-200_complementOfHillClimbingSearchInClassicHK" repetitions="1" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="366"/>
     <metric>ESBG_polarisation</metric>
-    <steppedValueSet variable="RS" first="1" step="1" last="15"/>
+    <steppedValueSet variable="RS" first="1" step="1" last="200"/>
     <enumeratedValueSet variable="set-seed?">
       <value value="true"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="avoid_seed_control?">
       <value value="false"/>
     </enumeratedValueSet>
-    <steppedValueSet variable="boundary" first="0.01" step="0.01" last="0.5"/>
-    <steppedValueSet variable="conformity-level" first="0.01" step="0.01" last="1"/>
+    <steppedValueSet variable="boundary" first="0.1" step="0.01" last="0.5"/>
+    <steppedValueSet variable="conformity-level" first="0.1" step="0.1" last="1"/>
     <enumeratedValueSet variable="boundary-drawn">
       <value value="&quot;constant&quot;"/>
     </enumeratedValueSet>
