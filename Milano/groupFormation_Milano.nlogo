@@ -962,7 +962,7 @@ opinions
 opinions
 1
 50
-1.0
+2.0
 1
 1
 NIL
@@ -987,8 +987,8 @@ boundary
 boundary
 0.0
 1
-0.04
-0.01
+0.228
+0.001
 1
 NIL
 HORIZONTAL
@@ -999,7 +999,7 @@ INPUTBOX
 905
 70
 RS
-1.0
+-1.350597087E9
 1
 0
 Number
@@ -1091,7 +1091,7 @@ CHOOSER
 boundary-drawn
 boundary-drawn
 "constant" "uniform" "normal"
-0
+2
 
 PLOT
 1122
@@ -1186,7 +1186,7 @@ Y-opinion
 Y-opinion
 1
 50
-1.0
+2.0
 1
 1
 NIL
@@ -1305,8 +1305,8 @@ conformity-level
 conformity-level
 0
 1
-0.4
-0.01
+0.563
+0.001
 1
 NIL
 HORIZONTAL
@@ -1319,7 +1319,7 @@ CHOOSER
 conformity-drawn
 conformity-drawn
 "constant" "uniform" "normal"
-0
+2
 
 BUTTON
 669
@@ -1344,7 +1344,7 @@ INPUTBOX
 502
 521
 N_centroids
-3.0
+2.0
 1
 0
 Number
@@ -1400,7 +1400,7 @@ SWITCH
 484
 centroid_color?
 centroid_color?
-0
+1
 1
 -1000
 
@@ -1424,8 +1424,8 @@ id_threshold
 id_threshold
 0.01
 1
-0.25
-0.01
+0.339
+0.001
 1
 NIL
 HORIZONTAL
@@ -1467,7 +1467,7 @@ SWITCH
 87
 use_identity?
 use_identity?
-1
+0
 1
 -1000
 
@@ -1563,8 +1563,8 @@ id_threshold-std
 id_threshold-std
 0
 1
-0.25
-0.01
+0.787
+0.001
 1
 NIL
 HORIZONTAL
@@ -1578,8 +1578,8 @@ conformity-std
 conformity-std
 0
 1
-0.15
-0.05
+0.222
+0.001
 1
 NIL
 HORIZONTAL
@@ -1593,8 +1593,8 @@ boundary-std
 boundary-std
 0
 1
-0.05
-0.01
+0.841
+0.001
 1
 NIL
 HORIZONTAL
@@ -1608,7 +1608,7 @@ mean-opinion-sigmoid-steepness
 mean-opinion-sigmoid-steepness
 0
 1
-0.45
+0.0
 0.01
 1
 NIL
@@ -1638,8 +1638,8 @@ std-opinion-sigmoid-steepness
 std-opinion-sigmoid-steepness
 0
 1
-0.15
-0.01
+0.837
+0.001
 1
 NIL
 HORIZONTAL
@@ -1653,8 +1653,8 @@ mean-identity-sigmoid-steepness
 mean-identity-sigmoid-steepness
 0
 1
-0.85
-0.05
+0.137
+0.001
 1
 NIL
 HORIZONTAL
@@ -1668,8 +1668,8 @@ std-identity-sigmoid-steepness
 std-identity-sigmoid-steepness
 0
 1
-0.35
-0.01
+0.509
+0.001
 1
 NIL
 HORIZONTAL
@@ -1735,8 +1735,8 @@ mean-identity-sigmoid-xOffset
 mean-identity-sigmoid-xOffset
 0
 1
-0.35
-0.01
+0.246
+0.001
 1
 NIL
 HORIZONTAL
@@ -1750,8 +1750,8 @@ std-identity-sigmoid-xOffset
 std-identity-sigmoid-xOffset
 0
 1
-0.1
-0.01
+0.848
+0.001
 1
 NIL
 HORIZONTAL
@@ -1817,7 +1817,7 @@ SWITCH
 328
 opinion_sigmoid?
 opinion_sigmoid?
-1
+0
 1
 -1000
 
@@ -1828,7 +1828,7 @@ SWITCH
 394
 identity_sigmoid?
 identity_sigmoid?
-1
+0
 1
 -1000
 

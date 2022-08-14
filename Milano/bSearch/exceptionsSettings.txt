@@ -1,0 +1,75 @@
+bsearch.app.BehaviorSearchException: bsearch.nlogolink.NetLogoLinkException: org.nlogo.nvm.ArgumentTypeException: OF expected input to be a turtle agentset or turtle but got NOBODY instead.
+
+Model run configuration was: {RANDOM-SEED: -1350597087,
+  SETTINGS: {n-agents=129, opinions=2, model="HK", set-seed?=false, avoid_seed_control?=true, conformity-level=0.5630000000000001, conformity-std=0.222, conformity-drawn="normal", boundary=0.228, boundary-std=0.841, boundary-drawn="normal", mean-opinion-sigmoid-steepness=0, std-opinion-sigmoid-steepness=0.837, opinion_sigmoid?=true, id_threshold=0.339, id_threshold-std=0.787, threshold_drawn="normal", mean-identity-sigmoid-xoffset=0.246, std-identity-sigmoid-xoffset=0.848, mean-identity-sigmoid-steepness=0.137, std-identity-sigmoid-steepness=0.509, identity_sigmoid?=true, use_identity?=true, identity_type="individual", identity_levels=7, min_id_level=0.25, max_id_level=0.85, maxsteepness=700, updating=1, record-length=15, max-ticks=365, centroids_change=1.0E-5, centroid_color?=false, killing_centroids?=true, polarisation-each-n-steps=365, polar_repeats=50, d_threshold=0.8, esbg_furthest_out=5, normalize_distances?=true, show_dice_rolls?=false, }}
+	at bsearch.evaluation.SearchManager.computeFitnessBatch(SearchManager.java:121)
+	at bsearch.evaluation.SearchManager.computeFitnessSingle(SearchManager.java:111)
+	at bsearch.algorithms.SimulatedAnnealing.search(SimulatedAnnealing.java:99)
+	at bsearch.app.BehaviorSearch.runProtocol(BehaviorSearch.java:112)
+	at bsearch.app.BehaviorSearch.runMultipleSearches(BehaviorSearch.java:51)
+	at bsearch.app.BehaviorSearch.runWithOptions(BehaviorSearch.java:307)
+	at bsearch.fx.ProgressController$TaskWorker.run(ProgressController.java:299)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at bsearch.fx.ProgressController$1.run(ProgressController.java:77)
+	at java.lang.Thread.run(Thread.java:748)
+Caused by: bsearch.nlogolink.NetLogoLinkException: org.nlogo.nvm.ArgumentTypeException: OF expected input to be a turtle agentset or turtle but got NOBODY instead.
+	at bsearch.nlogolink.ModelRunner.go(ModelRunner.java:149)
+	at bsearch.nlogolink.ModelRunner.doFullRun(ModelRunner.java:235)
+	at bsearch.nlogolink.ModelRunnerTask.call(ModelRunnerTask.java:18)
+	at bsearch.nlogolink.ModelRunnerTask.call(ModelRunnerTask.java:5)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	... 1 more
+
+bsearch.app.BehaviorSearchException: bsearch.nlogolink.NetLogoLinkException: org.nlogo.nvm.ArgumentTypeException: OF expected input to be a turtle agentset or turtle but got NOBODY instead.
+
+Model run configuration was: {RANDOM-SEED: -1886749864,
+  SETTINGS: {n-agents=129, opinions=2, model="HK", set-seed?=false, avoid_seed_control?=true, conformity-level=0.226, conformity-std=0.352, conformity-drawn="normal", boundary=0.451, boundary-std=0.63, boundary-drawn="normal", mean-opinion-sigmoid-steepness=0.611, std-opinion-sigmoid-steepness=0.44, opinion_sigmoid?=true, id_threshold=0.38, id_threshold-std=0.504, threshold_drawn="normal", mean-identity-sigmoid-xoffset=0.101, std-identity-sigmoid-xoffset=0.847, mean-identity-sigmoid-steepness=0.426, std-identity-sigmoid-steepness=0.324, identity_sigmoid?=true, use_identity?=true, identity_type="individual", identity_levels=7, min_id_level=0.25, max_id_level=0.85, maxsteepness=700, updating=1, record-length=15, max-ticks=365, centroids_change=1.0E-5, centroid_color?=false, killing_centroids?=true, polarisation-each-n-steps=365, polar_repeats=50, d_threshold=0.8, esbg_furthest_out=5, normalize_distances?=true, show_dice_rolls?=false, }}
+	at bsearch.evaluation.SearchManager.computeFitnessBatch(SearchManager.java:121)
+	at bsearch.evaluation.SearchManager.computeFitnessSingle(SearchManager.java:111)
+	at bsearch.algorithms.SimulatedAnnealing.search(SimulatedAnnealing.java:99)
+	at bsearch.app.BehaviorSearch.runProtocol(BehaviorSearch.java:112)
+	at bsearch.app.BehaviorSearch.runMultipleSearches(BehaviorSearch.java:51)
+	at bsearch.app.BehaviorSearch.runWithOptions(BehaviorSearch.java:307)
+	at bsearch.fx.ProgressController$TaskWorker.run(ProgressController.java:299)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at bsearch.fx.ProgressController$1.run(ProgressController.java:77)
+	at java.lang.Thread.run(Thread.java:748)
+Caused by: bsearch.nlogolink.NetLogoLinkException: org.nlogo.nvm.ArgumentTypeException: OF expected input to be a turtle agentset or turtle but got NOBODY instead.
+	at bsearch.nlogolink.ModelRunner.go(ModelRunner.java:149)
+	at bsearch.nlogolink.ModelRunner.doFullRun(ModelRunner.java:235)
+	at bsearch.nlogolink.ModelRunnerTask.call(ModelRunnerTask.java:18)
+	at bsearch.nlogolink.ModelRunnerTask.call(ModelRunnerTask.java:5)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	... 1 more
+
+
+bsearch.app.BehaviorSearchException: bsearch.nlogolink.NetLogoLinkException: org.nlogo.nvm.ArgumentTypeException: OF expected input to be a turtle agentset or turtle but got NOBODY instead.
+
+Model run configuration was: {RANDOM-SEED: -1536465944,
+  SETTINGS: {n-agents=129, opinions=2, model="HK", set-seed?=false, avoid_seed_control?=true, conformity-level=0.973, conformity-std=0.203, conformity-drawn="normal", boundary=0.845, boundary-std=0.67, boundary-drawn="normal", mean-opinion-sigmoid-steepness=0.40700000000000003, std-opinion-sigmoid-steepness=0.599, opinion_sigmoid?=true, id_threshold=0.26, id_threshold-std=0.834, threshold_drawn="normal", mean-identity-sigmoid-xoffset=0.913, std-identity-sigmoid-xoffset=0.872, mean-identity-sigmoid-steepness=0.001, std-identity-sigmoid-steepness=0.856, identity_sigmoid?=true, use_identity?=true, identity_type="individual", identity_levels=7, min_id_level=0.25, max_id_level=0.85, maxsteepness=700, updating=1, record-length=15, max-ticks=365, centroids_change=1.0E-5, centroid_color?=false, killing_centroids?=true, polarisation-each-n-steps=365, polar_repeats=50, d_threshold=0.8, esbg_furthest_out=5, normalize_distances?=true, show_dice_rolls?=false, }}
+	at bsearch.evaluation.SearchManager.computeFitnessBatch(SearchManager.java:121)
+	at bsearch.evaluation.SearchManager.computeFitnessSingle(SearchManager.java:111)
+	at bsearch.algorithms.SimulatedAnnealing.search(SimulatedAnnealing.java:81)
+	at bsearch.app.BehaviorSearch.runProtocol(BehaviorSearch.java:112)
+	at bsearch.app.BehaviorSearch.runMultipleSearches(BehaviorSearch.java:51)
+	at bsearch.app.BehaviorSearch.runWithOptions(BehaviorSearch.java:307)
+	at bsearch.fx.ProgressController$TaskWorker.run(ProgressController.java:299)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at bsearch.fx.ProgressController$1.run(ProgressController.java:77)
+	at java.lang.Thread.run(Thread.java:748)
+Caused by: bsearch.nlogolink.NetLogoLinkException: org.nlogo.nvm.ArgumentTypeException: OF expected input to be a turtle agentset or turtle but got NOBODY instead.
+	at bsearch.nlogolink.ModelRunner.go(ModelRunner.java:149)
+	at bsearch.nlogolink.ModelRunner.doFullRun(ModelRunner.java:235)
+	at bsearch.nlogolink.ModelRunnerTask.call(ModelRunnerTask.java:18)
+	at bsearch.nlogolink.ModelRunnerTask.call(ModelRunnerTask.java:5)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	... 1 more
