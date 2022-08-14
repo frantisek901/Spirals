@@ -73,3 +73,28 @@ Caused by: bsearch.nlogolink.NetLogoLinkException: org.nlogo.nvm.ArgumentTypeExc
 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
 	... 1 more
+
+bsearch.app.BehaviorSearchException: bsearch.nlogolink.NetLogoLinkException: org.nlogo.nvm.ArgumentTypeException: OF expected input to be a turtle agentset or turtle but got NOBODY instead.
+
+Model run configuration was: {RANDOM-SEED: 1118838552,
+  SETTINGS: {n-agents=129, opinions=2, model="HK", set-seed?=false, avoid_seed_control?=true, conformity-level=0.20600000000000002, conformity-std=0.53, conformity-drawn="normal", boundary=0.139, boundary-std=0.355, boundary-drawn="normal", mean-opinion-sigmoid-steepness=0.6960000000000001, std-opinion-sigmoid-steepness=0.71, opinion_sigmoid?=true, id_threshold=0.2, id_threshold-std=0.904, threshold_drawn="normal", mean-identity-sigmoid-xoffset=0.9400000000000001, std-identity-sigmoid-xoffset=0.511, mean-identity-sigmoid-steepness=1, std-identity-sigmoid-steepness=0.356, identity_sigmoid?=true, use_identity?=true, identity_type="individual", identity_levels=7, min_id_level=0.25, max_id_level=0.85, maxsteepness=700, updating=1, record-length=15, max-ticks=365, centroids_change=1.0E-5, centroid_color?=false, killing_centroids?=true, polarisation-each-n-steps=365, polar_repeats=50, d_threshold=0.8, esbg_furthest_out=5, normalize_distances?=true, show_dice_rolls?=false, }}
+	at bsearch.evaluation.SearchManager.computeFitnessBatch(SearchManager.java:121)
+	at bsearch.evaluation.SearchManager.computeFitnessSingle(SearchManager.java:111)
+	at bsearch.algorithms.SimulatedAnnealing.search(SimulatedAnnealing.java:99)
+	at bsearch.app.BehaviorSearch.runProtocol(BehaviorSearch.java:112)
+	at bsearch.app.BehaviorSearch.runMultipleSearches(BehaviorSearch.java:51)
+	at bsearch.app.BehaviorSearch.runWithOptions(BehaviorSearch.java:307)
+	at bsearch.fx.ProgressController$TaskWorker.run(ProgressController.java:299)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at bsearch.fx.ProgressController$1.run(ProgressController.java:77)
+	at java.lang.Thread.run(Thread.java:748)
+Caused by: bsearch.nlogolink.NetLogoLinkException: org.nlogo.nvm.ArgumentTypeException: OF expected input to be a turtle agentset or turtle but got NOBODY instead.
+	at bsearch.nlogolink.ModelRunner.go(ModelRunner.java:149)
+	at bsearch.nlogolink.ModelRunner.doFullRun(ModelRunner.java:235)
+	at bsearch.nlogolink.ModelRunnerTask.call(ModelRunnerTask.java:18)
+	at bsearch.nlogolink.ModelRunnerTask.call(ModelRunnerTask.java:5)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	... 1 more
