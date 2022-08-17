@@ -987,7 +987,7 @@ boundary
 boundary
 0.0
 1
-0.228
+0.2
 0.001
 1
 NIL
@@ -999,7 +999,7 @@ INPUTBOX
 905
 70
 RS
--1.350597087E9
+-2.85373063E8
 1
 0
 Number
@@ -1011,7 +1011,7 @@ SWITCH
 43
 set-seed?
 set-seed?
-0
+1
 1
 -1000
 
@@ -1290,7 +1290,7 @@ max-ticks
 max-ticks
 100
 10000
-365.0
+730.0
 5
 1
 NIL
@@ -1344,7 +1344,7 @@ INPUTBOX
 502
 521
 N_centroids
-2.0
+1.0
 1
 0
 Number
@@ -1394,21 +1394,21 @@ ESBG_polarisation
 11
 
 SWITCH
-921
-451
-1042
-484
+926
+452
+1047
+485
 centroid_color?
 centroid_color?
-1
+0
 1
 -1000
 
 SWITCH
-793
-438
-922
-471
+798
+439
+927
+472
 killing_centroids?
 killing_centroids?
 0
@@ -1424,7 +1424,7 @@ id_threshold
 id_threshold
 0.01
 1
-0.339
+0.44
 0.001
 1
 NIL
@@ -1472,10 +1472,10 @@ use_identity?
 -1000
 
 SLIDER
-818
-470
-922
-503
+823
+471
+927
+504
 d_threshold
 d_threshold
 0
@@ -1563,7 +1563,7 @@ id_threshold-std
 id_threshold-std
 0
 1
-0.787
+0.075
 0.001
 1
 NIL
@@ -1593,7 +1593,7 @@ boundary-std
 boundary-std
 0
 1
-0.841
+0.05
 0.001
 1
 NIL
@@ -1608,7 +1608,7 @@ mean-opinion-sigmoid-steepness
 mean-opinion-sigmoid-steepness
 0
 1
-0.0
+0.5
 0.01
 1
 NIL
@@ -1638,7 +1638,7 @@ std-opinion-sigmoid-steepness
 std-opinion-sigmoid-steepness
 0
 1
-0.837
+0.1
 0.001
 1
 NIL
@@ -1653,7 +1653,7 @@ mean-identity-sigmoid-steepness
 mean-identity-sigmoid-steepness
 0
 1
-0.137
+0.7
 0.001
 1
 NIL
@@ -1668,7 +1668,7 @@ std-identity-sigmoid-steepness
 std-identity-sigmoid-steepness
 0
 1
-0.509
+0.125
 0.001
 1
 NIL
@@ -1683,7 +1683,7 @@ min_id_level
 min_id_level
 0
 0.5
-0.25
+0.29
 0.001
 1
 NIL
@@ -1698,7 +1698,7 @@ max_id_level
 max_id_level
 0.55
 1
-0.85
+0.89
 0.001
 1
 NIL
@@ -1735,7 +1735,7 @@ mean-identity-sigmoid-xOffset
 mean-identity-sigmoid-xOffset
 0
 1
-0.246
+0.15
 0.001
 1
 NIL
@@ -1750,7 +1750,7 @@ std-identity-sigmoid-xOffset
 std-identity-sigmoid-xOffset
 0
 1
-0.848
+0.1
 0.001
 1
 NIL

@@ -1,0 +1,72 @@
+PARAMS:
+-------
+N: 129
+Opinions: 2
+Normalize_distances?: TRUE
+Use_identity?: TRUE
+Identity_type: "individual"
+Identity_levels: 7
+min_id_level: 0.29
+max_id_level: 0.89
+boundary_drawn: "normal"
+boundary: 0.2
+boundary-std: 0.05
+threshold_drawn: "normal"
+id_threshold: 0.44
+id_threshold-std: 0.075
+conformity-drawn: "normal"
+conformity-level: 0.563
+conformity-std: 0.222
+opinion_sigmoid?: TRUE
+mean-opinion-sigmoid-steepness: 0.5
+std-opinion-sigmoid-steepness: 0.1
+identity_sigmoid?: TRUE
+mean-identity-sigmoid-steepness: 0.7
+std-identity-sigmoid-steepness: 0.125
+mean-identity-sigmoid-xOffset: 0.15
+std-identity-sigmoid-xOffset: 0.1
+maxSteepness: 700
+
+
+SEEDS:
+------
+Polarizing seeds:
+-141452575
+10566691
+758287263
+-330949359
+1890288449
+-681644802
+-569725155
+-24343497
+1979750810
+-120200173
+-113768753
+-1115379487
+-285373063
+
+
+Bridging seeds:
+1270887977
+791671040
+-847874785
+1003610369
+1975898599
+1293938040
+1956242345
+1063950198
+1780402042
+1531043602
+-1356389238
+2036048255
+-1773166806
+
+
+Homogenizing seeds:
+663830032
+23369443
+1859611734
+
+
+Wandering main group:
+1293938040
