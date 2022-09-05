@@ -81,7 +81,7 @@
 ;;    use all of these to compute id sigmoid, instead of letting agents forming id groups as agentset selection in each identity check.
 ;; DONE!
 ;;
-;; 8) debug code for the 'use_identity?' FALSE, now code works only with 'use_identity?' TRUE
+;; 8) debug code for the 'Use_Identity?' FALSE, now code works only with 'Use_Identity?' TRUE
 ;;
 ;;
 ;;
@@ -91,11 +91,11 @@ extensions [nw matrix table]
 breed [centroids centroid]
 undirected-link-breed [l-distances l-distance]
 
-turtles-own [own-opinion own-previous-opinion own-boundary own-record own-conformity own-SDIRO Group-memberships group distance_to_centroid
-  opinion-sigmoid-xOffset opinion-sigmoid-steepness opinion-dice? identity-sigmoid-xOffset identity-sigmoid-steepness identity-dice?]
+turtles-own [own-opinion own-previous-opinion own-boundary own-record own-conformity own-SDIRO own-WhichGroupHasEachSDIROSortedMeIn own-group-number own-distance-to-centroid
+  own-opinion-sigmoid-xOffset own-opinion-sigmoid-steepness own-opinion-dice? own-identity-sigmoid-xOffset own-identity-sigmoid-steepness own-identity-dice?]
 l-distances-own [l-weight]
 
-globals [main-Record agents positions_clusters ESBG_polarisation id_threshold_set
+globals [main-Record agents positions_clusters ESBG_polarisation SDIRO_set
          IDs-and-ns-of-id-groups distance-matrices]
 
 
@@ -114,13 +114,13 @@ to setup
   ]
 
   ;; Then we migh initialize agents/turtles
-  crt NumberOfAgents [
-    set own-opinion n-values NumberOfOpinionDimensions [precision (1 - random-float 2) 3]  ;; We set opinions...
+  crt Number_Of_Agents [
+    set own-opinion n-values Number_Of_Opinion_Dimensions [precision (1 - random-float 2) 3]  ;; We set opinions...
     set own-previous-opinion own-opinion  ;; ...set last opinion as present opinion...
     set own-record n-values record-length [0]  ;; ... we prepare indicator of turtle's stability, at all positions we set 0 as non-stability...
     set own-conformity get-conformity  ;; setting individual conformity level, and ...
     set own-boundary get-HK-boundary  ;;... setting value of HK boundary.
-    set own-SDIRO get-individual-SDIRO  ;; Individual sensitivity for group tightness/threshold.
+    set own-SDIRO get-own-SDIRO  ;; Individual sensitivity for group tightness/threshold.
     get-sigmoids ;;getting sigmoid parameters for opinion and identity influence probabilities
     getColor  ;; Coloring the agents according their opinion.
     getPlace  ;; Moving agents to the opinion space according their opinions.
@@ -130,25 +130,25 @@ to setup
   set agents turtle-set turtles  ;; Note: If we just write 'set agents turtles', then variable 'agents' is a synonym for 'turtles', so it will contain in the future created centroids!
 
   ;; In case we don't use identity, we don't need to create links
-  if use_identity? [
+  if Use_Identity? [
     ask agents [create-l-distances-with other agents]  ;; Creating full network for computing groups and polarisation
     update-l-distances-weights  ;; Setting distances links' weights
     ask l-distances [set hidden? true]  ;; Hiding links for saving comp. resources
   ]
 
   ;; Setting identity levels according identity scenario:
-  ifelse use_identity? and identity_type = "individual" [
+  ifelse Use_Identity? and Identity_Type = "individual" [
     ;; If we use 'individual' perceptions of identity groups, we have to set up levels of identity sensitivity:
-    if identity_levels = 1 [set max_id_level id_threshold]
+    if Identity_Levels = 1 [set Maximum_SDIRO SDIRO_Mean]
     compute-identity-thresholds
   ][
     ;; If we use 'global' perception, then there is only one level and each agent has same value of 'own-SDIRO':
-    ;; Firstly, we set 'id_threshold_set' as list of one constant value: 'id_threshold':
-    set id_threshold_set (list id_threshold)
+    ;; Firstly, we set 'SDIRO_set' as list of one constant value: 'SDIRO_Mean':
+    set SDIRO_set (list SDIRO_Mean)
 
     ;; Secondly, we set 'own-SDIRO' of agents to the constant value:
     ask agents [
-      set own-SDIRO id_threshold
+      set own-SDIRO SDIRO_Mean
     ]
   ]
 
@@ -156,7 +156,7 @@ to setup
   ;; Everything is prepared for equal processing in all three cases of 'non-identity', 'global' and 'individual' perception of identity groups,
   ;; that's why we use only one procedure here for all three scenarios. But we handle them equally:
   ;; we process it for all identity levels -- in case of non-identity and global, there is just one.
-  if use_identity? [set-group-identities]
+  if Use_Identity? [set-group-identities]
 
   ;; Coloring patches according the number of agents/turtles on them.
   ask patches [set pcolor patch-color]
@@ -174,56 +174,56 @@ end
 ;; for computing thresholds and assigning levels to each agent as per drawing parameters
 to compute-identity-thresholds
   ;; Computing values:
-  ;; We know that id_threshold lower than 0.4 produces one identity group, that's why the most tolerant group/level
+  ;; We know that SDIRO_Mean lower than 0.4 produces one identity group, that's why the most tolerant group/level
   ;; will have threshold 0.4. We also know that thresholds beyond 0.80 fracture the public to many groups and it makes
   ;; no sense use higher threshold than 0.8, so that's why the most intolerant group/level will have threshold 0.8.
   ;; If we will use just two identity levels, they will be 0.4 and 0.8. If we will use more levels, we will smoothly
   ;; distribute them between 0.4 and 0.8.
-  set id_threshold_set n-values identity_levels [max_id_level]
-  foreach range (identity_levels - 1) [i -> set id_threshold_set replace-item i id_threshold_set precision (min_id_level + (i * ((max_id_level - min_id_level) / (identity_levels - 1)))) 3]
+  set SDIRO_set n-values Identity_Levels [Maximum_SDIRO]
+  foreach range (Identity_Levels - 1) [i -> set SDIRO_set replace-item i SDIRO_set precision (Minimum_SDIRO + (i * ((Maximum_SDIRO - Minimum_SDIRO) / (Identity_Levels - 1)))) 3]
 
 
-  ;; We "ceiling" values 'own-SDIRO' of agents to the values of 'id_threshold_set', i.e.
-  ;; we find the closest higher value of 'id_threshold_set' to the 'own-SDIRO' of agent and
-  ;; change it for the closest value of 'id_threshold_set'.
+  ;; We "ceiling" values 'own-SDIRO' of agents to the values of 'SDIRO_set', i.e.
+  ;; we find the closest higher value of 'SDIRO_set' to the 'own-SDIRO' of agent and
+  ;; change it for the closest value of 'SDIRO_set'.
   ask agents [
-    ;; Firstly, we have to process the 'id_threshold_set': substract it from 'own-SDIRO' of agent.
-    let diff map [v -> abs(v - own-SDIRO)] id_threshold_set
+    ;; Firstly, we have to process the 'SDIRO_set': substract it from 'own-SDIRO' of agent.
+    let diff map [v -> abs(v - own-SDIRO)] SDIRO_set
 
     ;; Secondly, we have to find the position of minimal 'diff':
     let pos position (min diff) diff
 
-    ;; Thirdly, we have to check, whether the closest value of 'id_threshold_set' is higher,
+    ;; Thirdly, we have to check, whether the closest value of 'SDIRO_set' is higher,
     ;; if not, we have to point agent to the higher value, i.e. 'set pos pos  + 1",
-    ;; and also check whether the 'pos' points on correct items on 'id_threshold_set', i.e.
+    ;; and also check whether the 'pos' points on correct items on 'SDIRO_set', i.e.
     ;; whether we do/not jump out of range. In case we point 'outside the list',
     ;; we have to set 'pos' to maximal value.
-    if not (pos = (length id_threshold_set - 1) or own-SDIRO < item pos id_threshold_set) [set pos pos + 1]
+    if not (pos = (length SDIRO_set - 1) or own-SDIRO < item pos SDIRO_set) [set pos pos + 1]
 
-    ;; Finally, we set 'own-SDIRO' as the closest value of 'id_threshold_set':
-    set own-SDIRO item pos id_threshold_set
+    ;; Finally, we set 'own-SDIRO' as the closest value of 'SDIRO_set':
+    set own-SDIRO item pos SDIRO_set
   ]
 
-  ;; Very lastly, we have to check whether all values of 'id_threshold_set' are represented in the agents,
-  ;; it is possible, that for some low SD of random normal distributions of 'id_threshold' some values of
-  ;; 'id_threshold_set' would not be represented by any agent.
-  ;; Then it is obsolete to perform Louvain for non-represented values of 'id_threshold_set'. So...
-  ;; Now we go through 'id_threshold_set' list value by value and only represented remain.
-  set id_threshold_set remove-duplicates [own-SDIRO] of agents
+  ;; Very lastly, we have to check whether all values of 'SDIRO_set' are represented in the agents,
+  ;; it is possible, that for some low SD of random normal distributions of 'SDIRO_Mean' some values of
+  ;; 'SDIRO_set' would not be represented by any agent.
+  ;; Then it is obsolete to perform Louvain for non-represented values of 'SDIRO_set'. So...
+  ;; Now we go through 'SDIRO_set' list value by value and only represented remain.
+  set SDIRO_set remove-duplicates [own-SDIRO] of agents
 end
 
 
 ; Setting identity groups via threshold levels to account for differences in sensitivity to group relationships
 to set-group-identities
-  ;; Firstly, we have to erase lists 'Group-memberships' of agents,
+  ;; Firstly, we have to erase lists 'own-WhichGroupHasEachSDIROSortedMeIn' of agents,
   ;; since every step we have to fill it by new IDs of identity centroids:
-  ask agents [set Group-memberships table:make]
+  ask agents [set own-WhichGroupHasEachSDIROSortedMeIn table:make]
   ;; We erase/create these global tables, as well.
   set IDs-and-ns-of-id-groups table:make  ;; NOTE: the key is the level of group sensitivity, stored is the list: the first value in the list is number of groups, second/last is the lowest ID of group centroid.
   set distance-matrices table:make
 
   ;; Secondly, we go one effective ID threshold level after another, perform Louvain and k-means clusters for every level and store memberships.
-  foreach id_threshold_set [ idtl ->
+  foreach SDIRO_set [ idtl ->
     ;; Cleaning environment
     ask centroids [die]
 
@@ -237,7 +237,7 @@ to set-group-identities
     set positions_clusters [] ;; List with all positions of all clusters
     foreach communities [c ->
       let one []  ;; List for one position of one cluster
-      foreach range NumberOfOpinionDimensions [o -> set one lput precision (mean [item o own-opinion] of c) 3 one]
+      foreach range Number_Of_Opinion_Dimensions [o -> set one lput precision (mean [item o own-opinion] of c) 3 one]
       set positions_clusters lput one positions_clusters
     ]
 
@@ -252,7 +252,7 @@ to set-group-identities
     ]
 
     ;; Assignment of agents to groups
-    ask agents [set group [who] of min-one-of centroids [opinion-distance]]  ;; Sic! Here we intentionally use all agents, including loosely connected.
+    ask agents [set own-group-number [who] of min-one-of centroids [opinion-distance]]  ;; Sic! Here we intentionally use all agents, including loosely connected.
 
     ;; Computation of centroids possitions
     compute-centroids-positions (agents)
@@ -261,19 +261,19 @@ to set-group-identities
     while [sum [opinion-distance3 (own-previous-opinion) (own-opinion)] of centroids > Centroids_change] [
 
       ;; turtles compute whether they are in right cluster and
-      ask agents [set group [who] of min-one-of centroids [opinion-distance]]
+      ask agents [set own-group-number [who] of min-one-of centroids [opinion-distance]]
 
       ;; Computation of centroids possitions
       compute-centroids-positions (agents)
     ]
 
     ;; Storing ID of in-groups for the present identity level
-    ask agents [table:put Group-memberships idtl group]
+    ask agents [table:put own-WhichGroupHasEachSDIROSortedMeIn idtl own-group-number]
 
     ;; Killing centroids without connected agents
     ask centroids [
       let wom who
-      if (not any? agents with [group = wom]) [die]
+      if (not any? agents with [own-group-number = wom]) [die]
     ]
     set N_centroids count centroids
 
@@ -302,7 +302,7 @@ to set-group-identities
       table:put distance-matrices idtl matrix:from-row-list m
 
     ;; Final coloring and killing of centroids
-    if centroid_color? [ask agents [set color (5 + 10 * (group - min [who] of centroids))]]
+    if centroid_color? [ask agents [set color (5 + 10 * (own-group-number - min [who] of centroids))]]
     if killing_centroids? [ask centroids [die]]
   ]
   ;print IDs-and-ns-of-id-groups
@@ -353,7 +353,7 @@ to prepare-everything-for-the-step
   avoiding-run-time-errors
 
   ;; Update group identities via Louvain -- only if we use group identity.
-  if use_identity? [
+  if Use_Identity? [
     update-l-distances-weights
     set-group-identities
   ]
@@ -382,9 +382,9 @@ to change-opinion-HK
   ;; Since rolling identity dice is computationally less demanding, we start with id dice:
   ;; If we use identity, we check distance of group centroids of NEIGHBS and filter them out.
   ;; In case we dont't use identity, them NEIGHBS are still all other agents.
-  if use_identity? [
+  if Use_Identity? [
     ;; Identity check -- preparation of myself from global variables:
-    let my-group-id table:get Group-memberships own-SDIRO
+    let my-group-id table:get own-WhichGroupHasEachSDIROSortedMeIn own-SDIRO
     let distance-matrix table:get Distance-matrices own-SDIRO
     let group-info table:get IDs-and-ns-of-id-groups own-SDIRO  ;; NOTE: the first value in the list is number of groups, second/last is the lowest ID of group centroid.
     let my-i (my-group-id - last group-info)  ;; 'my-i' is distance matrix column we want to use, so we subtract group ID of myself from minimal group ID in respective level
@@ -392,7 +392,7 @@ to change-opinion-HK
     ;; Sigmoid code:
     ask other agents [
       ;; Firstly, each neighbor has to find 'her-j', i.e. distance matrix row for identity check:
-      let her-group-id table:get Group-memberships [own-SDIRO] of myself
+      let her-group-id table:get own-WhichGroupHasEachSDIROSortedMeIn [own-SDIRO] of myself
       let her-j  (her-group-id - last group-info)   ;; 'her-j' is distance matrix row we want to use, so we subtract group ID of self from minimal group ID in respective level
 
       ;; Secondly, we roll the identity dice...
@@ -415,7 +415,7 @@ to change-opinion-HK
     ]
 
     ;; Now we set successful AGENTS as NEIGHBS:
-    set neighbs other agents with [identity-dice?]
+    set neighbs other agents with [own-identity-dice?]
     if show_dice_rolls? [print count neighbs]
   ]
 
@@ -427,7 +427,7 @@ to change-opinion-HK
   ]
 
   ;; now only follow them, the successful rollers and set them as INFLUENTIALS...
-  let influentials neighbs with [opinion-dice?]
+  let influentials neighbs with [own-opinion-dice?]
   if show_dice_rolls? [print count influentials]
 
   ;; 3) we also add the updating agent into 'influentials'
@@ -440,7 +440,7 @@ to change-opinion-HK
     ;; by 'range opinions' we generate list of integers from '0' to 'opinions - 1',
     ;; by 'n-of updating' we randomly take 'updating' number of integers from this list
     ;; by 'shuffle' we randomize order of the resulting list
-    let op-list shuffle n-of updating range NumberOfOpinionDimensions
+    let op-list shuffle n-of updating range Number_Of_Opinion_Dimensions
 
     ;; we initialize counter 'step'
     let step 0
@@ -468,24 +468,24 @@ end
 
 to roll-opinion-dice [op-dist]
   ifelse opinion_sigmoid? [
-    let probability-of-interaction compute-sigmoid (op-dist) ([opinion-sigmoid-xOffset] of myself) ([opinion-sigmoid-steepness] of myself)
+    let probability-of-interaction compute-sigmoid (op-dist) ([own-opinion-sigmoid-xOffset] of myself) ([own-opinion-sigmoid-steepness] of myself)
     let dice (random-float 1)
-    set opinion-dice? dice < probability-of-interaction
+    set own-opinion-dice? dice < probability-of-interaction
     if show_dice_rolls? and probability-of-interaction > 0 and probability-of-interaction < 1 [
-      print (word "Opinion distance: " op-dist ", Boundary: " [own-boundary] of myself ", Sigmoidial probability: " probability-of-interaction ", Rolled dice: " dice "; Result: " opinion-dice?)]
-  ][set opinion-dice? op-dist <= [opinion-sigmoid-xOffset] of myself]  ;; If we don't use opinion sigmoid, then we set 'opinion-dice?' according sharp difference
+      print (word "Opinion distance: " op-dist ", Boundary: " [own-boundary] of myself ", Sigmoidial probability: " probability-of-interaction ", Rolled dice: " dice "; Result: " own-opinion-dice?)]
+  ][set own-opinion-dice? op-dist <= [own-opinion-sigmoid-xOffset] of myself]  ;; If we don't use opinion sigmoid, then we set 'opinion-dice?' according sharp difference
 end
 
 
 
 to roll-identity-dice [our-distance]
   ifelse identity_sigmoid? [
-    let probability-of-interaction compute-sigmoid (our-distance) ([identity-sigmoid-xOffset] of myself) ([identity-sigmoid-steepness] of myself)
+    let probability-of-interaction compute-sigmoid (our-distance) ([own-identity-sigmoid-xOffset] of myself) ([own-identity-sigmoid-steepness] of myself)
     let dice (random-float 1)
-    set identity-dice? dice < probability-of-interaction
+    set own-identity-dice? dice < probability-of-interaction
     if show_dice_rolls? and probability-of-interaction > 0 and probability-of-interaction < 1 [
-      print (word "Group distance: " our-distance ", Identity distance threshold: " [identity-sigmoid-xOffset] of myself ", Sigmoidial probability: " probability-of-interaction " Rolled dice: " dice "; Result: " identity-dice?)]
-  ][set identity-dice? our-distance <= [identity-sigmoid-xOffset] of myself]  ;; If we don't use identity sigmoid, then we set 'identity-dice?' according sharp difference
+      print (word "Group distance: " our-distance ", Identity distance threshold: " [own-identity-sigmoid-xOffset] of myself ", Sigmoidial probability: " probability-of-interaction " Rolled dice: " dice "; Result: " own-identity-dice?)]
+  ][set own-identity-dice? our-distance <= [own-identity-sigmoid-xOffset] of myself]  ;; If we don't use identity sigmoid, then we set 'identity-dice?' according sharp difference
 end
 
 
@@ -512,7 +512,7 @@ to-report opinion-distance
   let dist 0
 
   ;; while loop going through each dimension, computiong distance in each dimension, squarring it and adding in the container
-  while [step < NumberOfOpinionDimensions] [
+  while [step < Number_Of_Opinion_Dimensions] [
     ;; computiong distance in each dimension, squarring it and adding in the container
     set dist dist + ((item step my - item step her) ^ 2)
 
@@ -524,7 +524,7 @@ to-report opinion-distance
   set dist sqrt dist
 
   ;; Computing normalization constant according switch 'normalize_sigmoid_distances?':
-  let normalization ifelse-value (normalize_distances?) [1 / sqrt(4 * NumberOfOpinionDimensions)][1]
+  let normalization ifelse-value (Normalize_Distances?) [1 / sqrt(4 * Number_Of_Opinion_Dimensions)][1]
 
   ;; reporting Euclidean distance
   report dist * normalization
@@ -540,7 +540,7 @@ to-report opinion-distance2 [my her]
   let dist 0
 
   ;; while loop going through each dimension, computiong distance in each dimension, squarring it and adding in the container
-  while [step < NumberOfOpinionDimensions] [
+  while [step < Number_Of_Opinion_Dimensions] [
     ;; computiong distance in each dimension, squarring it and adding in the container
     set dist dist + (item step my - item step her) ^ 2
 
@@ -552,7 +552,7 @@ to-report opinion-distance2 [my her]
   set dist sqrt dist
 
   ;; Turning 'dist' into 'weight'
-  let weight (sqrt(4 * NumberOfOpinionDimensions) - dist) / sqrt(4 * NumberOfOpinionDimensions)
+  let weight (sqrt(4 * Number_Of_Opinion_Dimensions) - dist) / sqrt(4 * Number_Of_Opinion_Dimensions)
 
   ;; reporting weight of distance
   report precision weight 10
@@ -568,7 +568,7 @@ to-report opinion-distance3 [my her]
   let dist 0
 
   ;; while loop going through each dimension, computiong distance in each dimension, squarring it and adding in the container
-  while [step < NumberOfOpinionDimensions] [
+  while [step < Number_Of_Opinion_Dimensions] [
     ;; computiong distance in each dimension, squarring it and adding in the container
     set dist dist + (item step my - item step her) ^ 2
 
@@ -580,7 +580,7 @@ to-report opinion-distance3 [my her]
   set dist sqrt dist
 
   ;; Computing normalization constant according switch 'normalize_sigmoid_distances?':
-  let normalization ifelse-value (normalize_distances?) [1 / sqrt(4 * NumberOfOpinionDimensions)][1]
+  let normalization ifelse-value (Normalize_Distances?) [1 / sqrt(4 * Number_Of_Opinion_Dimensions)][1]
 
   ;; reporting weight of distance
   report precision (dist * normalization) 10
@@ -613,19 +613,19 @@ to updating-patches-and-globals
   set main-Record fput precision (mean [mean own-record] of agents) 3 but-last main-Record
 
   ;; Coloring agents according identity group
-  if centroid_color? [ask agents [set color (5 + 10 * (group - min [group] of agents))]]
+  if centroid_color? [ask agents [set color (5 + 10 * (own-group-number - min [own-group-number] of agents))]]
 end
 
 
 ;; Procedure reporting ESBG/Ashwin's polarisation
 to-report Ash-polarisation
   ;; Preparation
-  create-centroids 2 [set shape "square" set own-opinion n-values NumberOfOpinionDimensions [precision (1 - random-float 2) 8]]
+  create-centroids 2 [set shape "square" set own-opinion n-values Number_Of_Opinion_Dimensions [precision (1 - random-float 2) 8]]
   let cent1 max [who] of centroids  ;; Storing 'who' of two new centroids
   let cent0 cent1 - 1
   ;; Random assignment of agents to the groups -- we create random list of 'cent0s' and 'cent1s' of same length as agents number and then assign them based on agent's WHO
-  let membership shuffle (sentence n-values round (NumberOfAgents / 2) [cent0] n-values (ifelse-value (0 = NumberOfAgents mod 2) [NumberOfAgents / 2][(NumberOfAgents - 1) / 2]) [cent1])
-  ask agents [set group item who membership]
+  let membership shuffle (sentence n-values round (Number_Of_Agents / 2) [cent0] n-values (ifelse-value (0 = Number_Of_Agents mod 2) [Number_Of_Agents / 2][(Number_Of_Agents - 1) / 2]) [cent1])
+  ask agents [set own-group-number item who membership]
   updating-centroids-own-opinion (cent0) (cent1)  ;; Initial update
 
   ;; Iterating until centroids are stable
@@ -635,27 +635,27 @@ to-report Ash-polarisation
   ]
 
   ;; Computing polarisation -- cutting-out agents too distant from centroids
-  ask agents [set distance_to_centroid [opinion-distance] of centroid group]
-  let a0 agents with [group = cent0]
+  ask agents [set own-distance-to-centroid [opinion-distance] of centroid own-group-number]
+  let a0 agents with [own-group-number = cent0]
   set a0 min-n-of (count a0 - ESBG_furthest_out) a0 [opinion-distance3 ([own-opinion] of self) ([own-opinion] of centroid cent0)]
-  let a1 agents with [group = cent1]
+  let a1 agents with [own-group-number = cent1]
   set a1 min-n-of (count a1 - ESBG_furthest_out) a1 [opinion-distance3 ([own-opinion] of self) ([own-opinion] of centroid cent1)]
 
   ;; Updating centroids and agents opinion position (without furthest agents)
-  ask centroid cent0 [foreach range NumberOfOpinionDimensions [o -> set own-opinion replace-item o own-opinion precision (mean [item o own-opinion] of a0) 8] getPlace]
-  ask a0 [set distance_to_centroid [opinion-distance] of centroid cent0]
-  ask centroid cent1 [foreach range NumberOfOpinionDimensions [o -> set own-opinion replace-item o own-opinion precision (mean [item o own-opinion] of a1) 8] getPlace]
-  ask a1 [set distance_to_centroid [opinion-distance] of centroid cent1]
+  ask centroid cent0 [foreach range Number_Of_Opinion_Dimensions [o -> set own-opinion replace-item o own-opinion precision (mean [item o own-opinion] of a0) 8] getPlace]
+  ask a0 [set own-distance-to-centroid [opinion-distance] of centroid cent0]
+  ask centroid cent1 [foreach range Number_Of_Opinion_Dimensions [o -> set own-opinion replace-item o own-opinion precision (mean [item o own-opinion] of a1) 8] getPlace]
+  ask a1 [set own-distance-to-centroid [opinion-distance] of centroid cent1]
 
   ;; Preparing final distances and diversity
-  let normalization ifelse-value (normalize_distances?) [1][1 / sqrt(4 * NumberOfOpinionDimensions)]
-  ;; NOTE: If the switch 'normalize_distances?' is true, then functions 'opinion-distance' and 'opinion-distance3' compute normalized distances,
+  let normalization ifelse-value (Normalize_Distances?) [1][1 / sqrt(4 * Number_Of_Opinion_Dimensions)]
+  ;; NOTE: If the switch 'Normalize_Distances?' is true, then functions 'opinion-distance' and 'opinion-distance3' compute normalized distances,
   ;; then we must avoid normalization here, but if the switch is false, then the function computes plain distance and we must normalize here --
   ;; so we use same concept and almost same code as in the functions 'opinion-distance' and 'opinion-distance3' here, but reversed:
   ;; the true switch means no normalization here, the false switch means normalization here, so in the end we normalize values in ESBG polarization exactly once.
   let cent-dist normalization * opinion-distance3 ([own-opinion] of centroid cent0) ([own-opinion] of centroid cent1)
-  let div0 normalization * (mean [distance_to_centroid] of a0)
-  let div1 normalization * (mean [distance_to_centroid] of a1)
+  let div0 normalization * (mean [own-distance-to-centroid] of a0)
+  let div1 normalization * (mean [own-distance-to-centroid] of a1)
 
   ;; Cleaning and reporting
   ask centroids with [who >= cent0] [die]
@@ -665,26 +665,26 @@ end
 
 to update-agents-opinion-group [cent0 cent1]
   ;; Checking the assignment -- is the assigned centroid the nearest? If not, reassign!
-  ask agents [set group group - ([who] of min-one-of centroids with [who >= cent0] [opinion-distance])]  ; set color 15 + group * 10]
-  let wrongly-at-grp0 turtle-set agents with [group = -1]  ;; they are in 0, but should be in 1: 0 - 1 = -1
-  let wrongly-at-grp1 turtle-set agents with [group = 1]  ;; they are in 1, but should be in 0: 1 - 0 = 1
+  ask agents [set own-group-number own-group-number - ([who] of min-one-of centroids with [who >= cent0] [opinion-distance])]  ; set color 15 + group * 10]
+  let wrongly-at-grp0 turtle-set agents with [own-group-number = -1]  ;; they are in 0, but should be in 1: 0 - 1 = -1
+  let wrongly-at-grp1 turtle-set agents with [own-group-number = 1]  ;; they are in 1, but should be in 0: 1 - 0 = 1
   ifelse count wrongly-at-grp0 = count wrongly-at-grp1 [
-    ask agents [set group [who] of min-one-of centroids with [who >= cent0] [opinion-distance]]
+    ask agents [set own-group-number [who] of min-one-of centroids with [who >= cent0] [opinion-distance]]
   ][
-    let peleton agents with [group = 0]
+    let peleton agents with [own-group-number = 0]
     ifelse count wrongly-at-grp0 < count wrongly-at-grp1 [
       set peleton (turtle-set peleton wrongly-at-grp0 max-n-of (count wrongly-at-grp0) wrongly-at-grp1 [opinion-distance3 ([own-opinion] of self) ([own-opinion] of centroid cent0)]) ;; all agents assigned correctly + smaller group of wrong + from bigger group 'n of size of smaller group'
       let stayed agents with [not member? self peleton]
-      ask peleton [set group [who] of min-one-of centroids with [who >= cent0] [opinion-distance] ;set color 15 + group * 10
+      ask peleton [set own-group-number [who] of min-one-of centroids with [who >= cent0] [opinion-distance] ;set color 15 + group * 10
       ]
-      ask stayed [set group cent1 ;set color 15 + group * 10
+      ask stayed [set own-group-number cent1 ;set color 15 + group * 10
       ]
      ][
       set peleton (turtle-set peleton wrongly-at-grp1 max-n-of (count wrongly-at-grp1) wrongly-at-grp0 [opinion-distance3 ([own-opinion] of self) ([own-opinion] of centroid cent1)]) ;; all agents assigned correctly + smaller group of wrong + from bigger group 'n of size of smaller group'
       let stayed agents with [not member? self peleton]
-      ask peleton [set group [who] of min-one-of centroids with [who >= cent0] [opinion-distance] ;set color 15 + group * 10
+      ask peleton [set own-group-number [who] of min-one-of centroids with [who >= cent0] [opinion-distance] ;set color 15 + group * 10
       ]
-      ask stayed [set group cent0 ;set color 15 + group * 10
+      ask stayed [set own-group-number cent0 ;set color 15 + group * 10
       ]
     ]
   ]
@@ -699,7 +699,7 @@ to updating-centroids-own-opinion [cent0 cent1]
   set positions_clusters [] ;; List with all positions of both 2 groups
   foreach range 2 [c ->
     let one-position []  ;; List for one position of one cluster
-    foreach range NumberOfOpinionDimensions [o -> set one-position lput precision (mean [item o own-opinion] of agents with [group = cent0 + c]) 8 one-position]
+    foreach range Number_Of_Opinion_Dimensions [o -> set one-position lput precision (mean [item o own-opinion] of agents with [own-group-number = cent0 + c]) 8 one-position]
     set positions_clusters lput one-position positions_clusters
   ]
 
@@ -748,12 +748,12 @@ to compute-centroids-positions [sel-agents]
   let grp min [who] of centroids
   while [grp <= (max [who] of centroids)] [
     ask centroid grp [
-      ifelse (not any? agents with [group = grp]) [
+      ifelse (not any? agents with [own-group-number = grp]) [
         set own-opinion own-previous-opinion
       ][
         let dim 0
-        while [dim < NumberOfOpinionDimensions] [
-          set own-opinion replace-item dim own-opinion mean [item dim own-opinion] of sel-agents with [group = grp]
+        while [dim < Number_Of_Opinion_Dimensions] [
+          set own-opinion replace-item dim own-opinion mean [item dim own-opinion] of sel-agents with [own-group-number = grp]
           set dim dim + 1
         ]
       ]
@@ -772,29 +772,29 @@ to-report get-conformity
   let cValue 0
 
   ;; Then we draw the value according the chosen method
-  if conformity-drawn = "constant" [set cValue conformity-level + random-float 0]  ;; NOTE! 'random-float 0' is here for consuming one pseudorandom number to cunsume same number of pseudorandom numbers as "uniform
-  if conformity-drawn = "uniform" [set cValue ifelse-value (conformity-level < 0.5)
-                                                           [precision (random-float (2 * conformity-level)) 3]
-                                                           [precision (1 - (random-float (2 * (1 - conformity-level)))) 3]]
-  if conformity-drawn = "normal" [ set cValue precision (random-normal conformity-level conformity-std) 3
-                                   while [cValue > 1 or cValue <= 0] [ set cValue precision (random-normal conformity-level conformity-std) 3]
+  if Conformity_Distribution = "constant" [set cValue Conformity_Mean + random-float 0]  ;; NOTE! 'random-float 0' is here for consuming one pseudorandom number to cunsume same number of pseudorandom numbers as "uniform
+  if Conformity_Distribution = "uniform" [set cValue ifelse-value (Conformity_Mean < 0.5)
+                                                           [precision (random-float (2 * Conformity_Mean)) 3]
+                                                           [precision (1 - (random-float (2 * (1 - Conformity_Mean)))) 3]]
+  if Conformity_Distribution = "normal" [ set cValue precision (random-normal Conformity_Mean Conformity_STD) 3
+                                   while [cValue > 1 or cValue <= 0] [ set cValue precision (random-normal Conformity_Mean Conformity_STD) 3]
   ]
   report cValue
 end
 
 
-;; Sub-routine for assigning value of individual SDIRO's
-to-report get-individual-SDIRO
+;; Sub-routine for assigning value of
+to-report get-own-SDIRO
   ;; We have to initialize empty temporary variable
   let gtValue 0
 
   ;; Then we draw the value according the chosen method
-  if SDIRO_Drawn = "constant" [set gtValue id_threshold + random-float 0]  ;; NOTE! 'random-float 0' is here for consuming one pseudorandom number to cunsume same number of pseudorandom numbers as "uniform
-  if SDIRO_Drawn = "uniform" [set gtValue ifelse-value (id_threshold < 0.5)
-                                                           [precision (random-float (2 * id_threshold)) 3]
-                                                           [precision (1 - (random-float (2 * (1 - id_threshold)))) 3]]
-  if SDIRO_Drawn = "normal" [ set gtValue precision (random-normal id_threshold id_threshold-std) 3
-                                  while [gtValue > 1 or gtValue <= 0] [ set gtValue precision (random-normal id_threshold id_threshold-std) 3]
+  if SDIRO_Distribution = "constant" [set gtValue SDIRO_Mean + random-float 0]  ;; NOTE! 'random-float 0' is here for consuming one pseudorandom number to cunsume same number of pseudorandom numbers as "uniform
+  if SDIRO_Distribution = "uniform" [set gtValue ifelse-value (SDIRO_Mean < 0.5)
+                                                           [precision (random-float (2 * SDIRO_Mean)) 3]
+                                                           [precision (1 - (random-float (2 * (1 - SDIRO_Mean)))) 3]]
+  if SDIRO_Distribution = "normal" [ set gtValue precision (random-normal SDIRO_Mean SDIRO_STD) 3
+                                  while [gtValue > 1 or gtValue <= 0] [ set gtValue precision (random-normal SDIRO_Mean SDIRO_STD) 3]
   ]
   report gtValue
 end
@@ -806,10 +806,10 @@ to-report get-HK-boundary
   let uValue 0
 
   ;; Then we draw the value according the chosen method
-  if boundary-drawn = "constant" [set uValue boundary + random-float 0]  ;; NOTE! 'random-float 0' is here for consuming one pseudorandom number to cunsume same number of pseudorandom numbers as "uniform"
-  if boundary-drawn = "uniform" [set uValue precision (random-float (2 * boundary)) 3]
-  if boundary-drawn = "normal" [set uValue precision (random-normal boundary boundary-std) 3
-                                while [uValue > 1 or uValue <= 0] [ set uValue precision (random-normal  boundary boundary-std) 3]
+  if Boundary_Distribution = "constant" [set uValue Boundary_Mean + random-float 0]  ;; NOTE! 'random-float 0' is here for consuming one pseudorandom number to cunsume same number of pseudorandom numbers as "uniform"
+  if Boundary_Distribution = "uniform" [set uValue precision (random-float (2 * Boundary_Mean)) 3]
+  if Boundary_Distribution = "normal" [set uValue precision (random-normal Boundary_Mean Boundary_STD) 3
+                                while [uValue > 1 or uValue <= 0] [ set uValue precision (random-normal  Boundary_Mean Boundary_STD) 3]
   ]
   ;; reporting value back for assigning
   report uValue
@@ -819,20 +819,20 @@ end
 ;; Sub procedure for generating needed parameters for sigmoids
 to get-sigmoids
   ;; Opinion ones
-  set opinion-sigmoid-xOffset own-boundary
-  set opinion-sigmoid-steepness precision (random-normal mean-opinion-sigmoid-steepness std-opinion-sigmoid-steepness) 3
-  while [opinion-sigmoid-steepness > 1 or opinion-sigmoid-steepness < 0] [
-    set opinion-sigmoid-steepness precision (random-normal mean-opinion-sigmoid-steepness std-opinion-sigmoid-steepness) 3
+  set own-opinion-sigmoid-xOffset own-boundary
+  set own-opinion-sigmoid-steepness precision (random-normal Mean_Opinion_Sigmoid_Steepness STD_Opinion_Sigmoid_Steepness) 3
+  while [own-opinion-sigmoid-steepness > 1 or own-opinion-sigmoid-steepness < 0] [
+    set own-opinion-sigmoid-steepness precision (random-normal Mean_Opinion_Sigmoid_Steepness STD_Opinion_Sigmoid_Steepness) 3
   ]
 
   ;; Identity ones
-  set identity-sigmoid-xOffset precision (random-normal mean-identity-sigmoid-xOffset std-identity-sigmoid-xOffset) 3
-  while [identity-sigmoid-xOffset > 1 or identity-sigmoid-xOffset < 0] [
-    set identity-sigmoid-xOffset precision (random-normal mean-identity-sigmoid-xOffset std-identity-sigmoid-xOffset) 3
+  set own-identity-sigmoid-xOffset precision (random-normal Mean_Identity_Sigmoid_xOffset STD_Identity_Sigmoid_xOffset) 3
+  while [own-identity-sigmoid-xOffset > 1 or own-identity-sigmoid-xOffset < 0] [
+    set own-identity-sigmoid-xOffset precision (random-normal Mean_Identity_Sigmoid_xOffset STD_Identity_Sigmoid_xOffset) 3
   ]
-  set identity-sigmoid-steepness precision (random-normal mean-identity-sigmoid-steepness std-identity-sigmoid-steepness) 3
-  while [identity-sigmoid-steepness > 1 or identity-sigmoid-steepness < 0] [
-    set identity-sigmoid-steepness precision (random-normal mean-identity-sigmoid-steepness std-identity-sigmoid-steepness) 3
+  set own-identity-sigmoid-steepness precision (random-normal Mean_Identity_Sigmoid_Steepness STD_Identity_Sigmoid_Steepness) 3
+  while [own-identity-sigmoid-steepness > 1 or own-identity-sigmoid-steepness < 0] [
+    set own-identity-sigmoid-steepness precision (random-normal Mean_Identity_Sigmoid_Steepness STD_Identity_Sigmoid_Steepness) 3
   ]
 end
 
@@ -840,8 +840,8 @@ end
 ;; sub-routine for graphical representation -- it takes two opinion dimension and gives the agent on XY coordinates accordingly
 to getPlace
   ;; check whether our cosen dimension is not bigger than maximum of dimensions in the simulation
-  if X-opinion > NumberOfOpinionDimensions [set X-opinion 1]
-  if Y-opinion > NumberOfOpinionDimensions [set Y-opinion 1]
+  if X-opinion > Number_Of_Opinion_Dimensions [set X-opinion 1]
+  if Y-opinion > Number_Of_Opinion_Dimensions [set Y-opinion 1]
 
   ;; then we rotate the agent towards the future place
   facexy ((item (X-opinion - 1) own-opinion) * max-pxcor) ((item (Y-opinion - 1) own-opinion) * max-pycor)
@@ -864,7 +864,7 @@ end
 
 ;; sub-routine for visual purposes -- colors empty patches white, patches with some agents light green, with many agents dark green, with all agents black
 to-report patch-color
-  report 59.9 - (9.8 * (ln(1 + count turtles-here) / ln(NumberOfAgents)))
+  report 59.9 - (9.8 * (ln(1 + count turtles-here) / ln(Number_Of_Agents)))
 end
 
 
@@ -872,7 +872,7 @@ end
 to avoiding-run-time-errors
   ;; Check whether we set properly parameter 'updating' --
   ;; if we want update more dimensions than exists in simulation, then we set 'updating' to max of dimensions, i.e. 'opinions'
-  if updating > NumberOfOpinionDimensions [set updating NumberOfOpinionDimensions]
+  if updating > Number_Of_Opinion_Dimensions [set updating Number_Of_Opinion_Dimensions]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -955,11 +955,11 @@ NIL
 
 SLIDER
 10
-42
-134
-75
-NumberOfAgents
-NumberOfAgents
+46
+146
+79
+Number_Of_Agents
+Number_Of_Agents
 10
 1000
 129.0
@@ -971,10 +971,10 @@ HORIZONTAL
 SLIDER
 11
 78
-213
+234
 111
-NumberOfOpinionDimensions
-NumberOfOpinionDimensions
+Number_Of_Opinion_Dimensions
+Number_Of_Opinion_Dimensions
 1
 50
 2.0
@@ -984,22 +984,22 @@ NIL
 HORIZONTAL
 
 CHOOSER
-219
-478
-311
-523
+251
+507
+343
+552
 model
 model
 "HK"
 0
 
 SLIDER
-93
-245
-199
-278
-boundary
-boundary
+1
+276
+130
+309
+Boundary_Mean
+Boundary_Mean
 0.0
 1
 0.2
@@ -1099,12 +1099,12 @@ NIL
 1
 
 CHOOSER
-1
-221
-93
-266
-boundary-drawn
-boundary-drawn
+10
+188
+157
+233
+Boundary_Distribution
+Boundary_Distribution
 "constant" "uniform" "normal"
 2
 
@@ -1224,16 +1224,16 @@ true
 "" ""
 PENS
 "Op01" 1.0 0 -16777216 true "" "plot mean [item 0 own-opinion] of agents"
-"Op02" 1.0 0 -7500403 true "" "if NumberOfOpinionDimensions >= 2 [plot mean [item 1 own-opinion] of agents]"
-"Op03" 1.0 0 -2674135 true "" "if NumberOfOpinionDimensions >= 3 [plot mean [item 2 own-opinion] of agents]"
-"Op04" 1.0 0 -955883 true "" "if NumberOfOpinionDimensions >= 4 [plot mean [item 3 own-opinion] of agents]"
-"Op05" 1.0 0 -6459832 true "" "if NumberOfOpinionDimensions >= 5 [plot mean [item 4 own-opinion] of turtles]"
-"Op06" 1.0 0 -1184463 true "" "if NumberOfOpinionDimensions >= 6 [plot mean [item 5 own-opinion] of turtles]"
-"Op07" 1.0 0 -10899396 true "" "if NumberOfOpinionDimensions >= 7 [plot mean [item 6 own-opinion] of turtles]"
-"Op08" 1.0 0 -13840069 true "" "if NumberOfOpinionDimensions >= 8 [plot mean [item 7 own-opinion] of turtles]"
-"Op09" 1.0 0 -14835848 true "" "if NumberOfOpinionDimensions >= 9 [plot mean [item 8 own-opinion] of turtles]"
-"Op10" 1.0 0 -11221820 true "" "if NumberOfOpinionDimensions >= 10 [plot mean [item 9 own-opinion] of turtles]"
-"Op11" 1.0 0 -13791810 true "" "if NumberOfOpinionDimensions >= 11 [plot mean [item 10 own-opinion] of turtles]"
+"Op02" 1.0 0 -7500403 true "" "if Number_Of_Opinion_Dimensions >= 2 [plot mean [item 1 own-opinion] of agents]"
+"Op03" 1.0 0 -2674135 true "" "if Number_Of_Opinion_Dimensions >= 3 [plot mean [item 2 own-opinion] of agents]"
+"Op04" 1.0 0 -955883 true "" "if Number_Of_Opinion_Dimensions >= 4 [plot mean [item 3 own-opinion] of agents]"
+"Op05" 1.0 0 -6459832 true "" "if Number_Of_Opinion_Dimensions >= 5 [plot mean [item 4 own-opinion] of turtles]"
+"Op06" 1.0 0 -1184463 true "" "if Number_Of_Opinion_Dimensions >= 6 [plot mean [item 5 own-opinion] of turtles]"
+"Op07" 1.0 0 -10899396 true "" "if Number_Of_Opinion_Dimensions >= 7 [plot mean [item 6 own-opinion] of turtles]"
+"Op08" 1.0 0 -13840069 true "" "if Number_Of_Opinion_Dimensions >= 8 [plot mean [item 7 own-opinion] of turtles]"
+"Op09" 1.0 0 -14835848 true "" "if Number_Of_Opinion_Dimensions >= 9 [plot mean [item 8 own-opinion] of turtles]"
+"Op10" 1.0 0 -11221820 true "" "if Number_Of_Opinion_Dimensions >= 10 [plot mean [item 9 own-opinion] of turtles]"
+"Op11" 1.0 0 -13791810 true "" "if Number_Of_Opinion_Dimensions >= 11 [plot mean [item 10 own-opinion] of turtles]"
 
 SLIDER
 1055
@@ -1312,12 +1312,12 @@ NIL
 HORIZONTAL
 
 SLIDER
-99
-313
-220
-346
-conformity-level
-conformity-level
+1
+355
+142
+388
+Conformity_Mean
+Conformity_Mean
 0
 1
 0.563
@@ -1329,10 +1329,10 @@ HORIZONTAL
 CHOOSER
 1
 310
-99
+156
 355
-conformity-drawn
-conformity-drawn
+Conformity_Distribution
+Conformity_Distribution
 "constant" "uniform" "normal"
 2
 
@@ -1395,7 +1395,7 @@ true
 false
 "" ""
 PENS
-"default" 0.05 1 -16777216 true "" "histogram [Conformity] of agents"
+"default" 0.05 1 -16777216 true "" "histogram [own-conformity] of agents"
 
 MONITOR
 933
@@ -1431,12 +1431,12 @@ killing_centroids?
 -1000
 
 SLIDER
-92
-277
-199
-310
-id_threshold
-id_threshold
+10
+233
+128
+266
+SDIRO_Mean
+SDIRO_Mean
 0.01
 1
 0.44
@@ -1477,9 +1477,9 @@ HORIZONTAL
 
 SWITCH
 1
-555
+587
 116
-588
+620
 use_identity?
 use_identity?
 0
@@ -1517,12 +1517,12 @@ NIL
 HORIZONTAL
 
 CHOOSER
-1
-266
-93
-311
-SDIRO_Drawn
-SDIRO_Drawn
+157
+188
+264
+233
+SDIRO_Distribution
+SDIRO_Distribution
 "constant" "uniform" "normal"
 2
 
@@ -1542,25 +1542,25 @@ true
 false
 "" ""
 PENS
-"default" 0.01 1 -16777216 true "" "histogram [group-threshold] of agents"
+"default" 0.01 1 -16777216 true "" "histogram [own-SDIRO] of agents"
 
 CHOOSER
-1
-176
-93
-221
-identity_type
-identity_type
+11
+143
+103
+188
+Identity_Type
+Identity_Type
 "global" "individual"
 1
 
 SLIDER
-93
-178
-199
-211
-identity_levels
-identity_levels
+101
+143
+207
+176
+Identity_Levels
+Identity_Levels
 1
 10
 7.0
@@ -1570,12 +1570,12 @@ NIL
 HORIZONTAL
 
 SLIDER
-198
-278
-321
-311
-id_threshold-std
-id_threshold-std
+128
+233
+239
+266
+SDIRO_STD
+SDIRO_STD
 0
 1
 0.075
@@ -1585,12 +1585,12 @@ NIL
 HORIZONTAL
 
 SLIDER
-220
+173
+354
 313
-332
-346
-conformity-std
-conformity-std
+387
+Conformity_STD
+Conformity_STD
 0
 1
 0.222
@@ -1600,12 +1600,12 @@ NIL
 HORIZONTAL
 
 SLIDER
-199
-245
-321
-278
-boundary-std
-boundary-std
+130
+276
+252
+309
+Boundary_STD
+Boundary_STD
 0
 1
 0.05
@@ -1616,11 +1616,11 @@ HORIZONTAL
 
 SLIDER
 1
-355
-199
-388
-mean-opinion-sigmoid-steepness
-mean-opinion-sigmoid-steepness
+387
+247
+420
+Mean_Opinion_Sigmoid_Steepness
+Mean_Opinion_Sigmoid_Steepness
 0
 1
 0.5
@@ -1630,10 +1630,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-183
-520
-334
-553
+251
+551
+402
+584
 maxSteepness
 maxSteepness
 0
@@ -1646,11 +1646,11 @@ HORIZONTAL
 
 SLIDER
 2
-388
-191
-421
-std-opinion-sigmoid-steepness
-std-opinion-sigmoid-steepness
+420
+246
+453
+STD_Opinion_Sigmoid_Steepness
+STD_Opinion_Sigmoid_Steepness
 0
 1
 0.1
@@ -1661,11 +1661,11 @@ HORIZONTAL
 
 SLIDER
 2
-421
-204
-454
-mean-identity-sigmoid-steepness
-mean-identity-sigmoid-steepness
+453
+257
+486
+Mean_Identity_Sigmoid_Steepness
+Mean_Identity_Sigmoid_Steepness
 0
 1
 0.7
@@ -1676,11 +1676,11 @@ HORIZONTAL
 
 SLIDER
 2
-454
-192
-487
-std-identity-sigmoid-steepness
-std-identity-sigmoid-steepness
+486
+249
+519
+STD_Identity_Sigmoid_Steepness
+STD_Identity_Sigmoid_Steepness
 0
 1
 0.125
@@ -1690,12 +1690,12 @@ NIL
 HORIZONTAL
 
 SLIDER
-200
-178
-327
-211
-min_id_level
-min_id_level
+210
+112
+342
+145
+Minimum_SDIRO
+Minimum_SDIRO
 0
 0.5
 0.29
@@ -1705,12 +1705,12 @@ NIL
 HORIZONTAL
 
 SLIDER
-199
 210
-327
-243
-max_id_level
-max_id_level
+145
+342
+178
+Maximum_SDIRO
+Maximum_SDIRO
 0.55
 1
 0.89
@@ -1720,12 +1720,12 @@ NIL
 HORIZONTAL
 
 SWITCH
-0
+11
+111
+185
 144
-149
-177
-normalize_distances?
-normalize_distances?
+Normalize_Distances?
+Normalize_Distances?
 0
 1
 -1000
@@ -1743,11 +1743,11 @@ show_dice_rolls?
 
 SLIDER
 3
-487
-195
-520
-mean-identity-sigmoid-xOffset
-mean-identity-sigmoid-xOffset
+519
+243
+552
+Mean_Identity_Sigmoid_xOffset
+Mean_Identity_Sigmoid_xOffset
 0
 1
 0.15
@@ -1758,11 +1758,11 @@ HORIZONTAL
 
 SLIDER
 3
-520
-184
-553
-std-identity-sigmoid-xOffset
-std-identity-sigmoid-xOffset
+552
+235
+585
+STD_Identity_Sigmoid_xOffset
+STD_Identity_Sigmoid_xOffset
 0
 1
 0.1
@@ -1827,9 +1827,9 @@ PENS
 
 SWITCH
 199
-355
+387
 329
-388
+420
 opinion_sigmoid?
 opinion_sigmoid?
 0
@@ -1838,9 +1838,9 @@ opinion_sigmoid?
 
 SWITCH
 204
-421
+453
 333
-454
+486
 identity_sigmoid?
 identity_sigmoid?
 0
