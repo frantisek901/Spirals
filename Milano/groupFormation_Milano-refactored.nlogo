@@ -1359,7 +1359,7 @@ INPUTBOX
 502
 521
 N_centroids
-3.0
+4.0
 1
 0
 Number
@@ -1787,7 +1787,7 @@ true
 false
 "" ""
 PENS
-"default" 0.05 1 -16777216 true "" "histogram [opinion-sigmoid-steepness] of agents "
+"default" 0.05 1 -16777216 true "" "histogram [own-opinion-sigmoid-steepness] of agents "
 
 PLOT
 1282
@@ -1805,7 +1805,7 @@ true
 false
 "" ""
 PENS
-"default" 0.05 1 -16777216 true "" "histogram [identity-sigmoid-steepness] of agents "
+"default" 0.05 1 -16777216 true "" "histogram [own-identity-sigmoid-steepness] of agents "
 
 PLOT
 1282
@@ -1823,7 +1823,7 @@ true
 false
 "" ""
 PENS
-"default" 0.05 1 -16777216 true "" "histogram [identity-sigmoid-xOffset] of agents "
+"default" 0.05 1 -16777216 true "" "histogram [own-identity-sigmoid-xOffset] of agents "
 
 SWITCH
 199
