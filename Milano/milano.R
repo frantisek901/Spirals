@@ -79,10 +79,10 @@ dfs %>%
   aes(x = boundary, y = ESBG, col = id_threshold, group = grp, linetype = opinions) +
   geom_point(size = 5, alpha = 0.35) +
   geom_line() +
-  labs(x = "Openness to different opinions", y = "Average polarization (ESBG)", col = "Salience of\ndistances in\nidentity\nrelevant\nopinions\n(SDIRO) :",
+  labs(x = "Openness to different opinions", y = "Average polarization (ESBG)", col = "Salience of\nproximity in\nidentity\nrelevant\nopinions\n(SPIRO) :",
        linetype = "Dimensions:", title = "Average polarization caused by\nmain predictors. (N=603,434).") +
   theme_minimal()
-ggsave("../Milano/milano2.png", height = 4.7, width = 5.7)
+ggsave("../Pilsen/milano2.png", height = 4.7, width = 5.7)
 
 
 

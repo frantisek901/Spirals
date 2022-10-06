@@ -1487,21 +1487,6 @@ use_identity?
 -1000
 
 SLIDER
-823
-471
-927
-504
-d_threshold
-d_threshold
-0
-1
-0.8
-.01
-1
-NIL
-HORIZONTAL
-
-SLIDER
 798
 405
 922
