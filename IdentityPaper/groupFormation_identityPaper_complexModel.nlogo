@@ -116,7 +116,7 @@ to setup
 
   ;; Then we migh initialize agents/turtles
   crt Number_Of_Agents [
-    set own-opinion n-values Number_Of_Opinion_Dimensions [precision (1 - random-float 2) 3]  ;; We set opinions...
+    set own-opinion n-values Number_Of_Opinion_Dimensions [ifelse-value (HK_opinion_distribution?) [1 - (who / ((Number_Of_Agents - 1) / 2))][precision (1 - random-float 2) 3]]  ;; We set opinions...
     set own-previous-opinion own-opinion  ;; ...set last opinion as present opinion...
     set own-conformity get-conformity  ;; setting individual conformity level, and ...
     set own-boundary get-HK-boundary  ;;... setting value of HK boundary.
@@ -272,35 +272,25 @@ to set-group-identities
       set color 5 + (who - min [who] of centroids) * 10
       getPlace
     ]
-print "CHECK 01"
+
     ;; Assignment of agents to groups
-    ask agents [set own-group-number [who] of min-one-of centroids [opinion-distance]]  ;; Sic! Here we intentionally use all agents, including loosely connected.
-print "CHECK 02"
+    ask agents [set own-group-number [who] of min-one-of centroids [opinion-distance ([own-opinion] of myself) ([own-opinion] of self) (true)]]  ;; Sic! Here we intentionally use all agents, including loosely connected.
 
     ;; Computation of centroids possitions
     compute-centroids-positions (agents)
-    ;ask centroids [set last-position own-previous-opinion]
-
-print "CHECK 03"
 
     ;; Iterating cycle -- looking for good match of centroids
-    while [sum [opinion-distance3 (last-position) (own-opinion)] of centroids > Centroids_change] [
+    while [sum [opinion-distance (last-position) (own-opinion) (false)] of centroids > Centroids_change] [
 
       ;; turtles compute whether they are in right cluster and
-      ask agents [set own-group-number [who] of min-one-of centroids [opinion-distance]]
+      ask agents [set own-group-number [who] of min-one-of centroids [opinion-distance ([own-opinion] of myself) ([own-opinion] of self) (true)]]
 
       ;; Computation of centroids possitions
       compute-centroids-positions (agents)
-      ;ask centroids [set last-position own-previous-opinion]
-
-print "CHECK 04"
     ]
-
 
     ;; Storing ID of in-groups for the present identity level
     ask agents [table:put own-WhichGroupHasEachSPIROSortedMeIn idtl own-group-number]
-
-      print "CHECK 05"
 
     ;; Killing centroids without connected agents
     ask centroids [
@@ -313,9 +303,6 @@ print "CHECK 04"
     ;; Firstly, number and lowest ID, it's the easiest
     table:put IDs-and-ns-of-id-groups idtl (list N_centroids min [who] of centroids)  ;; NOTE: the first value in the list is number of groups, second/last is the lowest ID of group centroid.
 
-    print "CHECK 06"
-
-
     ;; Secondly, we fill in respective item in 'distance-matrices'
     ;; We create distance matrix ...
     let min-id last table:get IDs-and-ns-of-id-groups idtl  ;; We have to know ID of the first centroid of respective level...
@@ -326,14 +313,12 @@ print "CHECK 04"
         let j min-id
         let row []  ;; future row of distance matrix -- initialized as empty list
         while [j <= max-id] [
-          set row lput ifelse-value (j = i) [0][precision (opinion-distance3 ([own-opinion] of centroid i) ([own-opinion] of centroid j)) 3] row
+          set row lput ifelse-value (j = i) [0][precision (opinion-distance ([own-opinion] of centroid i) ([own-opinion] of centroid j) (false)) 3] row
           set j j + 1
         ]
         set m lput row m
         set i i + 1
     ]
-
-print "CHECK 07"
 
     ;; And then save it as the table entry...
     table:put distance-matrices idtl matrix:from-row-list m
@@ -342,10 +327,6 @@ print "CHECK 07"
     if centroid_color? [ask agents [set color (5 + 10 * (own-group-number - min [who] of centroids))]]
     if killing_centroids? [ask centroids [die]]
   ]
-
- print "CHECK 08"
-  ;print IDs-and-ns-of-id-groups
-  ;print distance-matrices
 end
 
 
@@ -443,17 +424,7 @@ to change-opinion-HK
       ;;NOTE: The commented out part below can be uncommented if one wants to speed up simulation by hard-setting probabilities of
       ;;extreme distance values ( 0 or 1 ) to extreme values (p = 1 or p = 0). This would lead to differences in outcome especially
       ;;when the sigmoid steepnesses are low.
-
-;      ifelse our-distance > 0 and our-distance < 1 [
-        roll-identity-dice (our-distance)
-      ;][
-;        ifelse our-distance = 0[
-;          set identity-dice? true
-;        ][
-;          set identity-dice? false
-;        ]
-;      ]
-
+      roll-identity-dice (our-distance)
     ]
 
     ;; Now we set successful AGENTS as NEIGHBS:
@@ -461,10 +432,16 @@ to change-opinion-HK
     if show_dice_rolls? [print count neighbs]
   ]
 
+  ;; Choosing positions:
+  ;; So! We chose positions which the agent is interested in and only these positions will be used for measuring distences.
+  let chosen-dimensions range Number_Of_Opinion_Dimensions  ;; let's suppose we use all dimensions...
+  if (Distance_dimensions = "Updated") [set chosen-dimensions sublist (shuffle chosen-dimensions) 0 updating] ;; ... but if we focus on updated, we shorten the list.
+  ;print list-subset (own-opinion) (chosen-dimensions)
+
   ;; NOW we roll probabilistic dice based on opinion distance from influencer - if an agent is too far they are less likely to be heard this time.
   ;; first find out which agent is going to be heard this time.
   ask neighbs [
-    let op-dist opinion-distance3 (ifelse-value (Use_Present_Opinion?) [own-opinion][own-previous-opinion]) ([own-opinion] of myself) ;; Note: We compute opinion distance ('op-dist') of NEIGHBS member and updating agent and ...
+    let op-dist opinion-distance (ifelse-value (Use_Present_Opinion?) [list-subset (own-opinion) (chosen-dimensions)][list-subset (own-previous-opinion) (chosen-dimensions)]) ([list-subset (own-opinion) (chosen-dimensions)] of myself) (false) ;; Note: We compute opinion distance ('op-dist') of NEIGHBS member and updating agent and ...
     roll-opinion-dice (precision op-dist 3)  ;; ... pass it rounded to 3 digits as the argument of ROLL-OPINION-DICE function.
   ]
 
@@ -482,7 +459,7 @@ to change-opinion-HK
     ;; by 'range opinions' we generate list of integers from '0' to 'opinions - 1',
     ;; by 'n-of updating' we randomly take 'updating' number of integers from this list
     ;; by 'shuffle' we randomize order of the resulting list
-    let op-list shuffle n-of updating range Number_Of_Opinion_Dimensions
+    let op-list shuffle n-of updating chosen-dimensions
 
     ;; we initialize counter 'step'
     let step 0
@@ -539,81 +516,20 @@ to-report compute-sigmoid [x xOffset steepness]
 end
 
 
-;; sub-routine for computing opinion distance of two comparing agents
-to-report opinion-distance
-  ;; we store in temporary variable the opinion of the called and compared agent
-  let X own-previous-opinion
-  let my (ifelse-value (Use_Present_Opinion?) [own-opinion][X])
-
-  ;; we store in temporary variable the opinion of the calling and comparing agent
-  let her [(ifelse-value (Use_Present_Opinion?) [own-opinion][own-previous-opinion])] of myself
-
-  ;print word my her
-
+;; Universal sub-routine for computing opinion distance of two comparing opinion positions
+to-report opinion-distance [my her normalize?]
   ;; we initialize counter of step of comparison -- we will compare as many times as we have dimensions
   let step 0
 
   ;; we initialize container where we will store squared distance in each dimension
   let dist 0
 
-  ;; while loop going through each dimension, computiong distance in each dimension, squarring it and adding in the container
-  while [step < Number_Of_Opinion_Dimensions] [
-    ;; computiong distance in each dimension, squarring it and adding in the container
-    set dist dist + ((item step my - item step her) ^ 2)
-
-    ;; advancing 'step' counter by 1
-    set step step + 1
-  ]
-
-  ;; computing square-root of the container 'dist' -- computing Euclidean distance -- and setting it as 'dist'
-  set dist sqrt dist
-
-  ;; Computing normalization constant according switch 'normalize_sigmoid_distances?':
-  let normalization ifelse-value (Normalize_Distances?) [1 / sqrt(4 * Number_Of_Opinion_Dimensions)][1]
-
-  ;; reporting Euclidean distance
-  report dist * normalization
-end
-
-
-;; sub-routine for computing opinion distance of two comparing opinion positions  -- relative distance weighted as 1 for minimal distance and 0 for the maximal one
-to-report opinion-distance2 [my her]
-  ;; we initialize counter of step of comparison -- we will compare as many times as we have dimensions
-  let step 0
-
-  ;; we initialize container where we will store squared distance in each dimension
-  let dist 0
+  ;; we initialize in how many dimensions we will measure the distance between two agents
+  let Number_Of_Chosen_Opinion_Dimensions length my
+  ;if Number_Of_Chosen_Opinion_Dimensions = updating [print Number_Of_Chosen_Opinion_Dimensions]
 
   ;; while loop going through each dimension, computiong distance in each dimension, squarring it and adding in the container
-  while [step < Number_Of_Opinion_Dimensions] [
-    ;; computiong distance in each dimension, squarring it and adding in the container
-    set dist dist + (item step my - item step her) ^ 2
-
-    ;; advancing 'step' counter by 1
-    set step step + 1
-  ]
-
-  ;; computing square-root of the container 'dist' -- computing Euclidean distance -- and setting it as 'dist'
-  set dist sqrt dist
-
-  ;; Turning 'dist' into 'weight'
-  let weight (sqrt(4 * Number_Of_Opinion_Dimensions) - dist) / sqrt(4 * Number_Of_Opinion_Dimensions)
-
-  ;; reporting weight of distance
-  report precision weight 10
-end
-
-
-;; sub-routine for computing opinion distance of two comparing opinion positions  -- absolute distance without weighting
-to-report opinion-distance3 [my her]
-  ;; we initialize counter of step of comparison -- we will compare as many times as we have dimensions
-  let step 0
-
-  ;; we initialize container where we will store squared distance in each dimension
-  let dist 0
-
-  ;; while loop going through each dimension, computiong distance in each dimension, squarring it and adding in the container
-  while [step < Number_Of_Opinion_Dimensions] [
+  while [step < Number_Of_Chosen_Opinion_Dimensions] [
     ;; computiong distance in each dimension, squarring it and adding in the container
     set dist dist + (item step my - item step her) ^ 2
 
@@ -625,7 +541,7 @@ to-report opinion-distance3 [my her]
   set dist sqrt dist
 
   ;; Computing normalization constant according switch 'normalize_sigmoid_distances?':
-  let normalization ifelse-value (Normalize_Distances?) [1 / sqrt(4 * Number_Of_Opinion_Dimensions)][1]
+  let normalization ifelse-value (Normalize_Distances? or normalize?) [1 / sqrt(4 * Number_Of_Chosen_Opinion_Dimensions)][1]
 
   ;; reporting weight of distance
   report precision (dist * normalization) 10
@@ -656,53 +572,40 @@ to-report Ash-polarisation
   create-centroids 2 [set shape "square" set own-opinion n-values Number_Of_Opinion_Dimensions [precision (1 - random-float 2) 8]]
   let cent1 max [who] of centroids  ;; Storing 'who' of two new centroids
   let cent0 cent1 - 1
+
   ;; Random assignment of agents to the groups -- we create random list of 'cent0s' and 'cent1s' of same length as agents number and then assign them based on agent's WHO
   let membership shuffle (sentence n-values round (Number_Of_Agents / 2) [cent0] n-values (ifelse-value (0 = Number_Of_Agents mod 2) [Number_Of_Agents / 2][(Number_Of_Agents - 1) / 2]) [cent1])
-
-  print "Check Z"
-
-
   ask agents [set own-group-number item who membership]
-
-    print "Check Y"
-
   updating-centroids-own-opinion (cent0) (cent1)  ;; Initial update
 
-  print "Check X"
-
   ;; Iterating until centroids are stable
-  while [Centroids_change < sum [opinion-distance3 (own-opinion) (last-position)] of centroids with [who >= cent0]][
+  while [Centroids_change < sum [opinion-distance (own-opinion) (last-position) (false)] of centroids with [who >= cent0]][
     update-agents-opinion-group (cent0) (cent1)
     updating-centroids-own-opinion (cent0) (cent1)
   ]
 
-  print "Check A"
-
   ;; Computing polarisation -- cutting-out agents too distant from centroids
-  ask agents [set own-distance-to-centroid [opinion-distance] of centroid own-group-number]
+  ask agents [set own-distance-to-centroid [opinion-distance ([own-opinion] of myself) ([own-opinion] of self) (true)] of centroid own-group-number]
   let a0 agents with [own-group-number = cent0]
-  set a0 min-n-of (count a0 - ESBG_furthest_out) a0 [opinion-distance3 ([own-opinion] of self) ([own-opinion] of centroid cent0)]
+  set a0 min-n-of (count a0 - ESBG_furthest_out) a0 [opinion-distance ([own-opinion] of self) ([own-opinion] of centroid cent0) (false)]
   let a1 agents with [own-group-number = cent1]
-  set a1 min-n-of (count a1 - ESBG_furthest_out) a1 [opinion-distance3 ([own-opinion] of self) ([own-opinion] of centroid cent1)]
-  print "Check B"
+  set a1 min-n-of (count a1 - ESBG_furthest_out) a1 [opinion-distance ([own-opinion] of self) ([own-opinion] of centroid cent1) (false)]
 
   ;; Updating centroids and agents opinion position (without furthest agents)
   ask centroid cent0 [foreach range Number_Of_Opinion_Dimensions [o -> set own-opinion replace-item o own-opinion precision (mean [item o own-opinion] of a0) 8] getPlace]
-  ask a0 [set own-distance-to-centroid [opinion-distance] of centroid cent0]
+  ask a0 [set own-distance-to-centroid [opinion-distance ([own-opinion] of myself) ([own-opinion] of self) (true)] of centroid cent0]
   ask centroid cent1 [foreach range Number_Of_Opinion_Dimensions [o -> set own-opinion replace-item o own-opinion precision (mean [item o own-opinion] of a1) 8] getPlace]
-  ask a1 [set own-distance-to-centroid [opinion-distance] of centroid cent1]
-  print "Check C"
+  ask a1 [set own-distance-to-centroid [opinion-distance ([own-opinion] of myself) ([own-opinion] of self) (true)] of centroid cent1]
 
   ;; Preparing final distances and diversity
   let normalization ifelse-value (Normalize_Distances?) [1][1 / sqrt(4 * Number_Of_Opinion_Dimensions)]
-  ;; NOTE: If the switch 'Normalize_Distances?' is true, then functions 'opinion-distance' and 'opinion-distance3' compute normalized distances,
+  ;; NOTE: If the switch 'Normalize_Distances?' is true, then functions 'opinion-distance' compute normalized distances,
   ;; then we must avoid normalization here, but if the switch is false, then the function computes plain distance and we must normalize here --
-  ;; so we use same concept and almost same code as in the functions 'opinion-distance' and 'opinion-distance3' here, but reversed:
+  ;; so we use same concept and almost same code as in the functions 'opinion-distance' here, but reversed:
   ;; the true switch means no normalization here, the false switch means normalization here, so in the end we normalize values in ESBG polarization exactly once.
-  let cent-dist normalization * opinion-distance3 ([own-opinion] of centroid cent0) ([own-opinion] of centroid cent1)
+  let cent-dist normalization * opinion-distance ([own-opinion] of centroid cent0) ([own-opinion] of centroid cent1) (false)
   let div0 normalization * (mean [own-distance-to-centroid] of a0)
   let div1 normalization * (mean [own-distance-to-centroid] of a1)
-  print "Check D"
 
   ;; Cleaning and reporting
   ask centroids with [who >= cent0] [die]
@@ -712,24 +615,24 @@ end
 
 to update-agents-opinion-group [cent0 cent1]
   ;; Checking the assignment -- is the assigned centroid the nearest? If not, reassign!
-  ask agents [set own-group-number own-group-number - ([who] of min-one-of centroids with [who >= cent0] [opinion-distance])]  ; set color 15 + group * 10]
+  ask agents [set own-group-number own-group-number - ([who] of min-one-of centroids with [who >= cent0] [opinion-distance ([own-opinion] of myself) ([own-opinion] of self) (true)])]
   let wrongly-at-grp0 turtle-set agents with [own-group-number = -1]  ;; they are in 0, but should be in 1: 0 - 1 = -1
   let wrongly-at-grp1 turtle-set agents with [own-group-number = 1]  ;; they are in 1, but should be in 0: 1 - 0 = 1
   ifelse count wrongly-at-grp0 = count wrongly-at-grp1 [
-    ask agents [set own-group-number [who] of min-one-of centroids with [who >= cent0] [opinion-distance]]
+    ask agents [set own-group-number [who] of min-one-of centroids with [who >= cent0] [opinion-distance ([own-opinion] of myself) ([own-opinion] of self) (true)]]
   ][
     let peleton agents with [own-group-number = 0]
     ifelse count wrongly-at-grp0 < count wrongly-at-grp1 [
-      set peleton (turtle-set peleton wrongly-at-grp0 max-n-of (count wrongly-at-grp0) wrongly-at-grp1 [opinion-distance3 ([own-opinion] of self) ([own-opinion] of centroid cent0)]) ;; all agents assigned correctly + smaller group of wrong + from bigger group 'n of size of smaller group'
+      set peleton (turtle-set peleton wrongly-at-grp0 max-n-of (count wrongly-at-grp0) wrongly-at-grp1 [opinion-distance ([own-opinion] of self) ([own-opinion] of centroid cent0) (false)]) ;; all agents assigned correctly + smaller group of wrong + from bigger group 'n of size of smaller group'
       let stayed agents with [not member? self peleton]
-      ask peleton [set own-group-number [who] of min-one-of centroids with [who >= cent0] [opinion-distance] ;set color 15 + group * 10
+      ask peleton [set own-group-number [who] of min-one-of centroids with [who >= cent0] [opinion-distance ([own-opinion] of myself) ([own-opinion] of self) (true)]
       ]
       ask stayed [set own-group-number cent1 ;set color 15 + group * 10
       ]
      ][
-      set peleton (turtle-set peleton wrongly-at-grp1 max-n-of (count wrongly-at-grp1) wrongly-at-grp0 [opinion-distance3 ([own-opinion] of self) ([own-opinion] of centroid cent1)]) ;; all agents assigned correctly + smaller group of wrong + from bigger group 'n of size of smaller group'
+      set peleton (turtle-set peleton wrongly-at-grp1 max-n-of (count wrongly-at-grp1) wrongly-at-grp0 [opinion-distance ([own-opinion] of self) ([own-opinion] of centroid cent1) (false)]) ;; all agents assigned correctly + smaller group of wrong + from bigger group 'n of size of smaller group'
       let stayed agents with [not member? self peleton]
-      ask peleton [set own-group-number [who] of min-one-of centroids with [who >= cent0] [opinion-distance] ;set color 15 + group * 10
+      ask peleton [set own-group-number [who] of min-one-of centroids with [who >= cent0] [opinion-distance ([own-opinion] of myself) ([own-opinion] of self) (true)]
       ]
       ask stayed [set own-group-number cent0 ;set color 15 + group * 10
       ]
@@ -765,11 +668,11 @@ end
 ;; Sub-routine for updating Distances links' weights,
 ;; according opinion distance of both their ends
 to update-l-distances-weights
-  ;; We use function 'opinion-distance2', which needs two opinion positions as input and
+  ;; We use function 'opinion-distance', which needs two opinion positions as input and
   ;; receives their distance as output, but this distance is converted to weight:
   ;; weight = 1 means that both positions are same, weight = 0 means that their distance is maximal,
   ;; i.e. both positions are in oposit corners of respective N-dimensional space.
-  ask l-distances [set l-weight opinion-distance2 ([own-opinion] of end1) ([own-opinion] of end2)]
+  ask l-distances [set l-weight (1 - opinion-distance ([own-opinion] of end1) ([own-opinion] of end2) (true))]
   ask l-distances [set hidden? TRUE]
 end
 
@@ -781,16 +684,11 @@ to compute-polarisation-repeatedly
   let ap []
   update-l-distances-weights
 
-  print "CHECK 09"
-
   ;; Repeating cycle
   while [r < polar_repeats] [
-    print "CHECK 10"
     set ap lput Ash-polarisation ap
     set r r + 1
-    print "CHECK 11"
   ]
-
 
   ;; Setting variables back
   set ESBG_polarisation precision (mean ap) 3
@@ -935,6 +833,32 @@ to avoiding-run-time-errors
   ;; if we want update more dimensions than exists in simulation, then we set 'updating' to max of dimensions, i.e. 'opinions'
   if updating > Number_Of_Opinion_Dimensions [set updating Number_Of_Opinion_Dimensions]
 end
+
+to-report list-subset [a-list positions]
+  let resulting-list []
+  foreach positions [x -> set resulting-list lput (item x a-list) resulting-list]
+ report resulting-list
+end
+
+to __Jan_Lorenz_Measures end
+;; Note: The code bellow is adapted code of Jan Lorenz for measuring diversity and extremness as measures of polarization:
+
+to-report diversity
+  report mean map [x -> standard-deviation [item x own-opinion] of turtles] range Number_Of_Opinion_Dimensions
+end
+
+to-report manhattan-distance [one second]
+  ;; work out manhattan distance between two vectors
+  report (sum (map [[f l] -> abs (f - l) ] one second))
+end
+
+to-report extremness
+  report (mean [manhattan-distance own-opinion n-values Number_Of_Opinion_Dimensions [0]] of turtles) / Number_Of_Opinion_Dimensions
+end
+
+
+
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 343
@@ -1021,9 +945,9 @@ SLIDER
 79
 Number_Of_Agents
 Number_Of_Agents
-10
-1000
-129.0
+9
+257
+101.0
 1
 1
 NIL
@@ -1038,27 +962,27 @@ Number_Of_Opinion_Dimensions
 Number_Of_Opinion_Dimensions
 1
 50
-2.0
+1.0
 1
 1
 NIL
 HORIZONTAL
 
 CHOOSER
-260
-527
-352
-572
+256
+551
+348
+596
 model
 model
 "HK"
 0
 
 SLIDER
-10
-296
-139
-329
+6
+320
+135
+353
 Boundary_Mean
 Boundary_Mean
 0.0
@@ -1162,7 +1086,7 @@ NIL
 CHOOSER
 10
 188
-157
+125
 233
 Boundary_Distribution
 Boundary_Distribution
@@ -1262,7 +1186,7 @@ Y-opinion
 Y-opinion
 1
 50
-2.0
+1.0
 1
 1
 NIL
@@ -1328,6 +1252,8 @@ true
 "" ""
 PENS
 "ESBG" 1.0 0 -11221820 true "" "plot ESBG_polarisation"
+"extremness" 1.0 0 -2674135 true "" "plot extremness"
+"diversity" 1.0 0 -10899396 true "" "plot diversity"
 
 SLIDER
 1147
@@ -1345,10 +1271,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-10
-375
-151
-408
+6
+399
+147
+432
 Conformity_Mean
 Conformity_Mean
 0
@@ -1360,10 +1286,10 @@ NIL
 HORIZONTAL
 
 CHOOSER
-10
-330
-165
-375
+6
+354
+161
+399
 Conformity_Distribution
 Conformity_Distribution
 "constant" "uniform" "normal"
@@ -1392,7 +1318,7 @@ INPUTBOX
 502
 521
 N_centroids
-1.0
+2.0
 1
 0
 Number
@@ -1442,10 +1368,10 @@ ESBG_polarisation
 11
 
 SWITCH
-926
-452
-1047
-485
+1096
+465
+1217
+498
 centroid_color?
 centroid_color?
 0
@@ -1453,10 +1379,10 @@ centroid_color?
 -1000
 
 SWITCH
-798
-439
-927
-472
+1217
+465
+1346
+498
 killing_centroids?
 killing_centroids?
 0
@@ -1517,16 +1443,16 @@ ESBG_furthest_out
 ESBG_furthest_out
 0
 100
-5.0
+0.0
 1
 1
 NIL
 HORIZONTAL
 
 CHOOSER
-157
+125
 188
-264
+232
 233
 SPIRO_Distribution
 SPIRO_Distribution
@@ -1592,10 +1518,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-182
-374
-322
-407
+178
+398
+318
+431
 Conformity_STD
 Conformity_STD
 0
@@ -1607,10 +1533,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-139
-296
-261
-329
+135
+320
+257
+353
 Boundary_STD
 Boundary_STD
 0
@@ -1622,10 +1548,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-10
-407
-256
-440
+6
+431
+252
+464
 Mean_Opinion_Sigmoid_Steepness
 Mean_Opinion_Sigmoid_Steepness
 0
@@ -1637,10 +1563,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-260
-571
-411
-604
+256
+595
+407
+628
 maxSteepness
 maxSteepness
 0
@@ -1652,10 +1578,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-11
-440
-255
-473
+7
+464
+251
+497
 STD_Opinion_Sigmoid_Steepness
 STD_Opinion_Sigmoid_Steepness
 0
@@ -1667,10 +1593,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-11
-473
-266
-506
+7
+497
+262
+530
 Mean_Identity_Sigmoid_Steepness
 Mean_Identity_Sigmoid_Steepness
 0
@@ -1682,10 +1608,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-11
-506
-258
-539
+7
+530
+254
+563
 STD_Identity_Sigmoid_Steepness
 STD_Identity_Sigmoid_Steepness
 0
@@ -1727,10 +1653,10 @@ NIL
 HORIZONTAL
 
 SWITCH
-779
-507
-953
-540
+10
+265
+159
+298
 Normalize_Distances?
 Normalize_Distances?
 0
@@ -1738,10 +1664,10 @@ Normalize_Distances?
 -1000
 
 SWITCH
-980
-518
-1107
-551
+1346
+465
+1473
+498
 show_dice_rolls?
 show_dice_rolls?
 1
@@ -1749,10 +1675,10 @@ show_dice_rolls?
 -1000
 
 SLIDER
-12
-539
-252
-572
+8
+563
+248
+596
 Mean_Identity_Sigmoid_xOffset
 Mean_Identity_Sigmoid_xOffset
 0
@@ -1764,10 +1690,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-12
-572
-244
-605
+8
+596
+240
+629
 STD_Identity_Sigmoid_xOffset
 STD_Identity_Sigmoid_xOffset
 0
@@ -1833,10 +1759,10 @@ PENS
 "default" 0.05 1 -16777216 true "" "histogram [own-identity-sigmoid-xOffset] of agents "
 
 SWITCH
-208
-407
-352
-440
+204
+431
+340
+464
 Opinion_Sigmoid?
 Opinion_Sigmoid?
 1
@@ -1844,10 +1770,10 @@ Opinion_Sigmoid?
 -1000
 
 SWITCH
-213
-473
-351
-506
+209
+497
+347
+530
 Identity_Sigmoid?
 Identity_Sigmoid?
 1
@@ -1883,7 +1809,7 @@ SWITCH
 79
 Use_Present_Opinion?
 Use_Present_Opinion?
-1
+0
 1
 -1000
 
@@ -1894,13 +1820,56 @@ SLIDER
 143
 Probability_Of_High_Covert_SPIRO
 Probability_Of_High_Covert_SPIRO
-0.05
-0.9
-0.1
+0
+1
+0.44
 0.01
 1
 NIL
 HORIZONTAL
+
+MONITOR
+933
+450
+1034
+495
+NIL
+diversity
+5
+1
+11
+
+MONITOR
+856
+450
+934
+495
+NIL
+extremness
+5
+1
+11
+
+SWITCH
+159
+265
+326
+298
+HK_opinion_distribution?
+HK_opinion_distribution?
+1
+1
+-1000
+
+CHOOSER
+231
+188
+339
+233
+Distance_dimensions
+Distance_dimensions
+"All" "Updated"
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
