@@ -306,6 +306,7 @@ to go
   ;; 1) We reached number of steps specified in MAX-TICKS
   computing-polarisation
   if ticks = max-ticks [stop]
+  if (precision diversity 7) = 0 [stop]
 end
 
 
@@ -452,7 +453,7 @@ to computing-polarisation
   ;; Recording condition:
   ;; 1) We reached end, e.g. number of steps specified in MAX-TICKS
   ;; 2) Recording and computing polarisation on the fly, e.g. we reached POLARISATION-EACH-N-STEPS
-  if (ticks = max-ticks) or (ticks / polarisation-each-n-steps) = floor (ticks / polarisation-each-n-steps) [compute-polarisation-repeatedly]
+  if (0 = precision diversity 7) or (ticks = max-ticks) or (ticks / polarisation-each-n-steps) = floor (ticks / polarisation-each-n-steps) [compute-polarisation-repeatedly]
 end
 
 
@@ -826,7 +827,7 @@ Number_Of_Agents
 Number_Of_Agents
 9
 257
-101.0
+21.0
 1
 1
 NIL
@@ -866,7 +867,7 @@ Boundary_Mean
 Boundary_Mean
 0.0
 1
-0.24
+0.05
 0.001
 1
 NIL
@@ -936,7 +937,7 @@ CHOOSER
 Boundary_Distribution
 Boundary_Distribution
 "constant" "uniform" "normal"
-2
+0
 
 PLOT
 1120
@@ -1072,7 +1073,7 @@ Conformity_Mean
 Conformity_Mean
 0
 1
-0.5
+0.203
 0.001
 1
 NIL
@@ -1086,7 +1087,7 @@ CHOOSER
 Conformity_Distribution
 Conformity_Distribution
 "constant" "uniform" "normal"
-2
+0
 
 BUTTON
 611
@@ -1399,7 +1400,7 @@ SWITCH
 76
 avoid_seed_control?
 avoid_seed_control?
-0
+1
 1
 -1000
 
@@ -1410,7 +1411,7 @@ SWITCH
 111
 Use_Identity?
 Use_Identity?
-0
+1
 1
 -1000
 
@@ -1447,7 +1448,7 @@ MONITOR
 495
 NIL
 diversity
-3
+8
 1
 11
 
@@ -1820,360 +1821,117 @@ NetLogo 6.2.2
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="HK-benchmark" repetitions="1" runMetricsEveryStep="false">
+  <experiment name="ClassicalHK" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
+    <timeLimit steps="370"/>
     <metric>ticks</metric>
-    <enumeratedValueSet variable="record?">
-      <value value="true"/>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <enumeratedValueSet variable="RS">
+      <value value="764885162"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="construct-name?">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="max-ticks">
-      <value value="5000"/>
-    </enumeratedValueSet>
-    <steppedValueSet variable="RS" first="1" step="1" last="10"/>
-    <enumeratedValueSet variable="N-agents">
-      <value value="129"/>
-      <value value="257"/>
-      <value value="513"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="p-random">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="HK-benchmark?">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="opinions">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="updating">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="boundary">
-      <value value="0.1"/>
-      <value value="0.2"/>
-      <value value="0.3"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="boundary-drawn">
-      <value value="&quot;constant&quot;"/>
-      <value value="&quot;uniform&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="p-speaking">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="mode">
-      <value value="&quot;openly-listen&quot;"/>
-      <value value="&quot;vaguely-speak&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="X-opinion">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Y-opinion">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="model">
-      <value value="&quot;HK&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="min-boundary">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="sigma">
-      <value value="0.05"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="set-seed?">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="mu">
-      <value value="0.5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="record-length">
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
       <value value="100"/>
-    </enumeratedValueSet>
-  </experiment>
-  <experiment name="HK-benchmark-SoS" repetitions="1" runMetricsEveryStep="false">
-    <setup>setup</setup>
-    <go>go</go>
-    <metric>ticks</metric>
-    <enumeratedValueSet variable="record?">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="construct-name?">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="max-ticks">
-      <value value="5000"/>
-    </enumeratedValueSet>
-    <steppedValueSet variable="RS" first="1" step="1" last="10"/>
-    <enumeratedValueSet variable="N-agents">
       <value value="129"/>
+      <value value="128"/>
+      <value value="200"/>
+      <value value="201"/>
       <value value="257"/>
-      <value value="513"/>
+      <value value="256"/>
+      <value value="65"/>
+      <value value="64"/>
+      <value value="33"/>
+      <value value="32"/>
+      <value value="17"/>
+      <value value="16"/>
+      <value value="20"/>
+      <value value="21"/>
+      <value value="50"/>
+      <value value="51"/>
+      <value value="26"/>
+      <value value="27"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="p-random">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="HK-benchmark?">
+    <enumeratedValueSet variable="HK_opinion_distribution?">
       <value value="true"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="opinions">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="updating">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="boundary">
-      <value value="0.1"/>
-      <value value="0.2"/>
-      <value value="0.3"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="boundary-drawn">
-      <value value="&quot;constant&quot;"/>
-      <value value="&quot;uniform&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="p-speaking">
-      <value value="0.9"/>
-      <value value="0.5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="mode">
-      <value value="&quot;openly-listen&quot;"/>
-      <value value="&quot;vaguely-speak&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="X-opinion">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Y-opinion">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="model">
-      <value value="&quot;HK&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="min-boundary">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="sigma">
-      <value value="0.05"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="set-seed?">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="mu">
-      <value value="0.5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="record-length">
-      <value value="100"/>
-    </enumeratedValueSet>
-  </experiment>
-  <experiment name="HK-benchmarkV02" repetitions="1" runMetricsEveryStep="false">
-    <setup>setup</setup>
-    <go>go</go>
-    <metric>ticks</metric>
-    <enumeratedValueSet variable="record?">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="construct-name?">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="max-ticks">
-      <value value="5000"/>
-    </enumeratedValueSet>
-    <steppedValueSet variable="RS" first="11" step="1" last="73"/>
-    <enumeratedValueSet variable="N-agents">
-      <value value="129"/>
-      <value value="257"/>
-      <value value="513"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="p-random">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="HK-benchmark?">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="opinions">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="updating">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="boundary">
-      <value value="0.1"/>
-      <value value="0.2"/>
-      <value value="0.3"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="boundary-drawn">
-      <value value="&quot;constant&quot;"/>
-      <value value="&quot;uniform&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="p-speaking">
-      <value value="1"/>
-      <value value="0.9"/>
-      <value value="0.5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="mode">
-      <value value="&quot;openly-listen&quot;"/>
-      <value value="&quot;vaguely-speak&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="X-opinion">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Y-opinion">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="model">
-      <value value="&quot;HK&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="min-boundary">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="sigma">
-      <value value="0.05"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="set-seed?">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="mu">
-      <value value="0.5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="record-length">
-      <value value="100"/>
-    </enumeratedValueSet>
-  </experiment>
-  <experiment name="NewExperiment" repetitions="1" runMetricsEveryStep="false">
-    <setup>setup</setup>
-    <go>go</go>
-    <timeLimit steps="1001"/>
-    <enumeratedValueSet variable="record?">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="HK-benchmark?">
+    <enumeratedValueSet variable="Use_Present_Opinion?">
       <value value="false"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="model">
-      <value value="&quot;HK&quot;"/>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;constant&quot;"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="set-seed?">
-      <value value="true"/>
+    <steppedValueSet variable="Boundary_Mean" first="0.05" step="0.01" last="0.35"/>
+    <enumeratedValueSet variable="Boundary_STD">
+      <value value="0.08"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="max-ticks">
-      <value value="1000"/>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;constant&quot;"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="record-each-n-steps">
-      <value value="200"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="construct-name?">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="record-length">
-      <value value="10"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="avoid-redundancies?">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <steppedValueSet variable="RS" first="101" step="1" last="110"/>
-    <enumeratedValueSet variable="N-agents">
-      <value value="101"/>
-      <value value="1001"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="p-random">
-      <value value="0"/>
-      <value value="0.25"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="n-neis">
-      <value value="5"/>
-      <value value="50"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="opinions">
-      <value value="1"/>
-      <value value="8"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="updating">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="boundary">
+    <steppedValueSet variable="Conformity_Mean" first="0.1" step="0.1" last="1"/>
+    <enumeratedValueSet variable="Conformity_STD">
       <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;covert&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;covert&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Mean">
+      <value value="0.495"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_STD">
+      <value value="0.125"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="7"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
       <value value="0.3"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="boundary-drawn">
-      <value value="&quot;constant&quot;"/>
-      <value value="&quot;uniform&quot;"/>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.9"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="min-boundary">
-      <value value="0"/>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="p-speaking-level">
-      <value value="0.5"/>
-      <value value="1"/>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="p-speaking-drawn">
-      <value value="&quot;constant&quot;"/>
-      <value value="&quot;uniform&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="mode">
-      <value value="&quot;openly-listen&quot;"/>
-      <value value="&quot;vaguely-speak&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="X-opinion">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Y-opinion">
+    <enumeratedValueSet variable="N_centroids">
       <value value="2"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="mu">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="sigma">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="bias-margin">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="bias-of-bias">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="bias-drawn">
-      <value value="&quot;uniform&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="social-bias">
-      <value value="false"/>
-    </enumeratedValueSet>
-  </experiment>
-  <experiment name="RS001-200_complementOfHillClimbingSearchInClassicHK" repetitions="1" runMetricsEveryStep="true">
-    <setup>setup</setup>
-    <go>go</go>
-    <timeLimit steps="366"/>
-    <metric>ESBG_polarisation</metric>
-    <steppedValueSet variable="RS" first="1" step="1" last="200"/>
-    <enumeratedValueSet variable="set-seed?">
+    <enumeratedValueSet variable="killing_centroids?">
       <value value="true"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="avoid_seed_control?">
       <value value="false"/>
     </enumeratedValueSet>
-    <steppedValueSet variable="boundary" first="0.1" step="0.01" last="0.5"/>
-    <steppedValueSet variable="conformity-level" first="0.1" step="0.1" last="1"/>
-    <enumeratedValueSet variable="boundary-drawn">
-      <value value="&quot;constant&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="conformity-drawn">
-      <value value="&quot;constant&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="N-agents">
-      <value value="129"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="opinions">
-      <value value="1"/>
-    </enumeratedValueSet>
     <enumeratedValueSet variable="updating">
       <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="polar_repeats">
       <value value="50"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="id_threshold-std">
-      <value value="0.25"/>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
       <value value="1"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="model">
@@ -2185,14 +1943,135 @@ NetLogo 6.2.2
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="mean-identity-sigmoid-steepness">
-      <value value="0.85"/>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="std-identity-sigmoid-steepness">
-      <value value="0.35"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="opinion_sigmoid?">
+    <enumeratedValueSet variable="show_dice_rolls?">
       <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="ClassicalHK-randomPositionAtStart" repetitions="1" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <steppedValueSet variable="RS" first="1" step="1" last="10"/>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
+      <value value="100"/>
+      <value value="129"/>
+      <value value="128"/>
+      <value value="200"/>
+      <value value="201"/>
+      <value value="257"/>
+      <value value="256"/>
+      <value value="65"/>
+      <value value="64"/>
+      <value value="33"/>
+      <value value="32"/>
+      <value value="17"/>
+      <value value="16"/>
+      <value value="20"/>
+      <value value="21"/>
+      <value value="50"/>
+      <value value="51"/>
+      <value value="26"/>
+      <value value="27"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;constant&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.05" step="0.01" last="0.35"/>
+    <enumeratedValueSet variable="Boundary_STD">
+      <value value="0.08"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;constant&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Conformity_Mean" first="0.1" step="0.1" last="1"/>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;covert&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;covert&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Mean">
+      <value value="0.495"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_STD">
+      <value value="0.125"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="7"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.9"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="polarisation-each-n-steps">
       <value value="400"/>
@@ -2200,73 +2079,267 @@ NetLogo 6.2.2
     <enumeratedValueSet variable="show_dice_rolls?">
       <value value="false"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="d_threshold">
-      <value value="0.8"/>
-    </enumeratedValueSet>
     <enumeratedValueSet variable="ESBG_furthest_out">
-      <value value="5"/>
+      <value value="1"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="identity_sigmoid?">
+  </experiment>
+  <experiment name="ClassicalHK-PresentOpinion" repetitions="1" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <steppedValueSet variable="RS" first="1" step="1" last="10"/>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
+      <value value="100"/>
+      <value value="129"/>
+      <value value="128"/>
+      <value value="200"/>
+      <value value="201"/>
+      <value value="257"/>
+      <value value="256"/>
+      <value value="65"/>
+      <value value="64"/>
+      <value value="33"/>
+      <value value="32"/>
+      <value value="17"/>
+      <value value="16"/>
+      <value value="20"/>
+      <value value="21"/>
+      <value value="50"/>
+      <value value="51"/>
+      <value value="26"/>
+      <value value="27"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;constant&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.05" step="0.01" last="0.35"/>
+    <enumeratedValueSet variable="Boundary_STD">
+      <value value="0.08"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;constant&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Conformity_Mean" first="0.1" step="0.1" last="1"/>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
       <value value="false"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="maxSteepness">
-      <value value="700"/>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;covert&quot;"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="identity_levels">
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;covert&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Mean">
+      <value value="0.495"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_STD">
+      <value value="0.125"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Levels">
       <value value="7"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="record-length">
-      <value value="15"/>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.3"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="id_threshold">
-      <value value="0.25"/>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.9"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="centroid_color?">
       <value value="true"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="use_identity?">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="mean-opinion-sigmoid-steepness">
-      <value value="0.45"/>
-    </enumeratedValueSet>
     <enumeratedValueSet variable="N_centroids">
-      <value value="3"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="conformity-std">
-      <value value="0.15"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="std-identity-sigmoid-xOffset">
-      <value value="0.1"/>
+      <value value="2"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="killing_centroids?">
       <value value="true"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="boundary-std">
-      <value value="0.05"/>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="mean-identity-sigmoid-xOffset">
-      <value value="0.35"/>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="min_id_level">
-      <value value="0.25"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="max_id_level">
-      <value value="0.85"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="normalize_distances?">
+    <enumeratedValueSet variable="set-seed?">
       <value value="true"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="std-opinion-sigmoid-steepness">
-      <value value="0.15"/>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="threshold_drawn">
-      <value value="&quot;normal&quot;"/>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="identity_type">
-      <value value="&quot;individual&quot;"/>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="ClassicalHK-randomPositionAtStartAndPresentOpinion" repetitions="1" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <steppedValueSet variable="RS" first="1" step="1" last="10"/>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
+      <value value="100"/>
+      <value value="129"/>
+      <value value="128"/>
+      <value value="200"/>
+      <value value="201"/>
+      <value value="257"/>
+      <value value="256"/>
+      <value value="65"/>
+      <value value="64"/>
+      <value value="33"/>
+      <value value="32"/>
+      <value value="17"/>
+      <value value="16"/>
+      <value value="20"/>
+      <value value="21"/>
+      <value value="50"/>
+      <value value="51"/>
+      <value value="26"/>
+      <value value="27"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;constant&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.05" step="0.01" last="0.35"/>
+    <enumeratedValueSet variable="Boundary_STD">
+      <value value="0.08"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;constant&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Conformity_Mean" first="0.1" step="0.1" last="1"/>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;covert&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;covert&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Mean">
+      <value value="0.495"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_STD">
+      <value value="0.125"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="7"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.9"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
       <value value="1"/>
     </enumeratedValueSet>
   </experiment>
