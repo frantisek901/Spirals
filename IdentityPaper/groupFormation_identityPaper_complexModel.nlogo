@@ -93,7 +93,7 @@ undirected-link-breed [l-distances l-distance]
 l-distances-own [l-weight]
 
 turtles-own [own-opinion own-previous-opinion own-boundary own-conformity own-SPIRO own-WhichGroupHasEachSPIROSortedMeIn own-group-number own-distance-to-centroid
-  own-opinion-sigmoid-xOffset own-opinion-sigmoid-steepness own-opinion-dice? own-identity-sigmoid-xOffset own-identity-sigmoid-steepness own-identity-dice?]
+  own-opinion-sigmoid-xOffset own-opinion-sigmoid-steepness own-opinion-dice? own-identity-sigmoid-xOffset own-identity-sigmoid-steepness own-identity-dice? nei-size]
 centroids-own [last-position] ;; because of sticking to HK and also compatibility with previous results and algorithm for finding final position of group centroids, we need two variables for previous/last position, also, unsystematically, during the centroid position we have to copy 'last-position' to 'own-previous-position', since some 'distance' procedures finds opinions by themselves.
 
 globals [agents positions_clusters ESBG_polarisation SPIRO_set
@@ -171,6 +171,12 @@ to setup
   compute-polarisation-repeatedly
 
   reset-ticks
+
+  ;;;; Preparation part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; All preparations of agents, globals, avoiding errors etc. in one sub-routine
+  prepare-everything-for-the-next-step
+  updating-patches-and-globals
+
 end
 
 
@@ -196,12 +202,16 @@ to compute-identity-thresholds
     ;; Secondly, we have to find the position of minimal 'diff':
     let pos position (min diff) diff
 
+    ;; TO-DECIDE: Should we aggregated levels like this? Now we go for the higher value,
+    ;;            with the line commented-out, we go for the closest value --
+    ;;            commented-out version is closer to the arranged mean by slider 'SPIRO_Mean'.
+    ;;
     ;; Thirdly, we have to check, whether the closest value of 'SPIRO_set' is higher,
     ;; if not, we have to point agent to the higher value, i.e. 'set pos pos  + 1",
     ;; and also check whether the 'pos' points on correct items on 'SPIRO_set', i.e.
     ;; whether we do/not jump out of range. In case we point 'outside the list',
     ;; we have to set 'pos' to maximal value.
-    if not (pos = (length SPIRO_set - 1) or own-SPIRO < item pos SPIRO_set) [set pos pos + 1]
+    ;if not (pos = (length SPIRO_set - 1) or own-SPIRO < item pos SPIRO_set) [set pos pos + 1]
 
     ;; Finally, we set 'own-SPIRO' as the closest value of 'SPIRO_set':
     set own-SPIRO item pos SPIRO_set
@@ -338,21 +348,22 @@ end
 
 ;; Main routine
 to go
-  ;;;; Preparation part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; All preparations of agents, globals, avoiding errors etc. in one sub-routine
-  prepare-everything-for-the-step
-
   ;;;; Main part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ask agents [
     if model = "HK" [change-opinion-HK]
     ;; Note: Now here is only Hegselmann-Krause algorithm, but in the future we might easily employ other algorithms here!
   ]
 
+  ;;;; Preparation part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; All preparations of agents, globals, avoiding errors etc. in one sub-routine
+  prepare-everything-for-the-next-step
+
   ;;;; Final part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Recoloring patches, agents, computing how model settled down
   updating-patches-and-globals
 
   tick
+
 
   ;; Finishing condition:
   ;; 1) We reached number of steps specified in MAX-TICKS
@@ -368,7 +379,7 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-to prepare-everything-for-the-step
+to prepare-everything-for-the-next-step
   ;; Just checking and avoiding runtime errors part of code
   avoiding-run-time-errors
 
@@ -420,16 +431,12 @@ to change-opinion-HK
 
       ;; Secondly, we roll the identity dice...
       let our-distance matrix:get distance-matrix my-i her-j  ;; After all the computations we finally get distance of centroids from distance matrix...
-
-      ;;NOTE: The commented out part below can be uncommented if one wants to speed up simulation by hard-setting probabilities of
-      ;;extreme distance values ( 0 or 1 ) to extreme values (p = 1 or p = 0). This would lead to differences in outcome especially
-      ;;when the sigmoid steepnesses are low.
       roll-identity-dice (our-distance)
     ]
 
     ;; Now we set successful AGENTS as NEIGHBS:
     set neighbs other agents with [own-identity-dice?]
-    if show_dice_rolls? [print count neighbs]
+    if show_dice_rolls? [print (word "Identity: " count neighbs)]
   ]
 
   ;; Choosing positions:
@@ -447,7 +454,7 @@ to change-opinion-HK
 
   ;; now only follow them, the successful rollers and set them as INFLUENTIALS...
   let influentials neighbs with [own-opinion-dice?]
-  if show_dice_rolls? [print count influentials]
+  if show_dice_rolls? [print (word "Opinion: " count influentials)]
 
   ;; 3) we also add the updating agent into 'influentials'
   set influentials (turtle-set self influentials)
@@ -858,7 +865,6 @@ end
 
 
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 343
@@ -961,7 +967,7 @@ SLIDER
 Number_Of_Opinion_Dimensions
 Number_Of_Opinion_Dimensions
 1
-50
+10
 1.0
 1
 1
@@ -969,20 +975,20 @@ NIL
 HORIZONTAL
 
 CHOOSER
-256
-551
-348
-596
+140
+331
+232
+376
 model
 model
 "HK"
 0
 
 SLIDER
-6
-320
-135
-353
+8
+297
+137
+330
 Boundary_Mean
 Boundary_Mean
 0.0
@@ -1091,7 +1097,7 @@ CHOOSER
 Boundary_Distribution
 Boundary_Distribution
 "constant" "uniform" "normal"
-2
+0
 
 PLOT
 1122
@@ -1170,7 +1176,7 @@ SLIDER
 X-opinion
 X-opinion
 1
-50
+10
 1.0
 1
 1
@@ -1185,7 +1191,7 @@ SLIDER
 Y-opinion
 Y-opinion
 1
-50
+10
 1.0
 1
 1
@@ -1197,28 +1203,27 @@ PLOT
 195
 1092
 403
-Development of opinions
+Development of opinions diversity
 NIL
 NIL
 0.0
 10.0
--0.1
+0.0
 0.1
 true
 true
 "" ""
 PENS
-"Op01" 1.0 0 -16777216 true "" "plot mean [item 0 own-opinion] of agents"
-"Op02" 1.0 0 -7500403 true "" "if Number_Of_Opinion_Dimensions >= 2 [plot mean [item 1 own-opinion] of agents]"
-"Op03" 1.0 0 -2674135 true "" "if Number_Of_Opinion_Dimensions >= 3 [plot mean [item 2 own-opinion] of agents]"
-"Op04" 1.0 0 -955883 true "" "if Number_Of_Opinion_Dimensions >= 4 [plot mean [item 3 own-opinion] of agents]"
-"Op05" 1.0 0 -6459832 true "" "if Number_Of_Opinion_Dimensions >= 5 [plot mean [item 4 own-opinion] of turtles]"
-"Op06" 1.0 0 -1184463 true "" "if Number_Of_Opinion_Dimensions >= 6 [plot mean [item 5 own-opinion] of turtles]"
-"Op07" 1.0 0 -10899396 true "" "if Number_Of_Opinion_Dimensions >= 7 [plot mean [item 6 own-opinion] of turtles]"
-"Op08" 1.0 0 -13840069 true "" "if Number_Of_Opinion_Dimensions >= 8 [plot mean [item 7 own-opinion] of turtles]"
-"Op09" 1.0 0 -14835848 true "" "if Number_Of_Opinion_Dimensions >= 9 [plot mean [item 8 own-opinion] of turtles]"
-"Op10" 1.0 0 -11221820 true "" "if Number_Of_Opinion_Dimensions >= 10 [plot mean [item 9 own-opinion] of turtles]"
-"Op11" 1.0 0 -13791810 true "" "if Number_Of_Opinion_Dimensions >= 11 [plot mean [item 10 own-opinion] of turtles]"
+"Op01" 1.0 0 -16777216 true "" "plot standard-deviation [item 0 own-opinion] of agents"
+"Op02" 1.0 0 -7500403 true "" "if Number_Of_Opinion_Dimensions >= 2 [plot standard-deviation [item 1 own-opinion] of agents]"
+"Op03" 1.0 0 -2674135 true "" "if Number_Of_Opinion_Dimensions >= 3 [plot standard-deviation [item 2 own-opinion] of agents]"
+"Op04" 1.0 0 -955883 true "" "if Number_Of_Opinion_Dimensions >= 4 [plot standard-deviation [item 3 own-opinion] of agents]"
+"Op05" 1.0 0 -6459832 true "" "if Number_Of_Opinion_Dimensions >= 5 [plot standard-deviation [item 4 own-opinion] of turtles]"
+"Op06" 1.0 0 -1184463 true "" "if Number_Of_Opinion_Dimensions >= 6 [plot standard-deviation [item 5 own-opinion] of turtles]"
+"Op07" 1.0 0 -10899396 true "" "if Number_Of_Opinion_Dimensions >= 7 [plot standard-deviation [item 6 own-opinion] of turtles]"
+"Op08" 1.0 0 -13840069 true "" "if Number_Of_Opinion_Dimensions >= 8 [plot standard-deviation [item 7 own-opinion] of turtles]"
+"Op09" 1.0 0 -14835848 true "" "if Number_Of_Opinion_Dimensions >= 9 [plot standard-deviation [item 8 own-opinion] of turtles]"
+"Op10" 1.0 0 -11221820 true "" "if Number_Of_Opinion_Dimensions >= 10 [plot standard-deviation [item 9 own-opinion] of turtles]"
 
 SLIDER
 1055
@@ -1271,10 +1276,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-6
-399
-147
-432
+8
+376
+141
+409
 Conformity_Mean
 Conformity_Mean
 0
@@ -1286,10 +1291,10 @@ NIL
 HORIZONTAL
 
 CHOOSER
-6
-354
-161
-399
+8
+331
+139
+376
 Conformity_Distribution
 Conformity_Distribution
 "constant" "uniform" "normal"
@@ -1443,7 +1448,7 @@ ESBG_furthest_out
 ESBG_furthest_out
 0
 100
-0.0
+1.0
 1
 1
 NIL
@@ -1485,7 +1490,7 @@ CHOOSER
 Identity_Type
 Identity_Type
 "global" "individual" "covert"
-2
+0
 
 SLIDER
 101
@@ -1518,30 +1523,30 @@ NIL
 HORIZONTAL
 
 SLIDER
-178
-398
-318
-431
+141
+376
+270
+409
 Conformity_STD
 Conformity_STD
 0
 1
-0.2
+0.1
 0.001
 1
 NIL
 HORIZONTAL
 
 SLIDER
-135
-320
-257
-353
+137
+297
+259
+330
 Boundary_STD
 Boundary_STD
 0
 1
-0.0
+0.08
 0.001
 1
 NIL
@@ -1631,7 +1636,7 @@ Minimum_SPIRO
 Minimum_SPIRO
 0
 0.5
-0.39
+0.5
 0.01
 1
 NIL
@@ -1646,7 +1651,7 @@ Maximum_SPIRO
 Maximum_SPIRO
 0.55
 1
-0.79
+0.9
 0.01
 1
 NIL
@@ -1787,7 +1792,7 @@ SWITCH
 76
 avoid_seed_control?
 avoid_seed_control?
-1
+0
 1
 -1000
 
@@ -1798,7 +1803,7 @@ SWITCH
 111
 Use_Identity?
 Use_Identity?
-0
+1
 1
 -1000
 
@@ -1822,7 +1827,7 @@ Probability_Of_High_Covert_SPIRO
 Probability_Of_High_Covert_SPIRO
 0
 1
-0.44
+0.41
 0.01
 1
 NIL
@@ -1835,7 +1840,7 @@ MONITOR
 495
 NIL
 diversity
-5
+3
 1
 11
 
@@ -1846,7 +1851,7 @@ MONITOR
 495
 NIL
 extremness
-5
+3
 1
 11
 
@@ -1857,7 +1862,7 @@ SWITCH
 298
 HK_opinion_distribution?
 HK_opinion_distribution?
-1
+0
 1
 -1000
 
