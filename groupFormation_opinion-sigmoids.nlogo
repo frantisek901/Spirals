@@ -160,6 +160,7 @@ to setup
 
     getPlace  ;; Moving agents to the opinion space according their opinions.
 
+
   ]
   set agents turtle-set turtles  ;; Note: If we just write 'set agents turtles', then variable 'agents' is a synonym for 'turtles', so it will contain in the future created centroids!
   ask agents [create-l-distances-with other agents]  ;; Creating full network for computing groups and polarisation
@@ -674,15 +675,22 @@ to change-opinion-HK
       ;; NOW we roll probabilistic dice based on opinion distance from influencer - if an agent is too far they are less likely to be heard this time.
       ;; first find out which agent is going to be heard this time.
       ask visibles [
-        roll-opinion-dice ([opinion-position] of myself) (true)
+        roll-opinion-dice (true)
       ]
       ;; now only hear from them
       set influentials visibles with [opinion-dice = true]
+
     ][
       ;;Use the classical HK if not using the sigmoid
       let lim-dist (Uncertainty * sqrt(opinions * 4))
       ;; we set as influentials agents with opinion not further than 'lim-dist'
       set influentials visibles with [opinion-distance <= lim-dist]
+
+;      if who = 10 [ ask influentials [
+;        if who = 11 [print (word "for agents " who " and " [who] of myself " at tick " ticks " distance is " opinion-distance)
+;          print (word "opinion of " who " is " opinion-position " and opinion of " [who] of myself " is " [opinion-position] of myself)
+;        ]]
+;      ]
     ]
   ]
 
@@ -696,7 +704,7 @@ to change-opinion-HK
     if-else use_opinion_sigmoid? [
       ;; first find out which agent is going to be heard this time.
       ask visibles [
-        roll-opinion-dice ([opinion-position] of myself) (false)
+        roll-opinion-dice (false)
       ]
       ;; now only hear from them
       set influentials visibles with [opinion-dice = true]
@@ -817,15 +825,20 @@ to-report compute-sigmoid [x xOffset steepness repulsion]
   ]
 end
 
-to roll-opinion-dice [ her-opinion openly-listen? ]
+to roll-opinion-dice [ openly-listen? ]
   let probability-of-interaction 1
+  let the-opinion-distance (opinion-distance3 (opinion-position) ([opinion-position] of myself));;* sqrt(opinions * 4)
+;  if [who] of myself = 10 and who = 11 [ print (word "for agents " who " and " [who] of myself " at tick " ticks " SIGMOIDAL distance is " the-opinion-distance)
+;          print (word "opinion of " who " is " opinion-position " and opinion of " [who] of myself " is " [opinion-position] of myself)
+;    print (word "For check who of myself returns " [who] of myself " and who returns " who)
+;  ]
 
   if-else openly-listen? [
-    set probability-of-interaction compute-sigmoid (opinion-distance3 (opinion-position) (her-opinion)) ([opinion-sigmoid-xOffset] of myself)
+    set probability-of-interaction compute-sigmoid (the-opinion-distance) ([opinion-sigmoid-xOffset] of myself * sqrt(opinions * 4))
     ([opinion-sigmoid-steepness] of myself) (false)
   ][
     ;; for mode vaguely speak the sigmoid used is of the influential
-    set probability-of-interaction compute-sigmoid (opinion-distance3 (opinion-position) (her-opinion)) (opinion-sigmoid-xOffset)
+    set probability-of-interaction compute-sigmoid (the-opinion-distance) (opinion-sigmoid-xOffset * sqrt(opinions * 4))
     (opinion-sigmoid-steepness) (false)
   ]
 
@@ -852,7 +865,7 @@ to roll-identity-dice [ her-identity-group my-identity-group ]
 
 
 
-    set probability-of-interaction compute-sigmoid (opinion-distance3 (her-centroid-position) (my-centroid-position)) ([identity-sigmoid-xOffset] of myself)
+    set probability-of-interaction compute-sigmoid (opinion-distance3 (her-centroid-position) (my-centroid-position)) ([identity-sigmoid-xOffset] of myself * sqrt(opinions * 4))
     ([identity-sigmoid-steepness] of myself) (false)
 
     set identity-dice ifelse-value (random 1 < probability-of-interaction) [true] [false]
@@ -1676,7 +1689,7 @@ boundary
 boundary
 0.01
 1
-0.48
+0.15
 0.01
 1
 NIL
@@ -2170,7 +2183,7 @@ CHOOSER
 tolerance-drawn
 tolerance-drawn
 "constant" "uniform" "normal"
-2
+1
 
 PLOT
 767
@@ -2405,7 +2418,7 @@ SWITCH
 198
 use_identity?
 use_identity?
-0
+1
 1
 -1000
 
@@ -2581,7 +2594,7 @@ id_threshold-std
 id_threshold-std
 0
 1
-0.5
+0.7
 0.05
 1
 NIL
@@ -2641,7 +2654,7 @@ mean-opinion-sigmoid-steepness
 mean-opinion-sigmoid-steepness
 0
 1
-0.45
+1.0
 0.05
 1
 NIL
@@ -2656,7 +2669,7 @@ maxSteepness
 maxSteepness
 0
 100
-50.0
+100.0
 5
 1
 NIL
@@ -2671,7 +2684,7 @@ std-opinion-sigmoid-steepness
 std-opinion-sigmoid-steepness
 0
 1
-0.42
+0.0
 0.01
 1
 NIL
@@ -2686,7 +2699,7 @@ mean-opinion-sigmoid-xOffset
 mean-opinion-sigmoid-xOffset
 0
 1
-0.5
+0.15
 0.05
 1
 NIL
@@ -2701,7 +2714,7 @@ std-opinion-sigmoid-xOffset
 std-opinion-sigmoid-xOffset
 0
 1
-0.36
+0.0
 0.01
 1
 NIL
@@ -2785,7 +2798,7 @@ SWITCH
 668
 opinion_sigmoid_used_for_identity?
 opinion_sigmoid_used_for_identity?
-1
+0
 1
 -1000
 
