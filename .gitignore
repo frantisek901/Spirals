@@ -6,5 +6,5 @@
 *.html
 PolarizedStart\*.html
 
-IdentityPaper\*.png
-IdentityPaper/*.png
+
+IdentityPaper/Pics/*.png

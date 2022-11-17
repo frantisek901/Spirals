@@ -34,7 +34,7 @@ library(ggplot2)
 
 # Loading and processing data ------------------------------------------------------------
 
-# Loading....
+# Creating object 'tb' (tibble): Loading....
 tb = read_csv("ClassicalHK_moreN.csv", skip = 6) %>%
 
   # Selecting and renaming...
@@ -49,7 +49,7 @@ tb = read_csv("ClassicalHK_moreN.csv", skip = 6) %>%
     even_N = (N %%2) == 0)
 
 
-# Creation of aggregated object:
+# Creation of aggregated object 'at' (aggregated tibble):
 at = tb %>%
 
   # We group the file according the anly three real variables:
@@ -93,53 +93,53 @@ heat_map = function(.data = at, .var = "ticks_sd", .y = "Conformity", .x = "Boun
 # Odd and even N
 # SD
 filter(at, !even_N) %>% heat_map(.var = "ticks_sd", .title = "Odd N") %>%
-  ggsave("map21.png", plot = ., units = "cm", height = 11.5, width = 36)
+  ggsave("Pics/map21.png", plot = ., units = "cm", height = 11.5, width = 36)
 
 filter(at, even_N) %>% heat_map(.var = "ticks_sd", .title = "Even N") %>%
-  ggsave("map22.png", plot = ., units = "cm", height = 11.5, width = 36)
+  ggsave("Pics/map25.png", plot = ., units = "cm", height = 11.5, width = 36)
 
 filter(at, !even_N) %>% heat_map(.var = "diversity_sd", .title = "Odd N") %>%
-  ggsave("map23.png", plot = ., units = "cm", height = 11.5, width = 36)
+  ggsave("Pics/map22.png", plot = ., units = "cm", height = 11.5, width = 36)
 
 filter(at, even_N) %>% heat_map(.var = "diversity_sd", .title = "Even N") %>%
-  ggsave("map24.png", plot = ., units = "cm", height = 11.5, width = 36)
+  ggsave("Pics/map26.png", plot = ., units = "cm", height = 11.5, width = 36)
 
 filter(at, !even_N) %>% heat_map(.var = "extremness_sd", .title = "Odd N") %>%
-  ggsave("map25.png", plot = ., units = "cm", height = 11.5, width = 36)
+  ggsave("Pics/map23.png", plot = ., units = "cm", height = 11.5, width = 36)
 
 filter(at, even_N) %>% heat_map(.var = "extremness_sd", .title = "Even N") %>%
-  ggsave("map26.png", plot = ., units = "cm", height = 11.5, width = 36)
+  ggsave("Pics/map27.png", plot = ., units = "cm", height = 11.5, width = 36)
 
 filter(at, !even_N) %>% heat_map(.var = "ESBG_sd", .title = "Odd N") %>%
-  ggsave("map27.png", plot = ., units = "cm", height = 11.5, width = 36)
+  ggsave("Pics/map24.png", plot = ., units = "cm", height = 11.5, width = 36)
 
 filter(at, even_N) %>% heat_map(.var = "ESBG_sd", .title = "Even N") %>%
-  ggsave("map28.png", plot = ., units = "cm", height = 11.5, width = 36)
+  ggsave("Pics/map28.png", plot = ., units = "cm", height = 11.5, width = 36)
 
 # Mean
 filter(at, !even_N) %>% heat_map(.var = "ticks_mean", .title = "Odd N") %>%
-  ggsave("map31.png", plot = ., units = "cm", height = 11.5, width = 36)
+  ggsave("Pics/map31.png", plot = ., units = "cm", height = 11.5, width = 36)
 
 filter(at, even_N) %>% heat_map(.var = "ticks_mean", .title = "Even N") %>%
-  ggsave("map32.png", plot = ., units = "cm", height = 11.5, width = 36)
+  ggsave("Pics/map35.png", plot = ., units = "cm", height = 11.5, width = 36)
 
 filter(at, !even_N) %>% heat_map(.var = "diversity_mean", .title = "Odd N") %>%
-  ggsave("map33.png", plot = ., units = "cm", height = 11.5, width = 36)
+  ggsave("Pics/map32.png", plot = ., units = "cm", height = 11.5, width = 36)
 
 filter(at, even_N) %>% heat_map(.var = "diversity_mean", .title = "Even N") %>%
-  ggsave("map34.png", plot = ., units = "cm", height = 11.5, width = 36)
+  ggsave("Pics/map36.png", plot = ., units = "cm", height = 11.5, width = 36)
 
 filter(at, !even_N) %>% heat_map(.var = "extremness_mean", .title = "Odd N") %>%
-  ggsave("map35.png", plot = ., units = "cm", height = 11.5, width = 36)
+  ggsave("Pics/map33.png", plot = ., units = "cm", height = 11.5, width = 36)
 
 filter(at, even_N) %>% heat_map(.var = "extremness_mean", .title = "Even N") %>%
-  ggsave("map36.png", plot = ., units = "cm", height = 11.5, width = 36)
+  ggsave("Pics/map37.png", plot = ., units = "cm", height = 11.5, width = 36)
 
 filter(at, !even_N) %>% heat_map(.var = "ESBG_mean", .title = "Odd N") %>%
-  ggsave("map37.png", plot = ., units = "cm", height = 11.5, width = 36)
+  ggsave("Pics/map34.png", plot = ., units = "cm", height = 11.5, width = 36)
 
 filter(at, even_N) %>% heat_map(.var = "ESBG_mean", .title = "Even N") %>%
-  ggsave("map38.png", plot = ., units = "cm", height = 11.5, width = 36)
+  ggsave("Pics/map38.png", plot = ., units = "cm", height = 11.5, width = 36)
 
 
 
@@ -149,7 +149,7 @@ filter(at, even_N) %>% heat_map(.var = "ESBG_mean", .title = "Even N") %>%
 
 # Slices through data -----------------------------------------------------
 
-
+## Function for slicing data, N after N...
 heat_map_N = function(.data = tb, .N = 101, .var = "ticks", .y = "Conformity", .x = "Boundary", .title = "") {
   .data %>%
     filter(N == .N) %>%
@@ -164,47 +164,67 @@ heat_map_N = function(.data = tb, .N = 101, .var = "ticks", .y = "Conformity", .
 }
 
 
+# # Function, but in form of FOR cycle ----------------
+# # for printing slicing graphs for wanted Ns and variables
+
 # Printing
-for (i in unique(tb$N)){
-  .i = if_else(i < 100, paste0("0", i), as.character(i))
-  heat_map_N(.N = i, .var = "ticks") %>%
-    ggsave(paste0("map11_", .i, ".png"), plot = ., units = "cm", height = 11.5, width = 36)
+heat_map_slices = function(.populations = unique(tb$N), .titles = c("", "", "", ""),
+                           .vars = c("ticks", "diversity", "extremness", "ESBG"),
+                           .files = c("Pics/map11_", "Pics/map12_", "Pics/map13_", "Pics/map14_")) {
+  if (length(.vars) != length(.files)) stop("Lengths of sliced variables and respective filenames do not match!")
+  for (j in 1:length(.vars)) {
+    for (i in .populations){
+      .i = if_else(i < 100, paste0("0", i), as.character(i))
+      heat_map_N(.N = i, .var = .vars[j], .title = .titles[j]) %>%
+        ggsave(paste0(.files[j], .i, ".png"), plot = ., units = "cm", height = 11.5, width = 36)
+    }
+  }
 }
 
-for (i in unique(tb$N)){
-  .i = if_else(i < 100, paste0("0", i), as.character(i))
-  heat_map_N(.N = i, .var = "diversity") %>%
-    ggsave(paste0("map12_", .i, ".png"), plot = ., units = "cm", height = 11.5, width = 36)
-}
+# Max N in the 'tb' data:
+max(unique(tb$N))
 
-for (i in unique(tb$N)){
-  .i = if_else(i < 100, paste0("0", i), as.character(i))
-  heat_map_N(.N = i, .var = "extremness") %>%
-    ggsave(paste0("map13_", .i, ".png"), plot = ., units = "cm", height = 11.5, width = 36)
-}
-
-for (i in unique(tb$N)){
-  .i = if_else(i < 100, paste0("0", i), as.character(i))
-  heat_map_N(.N = i, .var = "ESBG") %>%
-    ggsave(paste0("map14_", .i, ".png"), plot = ., units = "cm", height = 11.5, width = 36)
-}
+# Systematic use for producing all heatmaps
+heat_map_slices(.populations = seq(179, 203, 2), .vars = c("ticks", "diversity", "extremness", "ESBG"),
+                .files = paste0("Pics/map", seq(41, 47, 2), "_odd_"),
+                .titles = paste("Odd Ns only for", c("'ticks'", "'diversity", "'extremness", "'ESBG'")))
+heat_map_slices(.populations = seq(178, 202, 2), .vars = c("ticks", "diversity", "extremness", "ESBG"),
+                .files = paste0("Pics/map", seq(42, 48, 2), "_even_"),
+                .titles = paste("Even Ns only for", c("'ticks'", "'diversity", "'extremness", "'ESBG'")))
 
 
 
 # Regression --------------------------------------------------------------
 
-m1 = lm(ESBG ~ Boundary + Conformity + even_N, tb)
+m1 = lm(ESBG ~ Boundary + Conformity + even_N + log(N), tb)
 # summary(m1)
 
-m2 = lm(extremness ~ Boundary + Conformity + even_N, tb)
+m2 = lm(extremness ~ Boundary + Conformity + even_N + log(N), tb)
 # summary(m2)
 
-m3 = lm(diversity ~ Boundary + Conformity + even_N, tb)
+m3 = lm(diversity ~ Boundary + Conformity + even_N + log(N), tb)
 # summary(m3)
 
-m4 = lm(ticks ~ Boundary + Conformity + even_N, tb)
+m4 = lm(ticks ~ Boundary + Conformity + even_N + log(N), tb)
 # summary(m4)
 
 stargazer::stargazer(m1, m2, m3, m4, type = "text")
 
+
+
+
+
+
+# The first uses:
+heat_map_slices(.populations = seq(17, 155, 2), .vars = c("ESBG"),
+                .files = "Pics/map47_odd_", .title = "Odd Ns only for ESBG")
+heat_map_slices(.populations = seq(16, 168, 2), .vars = c("ESBG"),
+                .files = "Pics/map48_even_", .title = "Even Ns only for ESBG")
+
+heat_map_slices(.populations = seq(17, 167, 2), .vars = c("ticks", "diversity", "extremness"),
+                .files = c("Pics/map41_odd_", "Pics/map43_odd_", "Pics/map45_odd_"),
+                .titles = paste("Odd Ns only for", c("'ticks'", "'diversity", "'extremness")))
+heat_map_slices(.populations = seq(16, 168, 2), .vars = c("ticks", "diversity", "extremness"),
+                .files = c("Pics/map42_even_", "Pics/map44_even_", "Pics/map46_even_"),
+                .titles = paste("Even Ns only for", c("'ticks'", "'diversity", "'extremness")))
 
