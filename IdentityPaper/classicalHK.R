@@ -61,6 +61,22 @@ at = tb %>%
   ungroup()
 
 
+# Aggregated tibble for estimation of effect of conformity (tc):
+tc = tb %>%
+
+  # We group tibble by N and Boundary, because we are interested in
+  # SD in their combinations -- for their combinations there are
+  # 10 different values each for one Conformity value,
+  # so in fact, we measure SD caused by Conformity, i.e.
+  # whether Conformity makes difference or not,
+  # we will be able to map out for which combinations of N and Boundary
+  # is bigger SD driven by Conformity and for which it is close to 0.
+  # We also have to use 'even_N', since we want to store it for later use.
+  group_by(Boundary, N, even_N) %>%
+
+  # Now we finally compute SDs:
+  summarise(across(.cols = ticks:ESBG, list(sd = sd))) %>% ungroup()
+
 
 # Heat maps ---------------------------------------------------------------
 
@@ -71,7 +87,7 @@ heat_map = function(.data = at, .var = "ticks_sd", .y = "Conformity", .x = "Boun
     aes(x = eval(str2lang(.x)), y = eval(str2lang(.y)), col = eval(str2lang(.var))) +
     geom_point(shape = 15, size = 13) +
     scale_color_viridis_c() +
-    scale_x_continuous(breaks = seq(0.05, 0.35, 0.05)) +
+    #scale_x_continuous(breaks = seq(0.05, 0.35, 0.05)) +
     scale_y_continuous(breaks = seq(0.1, 1, 0.1)) +
     labs(x = .x, y = .y, col = .var, title = .title) +
     theme_light()
@@ -144,6 +160,40 @@ filter(at, even_N) %>% heat_map(.var = "ESBG_mean", .title = "Even N") %>%
 
 
 
+# Meaning of conformity ---------------------------------------------------
+
+# Odd and even N: ==> SD
+filter(tc, !even_N) %>%
+  heat_map(.x = "N", .y = "Boundary", .var = "ticks_sd", .title = "Odd N") %>%
+  ggsave("Pics/map51.png", plot = ., units = "cm", height = 11.5, width = 36)
+
+filter(tc, even_N) %>%
+  heat_map(.x = "N", .y = "Boundary", .var = "ticks_sd", .title = "Even N") %>%
+  ggsave("Pics/map55.png", plot = ., units = "cm", height = 11.5, width = 36)
+
+filter(tc, !even_N) %>%
+  heat_map(.x = "N", .y = "Boundary", .var = "diversity_sd", .title = "Odd N") %>%
+  ggsave("Pics/map52.png", plot = ., units = "cm", height = 11.5, width = 36)
+
+filter(tc, even_N) %>%
+  heat_map(.x = "N", .y = "Boundary", .var = "diversity_sd", .title = "Even N") %>%
+  ggsave("Pics/map56.png", plot = ., units = "cm", height = 11.5, width = 36)
+
+filter(tc, !even_N) %>%
+  heat_map(.x = "N", .y = "Boundary", .var = "extremness_sd", .title = "Odd N") %>%
+  ggsave("Pics/map53.png", plot = ., units = "cm", height = 11.5, width = 36)
+
+filter(tc, even_N) %>%
+  heat_map(.x = "N", .y = "Boundary", .var = "extremness_sd", .title = "Even N") %>%
+  ggsave("Pics/map57.png", plot = ., units = "cm", height = 11.5, width = 36)
+
+filter(tc, !even_N) %>%
+  heat_map(.x = "N", .y = "Boundary", .var = "ESBG_sd", .title = "Odd N") %>%
+  ggsave("Pics/map54.png", plot = ., units = "cm", height = 11.5, width = 36)
+
+filter(tc, even_N) %>%
+  heat_map(.x = "N", .y = "Boundary", .var = "ESBG_sd", .title = "Even N") %>%
+  ggsave("Pics/map58.png", plot = ., units = "cm", height = 11.5, width = 36)
 
 
 
@@ -214,6 +264,7 @@ stargazer::stargazer(m1, m2, m3, m4, type = "text")
 
 
 
+# Rubish code -------------------------------------------------------------
 
 # The first uses:
 heat_map_slices(.populations = seq(17, 155, 2), .vars = c("ESBG"),
