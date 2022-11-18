@@ -987,14 +987,8 @@ boundary
 boundary
 0.0
 1
-
-
-
-
-
 0.2
 0.001
-
 1
 NIL
 HORIZONTAL
@@ -1005,9 +999,7 @@ INPUTBOX
 905
 70
 RS
-
--2.85373063E8
-
+1.648985926E9
 1
 0
 Number
@@ -1313,8 +1305,8 @@ conformity-level
 conformity-level
 0
 1
-0.563
-0.001
+0.5
+0.01
 1
 NIL
 HORIZONTAL
@@ -2516,7 +2508,7 @@ NetLogo 6.2.2
       <value value="false"/>
     </enumeratedValueSet>
   </experiment>
- <experiment name="RS001-200_complementOfHillClimbingSearchInClassicHK" repetitions="1" runMetricsEveryStep="false">
+  <experiment name="RS001-200_complementOfHillClimbingSearchInClassicHK" repetitions="1" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="366"/>
