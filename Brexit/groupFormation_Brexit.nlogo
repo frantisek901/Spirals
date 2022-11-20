@@ -378,27 +378,44 @@ end
 ;; Routine for brexiters to set their opinion according updating agent:
 to set-brexit-opinion [selection]
   ;; Firstly we have to store opinion and the tolerance of updating agents
-  let tol ([own-boundary] of myself) * Ratio_of_Brexiters_from_seduced_agent
+  let tol ([own-boundary] of myself) * Ratio_distance_of_Brexiters_from_seduced_agent
   let op [own-opinion] of myself
 
   ;; Accomodating algorithm:
   set own-opinion br-position
-      let opx list-subset (op) (selection)
-      let brx list-subset (br-position) (selection)
-      let dist opinion-distance (opx) (brx) (Normalize_Distances?)
-;  let norm ifelse-value (Normalize_Distances?)  [sqrt(4 * length selection)] [sqrt(4 * length selection)]
-      let shift-ratio ifelse-value (tol > dist) [0] [1 - (tol / dist / sqrt(length selection))]
- ;;;;;;;;;; TO-DO: I stil compute the shift wrong for more than 1D change.... ;;;;;;;;;;;;;;;;;;;;;;;;
+  let opx list-subset (op) (selection)
+  let brx list-subset (br-position) (selection)
+  let dist opinion-distance (opx) (brx) (Normalize_Distances?) ;; Now we know the distance of brexiter and agent,
+  ;; followingly we have to find the angle ALPHA betwen axis X and the distance vector
+;  show dist
+;  show opx
+;  show brx
+if dist > tol [
+  let alphas []  ;; We initialize a list for angles of all pretended dimensions
+  (foreach opx brx [ [a b] ->
+    let one acos (((a - b) / sqrt(4 * length selection)) / dist)
+    set alphas lput one alphas])
+;  show alphas
 
-;      show (word shift-ratio "; " norm)
-      foreach selection [x ->
-        let my item x br-position
-        let her item x op
-        set own-opinion replace-item x own-opinion precision (((her - my) * shift-ratio) + (my)) 3
-      ]
-;      show (word br-position "; " own-opinion "; " op)
-  ;print op
-;  set Normalize_Distances? Original_switch_position
+  ;; We have angles, so we might compute cos ALPHAs now...
+  let shrinks map [x -> Ratio_distance_of_Brexiters_from_seduced_agent * cos x] alphas
+;  show shrinks
+
+  ;; Now we compute new coordinates from SHRINKS and TOL and store them immediatelly in OWN-OPINION
+;  show own-opinion
+  let i 0
+  foreach selection [x ->
+    let her item x op
+    let my-new her - (item i shrinks) * tol * ifelse-value (Normalize_distances?) [sqrt(4 * length selection)][1]
+    let new ifelse-value (my-new < -1) [-1][ifelse-value (my-new > 1) [1][my-new]]
+    set own-opinion replace-item x own-opinion precision (new) 3
+    set i i + 1
+  ]
+;  show own-opinion
+;  show i
+]
+  ;; Finally, we copy the OWN-OPINION into OWN-PREVIOUS-OPINION
+  set own-previous-opinion own-opinion
 end
 
 ;; sub-routine for updating opinion position of turtle according the Hegselmann-Krause (2002) model
@@ -856,7 +873,7 @@ to __Jan_Lorenz_Measures end
 ;; Note: The code bellow is adapted code of Jan Lorenz for measuring diversity and extremness as measures of polarization:
 
 to-report diversity
-  report mean map [x -> standard-deviation [item x own-opinion] of turtles] range Number_Of_Opinion_Dimensions
+  report mean map [x -> standard-deviation [item x own-opinion] of agents] range Number_Of_Opinion_Dimensions
 end
 
 to-report manhattan-distance [one second]
@@ -865,7 +882,7 @@ to-report manhattan-distance [one second]
 end
 
 to-report extremness
-  report (mean [manhattan-distance own-opinion n-values Number_Of_Opinion_Dimensions [0]] of turtles) / Number_Of_Opinion_Dimensions
+  report (mean [manhattan-distance own-opinion n-values Number_Of_Opinion_Dimensions [0]] of agents) / Number_Of_Opinion_Dimensions
 end
 
 @#$#@#$#@
@@ -971,7 +988,7 @@ Number_Of_Opinion_Dimensions
 Number_Of_Opinion_Dimensions
 1
 10
-1.0
+2.0
 1
 1
 NIL
@@ -996,7 +1013,7 @@ Boundary_Mean
 Boundary_Mean
 0.0
 1
-0.35
+0.203
 0.001
 1
 NIL
@@ -1667,7 +1684,7 @@ SWITCH
 298
 Normalize_Distances?
 Normalize_Distances?
-0
+1
 1
 -1000
 
@@ -1795,7 +1812,7 @@ SWITCH
 76
 avoid_seed_control?
 avoid_seed_control?
-0
+1
 1
 -1000
 
@@ -1817,7 +1834,7 @@ SWITCH
 79
 Use_Present_Opinion?
 Use_Present_Opinion?
-0
+1
 1
 -1000
 
@@ -1880,21 +1897,21 @@ Distance_dimensions
 0
 
 INPUTBOX
-779
+741
 502
-1038
+1453
 618
 Brexiters_positions
--0.95,0.95\n-0.95,0.95\n-0.5,0.5
+1,1,1,1,1,1,1,1,1,1\n1,1,1,1,1,1,1,1,1,1
 1
 1
 String
 
 SWITCH
-1040
-512
-1171
-545
+384
+525
+515
+558
 Use_Brexiters?
 Use_Brexiters?
 0
@@ -1902,15 +1919,15 @@ Use_Brexiters?
 -1000
 
 SLIDER
-1039
-544
-1301
-577
-Ratio_of_Brexiters_from_seduced_agent
-Ratio_of_Brexiters_from_seduced_agent
+383
+557
+705
+590
+Ratio_distance_of_Brexiters_from_seduced_agent
+Ratio_distance_of_Brexiters_from_seduced_agent
 0.001
 1
-0.5
+1.0
 0.001
 1
 NIL
