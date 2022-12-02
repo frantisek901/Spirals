@@ -160,7 +160,10 @@ tda = ted %>%
 
   # Computing mean and SD for each resulting variable:
   summarise(across(.cols = ticks:ESBG, list(mean = mean, sd = sd))) %>%
-  ungroup()
+  ungroup() %>%
+
+  # Ordering 'file'
+  mutate(file = factor(file, levels = c("classic", "present opinion", "random position", "random + present")))
 
 
 # And hopefully lastly, agregation over different files (only 4 values -- ada):
@@ -440,6 +443,46 @@ heat_map_slices(.dat = filter(tda, file == "present opinion"),
                 .titles = paste("Present opinion sample: Even Ns only for", c("'ticks'", "'diversity", "'extremness", "'ESBG'")))
 
 
+
+# Files/conditions comparisons --------------------------------------------
+
+heat_map_facet = function(.data = tda, .var = "ESBG_mean", .y = "Conformity", .x = "Boundary",
+                          .facet = "file", .title = "") {
+  .data %>%
+    ggplot() +
+    aes(x = eval(str2lang(.x)), y = eval(str2lang(.y)), col = eval(str2lang(.var))) +
+    facet_wrap(vars(eval(str2lang(.facet))), ncol = 1) +
+    geom_point(shape = 15, size = 13) +
+    scale_color_viridis_c() +
+    #scale_x_continuous(breaks = seq(0.05, 0.35, 0.05)) +
+    scale_y_continuous(breaks = seq(0.1, 1, 0.1)) +
+    labs(x = .x, y = .y, col = .var, title = .title) +
+    theme_light()
+}
+
+filter(tda, !even_N) %>% heat_map_facet(.var = "ticks_mean", .title = "Odd N")  %>%
+  ggsave("Pics/mapa1o.png", plot = ., units = "cm", height = 44.5, width = 36)
+
+filter(tda, even_N) %>% heat_map_facet(.var = "ticks_mean", .title = "Even N")  %>%
+  ggsave("Pics/mapa2e.png", plot = ., units = "cm", height = 44.5, width = 36)
+
+filter(tda, !even_N) %>% heat_map_facet(.var = "diversity_mean", .title = "Odd N")  %>%
+  ggsave("Pics/mapa3o.png", plot = ., units = "cm", height = 44.5, width = 36)
+
+filter(tda, even_N) %>% heat_map_facet(.var = "diversity_mean", .title = "Even N")  %>%
+  ggsave("Pics/mapa4e.png", plot = ., units = "cm", height = 44.5, width = 36)
+
+filter(tda, !even_N) %>% heat_map_facet(.var = "extremness_mean", .title = "Odd N")  %>%
+  ggsave("Pics/mapa5o.png", plot = ., units = "cm", height = 44.5, width = 36)
+
+filter(tda, even_N) %>% heat_map_facet(.var = "extremness_mean", .title = "Even N")  %>%
+  ggsave("Pics/mapa6e.png", plot = ., units = "cm", height = 44.5, width = 36)
+
+filter(tda, !even_N) %>% heat_map_facet(.title = "Odd N")  %>%
+  ggsave("Pics/mapa7o.png", plot = ., units = "cm", height = 44.5, width = 36)
+
+filter(tda, even_N) %>% heat_map_facet(.title = "Even N")  %>%
+  ggsave("Pics/mapa8e.png", plot = ., units = "cm", height = 44.5, width = 36)
 
 
 # Regression --------------------------------------------------------------

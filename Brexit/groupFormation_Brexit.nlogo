@@ -421,7 +421,8 @@ end
 ;; sub-routine for updating opinion position of turtle according the Hegselmann-Krause (2002) model
 to change-opinion-HK
   ;; We define all other agents as NEIGHBS, i.e. potential INFLUENTIALS
-  let neighbs other agents
+  let called_N round (Ratio_of_population_listened * (Number_Of_Agents - 1))
+  let neighbs n-of called_N other agents
 
   ;; Choosing positions:
   ;; So! We chose positions which the agent is interested in and only these positions will be used for measuring distences.
@@ -884,7 +885,6 @@ end
 to-report extremness
   report (mean [manhattan-distance own-opinion n-values Number_Of_Opinion_Dimensions [0]] of agents) / Number_Of_Opinion_Dimensions
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 343
@@ -1013,7 +1013,7 @@ Boundary_Mean
 Boundary_Mean
 0.0
 1
-0.203
+0.2
 0.001
 1
 NIL
@@ -1588,10 +1588,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-256
-595
-407
-628
+240
+596
+364
+629
 maxSteepness
 maxSteepness
 0
@@ -1611,7 +1611,7 @@ STD_Opinion_Sigmoid_Steepness
 STD_Opinion_Sigmoid_Steepness
 0
 1
-0.1
+0.099
 0.001
 1
 NIL
@@ -1684,7 +1684,7 @@ SWITCH
 298
 Normalize_Distances?
 Normalize_Distances?
-1
+0
 1
 -1000
 
@@ -1723,7 +1723,7 @@ STD_Identity_Sigmoid_xOffset
 STD_Identity_Sigmoid_xOffset
 0
 1
-0.1
+0.101
 0.001
 1
 NIL
@@ -1812,7 +1812,7 @@ SWITCH
 76
 avoid_seed_control?
 avoid_seed_control?
-1
+0
 1
 -1000
 
@@ -1902,7 +1902,7 @@ INPUTBOX
 1453
 618
 Brexiters_positions
-1,1,1,1,1,1,1,1,1,1\n1,1,1,1,1,1,1,1,1,1
+0\n0
 1
 1
 String
@@ -1919,16 +1919,31 @@ Use_Brexiters?
 -1000
 
 SLIDER
-383
-557
-705
-590
+384
+558
+706
+591
 Ratio_distance_of_Brexiters_from_seduced_agent
 Ratio_distance_of_Brexiters_from_seduced_agent
 0.001
 1
 1.0
 0.001
+1
+NIL
+HORIZONTAL
+
+SLIDER
+384
+591
+706
+624
+Ratio_of_population_listened
+Ratio_of_population_listened
+.01
+1
+0.1
+.01
 1
 NIL
 HORIZONTAL
