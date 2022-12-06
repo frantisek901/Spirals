@@ -4,7 +4,7 @@
 
 ## Encoding: windows-1250
 ## Created:  2022-11-15 FrK
-## Edited:   2022-11-18 FrK
+## Edited:   2022-12-06 FrK
 
 ## Notes:
 ## 1) We have to do very detailed experiments on classical HK and
@@ -451,38 +451,43 @@ heat_map_facet = function(.data = tda, .var = "ESBG_mean", .y = "Conformity", .x
   .data %>%
     ggplot() +
     aes(x = eval(str2lang(.x)), y = eval(str2lang(.y)), col = eval(str2lang(.var))) +
-    facet_wrap(vars(eval(str2lang(.facet))), ncol = 1) +
+    facet_wrap(vars(eval(str2lang(.facet)) %>% fct_rev()), ncol = 1) +
     geom_point(shape = 15, size = 13) +
     scale_color_viridis_c() +
     #scale_x_continuous(breaks = seq(0.05, 0.35, 0.05)) +
     scale_y_continuous(breaks = seq(0.1, 1, 0.1)) +
+    scale_x_continuous(breaks = seq(0.05, 0.35, 0.02)) +
     labs(x = .x, y = .y, col = .var, title = .title) +
-    theme_light()
+    theme_light() +
+    theme(legend.position = "bottom")
 }
 
+.height = 46
+.width = 34.5
+
 filter(tda, !even_N) %>% heat_map_facet(.var = "ticks_mean", .title = "Odd N")  %>%
-  ggsave("Pics/mapa1o.png", plot = ., units = "cm", height = 44.5, width = 36)
+  ggsave("Pics/mapa1o.png", plot = ., units = "cm", height = .height, width = .width)
 
 filter(tda, even_N) %>% heat_map_facet(.var = "ticks_mean", .title = "Even N")  %>%
-  ggsave("Pics/mapa2e.png", plot = ., units = "cm", height = 44.5, width = 36)
+  ggsave("Pics/mapa2e.png", plot = ., units = "cm", height = .height, width = .width)
 
 filter(tda, !even_N) %>% heat_map_facet(.var = "diversity_mean", .title = "Odd N")  %>%
-  ggsave("Pics/mapa3o.png", plot = ., units = "cm", height = 44.5, width = 36)
+  ggsave("Pics/mapa3o.png", plot = ., units = "cm", height = .height, width = .width)
 
 filter(tda, even_N) %>% heat_map_facet(.var = "diversity_mean", .title = "Even N")  %>%
-  ggsave("Pics/mapa4e.png", plot = ., units = "cm", height = 44.5, width = 36)
+  ggsave("Pics/mapa4e.png", plot = ., units = "cm", height = .height, width = .width)
 
 filter(tda, !even_N) %>% heat_map_facet(.var = "extremness_mean", .title = "Odd N")  %>%
-  ggsave("Pics/mapa5o.png", plot = ., units = "cm", height = 44.5, width = 36)
+  ggsave("Pics/mapa5o.png", plot = ., units = "cm", height = .height, width = .width)
 
 filter(tda, even_N) %>% heat_map_facet(.var = "extremness_mean", .title = "Even N")  %>%
-  ggsave("Pics/mapa6e.png", plot = ., units = "cm", height = 44.5, width = 36)
+  ggsave("Pics/mapa6e.png", plot = ., units = "cm", height = .height, width = .width)
 
 filter(tda, !even_N) %>% heat_map_facet(.title = "Odd N")  %>%
-  ggsave("Pics/mapa7o.png", plot = ., units = "cm", height = 44.5, width = 36)
+  ggsave("Pics/mapa7o.png", plot = ., units = "cm", height = .height, width = .width)
 
 filter(tda, even_N) %>% heat_map_facet(.title = "Even N")  %>%
-  ggsave("Pics/mapa8e.png", plot = ., units = "cm", height = 44.5, width = 36)
+  ggsave("Pics/mapa8e.png", plot = ., units = "cm", height = .height, width = .width)
 
 
 # Regression --------------------------------------------------------------
@@ -536,4 +541,297 @@ m24 = lm(ticks_sd ~  file + Boundary + Conformity + even_N + log(N), tda)
 stargazer::stargazer(m21, m22, m23, m24, type = "text")
 
 
+# Regression: another model building:
+m31 = lm(ESBG_mean ~  log(N) + file, filter(tda, Boundary > 0.15 & Boundary <= 0.25))
+m32 = lm(ESBG_mean ~  log(N) + file + even_N, filter(tda, Boundary > 0.15 & Boundary <= 0.25))
+m33 = lm(ESBG_mean ~  log(N) + file * even_N, filter(tda, Boundary > 0.15 & Boundary <= 0.25))
+m34 = lm(ESBG_mean ~  log(N) + file * even_N + even_N * log(N), filter(tda, Boundary > 0.15 & Boundary <= 0.25))
+stargazer::stargazer(m31, m32, m33, type = "text")
 
+m41 = lm(extremness_mean ~  log(N) + file, filter(tda, Boundary > 0.15 & Boundary <= 0.25))
+m42 = lm(extremness_mean ~  log(N) + file + even_N, filter(tda, Boundary > 0.15 & Boundary <= 0.25))
+m43 = lm(extremness_mean ~  log(N) + file * even_N, filter(tda, Boundary > 0.15 & Boundary <= 0.25))
+m44 = lm(extremness_mean ~  log(N) + file * even_N + even_N * log(N), filter(tda, Boundary > 0.15 & Boundary <= 0.25))
+stargazer::stargazer(m41, m42, m43, type = "text")
+
+m51 = lm(diversity_mean ~  log(N) + file, filter(tda, Boundary > 0.15 & Boundary <= 0.25))
+m52 = lm(diversity_mean ~  log(N) + file + even_N, filter(tda, Boundary > 0.15 & Boundary <= 0.25))
+m53 = lm(diversity_mean ~  log(N) + file * even_N, filter(tda, Boundary > 0.15 & Boundary <= 0.25))
+m54 = lm(diversity_mean ~  log(N) + file * even_N + even_N * log(N), filter(tda, Boundary > 0.15 & Boundary <= 0.25))
+stargazer::stargazer(m51, m52, m53, type = "text")
+
+
+
+
+# How much differ odd and even Ns in different scenarios? -----------------
+
+## Variability analysis -- something Veeeeeeeeeeeeeeeeeeery simple:
+tda %>% glimpse()
+
+# Firstly, without distinguishing for even/odd:
+nodist = tda %>%
+  filter(Boundary > 0.15 & Boundary <= 0.25) %>%
+  group_by(file) %>%
+  summarise(diversity_sd = sd(diversity_mean),
+            extremness_sd = sd(extremness_mean), ESBG_sd = sd(ESBG_mean),
+            diversity_mean = mean(diversity_mean),
+            extremness_mean = mean(extremness_mean), ESBG_mean = mean(ESBG_mean))
+
+# Secondly, without distinguishing for even/odd:
+dist = tda %>%
+  filter(Boundary > 0.15 & Boundary <= 0.25) %>%
+  group_by(file, even_N) %>%
+  summarise(diversity_sd = sd(diversity_mean),
+            extremness_sd = sd(extremness_mean), ESBG_sd = sd(ESBG_mean),
+            diversity_mean = mean(diversity_mean),
+            extremness_mean = mean(extremness_mean), ESBG_mean = mean(ESBG_mean))
+nodist
+dist
+
+# Thirdly, we try to compute differences for censecutive odd/even roughly same N:
+diff = tda %>%
+  group_by(file, Boundary, Conformity, even_N) %>%
+  arrange(N) %>% mutate(order = row_number()) %>%
+  group_by(file, Boundary, Conformity, order) %>%
+  summarise(diversity = max(diversity_mean) - min(diversity_mean),
+            extremness = max(extremness_mean) - min(extremness_mean),
+            ESBG = max(ESBG_mean) - min(ESBG_mean)) %>%
+  mutate(N_hi = order >= 6)
+
+# Let's compute some numbers!
+diff %>% group_by(file) %>%
+  summarise(max_d = max(diversity), max_e = max(extremness), max_E = max(ESBG),
+            diversity = mean(diversity), extremness = mean(extremness), ESBG = mean(ESBG))
+diff %>% filter(Boundary >= 0.15 & Boundary <= 0.25) %>% group_by(file) %>%
+  summarise(max_d = max(diversity), max_e = max(extremness), max_E = max(ESBG),
+            diversity = mean(diversity), extremness = mean(extremness), ESBG = mean(ESBG))
+
+# And lastly some maps again!
+df = diff %>%
+  # filter(Boundary > 0.15 & Boundary <= 0.25) %>%
+  group_by(file, Boundary, Conformity) %>%
+  summarise(diversity = mean(diversity), extremness = mean(extremness), ESBG = mean(ESBG))
+
+.height = 46
+.width = 34.5
+
+df %>% heat_map_facet(.var = "diversity", .title = "Map of differences in DIVERSITY between consecutive even and odd numbers")  %>%
+  ggsave("Pics/mapb1.png", plot = ., units = "cm", height = .height, width = .width)
+df %>% heat_map_facet(.var = "extremness", .title = "Map of differences in EXTREMNESS between consecutive even and odd numbers")  %>%
+  ggsave("Pics/mapb2.png", plot = ., units = "cm", height = .height, width = .width)
+df %>% heat_map_facet(.var = "ESBG", .title = "Map of differences in ESBG between consecutive even and odd numbers")  %>%
+  ggsave("Pics/mapb3.png", plot = ., units = "cm", height = .height, width = .width)
+
+
+
+# T-test ------------------------------------------------------------------
+
+# Package for tidy testing
+# https://cran.r-project.org/web/packages/infer/
+install.packages("infer", dependencies = T)
+library(infer)
+
+# Summary statistics:
+# Mean ESBG for simulation parameters
+tda %>%
+  get_summary_stats(ESBG_mean, type = "mean_sd")
+# Differences for adjacent odd and even N of populations
+diff %>% ungroup() %>%
+  get_summary_stats(ESBG, type = "mean_sd")
+
+# Mere T-tests:
+# One-sample T-test:
+tda %>%
+  infer::t_test(response = ESBG_mean, mu = 0)
+
+# Paired T-test:
+diff %>%
+  infer::t_test(response = ESBG, mu = 0)
+
+# Two-sample T-test:
+infer::t_test(x = tda, formula = ESBG_mean ~ even_N, order = c(T, F), alternative = "two-sided")
+
+
+
+# Means for more than two groups: ANOVA -----------------------------------
+
+#### (with relaxed assumptions on normality)
+install.packages("rstatix", dependencies = T)
+library(rstatix)
+library(ggpubr)
+
+# One-way ANOVA test
+#:::::::::::::::::::::::::::::::::::::::::
+# Summary statistics:
+diff %>%
+  group_by(file) %>%
+  get_summary_stats(ESBG, type = "mean_sd")
+
+# ANOVA
+res.aov2 = diff %>% ungroup() %>%
+  welch_anova_test(ESBG ~ file)
+res.aov2
+
+# Post-hoc test
+pwc2 = diff %>% ungroup() %>% games_howell_test(ESBG ~ file)
+pwc2
+
+# Visualization: box plots with p-values
+pwc2 = pwc2 %>% add_xy_position(x = "file", step.increase = .1)
+ggboxplot((diff %>% ungroup() #%>% mutate(ESBG = ESBG + 0.00001)
+           ),
+          x = "file", y = "ESBG", color = "file", palette = "jco") +
+  # scale_y_log10() +
+  stat_pvalue_manual(pwc2, hide.ns = TRUE) +
+  labs(
+    subtitle = get_test_label(res.aov2, detailed = TRUE),
+    caption = get_pwc_label(pwc2)
+  )
+
+
+## Alternative when ANOVA criteria are not met:
+# Kruskal-Wallis test
+res.kruskal = diff %>% ungroup() %>% kruskal_test(ESBG ~ file)
+res.kruskal
+diff %>% ungroup() %>% kruskal_effsize(ESBG ~ file)
+
+# Pairwise comparisons:
+# Dunn
+pwc = diff %>% ungroup() %>%
+  dunn_test(ESBG ~ file, p.adjust.method = "bonferroni")
+pwc
+# Další monost je Wilcoxon, ale Dunn má pár vychytávek navíc,
+# tak vám nebudu motat hlavu.
+
+
+# Visualization: box plots with p-values
+pwc = pwc %>% add_xy_position(x = "file", step = 1)
+ggboxplot(data = (diff %>% ungroup() %>% mutate(ESBG = ESBG + 0.00001)),
+          x = "file", y = "ESBG", color = "file", palette = "jco") +
+  stat_pvalue_manual(pwc, hide.ns = TRUE) +
+  scale_y_log10() +
+  labs(
+    subtitle = get_test_label(res.kruskal, detailed = TRUE),
+    caption = get_pwc_label(pwc)
+  )
+
+
+
+# Grouped One-way ANOVA test
+#:::::::::::::::::::::::::::::::::::::::::
+# ANOVA
+diff %>% ungroup() %>%
+  group_by(N_hi) %>%
+  welch_anova_test(ESBG ~ file)
+
+# Grouped post-hoc test
+post.hoc = diff %>%
+  group_by(N_hi) %>%
+  games_howell_test(ESBG ~ file)
+post.hoc
+
+
+
+# Chi-square --------------------------------------------------------------
+
+# Categorization of data:
+df = diff %>% mutate(ESBG_hi = if_else(ESBG > 0.05, "High", "Low")) %>% ungroup()
+
+# Simple counts:
+count(df, ESBG_hi, file)
+
+# Table of counts and percents:
+count(df, ESBG_hi, file) %>%
+  pivot_wider(id_cols = file, names_from = ESBG_hi, values_from = n) %>%
+  rowwise() %>%
+  mutate(suma = sum(c_across(cols = 2:3)) ,
+         across(.cols = 2:4, ~.x / suma * 100, .names = "{.col}_perc"))
+
+# Basic wrapper:
+infer::chisq_test(df, ESBG_hi ~ file)
+
+
+
+
+# Two-way ANOVA test ------------------------------------------------------
+
+#:::::::::::::::::::::::::::::::::::::::::
+# Summary statistics:
+diff %>%
+  group_by(N_hi, file) %>%
+  get_summary_stats(ESBG, type = "mean_sd")
+
+# Visualisation
+bxp = ggboxplot(
+  diff, x = "N_hi", y = "ESBG",
+  color = "file", palette = "jco"
+)
+bxp
+
+
+#### Check assumptions
+## outliers/extremes:
+diff %>%
+  group_by(file, N_hi) %>%
+  identify_outliers(ESBG)
+
+## Normality:
+# Build the linear model
+model = lm(ESBG ~ file * N_hi,
+           data = (diff %>% ungroup() %>%  sample_n_by(data = ., file, N_hi, size = 600)))
+# Create a QQ plot of residuals
+ggqqplot(residuals(model))
+
+# Compute Shapiro-Wilk test of normality for whole sample:
+shapiro_test(residuals(model))
+
+# Compute it for groups:
+diff %>%
+  group_by(file, N_hi) %>%
+  shapiro_test(ESBG) %>% pivot_wider(id_cols = c(N_hi), names_from = file, values_from = p)
+
+# Vizualise:
+ggqqplot(diff, "ESBG", ggtheme = theme_light()) +
+  facet_grid(N_hi ~ file)
+
+
+## Homogeneity of Variance assumption:
+diff %>% ungroup() %>% levene_test(ESBG ~ file * N_hi)
+
+
+## Two-way ANOVA itself:
+res.aov = diff %>% ungroup() %>% anova_test(ESBG ~ file * N_hi)
+res.aov
+
+## Post-hoc tests:
+# Simple main effect:
+model = lm(ESBG ~ file * N_hi, data = diff)
+diff %>%
+  group_by(file) %>%
+  anova_test(ESBG ~ N_hi, error = model)
+diff %>%
+  group_by(N_hi) %>%
+  anova_test(ESBG ~ file, error = model)
+
+# pairwise comparisons:
+library(emmeans)
+pwc = diff %>%
+  group_by(N_hi) %>%
+  emmeans_test(ESBG ~ file, p.adjust.method = "bonferroni", model = model)
+pwc
+
+
+# Visualization: box plots with p-values
+pwc = pwc %>% add_xy_position(x = "order")
+bxp +
+  stat_pvalue_manual(pwc) +
+  labs(
+    subtitle = get_test_label(res.aov, detailed = TRUE),
+    caption = get_pwc_label(pwc)
+  )
+
+
+
+# Correlation -------------------------------------------------------------
+
+diff %>% cor_mat(diversity, extremness, ESBG) %>% cor_gather()

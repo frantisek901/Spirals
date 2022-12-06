@@ -1212,7 +1212,7 @@ Y-opinion
 Y-opinion
 1
 10
-1.0
+2.0
 1
 1
 NIL
@@ -1304,7 +1304,7 @@ Conformity_Mean
 Conformity_Mean
 0
 1
-0.1
+1.0
 0.001
 1
 NIL
@@ -1902,7 +1902,7 @@ INPUTBOX
 1453
 618
 Brexiters_positions
-0\n0
+1\n1
 1
 1
 String
@@ -1914,7 +1914,7 @@ SWITCH
 558
 Use_Brexiters?
 Use_Brexiters?
-0
+1
 1
 -1000
 
