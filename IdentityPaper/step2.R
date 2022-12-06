@@ -27,9 +27,16 @@ library(ggplot2)
 
 # Loading and processing data ------------------------------------------------------------
 
-# Creating object 'tb' (tibble): Loading....
-ts = read_csv("ClassicalHK_heterogenousParameters_RS01-05.csv", skip = 6) %>%
+# Creating object 'raw' (tibble): Loading....
+raw = read_csv("ClassicalHK_heterogenousParameters_RS01-05.csv", skip = 6) %>%
+  add_row(read_csv("ClassicalHK_heterogenousParameters_RS06-10.csv", skip = 6))
+for (i in seq(11, 56, 5)) {
+  raw = raw %>%
+    add_row(read_csv(paste0("ClassicalHK_heterogenousParameters_RS", i, "-", i + 4, ".csv"), skip = 6))
+}
 
+# Transforming 'raw' to clean 'ts'
+ts = raw %>%
   # Selecting and renaming...
   select(HK_distribution = 4, Present_opinion = 5,
          2, Use_identity = 12,
