@@ -136,3 +136,77 @@ stargazer::stargazer(m2, m32, m42, m82, type = "text", omit.stat = c("f", "ser")
 stargazer::stargazer(m3, m33, m43, m83, type = "text", omit.stat = c("f", "ser"))
 
 
+
+# Maps ------------------------------------------------------------------
+
+# Heat map function:
+heat_map = function(.data = tm, .var = "ESBG_sd", .y = "Boundary_STD", .x = "Boundary", .title = "") {
+  .data %>%
+    ggplot() +
+    aes(x = eval(str2lang(.x)), y = eval(str2lang(.y)), col = eval(str2lang(.var))) +
+    geom_point(shape = 15, size = 15) +
+    scale_color_viridis_c() +
+    #scale_x_continuous(breaks = seq(0.05, 0.35, 0.05)) +
+    # scale_y_continuous(breaks = seq(0.1, 1, 0.1)) +
+    labs(x = .x, y = .y, col = .var, title = .title) +
+    theme_light()
+}
+
+
+# Data preparation on Boundary:
+tm = ts %>%
+  group_by(Boundary, Boundary_STD) %>%
+  summarise(across(.cols = diversity:ESBG,
+                 list(mean = mean, sd = sd),
+                 .names = "{.col}_{.fn}")) %>%
+  ungroup() %>%
+  mutate(Boundary_STD = factor(Boundary_STD))
+
+.height = 7.5
+.width = 29.5
+
+# Drawing:
+heat_map(.var = "ESBG_sd", .title = "Heat Map 2nd Step") %>%
+  ggsave("Pics/s02map02.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map(.var = "ESBG_mean", .title = "Heat Map 2nd Step") %>%
+  ggsave("Pics/s02map01.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map(.var = "extremness_sd", .title = "Heat Map 2nd Step") %>%
+  ggsave("Pics/s02map04.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map(.var = "extremness_mean", .title = "Heat Map 2nd Step") %>%
+  ggsave("Pics/s02map03.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map(.var = "diversity_sd", .title = "Heat Map 2nd Step") %>%
+  ggsave("Pics/s02map06.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map(.var = "diversity_mean", .title = "Heat Map 2nd Step") %>%
+  ggsave("Pics/s02map05.png", plot = ., units = "cm", height = .height, width = .width)
+
+
+
+# Data preparation on conformity:
+tm = ts %>%
+  group_by(Conformity, Conformity_STD) %>%
+  summarise(across(.cols = diversity:ESBG,
+                   list(mean = mean, sd = sd),
+                   .names = "{.col}_{.fn}")) %>%
+  ungroup() %>%
+  mutate(Conformity_STD = factor(Conformity_STD))
+
+.height = 6.5
+.width = 15.5
+
+# Drawing:
+heat_map(.var = "ESBG_sd", .y = "Conformity_STD", .x = "Conformity", .title = "Heat Map 2nd Step") %>%
+  ggsave("Pics/s02map12.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map(.var = "ESBG_mean", .y = "Conformity_STD", .x = "Conformity", .title = "Heat Map 2nd Step") %>%
+  ggsave("Pics/s02map11.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map(.var = "extremness_sd", .y = "Conformity_STD", .x = "Conformity", .title = "Heat Map 2nd Step") %>%
+  ggsave("Pics/s02map14.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map(.var = "extremness_mean", .y = "Conformity_STD", .x = "Conformity", .title = "Heat Map 2nd Step") %>%
+  ggsave("Pics/s02map13.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map(.var = "diversity_sd", .y = "Conformity_STD", .x = "Conformity", .title = "Heat Map 2nd Step") %>%
+  ggsave("Pics/s02map16.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map(.var = "diversity_mean", .y = "Conformity_STD", .x = "Conformity", .title = "Heat Map 2nd Step") %>%
+  ggsave("Pics/s02map15.png", plot = ., units = "cm", height = .height, width = .width)
+# OK, Conformity is not that much important
+
+
+
