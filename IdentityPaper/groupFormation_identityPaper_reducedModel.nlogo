@@ -736,7 +736,6 @@ end
 to-report extremness
   report (mean [manhattan-distance own-opinion n-values Number_Of_Opinion_Dimensions [0]] of turtles) / Number_Of_Opinion_Dimensions
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 343
@@ -4374,6 +4373,10 @@ NetLogo 6.3.0
     <metric>precision diversity 3</metric>
     <metric>precision extremness 3</metric>
     <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <steppedValueSet variable="RS" first="1" step="1" last="5"/>
     <enumeratedValueSet variable="Number_Of_Agents">
       <value value="101"/>
@@ -4494,6 +4497,10 @@ NetLogo 6.3.0
     <metric>precision diversity 3</metric>
     <metric>precision extremness 3</metric>
     <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <steppedValueSet variable="RS" first="6" step="1" last="10"/>
     <enumeratedValueSet variable="Number_Of_Agents">
       <value value="101"/>
@@ -4614,6 +4621,10 @@ NetLogo 6.3.0
     <metric>precision diversity 3</metric>
     <metric>precision extremness 3</metric>
     <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <steppedValueSet variable="RS" first="11" step="1" last="15"/>
     <enumeratedValueSet variable="Number_Of_Agents">
       <value value="101"/>
@@ -4734,6 +4745,10 @@ NetLogo 6.3.0
     <metric>precision diversity 3</metric>
     <metric>precision extremness 3</metric>
     <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <steppedValueSet variable="RS" first="16" step="1" last="20"/>
     <enumeratedValueSet variable="Number_Of_Agents">
       <value value="101"/>
@@ -4854,6 +4869,10 @@ NetLogo 6.3.0
     <metric>precision diversity 3</metric>
     <metric>precision extremness 3</metric>
     <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <steppedValueSet variable="RS" first="21" step="1" last="25"/>
     <enumeratedValueSet variable="Number_Of_Agents">
       <value value="101"/>
@@ -4974,6 +4993,10 @@ NetLogo 6.3.0
     <metric>precision diversity 3</metric>
     <metric>precision extremness 3</metric>
     <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <steppedValueSet variable="RS" first="26" step="1" last="30"/>
     <enumeratedValueSet variable="Number_Of_Agents">
       <value value="101"/>
@@ -5094,6 +5117,10 @@ NetLogo 6.3.0
     <metric>precision diversity 3</metric>
     <metric>precision extremness 3</metric>
     <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <steppedValueSet variable="RS" first="31" step="1" last="35"/>
     <enumeratedValueSet variable="Number_Of_Agents">
       <value value="101"/>
@@ -5214,6 +5241,10 @@ NetLogo 6.3.0
     <metric>precision diversity 3</metric>
     <metric>precision extremness 3</metric>
     <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <steppedValueSet variable="RS" first="36" step="1" last="40"/>
     <enumeratedValueSet variable="Number_Of_Agents">
       <value value="101"/>
@@ -5334,6 +5365,10 @@ NetLogo 6.3.0
     <metric>precision diversity 3</metric>
     <metric>precision extremness 3</metric>
     <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <steppedValueSet variable="RS" first="41" step="1" last="45"/>
     <enumeratedValueSet variable="Number_Of_Agents">
       <value value="101"/>
@@ -5454,6 +5489,10 @@ NetLogo 6.3.0
     <metric>precision diversity 3</metric>
     <metric>precision extremness 3</metric>
     <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <steppedValueSet variable="RS" first="46" step="1" last="50"/>
     <enumeratedValueSet variable="Number_Of_Agents">
       <value value="101"/>
@@ -5574,6 +5613,10 @@ NetLogo 6.3.0
     <metric>precision diversity 3</metric>
     <metric>precision extremness 3</metric>
     <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <steppedValueSet variable="RS" first="51" step="1" last="55"/>
     <enumeratedValueSet variable="Number_Of_Agents">
       <value value="101"/>
@@ -5694,6 +5737,10 @@ NetLogo 6.3.0
     <metric>precision diversity 3</metric>
     <metric>precision extremness 3</metric>
     <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <steppedValueSet variable="RS" first="56" step="1" last="60"/>
     <enumeratedValueSet variable="Number_Of_Agents">
       <value value="101"/>
