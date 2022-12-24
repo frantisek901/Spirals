@@ -4,7 +4,7 @@
 
 ## Encoding: windows-1250
 ## Created:  2022-11-15 FrK
-## Edited:   2022-12-06 FrK
+## Edited:   2022-12-13 FrK
 
 ## Notes:
 ##
@@ -42,7 +42,9 @@ ts = raw %>%
   select(HK_distribution = 4, Present_opinion = 5,
          2, Use_identity = 12,
          N = 3, Boundary = 7, 8, Conformity = 10, 11,
-         39, diversity = 40, extremness = 41, ESBG = 42) %>%
+         39, diversity = 40, extremness = 41, ESBG = 42,
+         boundary_mean = 43, boundary_sd = 44,
+         conformity_mean = 45, conformity_sd = 46) %>%
 
   # Processing.
   mutate(
@@ -50,20 +52,70 @@ ts = raw %>%
     even_N = ((N %%2) == 0))
 
 
+
+# Checking set factors and their real mean and SD ------------------------------------------------------
+
+hist(ts$boundary_mean)
+bm = group_by(ts, Boundary) %>% filter(Boundary_STD > 0) %>% get_summary_stats(boundary_mean)
+bm
+ts %>% filter(Boundary_STD > 0) %>%
+  ggplot() +
+  aes(x = boundary_mean) +
+  facet_wrap(vars(Boundary), scales = "free_x", nrow = 3) +
+  geom_histogram() +
+  theme_light()
+
+
+hist(ts$boundary_sd)
+bs = group_by(ts, Boundary_STD) %>% filter(Boundary_STD > 0) %>% get_summary_stats(boundary_sd)
+bs
+ts %>% filter(Boundary_STD > 0) %>%
+  ggplot() +
+  aes(x = boundary_sd) +
+  facet_wrap(vars(Boundary_STD), scales = "free_x", nrow = 2) +
+  geom_histogram(binwidth = 0.001) +
+  theme_light()
+
+
+hist(ts$conformity_mean)
+cm = group_by(ts, Conformity) %>% filter(Conformity_STD > 0) %>% get_summary_stats(conformity_mean)
+cm
+ts %>% filter(Conformity_STD > 0) %>%
+  ggplot() +
+  aes(x = conformity_mean) +
+  facet_wrap(vars(Conformity), scales = "free_x", nrow = 2) +
+  geom_histogram() +
+  theme_light()
+
+
+hist(ts$conformity_sd)
+cs = group_by(ts, Conformity_STD) %>% filter(Conformity_STD > 0) %>% get_summary_stats(conformity_sd)
+cs
+ts %>% filter(Conformity_STD > 0) %>%
+  ggplot() +
+  aes(x = conformity_sd) +
+  facet_wrap(vars(Conformity_STD), scales = "free_x", nrow = 2) +
+  geom_histogram() +
+  theme_light()
+
+# OK, my conclusion is, that for mapping purposes the real means and SDs are well
+# mapped to parameters values, but for regression models it would be safer
+# to use real measured values.
+
 # Summary statistics ------------------------------------------------------
 
 # Basic
 ts %>% get_summary_stats(ESBG, extremness, diversity)
 
 # According all factors:
-for (i in c(1, 5:9, 14)) {
-  print(names(ts)[i])
+for (i in names(ts)[c(1, 5:9, 18)]) {
+  print(i)
   ts %>%
-    group_by(eval(str2lang(names(ts)[i]))) %>%
+    group_by(eval(str2lang(i))) %>%
     get_summary_stats(ESBG, extremness, diversity) %>%
     print()
-
 }
+
 
 
 # Regression --------------------------------------------------------------
@@ -136,6 +188,46 @@ stargazer::stargazer(m2, m32, m42, m82, type = "text", omit.stat = c("f", "ser")
 stargazer::stargazer(m3, m33, m43, m83, type = "text", omit.stat = c("f", "ser"))
 
 
+## Regressions using real values, not set parameters
+# Regression just on classical conditions of HK
+r1 = lm(ESBG ~ boundary_mean + conformity_mean + even_N + HK_distribution, ts)
+r2 = lm(extremness ~ boundary_mean + conformity_mean + even_N + HK_distribution, ts)
+r3 = lm(diversity ~ boundary_mean + conformity_mean + even_N + HK_distribution, ts)
+stargazer::stargazer(r1, r2, r3, type = "text")
+
+r31 = lm(ESBG ~ boundary_mean + boundary_sd + conformity_mean + conformity_sd + even_N + HK_distribution, ts)
+r32 = lm(extremness ~ boundary_mean + boundary_sd + conformity_mean + conformity_sd + even_N + HK_distribution, ts)
+r33 = lm(diversity ~ boundary_mean + boundary_sd + conformity_mean + conformity_sd + even_N + HK_distribution, ts)
+stargazer::stargazer(r31, r32, r33, type = "text")
+
+r41 = lm(ESBG ~ boundary_mean * boundary_sd + conformity_mean * conformity_sd + even_N + HK_distribution, ts)
+r42 = lm(extremness ~ boundary_mean * boundary_sd + conformity_mean * conformity_sd + even_N + HK_distribution, ts)
+r43 = lm(diversity ~ boundary_mean * boundary_sd + conformity_mean * conformity_sd + even_N + HK_distribution, ts)
+stargazer::stargazer(r41, r42, r43, type = "text")
+
+r81 = lm(ESBG ~ boundary_mean * boundary_sd, ts)
+r82 = lm(extremness ~ boundary_mean * boundary_sd, ts)
+r83 = lm(diversity ~ boundary_mean * boundary_sd, ts)
+stargazer::stargazer(r81, r82, r83, type = "text")
+
+stargazer::stargazer(r1, r31, r41, r81, type = "text", omit.stat = c("f", "ser"))
+stargazer::stargazer(r2, r32, r42, r82, type = "text", omit.stat = c("f", "ser"))
+stargazer::stargazer(r3, r33, r43, r83, type = "text", omit.stat = c("f", "ser"))
+
+# Comparison of both measurement approaches on best models:
+stargazer::stargazer(r41, r81, m41, m81, type = "text", omit.stat = c("f", "ser"))
+stargazer::stargazer(r42, r82, m42, m82, type = "text", omit.stat = c("f", "ser"))
+stargazer::stargazer(r43, r83, m43, m83, type = "text", omit.stat = c("f", "ser"))
+
+# Conclusion: Surprising! Despite exact measurement of key factors,
+# the regression statistics are only slightly better. And still,
+# big part of variability is not addressed. Why? Is it cos' of wrong function?
+
+m91 = nls(formula = ESBG ~ Boundary * Boundary_STD,  data = ts)
+m92 = glm(extremness ~ (Boundary) * (Boundary_STD), ts)
+m93 = glm(diversity ~ (Boundary) * (Boundary_STD), ts)
+stargazer::stargazer(m91, m82, m83, type = "text")
+
 
 # Maps ------------------------------------------------------------------
 
@@ -206,6 +298,51 @@ heat_map(.var = "diversity_sd", .y = "Conformity_STD", .x = "Conformity", .title
   ggsave("Pics/s02map16.png", plot = ., units = "cm", height = .height, width = .width)
 heat_map(.var = "diversity_mean", .y = "Conformity_STD", .x = "Conformity", .title = "Heat Map 2nd Step") %>%
   ggsave("Pics/s02map15.png", plot = ., units = "cm", height = .height, width = .width)
+# OK, Conformity is not that much important
+
+
+
+heat_map_facets = function(.data = tm, .var = "ESBG_sd", .y = "Boundary_STD", .x = "Boundary",
+                           .y.facet = "Conformity", .x.facet = "Conformity_STD", .title = "") {
+  .data %>%
+    ggplot() +
+    aes(x = eval(str2lang(.x)), y = eval(str2lang(.y)), col = eval(str2lang(.var))) +
+    facet_grid(rows = vars(Conformity),
+               cols = vars(Conformity_STD),
+               labeller = "label_both") +
+    geom_point(shape = 15, size = 6) +
+    scale_color_viridis_c() +
+    #scale_x_continuous(breaks = seq(0.05, 0.35, 0.05)) +
+    # scale_y_continuous(breaks = seq(0.1, 1, 0.1)) +
+    labs(x = .x, y = .y, col = .var, title = .title) +
+    theme_light()
+}
+
+# Data preparation on boundary and conformity:
+tm = ts %>%
+  group_by(Boundary, Boundary_STD, Conformity, Conformity_STD) %>%
+  summarise(across(.cols = diversity:ESBG,
+                   list(mean = mean, sd = sd),
+                   .names = "{.col}_{.fn}")) %>%
+  ungroup() %>%
+  mutate(Conformity_STD = factor(Conformity_STD), Boundary_STD = factor(Boundary_STD))
+
+.height = 29
+.width = 47
+
+# Drawing:
+heat_map_facets(.var = "ESBG_sd", .title = "Complex Heat Map 2nd Step") %>%
+  ggsave("Pics/s02map22.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "ESBG_mean", .title = "Complex Heat Map 2nd Step") %>%
+  ggsave("Pics/s02map21.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "extremness_sd", .title = "Complex Heat Map 2nd Step") %>%
+  ggsave("Pics/s02map24.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "extremness_mean", .title = "Complex Heat Map 2nd Step") %>%
+  ggsave("Pics/s02map23.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "diversity_sd", .title = "Complex Heat Map 2nd Step") %>%
+  ggsave("Pics/s02map26.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "diversity_mean", .title = "Complex Heat Map 2nd Step") %>%
+  ggsave("Pics/s02map25.png", plot = ., units = "cm", height = .height, width = .width)
 # OK, Conformity is not that much important
 
 

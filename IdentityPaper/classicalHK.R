@@ -615,7 +615,7 @@ df = diff %>%
 .height = 46
 .width = 34.5
 
-df %>% heat_map_facet(.var = "diversity", .title = "Map of differences in DIVERSITY between consecutive even and odd numbers")  %>%
+df %>% heat_map_facet(.var = "diversity", .title = "Map of differences in DIVERSITY between consecutive even and odd numbers") %>%
   ggsave("Pics/mapb1.png", plot = ., units = "cm", height = .height, width = .width)
 df %>% heat_map_facet(.var = "extremness", .title = "Map of differences in EXTREMNESS between consecutive even and odd numbers")  %>%
   ggsave("Pics/mapb2.png", plot = ., units = "cm", height = .height, width = .width)
