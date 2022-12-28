@@ -327,6 +327,9 @@ heat_map_facet(.var = "diversity_mean") %>%
   ggsave("Pics/s03map35.png", plot = ., units = "cm", height = .height, width = .width)
 
 
+
+# Heat maps for exact effect estimation of Evenness/Oddness and HK distribution --------
+
 heat_map_facet = function(.data = tm, .var = "ESBG_mean", .y = "SPIRO_Mean", .x = "Boundary",
                           .facet = "N", .title = "Differences by HK-distribution (T - F)") {
   # .Boundary_STD = eval(str2lang(.facet))
