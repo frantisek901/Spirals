@@ -1,10 +1,10 @@
 #### Script for processing data from Identity paper experiments
-#### Now we follow with sensitivity analysis of HK model with heterogenous parameters
+#### Now we follow with sensitivity analysis of HK model with heterogeneous parameters
 
 
 ## Encoding: windows-1250
 ## Created:  2022-11-15 FrK
-## Edited:   2022-12-13 FrK
+## Edited:   2022-12-24 FrK
 
 ## Notes:
 ##
