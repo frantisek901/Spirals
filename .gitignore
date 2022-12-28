@@ -5,6 +5,8 @@
 *.tmp.nlogo
 *.html
 PolarizedStart\*.html
-
-
+.git-credentials
 IdentityPaper/Pics/*.png
+
+
+
