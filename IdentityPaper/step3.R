@@ -286,21 +286,22 @@ heat_map_facets(.var = "diversity_mean") %>%
 
 
 
-heat_map_facet = function(.data = tm, .var = "ESBG_mean", .y = "SPIRO_Mean", .x = "Boundary",
+heat_map_facet = function(.data = tm, .var = "ESBG_mean", .x = "SPIRO_Mean", .y = "Boundary",
                           .facet = "Boundary_STD", .title = "Complex 3-way Heat Map 3nd Step") {
   # .Boundary_STD = eval(str2lang(.facet))
   .data %>%
     ggplot() +
     aes(x = eval(str2lang(.x)), y = eval(str2lang(.y)), col = eval(str2lang(.var)),
         label = round(eval(str2lang(.var)), 2)) +
-    facet_wrap(vars(Boundary_STD), ncol = 1, labeller = "label_both") +
-    geom_point(shape = 15, size = 6) +
-    geom_text(color = "black", size = 1.5) +
+    facet_wrap(vars(Boundary_STD), nrow = 1, labeller = "label_both") +
+    geom_point(shape = 15, size = 9) +
+    geom_text(color = "black", size = 2.5) +
     scale_color_viridis_c() +
     #scale_x_continuous(breaks = seq(0.05, 0.35, 0.05)) +
     # scale_y_continuous(breaks = seq(0.1, 1, 0.1)) +
     labs(x = .x, y = .y, col = .var, title = paste(.title, .var, sep = ": ")) +
-    theme_light()
+    theme_light() +
+    theme(legend.position = "top")
 }
 
 # Data preparation on boundary and conformity:
@@ -308,11 +309,13 @@ tm = ts %>%
   group_by(Boundary, SPIRO_Mean, Boundary_STD) %>%
   summarise(across(.cols = diversity:ESBG,
                    list(mean = mean, sd = sd),
-                   .names = "{.col}_{.fn}")) %>% ungroup()
-.height = 22.5
-.width = 14.4
+                   .names = "{.col}_{.fn}")) %>% ungroup() %>%
+  mutate(Boundary_STD = factor(Boundary_STD))
+
 
 # Drawing:
+.height = 19.7
+.width = 27.5
 heat_map_facet(.var = "ESBG_sd") %>%
   ggsave("Pics/s03map32.png", plot = ., units = "cm", height = .height, width = .width)
 heat_map_facet(.var = "ESBG_mean") %>%
