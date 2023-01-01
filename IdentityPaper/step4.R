@@ -6,7 +6,7 @@
 
 ## Encoding: windows-1250
 ## Created:  2022-11-15 FrK
-## Edited:   2022-12-31 FrK
+## Edited:   2023-01-01 FrK
 
 ## Notes:
 ##
@@ -36,9 +36,11 @@ library(rstatix)
 ## Step 4
 # Creating object 'raw' (tibble): Loading....
 raw4 = read_csv("Step4_indID-hetPar_RS01-05.csv", skip = 6) %>%
-  add_row(read_csv("Step4_indID-hetPar_RS06-10.csv", skip = 6)) %>%
-  add_row(read_csv("Step4_indID-hetPar_RS40.csv", skip = 6)) %>%
-  add_row(read_csv("Step4_indID-hetPar_RS50.csv", skip = 6))
+  add_row(read_csv("Step4_indID-hetPar_RS06-10.csv", skip = 6))
+for (i in seq(30, 55, 5)) {
+  raw4 = raw4 %>%
+    add_row(read_csv(paste0("Step4_indID-hetPar_RS", i, ".csv"), skip = 6))
+}
 for (i in seq(11, 56, 5)) {
   raw4 = raw4 %>%
     add_row(read_csv(paste0("Step4_indID-hetPar_RS", i, "-", i + 4, ".csv"), skip = 6))
@@ -82,7 +84,6 @@ for (i in seq(11, 56, 5)) {
     add_row(read_csv(paste0("Step4-2_indID-hetPar_RS", i, "-", i + 4, ".csv"), skip = 6))
 }
 
-
 # Transforming 'raw4' to clean 'ts'
 ts42 = raw42 %>%
   # Selecting and renaming...
@@ -97,10 +98,9 @@ ts42 = raw42 %>%
   # Processing.
   mutate(
     even_N = ((N %%2) == 0),
-    across(.cols = 4:7, factor))
-# ,
-#     spiro_mean = ((SPIRO_0.15 * .15) + (SPIRO_0.25 * .25) + (SPIRO_0.35 * .35) + (SPIRO_0.45 * .45) + (SPIRO_0.55 * .55) + (SPIRO_0.65 * .65) + (SPIRO_0.75 * .75) + (SPIRO_0.85 * .85)) / N,
-#     spiro_sd = sqrt((SPIRO_0.15 * ((spiro_mean - 0.15) ^ 2) + SPIRO_0.25 * ((spiro_mean - 0.25) ^ 2) + SPIRO_0.35 * ((spiro_mean - 0.35) ^ 2) + SPIRO_0.45 * ((spiro_mean - 0.45) ^ 2) + SPIRO_0.55 * ((spiro_mean - 0.55) ^ 2) + SPIRO_0.65 * ((spiro_mean - 0.65) ^ 2) + SPIRO_0.75 * ((spiro_mean - 0.75) ^ 2) + SPIRO_0.85 * ((spiro_mean - 0.85) ^ 2)) / (N - 1)) )
+    across(.cols = 4:7, factor),
+    spiro_mean = ((SPIRO_0.15 * .15) + (SPIRO_0.25 * .25) + (SPIRO_0.35 * .35) + (SPIRO_0.45 * .45) + (SPIRO_0.55 * .55) + (SPIRO_0.65 * .65) + (SPIRO_0.75 * .75) + (SPIRO_0.85 * .85)) / N,
+    spiro_sd = sqrt((SPIRO_0.15 * ((spiro_mean - 0.15) ^ 2) + SPIRO_0.25 * ((spiro_mean - 0.25) ^ 2) + SPIRO_0.35 * ((spiro_mean - 0.35) ^ 2) + SPIRO_0.45 * ((spiro_mean - 0.45) ^ 2) + SPIRO_0.55 * ((spiro_mean - 0.55) ^ 2) + SPIRO_0.65 * ((spiro_mean - 0.65) ^ 2) + SPIRO_0.75 * ((spiro_mean - 0.75) ^ 2) + SPIRO_0.85 * ((spiro_mean - 0.85) ^ 2)) / (N - 1)))
 
 
 # Checking RS distribution ------------------------------------------------
@@ -109,6 +109,7 @@ ts %>% count(RS) %>% #filter( n == 7680) %>% nrow()
   ggplot(aes(x = RS, y = n)) +
   geom_point(size = 3, alpha = 0.4) +
   scale_x_continuous(breaks = seq(5, 60, 5))+
+  scale_y_continuous(limits = c(0, 8000), breaks = seq(0, 8000, 1000)) +
   labs(title = "Step 4: RS distribution") +
   theme_light()
 
@@ -116,12 +117,31 @@ ts42 %>% count(RS) %>%
   ggplot(aes(x = RS, y = n)) +
   geom_point(size = 3, alpha = 0.4) +
   scale_x_continuous(breaks = seq(5, 60, 5))+
+  scale_y_continuous(limits = c(0, 8000), breaks = seq(0, 8000, 500)) +
   labs(title = "Step 4.2: RS distribution") +
   theme_light()
 
 
 # Checking set factors and their real mean and SD ------------------------------------------------------
 
+## STEP 4.2
+# SPIRO SD
+ggplot(ts42) +
+  aes(x = SPIRO_STD, y = spiro_sd) +
+  geom_boxplot() +
+  geom_jitter(col = "skyblue", alpha = 0.015) +
+  theme_light()
+
+# SPIRO mean
+ggplot(ts42) +
+  aes(x = SPIRO_Mean, y = spiro_mean) +
+  geom_boxplot() +
+  geom_jitter(col = "skyblue", alpha = 0.015) +
+  scale_y_continuous(limits = c(0, 0.85), breaks = seq(0, 0.85, 0.05)) +
+  theme_light()
+
+
+## STEP 4
 # SPIRO SD
 ggplot(ts) +
   aes(x = SPIRO_STD, y = spiro_sd) +
@@ -300,7 +320,7 @@ tm = ts42 %>%
 
 # Drawing:
 .height = 38
-.width = 56.5
+.width = 81.5
 .tit = paste0("Complex Heat Map 4th Step (N = ", nrow(ts42), " simulations)")
 heat_map_facets(.var = "ESBG_sd", .title = .tit) %>%
   ggsave("Pics/s04map52.png", plot = ., units = "cm", height = .height, width = .width)
