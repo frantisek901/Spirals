@@ -6,7 +6,7 @@
 
 ## Encoding: windows-1250
 ## Created:  2022-11-15 FrK
-## Edited:   2023-01-01 FrK
+## Edited:   2023-01-02 FrK
 
 ## Notes:
 ##
@@ -37,7 +37,7 @@ library(rstatix)
 # Creating object 'raw' (tibble): Loading....
 raw4 = read_csv("Step4_indID-hetPar_RS01-05.csv", skip = 6) %>%
   add_row(read_csv("Step4_indID-hetPar_RS06-10.csv", skip = 6))
-for (i in seq(30, 55, 5)) {
+for (i in c(seq(30, 55, 5), 39, 49, "35B", "45B")) {
   raw4 = raw4 %>%
     add_row(read_csv(paste0("Step4_indID-hetPar_RS", i, ".csv"), skip = 6))
 }
@@ -320,7 +320,7 @@ tm = ts42 %>%
 
 # Drawing:
 .height = 38
-.width = 81.5
+.width = 110
 .tit = paste0("Complex Heat Map 4th Step (N = ", nrow(ts42), " simulations)")
 heat_map_facets(.var = "ESBG_sd", .title = .tit) %>%
   ggsave("Pics/s04map52.png", plot = ., units = "cm", height = .height, width = .width)
