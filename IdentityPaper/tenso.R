@@ -3,7 +3,14 @@
 
 ## Encoding: windows-1250
 ## Created:  2022-12-25 FranÈesko
-## Edited:   2022-12-28 FranÈesko
+## Edited:   2022-01-03 FranÈesko
+
+## NOTES:
+#  1) For more dimensions it's better to pivot tibbles on agents, not tiles/patches --
+#  we have 101 agents, so only 10x10 tiles in 2D, 3x3x3x3 in 4D are more efficient
+#  than tibble with 101 rows for 101 agents and encoding their positions in the space.
+#  And we want to use 360 tiles per dimension.
+#
 
 
 # Head --------------------------------------------------------------------
@@ -13,288 +20,231 @@ rm(list = ls())
 
 # Packages:
 library(stringr)
-
-
-# 1D ----------------------------------------------------------------------
-
-# Computing basic vector 't' of 360 tiles
-v = seq(-1, 1, 0.001)
-l = length(v) / 1000
-l = 2.002  # 2.002 gives tile 181 and tile 180 of equal size (n=6).
-#l = 2.001 # 2.001 gives tiles 1 and 360 of equal size (n=6).
-v_trans = v + 1.0005
-t_max = 360
-#t = ceiling((v + 1.0005) / 2.002 * 360)
-t = ceiling(v_trans / l * t_max)
-
-
-# Checking 't'
-max(t)
-t[t == 180]
-t[t == 181]
-t[t == max(t)]
-t[t == min(t)]
-hist(t, breaks = 0:t_max)
-tibble(t) %>% count(t) %>%
-  ggplot(aes(x = n)) + geom_bar() + labs(title = "Frequencies of tiles") + theme_light()
+library(tidyverse)
+library(rstatix)
 
 
 
-# Testing 1D equation -----------------------------------------------------
+# Functions ---------------------------------------------------------------
 
-te = c(rnorm(50, mean = 0.41, sd = 0.2),
-       # rnorm(1, mean = -0.9, sd = 0.002),
-       rnorm(51, mean = -0.42, sd = 0.02)) %>% round(3)
-te = runif(101, min = -.99, max = .99) %>% round(3)
-te
-hist(x = te, breaks = seq(-1, 1, (0.0005 / 2.002 * 360)))
-min(te)
-max(te)
-# Converting according the equation...
-te360 = tibble(t = ceiling((te + 1.0005) / 2.002 * 360))
-hist(x = te360$t, breaks = 0:360)
+compute_basic_tibble = function(.tibble, .ratio = 2.002, .max_tile = 360, .delta = 1.0005) {
+  # We suppose that:
+  # 1) raw data are of class tibble
+  # 2) in variables are coded only agents' positions in the opinion space
+  # 3) each variable codes position of agents in one dimension
+  # 4) each row is a complete position of an respective agent
+  # 5) nothing else than opinion in the opinion space is in the tibble
+  # 6) opinions are on the continuous scale -1; +1, step is 0.001 (precision 3/ round(., 3))
+  #
+  .tibble %>%
+    mutate(across(.cols = everything(), ~ceiling((.x + .delta) / .ratio * .max_tile)))
+}
 
+compute_row = function(.tibble, .reduced_tiles = 360, .original_tiles = 360) {
+  # We suppose that:
+  # 1) basic data are of class tibble
+  # 2) in variables are coded only agents' positions in the opinion space
+  # 3) each variable codes position of agents in one dimension
+  # 4) each row is a complete position of an respective agent
+  # 5) nothing else than opinion in the opinion space is in the tibble
+  # 6) basic opinions are on the discrete scale 1; 2; ... 360, step is 1
+  #
 
+  # Firstly, we must compute useful constants:
+  # a) factor by which the basic tiles will be reduced:
+  .reducing_factor = .original_tiles / .reduced_tiles
+  # b) number of dimensions:
+  .dims = ncol(.tibble)
 
-# Computing re-scaled 1D vectors ------------------------------------------
+  # Secondly, we use this factor for reducing tile numbers
+  .tibble %>%
+    mutate(across(.cols = everything(), ~ceiling(.x / .reducing_factor))) %>%
 
-t360 = te360 %>%
-  count(t) %>%
-  # Computing Shannon's entropy
-  mutate(p = n / sum(n),
-         h = -1 * p * log(p, base = if_else(length(te360$t) < 360, length(te360$t), as.integer(360))))
-sum(t360$h)
+    # Thirdly, let's compute entropy!
+    count(across()) %>%  # Finding all non-zero combinations
+    mutate(  # Computing itself
+      p = n / sum(n),
+      h = -1 * p * log(p, base = if_else(nrow(.tibble) < (.reduced_tiles ^ .dims),
+                                         nrow(.tibble),
+                                         as.integer(.reduced_tiles ^ .dims)))) %>%
 
+    # Fourthly, let' summarize everything to row and
+    # add variables needed for computing fractal dimension:
+    summarise(h = sum(h), tiles_covered = n()) %>%
+    mutate(dimensions = .dims, tiles_size = as.integer(.reducing_factor),
+           tiles_max = as.integer(.reduced_tiles)) %>%
+    relocate(dimensions, .before = h)
+}
 
-# Converting according the equation...
-t180 = tibble(t = ceiling(te360$t / 2)) %>%
-  count(t) %>%
-  # Computing Shannon's entropy
-  mutate(p = n / sum(n),
-         h = -1 * p * log(p, base = if_else(length(te360$t) < 180, length(te360$t), as.integer(180))))
-sum(t180$h)
+compute_final_tibble = function(.tibble, .sizes = c(360, 180, 120, 90, 72, 60, 45, 40, 36, 30, 24, 20,
+                                                    18, 15, 12, 10, 9, 8, 6, 5, 4, 3, 2)) {
+  # We prepare the first row of final tibble:
+  .df = compute_row(.tibble, .sizes[1])
 
+  # We use FOR cycle for computing 'h' and fractal variables for all tiles' sizes:
+  for (.s in .sizes[2:length(.sizes)]) {
+    .df = .df %>%
+      add_row(compute_row(.tibble, .s))
+  }
 
-# Converting according the equation...
-t120 = tibble(t = ceiling(te360$t / 3)) %>%
-  count(t) %>%
-  # Computing Shannon's entropy
-  mutate(p = n / sum(n),
-         h = -1 * p * log(p, base = if_else(length(te360$t) < 120, length(te360$t), as.integer(120))))
-sum(t120$h)
+  # Publishing resulting file:
+  .df
+}
 
+compute_regressions = function(.tibble, .min_tile_size = 1, .max_tile_size = 180) {
+  # We suppose that '.tibble' is the product of the function compute_final_tibble()
+  # We also suppose that main produced results will be updated, i.e. what this function produces.
 
-# Converting according the equation...
-t090 = tibble(t = ceiling(te360$t / 4)) %>%
-  count(t) %>%
-  # Computing Shannon's entropy
-  mutate(p = n / sum(n),
-         h = -1 * p * log(p, base = if_else(length(te360$t) < 90, length(te360$t), as.integer(90))))
-sum(t090$h)
+  # Here we compute regressions -- always once for 'tiles_max' divisible by 5 and not
+  ho = lm(h ~ log(tiles_max), data = filter(.tibble, tiles_max%%5 == 0 & tiles_size >= .min_tile_size & tiles_size <= .max_tile_size))
+  he = lm(h ~ log(tiles_max), data = filter(.tibble, tiles_max%%5 != 0 & tiles_size >= .min_tile_size & tiles_size <= .max_tile_size))
+  hdo = lm(log(tiles_covered) ~ log(1 / tiles_size), data = filter(.tibble, tiles_max%%5 == 0 & tiles_size >= .min_tile_size & tiles_size <= .max_tile_size))
+  hde = lm(log(tiles_covered) ~ log(1 / tiles_size), data = filter(.tibble, tiles_max%%5 != 0 & tiles_size >= .min_tile_size & tiles_size <= .max_tile_size))
 
+  # Finally, we publish results as a tibble:
+  tibble(h_odd = ho$coefficients[2], h_even = he$coefficients[2],
+         r_h_odd = summary(ho)$adj.r.squared, r_h_even = summary(he)$adj.r.squared,
+         fd_odd = hdo$coefficients[2], fd_even = hde$coefficients[2],
+         r_fd_odd = summary(hdo)$adj.r.squared, r_fd_even = summary(hde)$adj.r.squared)
+}
 
-# Converting according the equation...
-t072 = tibble(t = ceiling(te360$t / 5)) %>%
-  count(t) %>%
-  # Computing Shannon's entropy
-  mutate(p = n / sum(n),
-         h = -1 * p * log(p, base = if_else(length(te360$t) < 72, length(te360$t), as.integer(72))))
-sum(t072$h)
+compute_entropy = function(.tibble, .min_tile_size = 1, .max_tile_size = 180) {
+  # We suppose that '.tibble' is the product of the function compute_final_tibble()
 
+  # Computing regression:
+  mc1 = lm(h ~ log(tiles_max),
+           data = filter(.tibble, tiles_size >= .min_tile_size & tiles_size <= .max_tile_size))
+  ms1 = mc1 %>% summary()
+  mc2 = lm(h ~ log(tiles_max) * (tiles_max%%5 == 0) ,
+           data = filter(.tibble, tiles_size >= .min_tile_size & tiles_size <= .max_tile_size))
+  ms2 = mc2 %>% summary()
 
-# Converting according the equation...
-t060 = tibble(t = ceiling(te360$t / 6)) %>%
-  count(t) %>%
-  # Computing Shannon's entropy
-  mutate(p = n / sum(n),
-         h = -1 * p * log(p, base = if_else(length(te360$t) < 60, length(te360$t), as.integer(60))))
-sum(t060$h)
+  # Printing results:
+  print("Simple model:")
+  ms1$coefficients %>% print()
+  print(paste0("R2: ", round(ms1$adj.r.squared, 3)))
+  print(""); print("")
+  print("Model with interaction:")
+  ms2$coefficients %>% print()
+  print(paste0("R2: ", round(ms2$adj.r.squared, 3)))
+  print(""); print("")
+  print("Difference in BIC: model with interaction - simple model")
+  round(BIC(mc2) - BIC(mc1), 1) %>% print()
+  # # Here we compute regression
+  # lm(h ~ log(tiles_max) * (tiles_max%%5 == 0) ,
+  #    data = filter(.tibble, tiles_size >= .min_tile_size)) %>%
+  #   summary()
+}
+# compute_entropy(tn4)
 
+compute_fractal_dimension = function(.tibble, .min_tile_size = 1, .max_tile_size = 360) {
+  # We suppose that '.tibble' is the product of the function compute_final_tibble()
 
-# Converting according the equation...
-t045 = tibble(t = ceiling(te360$t / 8)) %>%
-  count(t) %>%
-  # Computing Shannon's entropy
-  mutate(p = n / sum(n),
-         h = -1 * p * log(p, base = if_else(length(te360$t) < 45, length(te360$t), as.integer(45))))
-sum(t045$h)
+  # Here we compute regressions -- always once for 'tiles_max' divisible by 5 and not
+  mc1 = lm(log(tiles_covered) ~ log(1 / tiles_size),
+           data = filter(.tibble, tiles_size >= .min_tile_size & tiles_size <= .max_tile_size))
+  ms1 = mc1 %>% summary()
+  mc2 = lm(log(tiles_covered) ~ log(1 / tiles_size) * (tiles_max%%5 == 0) ,
+           data = filter(.tibble, tiles_size >= .min_tile_size & tiles_size <= .max_tile_size))
+  ms2 = mc2 %>% summary()
 
-
-# Converting according the equation...
-t040 = tibble(t = ceiling(te360$t / 9)) %>%
-  count(t) %>%
-  # Computing Shannon's entropy
-  mutate(p = n / sum(n),
-         h = -1 * p * log(p, base = if_else(length(te360$t) < 40, length(te360$t), as.integer(40))))
-sum(t040$h)
-
-
-# Converting according the equation...
-t036 = tibble(t = ceiling(te360$t / 10)) %>%
-  count(t) %>%
-  # Computing Shannon's entropy
-  mutate(p = n / sum(n),
-         h = -1 * p * log(p, base = if_else(length(te360$t) < 36, length(te360$t), as.integer(36))))
-sum(t036$h)
-
-
-# Converting according the equation...
-t030 = tibble(t = ceiling(te360$t / 12)) %>%
-  count(t) %>%
-  # Computing Shannon's entropy
-  mutate(p = n / sum(n),
-         h = -1 * p * log(p, base = if_else(length(te360$t) < 30, length(te360$t), as.integer(30))))
-sum(t030$h)
-
-
-# Converting according the equation...
-t024 = tibble(t = ceiling(te360$t / 15)) %>%
-  count(t) %>%
-  # Computing Shannon's entropy
-  mutate(p = n / sum(n),
-         h = -1 * p * log(p, base = if_else(length(te360$t) < 24, length(te360$t), as.integer(24))))
-sum(t024$h)
-
-
-# Converting according the equation...
-t020 = tibble(t = ceiling(te360$t / 18)) %>%
-  count(t) %>%
-  # Computing Shannon's entropy
-  mutate(p = n / sum(n),
-         h = -1 * p * log(p, base = if_else(length(te360$t) < 20, length(te360$t), as.integer(20))))
-sum(t020$h)
-
-
-# Converting according the equation...
-t018 = tibble(t = ceiling(te360$t / 20)) %>%
-  count(t) %>%
-  # Computing Shannon's entropy
-  mutate(p = n / sum(n),
-         h = -1 * p * log(p, base = if_else(length(te360$t) < 18, length(te360$t), as.integer(18))))
-sum(t018$h)
-
-
-# Converting according the equation...
-t015 = tibble(t = ceiling(te360$t / 24)) %>%
-  count(t) %>%
-  # Computing Shannon's entropy
-  mutate(p = n / sum(n),
-         h = -1 * p * log(p, base = if_else(length(te360$t) < 15, length(te360$t), as.integer(15))))
-sum(t015$h)
+  # And here we present them:
+  print("Simple model:")
+  ms1$coefficients %>% print()
+  print(paste0("R2: ", round(ms1$adj.r.squared, 3)))
+  print(""); print("")
+  print("Model with interaction:")
+  ms2$coefficients %>% print()
+  print(paste0("R2: ", round(ms2$adj.r.squared, 3)))
+  print(""); print("")
+  print("Difference in BIC: model with interaction - simple model")
+  round(BIC(mc2) - BIC(mc1), 1)
+}
+# compute_fractal_dimension(tn4, 1, 90)
 
 
-# Converting according the equation...
-t012 = tibble(t = ceiling(te360$t / 30)) %>%
-  count(t) %>%
-  # Computing Shannon's entropy
-  mutate(p = n / sum(n),
-         h = -1 * p * log(p, base = if_else(length(te360$t) < 12, length(te360$t), as.integer(12))))
-sum(t012$h)
+# Generating test files -------------------------------
+
+tu4 = tibble(
+  o1 = runif(101, min = -.99, max = .99) %>% round(3),
+  o2 = runif(101, min = -.99, max = .99) %>% round(3),
+  o3 = runif(101, min = -.99, max = .99) %>% round(3),
+  o4 = runif(101, min = -.99, max = .99) %>% round(3)
+) %>% compute_basic_tibble() %>% compute_final_tibble()
+tu4
+
+tn4 = tibble(
+  o1 = c(rnorm(50, mean = 0.41, sd = 0.2), rnorm(51, mean = -0.42, sd = 0.02)) %>% round(3),
+  o2 = c(rnorm(50, mean = 0.41, sd = 0.2), rnorm(51, mean = -0.42, sd = 0.02)) %>% round(3),
+  o3 = c(rnorm(50, mean = 0.41, sd = 0.2), rnorm(51, mean = -0.42, sd = 0.02)) %>% round(3),
+  o4 = c(rnorm(50, mean = 0.41, sd = 0.2), rnorm(51, mean = -0.42, sd = 0.02)) %>% round(3)
+) %>% compute_basic_tibble() %>% compute_final_tibble()
+tn4
+
+tu3 = tibble(
+  o1 = runif(101, min = -.99, max = .99) %>% round(3),
+  o2 = runif(101, min = -.99, max = .99) %>% round(3),
+  o3 = runif(101, min = -.99, max = .99) %>% round(3)
+) %>% compute_basic_tibble() %>% compute_final_tibble()
+tu3
+
+tn3 = tibble(
+  o1 = c(rnorm(50, mean = 0.41, sd = 0.2), rnorm(51, mean = -0.42, sd = 0.02)) %>% round(3),
+  o2 = c(rnorm(50, mean = 0.41, sd = 0.2), rnorm(51, mean = -0.42, sd = 0.02)) %>% round(3),
+  o3 = c(rnorm(50, mean = 0.41, sd = 0.2), rnorm(51, mean = -0.42, sd = 0.02)) %>% round(3)
+) %>% compute_basic_tibble() %>% compute_final_tibble()
+tn3
+
+tu2 = tibble(
+  o1 = runif(101, min = -.99, max = .99) %>% round(3),
+  o2 = runif(101, min = -.99, max = .99) %>% round(3)
+) %>% compute_basic_tibble() %>% compute_final_tibble()
+tu2
+
+tn2 = tibble(
+  o1 = c(rnorm(50, mean = 0.41, sd = 0.2), rnorm(51, mean = -0.42, sd = 0.02)) %>% round(3),
+  o2 = c(rnorm(50, mean = 0.41, sd = 0.2), rnorm(51, mean = -0.42, sd = 0.02)) %>% round(3)
+) %>% compute_basic_tibble() %>% compute_final_tibble()
+tn2
+
+tu1 = tibble(
+  o1 = runif(101, min = -.99, max = .99) %>% round(3)
+) %>% compute_basic_tibble() %>% compute_final_tibble()
+tu1
+
+tn1 = tibble(
+  o1 = c(rnorm(50, mean = 0.41, sd = 0.2), rnorm(51, mean = -0.42, sd = 0.02)) %>% round(3)
+) %>% compute_basic_tibble() %>% compute_final_tibble()
+tn1
+
+res = tn4
 
 
-# Converting according the equation...
-t010 = tibble(t = ceiling(te360$t / 36)) %>%
-  count(t) %>%
-  # Computing Shannon's entropy
-  mutate(p = n / sum(n),
-         h = -1 * p * log(p, base = if_else(length(te360$t) < 10, length(te360$t), as.integer(10))))
-sum(t010$h)
 
+# Regressions -------------------------------------------------------------
 
-# Converting according the equation...
-t009 = tibble(t = ceiling(te360$t / 40)) %>%
-  count(t) %>%
-  # Computing Shannon's entropy
-  mutate(p = n / sum(n),
-         h = -1 * p * log(p, base = if_else(length(te360$t) < 9, length(te360$t), as.integer(9))))
-sum(t009$h)
+mt = lm(h ~ log(tiles_max) * (tiles_max%%5 == 0) , data = filter(res, tiles_size >= 1))
+mt %>% summary()
+mc2 = lm(log(tiles_covered) ~ log(1 / tiles_size) * (tiles_max%%5 == 0) , data = filter(res, tiles_size >= 1))
+mc2 %>% summary()
+mc1 = lm(log(tiles_covered) ~ log(1 / tiles_size), data = filter(res, tiles_size >= 1))
+mc1 %>% summary()
+BIC(mc2) - BIC(mc1)
 
-
-# Converting according the equation...
-t008 = tibble(t = ceiling(te360$t / 45)) %>%
-  count(t) %>%
-  # Computing Shannon's entropy
-  mutate(p = n / sum(n),
-         h = -1 * p * log(p, base = if_else(length(te360$t) < 8, length(te360$t), as.integer(8))))
-sum(t008$h)
-
-
-# Converting according the equation...
-t006 = tibble(t = ceiling(te360$t / 60)) %>%
-  count(t) %>%
-  # Computing Shannon's entropy
-  mutate(p = n / sum(n),
-         h = -1 * p * log(p, base = if_else(length(te360$t) < 6, length(te360$t), as.integer(6))))
-sum(t006$h)
-
-
-# Converting according the equation...
-t005 = tibble(t = ceiling(te360$t / 72)) %>%
-  count(t) %>%
-  # Computing Shannon's entropy
-  mutate(p = n / sum(n),
-         h = -1 * p * log(p, base = if_else(length(te360$t) < 5, length(te360$t), as.integer(5))))
-sum(t005$h)
-
-
-# Converting according the equation...
-t004 = tibble(t = ceiling(te360$t / 90)) %>%
-  count(t) %>%
-  # Computing Shannon's entropy
-  mutate(p = n / sum(n),
-         h = -1 * p * log(p, base = if_else(length(te360$t) < 4, length(te360$t), as.integer(4))))
-sum(t004$h)
-
-
-# Converting according the equation...
-t003 = tibble(t = ceiling(te360$t / 120)) %>%
-  count(t) %>%
-  # Computing Shannon's entropy
-  mutate(p = n / sum(n),
-         h = -1 * p * log(p, base = if_else(length(te360$t) < 3, length(te360$t), as.integer(3))))
-sum(t003$h)
-
-
-# Converting according the equation...
-t002 = tibble(t = ceiling(te360$t / 180)) %>%
-  count(t) %>%
-  # Computing Shannon's entropy
-  mutate(p = n / sum(n),
-         h = -1 * p * log(p, base = if_else(length(te360$t) < 2, length(te360$t), as.integer(2))))
-sum(t002$h)
-
+compute_regressions(tn2)
+compute_regressions(res, 2, 90)
+compute_entropy(tn2)
+compute_fractal_dimension(tu2, 6)
 
 
 
 # Graphs with entropy and fractal dimension -------------------------------
 
-# Data preparation -- computing results from rescaled vectors
-res = tibble(t = NA_real_, h = NA_real_, covered = NA_real_, size = NA_real_)
-for (f in c("t002", "t003", "t004", "t005", "t006", "t008", "t009", "t010", "t012", "t015", "t018",
-            "t020", "t024", "t030", "t036", "t040", "t045", "t060", "t072", "t090", "t120", "t180", "t360")) {
-  x = tibble(
-    t = str_sub(f, start = 2) %>% as.numeric(),
-    h = eval(as.name(f))$h %>% sum(),
-    covered = nrow(eval(as.name(f))),
-    size = 360 / t)
-  res = res %>% add_row(x) %>% filter(!is.na(t))
-}
-res
-
-# Regressions
-mt = lm(h ~ log(t) * (t%%5 == 0) , data = filter(res, t >= 6))
-mt %>% summary()
-mc2 = lm(log(covered) ~ log(1 / size) * (t%%5 == 0) , data = filter(res, t >= 6))
-mc2 %>% summary()
-mc1 = lm(log(covered) ~ log(1 / size), data = filter(res, t >= 6))
-mc1 %>% summary()
-BIC(mc2) - BIC(mc1)
-
-## Graphs
 # Shannon's entropy
-res %>%
+res = tn1
+res %>% filter(tiles_size >= 2, tiles_size <= 90) %>%
   ggplot() +
-  aes(x = t, y = h, group = t%%5 == 0, color = t%%5 == 0) +
+  aes(x = tiles_max, y = h, group = tiles_max%%5 == 0, color = tiles_max%%5 == 0) +
   geom_line() +
   geom_point(size = 3, alpha = 1) +
   scale_x_log10(breaks = c(2:6, 8:10, 12, 15, 18, 20, 24, 30, 36, 40, 45, 60, 72, 90, 120, 180, 360),
@@ -302,15 +252,18 @@ res %>%
   scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.1)) +
   labs(x = "Number of tiles", y = "h (normalized entropy)") +
   theme_light()
+compute_entropy(res, 2, 90)
+
 
 # Hausdorff's fractal dimension
-res %>% filter(t >= 6) %>%
+res = tn1
+res %>% filter(tiles_size >= 2, tiles_size <= 90) %>%
   ggplot() +
-  aes(x = (size), y = covered, group = t%%5 == 0, color = t%%5 == 0) +
+  aes(x = (tiles_size), y = tiles_covered, group = tiles_max%%5 == 0, color = tiles_max%%5 == 0) +
   geom_line() +
   geom_point(size = 3) +
-  scale_x_log10(breaks = c(1:6, 8:10, 12, 15, 18, 20, 24, 30, 36, 40, 45, 60),
+  scale_x_log10(breaks = c(1:6, 8:10, 12, 15, 18, 20, 24, 30, 36, 40, 45, 60, 72, 90, 120, 180),
                 minor_breaks = NULL) +
   scale_y_log10() +
   theme_light()
-
+compute_fractal_dimension(res, 2, 90)
