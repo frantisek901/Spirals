@@ -117,7 +117,7 @@ ts42 %>% count(RS) %>%
   ggplot(aes(x = RS, y = n)) +
   geom_point(size = 3, alpha = 0.4) +
   scale_x_continuous(breaks = seq(5, 60, 5))+
-  scale_y_continuous(limits = c(0, 8000), breaks = seq(0, 8000, 500)) +
+  scale_y_continuous(limits = c(0, 5250), breaks = seq(0, 5000, 500)) +
   labs(title = "Step 4.2: RS distribution") +
   theme_light()
 
