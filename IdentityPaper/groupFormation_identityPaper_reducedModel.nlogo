@@ -14,7 +14,7 @@
 ;;
 
 ;; Created:  2021-10-21 FranCesko
-;; Edited:   2022-12-29 FranCesko
+;; Edited:   2023-01-06 FranCesko
 ;; Encoding: windows-1250
 ;; NetLogo:  6.3.0
 ;;
@@ -1849,7 +1849,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.2.2
+NetLogo 6.3.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

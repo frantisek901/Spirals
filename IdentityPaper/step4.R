@@ -78,7 +78,8 @@ ts = left_join(raw4, spiro, by = names(raw4)[c(2:32, 34:37)]) %>%
 ## Step 4.2
 # Creating object 'raw' (tibble): Loading....
 raw42 = read_csv("Step4-2_indID-hetPar_RS01-05.csv", skip = 6) %>%
-  add_row(read_csv("Step4-2_indID-hetPar_RS06-10.csv", skip = 6))
+  add_row(read_csv("Step4-2_indID-hetPar_RS06-10.csv", skip = 6)) %>%
+  add_row(read_csv("Step4-2_indID-hetPar_RS01-25.csv", skip = 6))
 for (i in seq(11, 56, 5)) {
   raw42 = raw42 %>%
     add_row(read_csv(paste0("Step4-2_indID-hetPar_RS", i, "-", i + 4, ".csv"), skip = 6))
@@ -120,6 +121,10 @@ ts42 %>% count(RS) %>%
   scale_y_continuous(limits = c(0, 5250), breaks = seq(0, 5000, 500)) +
   labs(title = "Step 4.2: RS distribution") +
   theme_light()
+
+# What is missing?
+ts42 %>% filter(RS <= 25, SPIRO_STD == 0.15) %>% count(SPIRO_Mean) %>%
+  ggplot(aes(y = SPIRO_Mean, x = n, label = n)) + geom_col(alpha = 0.4) + geom_text(nudge_x = +45) + theme_light()
 
 
 # Checking set factors and their real mean and SD ------------------------------------------------------
