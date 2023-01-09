@@ -6,7 +6,7 @@
 
 ## Encoding: windows-1250
 ## Created:  2022-11-15 FrK
-## Edited:   2023-01-02 FrK
+## Edited:   2023-01-09 FrK
 
 ## Notes:
 ##
@@ -265,15 +265,15 @@ stargazer::stargazer(m1, m71, m81, m2, m72, m82, m3, m73, m83, type = "text", om
 
 # Maps ------------------------------------------------------------------
 
-heat_map_facets = function(.data = tm, .var = "ESBG_mean", .x = "SPIRO_Mean", .y = "Boundary",
-                           .x.facet = "SPIRO_STD", .y.facet = "Boundary_STD", .title = "") {
+heat_map_facets = function(.data = tm, .var = "ESBG_mean", .x = "Boundary_STD", .y = "Boundary",
+                           .y.facet = "SPIRO_STD", .x.facet = "SPIRO_Mean", .title = "") {
   .data %>%
     ggplot() +
     aes(x = eval(str2lang(.x)), y = eval(str2lang(.y)), col = eval(str2lang(.var)),
         label = round(eval(str2lang(.var)), 2)) +
-    facet_grid(cols = vars(SPIRO_STD),
-               rows = vars(Boundary_STD),
-               labeller = "label_both") +
+    facet_grid(cols = vars(eval(str2lang(.x.facet))),
+               rows = vars(eval(str2lang(.y.facet))),
+               labeller = "label_value") +  # labeller = "label_both") +
     geom_point(shape = 15, size = 15) +
     geom_text(col = "black", size = 4) +
     scale_color_viridis_c() +
@@ -292,7 +292,8 @@ tm = ts %>%
   summarise(across(.cols = diversity:ESBG,
                    list(mean = mean, sd = sd),
                    .names = "{.col}_{.fn}")) %>% ungroup() %>%
-  mutate(Boundary = factor(Boundary), Boundary_STD = factor(Boundary_STD) %>% fct_rev())
+  mutate(Boundary = factor(Boundary), Boundary_STD = factor(Boundary_STD),
+         SPIRO_STD = factor(SPIRO_STD) %>% fct_rev())
 
 
 # Drawing:
@@ -312,6 +313,23 @@ heat_map_facets(.var = "diversity_sd", .title = .tit) %>%
 heat_map_facets(.var = "diversity_mean", .title = .tit) %>%
   ggsave("Pics/s04map05.png", plot = ., units = "cm", height = .height, width = .width)
 
+.height = 19.5
+.width = 49.5
+.tit = paste0("Complex Heat Map 4th Step reorganized (N = ", nrow(ts), " simulations)")
+heat_map_facets(.var = "ESBG_sd", .title = .tit) %>%
+  ggsave("Pics/s04map12.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "ESBG_mean", .title = .tit) %>%
+  ggsave("Pics/s04map11.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "extremness_sd", .title = .tit) %>%
+  ggsave("Pics/s04map14.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "extremness_mean", .title = .tit) %>%
+  ggsave("Pics/s04map13.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "diversity_sd", .title = .tit) %>%
+  ggsave("Pics/s04map16.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "diversity_mean", .title = .tit) %>%
+  ggsave("Pics/s04map15.png", plot = ., units = "cm", height = .height, width = .width)
+
+
 
 ## STEP 4.2
 # Data preparation on boundary and conformity:
@@ -320,7 +338,8 @@ tm = ts42 %>%
   summarise(across(.cols = diversity:ESBG,
                    list(mean = mean, sd = sd),
                    .names = "{.col}_{.fn}")) %>% ungroup() %>%
-  mutate(Boundary = factor(Boundary), Boundary_STD = factor(Boundary_STD) %>% fct_rev())
+  mutate(Boundary = factor(Boundary) %>% fct_rev(), Boundary_STD = factor(Boundary_STD),
+         SPIRO_STD = factor(SPIRO_STD))
 
 
 # Drawing:
@@ -339,6 +358,46 @@ heat_map_facets(.var = "diversity_sd", .title = .tit) %>%
   ggsave("Pics/s04map56.png", plot = ., units = "cm", height = .height, width = .width)
 heat_map_facets(.var = "diversity_mean", .title = .tit) %>%
   ggsave("Pics/s04map55.png", plot = ., units = "cm", height = .height, width = .width)
+
+
+.height = 38
+.width = 110
+.tit = paste0("Complex Heat Map 4th Step reordered (N = ", nrow(ts42), " simulations)")
+heat_map_facets(.var = "ESBG_sd", .title = .tit) %>%
+  ggsave("Pics/s04map62.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "ESBG_mean", .title = .tit) %>%
+  ggsave("Pics/s04map61.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "extremness_sd", .title = .tit) %>%
+  ggsave("Pics/s04map64.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "extremness_mean", .title = .tit) %>%
+  ggsave("Pics/s04map63.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "diversity_sd", .title = .tit) %>%
+  ggsave("Pics/s04map66.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "diversity_mean", .title = .tit) %>%
+  ggsave("Pics/s04map65.png", plot = ., units = "cm", height = .height, width = .width)
+
+
+.height = 38
+.width = 110
+.tit = paste0("Complex Heat Map 4th Step reordered again (N = ", nrow(ts42), " simulations)")
+heat_map_facets(.var = "ESBG_sd", .y = "Boundary_STD", .y.facet = "Boundary",
+                .x = "SPIRO_STD", .x.facet = "SPIRO_Mean", .title = .tit) %>%
+  ggsave("Pics/s04map72.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "ESBG_mean", .y = "Boundary_STD", .y.facet = "Boundary",
+                .x = "SPIRO_STD", .x.facet = "SPIRO_Mean", .title = .tit) %>%
+  ggsave("Pics/s04map71.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "extremness_sd", .y = "Boundary_STD", .y.facet = "Boundary",
+                .x = "SPIRO_STD", .x.facet = "SPIRO_Mean", .title = .tit) %>%
+  ggsave("Pics/s04map74.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "extremness_mean", .y = "Boundary_STD", .y.facet = "Boundary",
+                .x = "SPIRO_STD", .x.facet = "SPIRO_Mean", .title = .tit) %>%
+  ggsave("Pics/s04map73.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "diversity_sd", .y = "Boundary_STD", .y.facet = "Boundary",
+                .x = "SPIRO_STD", .x.facet = "SPIRO_Mean", .title = .tit) %>%
+  ggsave("Pics/s04map76.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "diversity_mean", .y = "Boundary_STD", .y.facet = "Boundary",
+                .x = "SPIRO_STD", .x.facet = "SPIRO_Mean", .title = .tit) %>%
+  ggsave("Pics/s04map75.png", plot = ., units = "cm", height = .height, width = .width)
 
 
 
