@@ -741,6 +741,11 @@ end
 
 to __Reporters_for_counting_turtles_for_each_SPIRO end
 
+to-report SPIRO_count [value]
+  report count turtles with [own-SPIRO = value]
+end
+
+
 to-report SPIRO_0.15
   report count turtles with [own-SPIRO = 0.15]
 end
@@ -772,6 +777,129 @@ end
 to-report SPIRO_0.85
   report count turtles with [own-SPIRO = 0.85]
 end
+
+
+to __Reporters_for_computing_entropy_and_fractal_dimension_of_the_public end
+
+to-report Entropy [proc-list]
+  ;; Setting needed parameters/lists
+  let tiles-nums (list 1800 900 600 450 360 300 225 200 180 150 120 100 90 75 72 60 50 45 40 36 30 25 24 20 18 15 12 10 9 8 6 5 4 3 2)
+  let bases map [i -> ifelse-value (length proc-list > (i ^ Number_Of_Opinion_Dimensions)) [(i ^ Number_Of_Opinion_Dimensions)] [length proc-list]] tiles-nums
+  let divs map [i -> ifelse-value (0 = (i mod 5)) [1] [0]] tiles-nums
+
+  ;; Computing normalized entropy for each number of tiles:
+  let hs (map [[tn b] -> precision (compute_h (count_items reduced_opinions (proc-list) (1800) (tn)) (b)) 3] tiles-nums bases)
+
+  ;; Performing regression:
+  let reg2 matrix:regress matrix:from-column-list (list hs (map ln tiles-nums) divs (map [[tn d] -> tn * d] (map ln tiles-nums) divs))
+  let reg1 matrix:regress matrix:from-column-list (list hs (map ln tiles-nums))
+
+  ;; Doing precision 3
+  let p 0
+  foreach reg1 [l ->
+    set reg1 replace-item p reg1 (map [i -> precision i 3] l)
+    set p p + 1]
+  set p 0
+  foreach reg2 [l ->
+    set reg2 replace-item p reg2 (map [i -> precision i 3] l)
+    set p p + 1]
+
+  ;; Reporting the resulting list:
+  report (list reg1 reg2)
+end
+
+to-report Entropy_11
+  report precision (compute_h (count_items reduced_opinions (opinions_1800) (1800) (11)) (11)) 3
+end
+
+to-report Fractals [proc-list]
+  ;; Setting needed parameters/lists
+  let tiles-sizes (list 900 600 450 360 300 225 200 180 150 120 100 90 75 72 60 50 45 40 36 30 25 24 20 18 15 12 10 9 8 6 5 4 3 2 1)
+  let ln-sizes map [i -> ln (1 / i)] tiles-sizes
+  let divs map [i -> ifelse-value (0 = ((1800 / i) mod 5)) [1] [0]] tiles-sizes
+
+  ;; Computing number of covered tiles:
+  let ln-covered map [i -> ln length remove-duplicates reduced_opinions (proc-list) (1800) (1800 / i)] tiles-sizes
+
+  ;; Performing regression:
+  let reg2 matrix:regress matrix:from-column-list (list ln-covered ln-sizes divs (map [[lns d] -> lns * d] ln-sizes divs))
+  let reg1 matrix:regress matrix:from-column-list (list ln-covered ln-sizes)
+
+  ;; Doing precision 3
+  let p 0
+  foreach reg1 [l ->
+    set reg1 replace-item p reg1 (map [i -> precision i 3] l)
+    set p p + 1]
+  set p 0
+  foreach reg2 [l ->
+    set reg2 replace-item p reg2 (map [i -> precision i 3] l)
+    set p p + 1]
+
+  ;; Reporting the resulting list:
+  report reg1 ;(list reg1 reg2)
+end
+
+to-report Fractal_dimension [reg_output]
+  report item 1 item 0 reg_output
+end
+
+to-report Fractal_dimension_R2 [reg_output]
+  report item 0 item 1 reg_output
+end
+
+to-report opinions_1800
+  ;; Getting turtles' original opinions and setting needed parameters
+  let ops [own-opinion] of turtles
+  let ratio 2.001
+  let max_tile 1800
+  let delta 1.0005
+
+  ;; Recalculating opinions via cycles
+  let new_ops map [op -> map [o -> ceiling((o + delta) / ratio * max_tile)] op] ops
+
+  ;; Presenting results
+  report new_ops
+end
+
+to-report reduced_opinions [list-of-lists original-tiles reduced-tiles]
+  ;; Setting needed parameters
+  let reducing-factor original-tiles / reduced-tiles
+  let dims length first list-of-lists
+
+  ;; Recomputing tiles
+  let red_ops map [op -> map [o -> ceiling(o  / reducing-factor)] op] list-of-lists
+
+  ;; Reporting
+  report red_ops
+end
+
+to-report count_items [list-of-lists]
+  ;; Preparing variables and lists:
+  let items remove-duplicates list-of-lists
+  let counts n-values length items [0]
+  let pos 0
+
+  ;; Counting double cycle:
+  foreach items [it ->
+    let i 0
+    foreach list-of-lists [l ->  if (l = it) [set i i + 1]]
+    set counts replace-item pos counts i
+    set pos pos + 1
+    ]
+
+  ;; Reporting counts:
+  report counts
+end
+
+to-report compute_h [counts base]
+  ;; Setting the needed varible -- number of agents:
+  let counted-agents sum counts
+
+  ;; Computing and reporting Shannon's H
+  let h sum (map [p -> -1 * (p / counted-agents) * (log (p / counted-agents) base)] counts)
+  report h
+end
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 343
@@ -1091,7 +1219,7 @@ max-ticks
 max-ticks
 100
 10000
-365.0
+100.0
 5
 1
 NIL
@@ -1225,7 +1353,7 @@ SPIRO_Mean
 SPIRO_Mean
 0
 1
-0.475
+0.27
 0.001
 1
 NIL
@@ -1323,7 +1451,7 @@ Identity_Levels
 Identity_Levels
 1
 10
-8.0
+10.0
 1
 1
 NIL
@@ -1368,7 +1496,7 @@ Boundary_STD
 Boundary_STD
 0
 1
-0.0
+0.15
 0.001
 1
 NIL
@@ -1383,7 +1511,7 @@ Minimum_SPIRO
 Minimum_SPIRO
 0
 0.5
-0.15
+0.05
 0.01
 1
 NIL
@@ -1398,7 +1526,7 @@ Maximum_SPIRO
 Maximum_SPIRO
 0.55
 1
-0.85
+0.95
 0.01
 1
 NIL
@@ -1433,7 +1561,7 @@ SWITCH
 76
 avoid_seed_control?
 avoid_seed_control?
-1
+0
 1
 -1000
 
@@ -1503,7 +1631,7 @@ SWITCH
 298
 HK_opinion_distribution?
 HK_opinion_distribution?
-0
+1
 1
 -1000
 
@@ -12090,6 +12218,2526 @@ NetLogo 6.3.0
     </enumeratedValueSet>
     <enumeratedValueSet variable="Maximum_SPIRO">
       <value value="0.85"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Step4.3_IndID-hetPar_RS01" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="370"/>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
+    <metric>SPIRO_count 0.05</metric>
+    <metric>SPIRO_count 0.15</metric>
+    <metric>SPIRO_count 0.25</metric>
+    <metric>SPIRO_count 0.35</metric>
+    <metric>SPIRO_count 0.45</metric>
+    <metric>SPIRO_count 0.55</metric>
+    <metric>SPIRO_count 0.65</metric>
+    <metric>SPIRO_count 0.75</metric>
+    <metric>SPIRO_count 0.85</metric>
+    <metric>SPIRO_count 0.95</metric>
+    <metric>Entropy_11</metric>
+    <metric>Fractal_dimension Fractals opinions_1800</metric>
+    <metric>Fractal_dimension_R2 Fractals opinions_1800</metric>
+    <enumeratedValueSet variable="RS">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.1" step="0.0125" last="0.4"/>
+    <steppedValueSet variable="Boundary_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Mean">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;individual&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="SPIRO_Mean" first="0.25" step="0.0125" last="0.7375"/>
+    <steppedValueSet variable="SPIRO_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.05"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.95"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Step4.3_IndID-hetPar_RS02" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="370"/>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
+    <metric>SPIRO_count 0.05</metric>
+    <metric>SPIRO_count 0.15</metric>
+    <metric>SPIRO_count 0.25</metric>
+    <metric>SPIRO_count 0.35</metric>
+    <metric>SPIRO_count 0.45</metric>
+    <metric>SPIRO_count 0.55</metric>
+    <metric>SPIRO_count 0.65</metric>
+    <metric>SPIRO_count 0.75</metric>
+    <metric>SPIRO_count 0.85</metric>
+    <metric>SPIRO_count 0.95</metric>
+    <metric>Entropy_11</metric>
+    <metric>Fractal_dimension Fractals opinions_1800</metric>
+    <metric>Fractal_dimension_R2 Fractals opinions_1800</metric>
+    <enumeratedValueSet variable="RS">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.1" step="0.0125" last="0.4"/>
+    <steppedValueSet variable="Boundary_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Mean">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;individual&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="SPIRO_Mean" first="0.25" step="0.0125" last="0.7375"/>
+    <steppedValueSet variable="SPIRO_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.05"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.95"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Step4.3_IndID-hetPar_RS03" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="370"/>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
+    <metric>SPIRO_count 0.05</metric>
+    <metric>SPIRO_count 0.15</metric>
+    <metric>SPIRO_count 0.25</metric>
+    <metric>SPIRO_count 0.35</metric>
+    <metric>SPIRO_count 0.45</metric>
+    <metric>SPIRO_count 0.55</metric>
+    <metric>SPIRO_count 0.65</metric>
+    <metric>SPIRO_count 0.75</metric>
+    <metric>SPIRO_count 0.85</metric>
+    <metric>SPIRO_count 0.95</metric>
+    <metric>Entropy_11</metric>
+    <metric>Fractal_dimension Fractals opinions_1800</metric>
+    <metric>Fractal_dimension_R2 Fractals opinions_1800</metric>
+    <enumeratedValueSet variable="RS">
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.1" step="0.0125" last="0.4"/>
+    <steppedValueSet variable="Boundary_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Mean">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;individual&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="SPIRO_Mean" first="0.25" step="0.0125" last="0.7375"/>
+    <steppedValueSet variable="SPIRO_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.05"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.95"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Step4.3_IndID-hetPar_RS04" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="370"/>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
+    <metric>SPIRO_count 0.05</metric>
+    <metric>SPIRO_count 0.15</metric>
+    <metric>SPIRO_count 0.25</metric>
+    <metric>SPIRO_count 0.35</metric>
+    <metric>SPIRO_count 0.45</metric>
+    <metric>SPIRO_count 0.55</metric>
+    <metric>SPIRO_count 0.65</metric>
+    <metric>SPIRO_count 0.75</metric>
+    <metric>SPIRO_count 0.85</metric>
+    <metric>SPIRO_count 0.95</metric>
+    <metric>Entropy_11</metric>
+    <metric>Fractal_dimension Fractals opinions_1800</metric>
+    <metric>Fractal_dimension_R2 Fractals opinions_1800</metric>
+    <enumeratedValueSet variable="RS">
+      <value value="4"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.1" step="0.0125" last="0.4"/>
+    <steppedValueSet variable="Boundary_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Mean">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;individual&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="SPIRO_Mean" first="0.25" step="0.0125" last="0.7375"/>
+    <steppedValueSet variable="SPIRO_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.05"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.95"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Step4.3_IndID-hetPar_RS05" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="370"/>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
+    <metric>SPIRO_count 0.05</metric>
+    <metric>SPIRO_count 0.15</metric>
+    <metric>SPIRO_count 0.25</metric>
+    <metric>SPIRO_count 0.35</metric>
+    <metric>SPIRO_count 0.45</metric>
+    <metric>SPIRO_count 0.55</metric>
+    <metric>SPIRO_count 0.65</metric>
+    <metric>SPIRO_count 0.75</metric>
+    <metric>SPIRO_count 0.85</metric>
+    <metric>SPIRO_count 0.95</metric>
+    <metric>Entropy_11</metric>
+    <metric>Fractal_dimension Fractals opinions_1800</metric>
+    <metric>Fractal_dimension_R2 Fractals opinions_1800</metric>
+    <enumeratedValueSet variable="RS">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.1" step="0.0125" last="0.4"/>
+    <steppedValueSet variable="Boundary_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Mean">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;individual&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="SPIRO_Mean" first="0.25" step="0.0125" last="0.7375"/>
+    <steppedValueSet variable="SPIRO_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.05"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.95"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Step4.3_IndID-hetPar_RS06" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="370"/>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
+    <metric>SPIRO_count 0.05</metric>
+    <metric>SPIRO_count 0.15</metric>
+    <metric>SPIRO_count 0.25</metric>
+    <metric>SPIRO_count 0.35</metric>
+    <metric>SPIRO_count 0.45</metric>
+    <metric>SPIRO_count 0.55</metric>
+    <metric>SPIRO_count 0.65</metric>
+    <metric>SPIRO_count 0.75</metric>
+    <metric>SPIRO_count 0.85</metric>
+    <metric>SPIRO_count 0.95</metric>
+    <metric>Entropy_11</metric>
+    <metric>Fractal_dimension Fractals opinions_1800</metric>
+    <metric>Fractal_dimension_R2 Fractals opinions_1800</metric>
+    <enumeratedValueSet variable="RS">
+      <value value="6"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.1" step="0.0125" last="0.4"/>
+    <steppedValueSet variable="Boundary_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Mean">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;individual&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="SPIRO_Mean" first="0.25" step="0.0125" last="0.7375"/>
+    <steppedValueSet variable="SPIRO_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.05"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.95"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Step4.3_IndID-hetPar_RS07" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="370"/>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
+    <metric>SPIRO_count 0.05</metric>
+    <metric>SPIRO_count 0.15</metric>
+    <metric>SPIRO_count 0.25</metric>
+    <metric>SPIRO_count 0.35</metric>
+    <metric>SPIRO_count 0.45</metric>
+    <metric>SPIRO_count 0.55</metric>
+    <metric>SPIRO_count 0.65</metric>
+    <metric>SPIRO_count 0.75</metric>
+    <metric>SPIRO_count 0.85</metric>
+    <metric>SPIRO_count 0.95</metric>
+    <metric>Entropy_11</metric>
+    <metric>Fractal_dimension Fractals opinions_1800</metric>
+    <metric>Fractal_dimension_R2 Fractals opinions_1800</metric>
+    <enumeratedValueSet variable="RS">
+      <value value="7"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.1" step="0.0125" last="0.4"/>
+    <steppedValueSet variable="Boundary_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Mean">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;individual&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="SPIRO_Mean" first="0.25" step="0.0125" last="0.7375"/>
+    <steppedValueSet variable="SPIRO_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.05"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.95"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Step4.3_IndID-hetPar_RS08" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="370"/>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
+    <metric>SPIRO_count 0.05</metric>
+    <metric>SPIRO_count 0.15</metric>
+    <metric>SPIRO_count 0.25</metric>
+    <metric>SPIRO_count 0.35</metric>
+    <metric>SPIRO_count 0.45</metric>
+    <metric>SPIRO_count 0.55</metric>
+    <metric>SPIRO_count 0.65</metric>
+    <metric>SPIRO_count 0.75</metric>
+    <metric>SPIRO_count 0.85</metric>
+    <metric>SPIRO_count 0.95</metric>
+    <metric>Entropy_11</metric>
+    <metric>Fractal_dimension Fractals opinions_1800</metric>
+    <metric>Fractal_dimension_R2 Fractals opinions_1800</metric>
+    <enumeratedValueSet variable="RS">
+      <value value="8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.1" step="0.0125" last="0.4"/>
+    <steppedValueSet variable="Boundary_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Mean">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;individual&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="SPIRO_Mean" first="0.25" step="0.0125" last="0.7375"/>
+    <steppedValueSet variable="SPIRO_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.05"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.95"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Step4.3_IndID-hetPar_RS09" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="370"/>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
+    <metric>SPIRO_count 0.05</metric>
+    <metric>SPIRO_count 0.15</metric>
+    <metric>SPIRO_count 0.25</metric>
+    <metric>SPIRO_count 0.35</metric>
+    <metric>SPIRO_count 0.45</metric>
+    <metric>SPIRO_count 0.55</metric>
+    <metric>SPIRO_count 0.65</metric>
+    <metric>SPIRO_count 0.75</metric>
+    <metric>SPIRO_count 0.85</metric>
+    <metric>SPIRO_count 0.95</metric>
+    <metric>Entropy_11</metric>
+    <metric>Fractal_dimension Fractals opinions_1800</metric>
+    <metric>Fractal_dimension_R2 Fractals opinions_1800</metric>
+    <enumeratedValueSet variable="RS">
+      <value value="9"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.1" step="0.0125" last="0.4"/>
+    <steppedValueSet variable="Boundary_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Mean">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;individual&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="SPIRO_Mean" first="0.25" step="0.0125" last="0.7375"/>
+    <steppedValueSet variable="SPIRO_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.05"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.95"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Step4.3_IndID-hetPar_RS10" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="370"/>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
+    <metric>SPIRO_count 0.05</metric>
+    <metric>SPIRO_count 0.15</metric>
+    <metric>SPIRO_count 0.25</metric>
+    <metric>SPIRO_count 0.35</metric>
+    <metric>SPIRO_count 0.45</metric>
+    <metric>SPIRO_count 0.55</metric>
+    <metric>SPIRO_count 0.65</metric>
+    <metric>SPIRO_count 0.75</metric>
+    <metric>SPIRO_count 0.85</metric>
+    <metric>SPIRO_count 0.95</metric>
+    <metric>Entropy_11</metric>
+    <metric>Fractal_dimension Fractals opinions_1800</metric>
+    <metric>Fractal_dimension_R2 Fractals opinions_1800</metric>
+    <enumeratedValueSet variable="RS">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.1" step="0.0125" last="0.4"/>
+    <steppedValueSet variable="Boundary_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Mean">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;individual&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="SPIRO_Mean" first="0.25" step="0.0125" last="0.7375"/>
+    <steppedValueSet variable="SPIRO_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.05"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.95"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Step4.3_IndID-hetPar_RS11" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="370"/>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
+    <metric>SPIRO_count 0.05</metric>
+    <metric>SPIRO_count 0.15</metric>
+    <metric>SPIRO_count 0.25</metric>
+    <metric>SPIRO_count 0.35</metric>
+    <metric>SPIRO_count 0.45</metric>
+    <metric>SPIRO_count 0.55</metric>
+    <metric>SPIRO_count 0.65</metric>
+    <metric>SPIRO_count 0.75</metric>
+    <metric>SPIRO_count 0.85</metric>
+    <metric>SPIRO_count 0.95</metric>
+    <metric>Entropy_11</metric>
+    <metric>Fractal_dimension Fractals opinions_1800</metric>
+    <metric>Fractal_dimension_R2 Fractals opinions_1800</metric>
+    <enumeratedValueSet variable="RS">
+      <value value="11"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.1" step="0.0125" last="0.4"/>
+    <steppedValueSet variable="Boundary_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Mean">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;individual&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="SPIRO_Mean" first="0.25" step="0.0125" last="0.7375"/>
+    <steppedValueSet variable="SPIRO_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.05"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.95"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Step4.3_IndID-hetPar_RS12" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="370"/>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
+    <metric>SPIRO_count 0.05</metric>
+    <metric>SPIRO_count 0.15</metric>
+    <metric>SPIRO_count 0.25</metric>
+    <metric>SPIRO_count 0.35</metric>
+    <metric>SPIRO_count 0.45</metric>
+    <metric>SPIRO_count 0.55</metric>
+    <metric>SPIRO_count 0.65</metric>
+    <metric>SPIRO_count 0.75</metric>
+    <metric>SPIRO_count 0.85</metric>
+    <metric>SPIRO_count 0.95</metric>
+    <metric>Entropy_11</metric>
+    <metric>Fractal_dimension Fractals opinions_1800</metric>
+    <metric>Fractal_dimension_R2 Fractals opinions_1800</metric>
+    <enumeratedValueSet variable="RS">
+      <value value="12"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.1" step="0.0125" last="0.4"/>
+    <steppedValueSet variable="Boundary_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Mean">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;individual&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="SPIRO_Mean" first="0.25" step="0.0125" last="0.7375"/>
+    <steppedValueSet variable="SPIRO_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.05"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.95"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Step4.3_IndID-hetPar_RS13" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="370"/>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
+    <metric>SPIRO_count 0.05</metric>
+    <metric>SPIRO_count 0.15</metric>
+    <metric>SPIRO_count 0.25</metric>
+    <metric>SPIRO_count 0.35</metric>
+    <metric>SPIRO_count 0.45</metric>
+    <metric>SPIRO_count 0.55</metric>
+    <metric>SPIRO_count 0.65</metric>
+    <metric>SPIRO_count 0.75</metric>
+    <metric>SPIRO_count 0.85</metric>
+    <metric>SPIRO_count 0.95</metric>
+    <metric>Entropy_11</metric>
+    <metric>Fractal_dimension Fractals opinions_1800</metric>
+    <metric>Fractal_dimension_R2 Fractals opinions_1800</metric>
+    <enumeratedValueSet variable="RS">
+      <value value="13"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.1" step="0.0125" last="0.4"/>
+    <steppedValueSet variable="Boundary_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Mean">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;individual&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="SPIRO_Mean" first="0.25" step="0.0125" last="0.7375"/>
+    <steppedValueSet variable="SPIRO_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.05"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.95"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Step4.3_IndID-hetPar_RS14" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="370"/>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
+    <metric>SPIRO_count 0.05</metric>
+    <metric>SPIRO_count 0.15</metric>
+    <metric>SPIRO_count 0.25</metric>
+    <metric>SPIRO_count 0.35</metric>
+    <metric>SPIRO_count 0.45</metric>
+    <metric>SPIRO_count 0.55</metric>
+    <metric>SPIRO_count 0.65</metric>
+    <metric>SPIRO_count 0.75</metric>
+    <metric>SPIRO_count 0.85</metric>
+    <metric>SPIRO_count 0.95</metric>
+    <metric>Entropy_11</metric>
+    <metric>Fractal_dimension Fractals opinions_1800</metric>
+    <metric>Fractal_dimension_R2 Fractals opinions_1800</metric>
+    <enumeratedValueSet variable="RS">
+      <value value="14"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.1" step="0.0125" last="0.4"/>
+    <steppedValueSet variable="Boundary_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Mean">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;individual&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="SPIRO_Mean" first="0.25" step="0.0125" last="0.7375"/>
+    <steppedValueSet variable="SPIRO_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.05"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.95"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Step4.3_IndID-hetPar_RS15" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="370"/>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
+    <metric>SPIRO_count 0.05</metric>
+    <metric>SPIRO_count 0.15</metric>
+    <metric>SPIRO_count 0.25</metric>
+    <metric>SPIRO_count 0.35</metric>
+    <metric>SPIRO_count 0.45</metric>
+    <metric>SPIRO_count 0.55</metric>
+    <metric>SPIRO_count 0.65</metric>
+    <metric>SPIRO_count 0.75</metric>
+    <metric>SPIRO_count 0.85</metric>
+    <metric>SPIRO_count 0.95</metric>
+    <metric>Entropy_11</metric>
+    <metric>Fractal_dimension Fractals opinions_1800</metric>
+    <metric>Fractal_dimension_R2 Fractals opinions_1800</metric>
+    <enumeratedValueSet variable="RS">
+      <value value="15"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.1" step="0.0125" last="0.4"/>
+    <steppedValueSet variable="Boundary_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Mean">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;individual&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="SPIRO_Mean" first="0.25" step="0.0125" last="0.7375"/>
+    <steppedValueSet variable="SPIRO_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.05"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.95"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Step4.3_IndID-hetPar_RS16" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="370"/>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
+    <metric>SPIRO_count 0.05</metric>
+    <metric>SPIRO_count 0.15</metric>
+    <metric>SPIRO_count 0.25</metric>
+    <metric>SPIRO_count 0.35</metric>
+    <metric>SPIRO_count 0.45</metric>
+    <metric>SPIRO_count 0.55</metric>
+    <metric>SPIRO_count 0.65</metric>
+    <metric>SPIRO_count 0.75</metric>
+    <metric>SPIRO_count 0.85</metric>
+    <metric>SPIRO_count 0.95</metric>
+    <metric>Entropy_11</metric>
+    <metric>Fractal_dimension Fractals opinions_1800</metric>
+    <metric>Fractal_dimension_R2 Fractals opinions_1800</metric>
+    <enumeratedValueSet variable="RS">
+      <value value="16"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.1" step="0.0125" last="0.4"/>
+    <steppedValueSet variable="Boundary_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Mean">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;individual&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="SPIRO_Mean" first="0.25" step="0.0125" last="0.7375"/>
+    <steppedValueSet variable="SPIRO_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.05"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.95"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Step4.3_IndID-hetPar_RS17" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="370"/>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
+    <metric>SPIRO_count 0.05</metric>
+    <metric>SPIRO_count 0.15</metric>
+    <metric>SPIRO_count 0.25</metric>
+    <metric>SPIRO_count 0.35</metric>
+    <metric>SPIRO_count 0.45</metric>
+    <metric>SPIRO_count 0.55</metric>
+    <metric>SPIRO_count 0.65</metric>
+    <metric>SPIRO_count 0.75</metric>
+    <metric>SPIRO_count 0.85</metric>
+    <metric>SPIRO_count 0.95</metric>
+    <metric>Entropy_11</metric>
+    <metric>Fractal_dimension Fractals opinions_1800</metric>
+    <metric>Fractal_dimension_R2 Fractals opinions_1800</metric>
+    <enumeratedValueSet variable="RS">
+      <value value="17"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.1" step="0.0125" last="0.4"/>
+    <steppedValueSet variable="Boundary_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Mean">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;individual&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="SPIRO_Mean" first="0.25" step="0.0125" last="0.7375"/>
+    <steppedValueSet variable="SPIRO_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.05"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.95"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Step4.3_IndID-hetPar_RS18" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="370"/>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
+    <metric>SPIRO_count 0.05</metric>
+    <metric>SPIRO_count 0.15</metric>
+    <metric>SPIRO_count 0.25</metric>
+    <metric>SPIRO_count 0.35</metric>
+    <metric>SPIRO_count 0.45</metric>
+    <metric>SPIRO_count 0.55</metric>
+    <metric>SPIRO_count 0.65</metric>
+    <metric>SPIRO_count 0.75</metric>
+    <metric>SPIRO_count 0.85</metric>
+    <metric>SPIRO_count 0.95</metric>
+    <metric>Entropy_11</metric>
+    <metric>Fractal_dimension Fractals opinions_1800</metric>
+    <metric>Fractal_dimension_R2 Fractals opinions_1800</metric>
+    <enumeratedValueSet variable="RS">
+      <value value="18"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.1" step="0.0125" last="0.4"/>
+    <steppedValueSet variable="Boundary_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Mean">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;individual&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="SPIRO_Mean" first="0.25" step="0.0125" last="0.7375"/>
+    <steppedValueSet variable="SPIRO_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.05"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.95"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Step4.3_IndID-hetPar_RS19" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="370"/>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
+    <metric>SPIRO_count 0.05</metric>
+    <metric>SPIRO_count 0.15</metric>
+    <metric>SPIRO_count 0.25</metric>
+    <metric>SPIRO_count 0.35</metric>
+    <metric>SPIRO_count 0.45</metric>
+    <metric>SPIRO_count 0.55</metric>
+    <metric>SPIRO_count 0.65</metric>
+    <metric>SPIRO_count 0.75</metric>
+    <metric>SPIRO_count 0.85</metric>
+    <metric>SPIRO_count 0.95</metric>
+    <metric>Entropy_11</metric>
+    <metric>Fractal_dimension Fractals opinions_1800</metric>
+    <metric>Fractal_dimension_R2 Fractals opinions_1800</metric>
+    <enumeratedValueSet variable="RS">
+      <value value="19"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.1" step="0.0125" last="0.4"/>
+    <steppedValueSet variable="Boundary_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Mean">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;individual&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="SPIRO_Mean" first="0.25" step="0.0125" last="0.7375"/>
+    <steppedValueSet variable="SPIRO_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.05"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.95"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Step4.3_IndID-hetPar_RS20" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="370"/>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
+    <metric>SPIRO_count 0.05</metric>
+    <metric>SPIRO_count 0.15</metric>
+    <metric>SPIRO_count 0.25</metric>
+    <metric>SPIRO_count 0.35</metric>
+    <metric>SPIRO_count 0.45</metric>
+    <metric>SPIRO_count 0.55</metric>
+    <metric>SPIRO_count 0.65</metric>
+    <metric>SPIRO_count 0.75</metric>
+    <metric>SPIRO_count 0.85</metric>
+    <metric>SPIRO_count 0.95</metric>
+    <metric>Entropy_11</metric>
+    <metric>Fractal_dimension Fractals opinions_1800</metric>
+    <metric>Fractal_dimension_R2 Fractals opinions_1800</metric>
+    <enumeratedValueSet variable="RS">
+      <value value="20"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="101"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.1" step="0.0125" last="0.4"/>
+    <steppedValueSet variable="Boundary_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Mean">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;individual&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="SPIRO_Mean" first="0.25" step="0.0125" last="0.7375"/>
+    <steppedValueSet variable="SPIRO_STD" first="0" step="0.025" last="0.15"/>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.05"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.95"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
       <value value="0.1"/>
