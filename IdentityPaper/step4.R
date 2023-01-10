@@ -113,7 +113,7 @@ for (i in 2:9) {
   raw43 = raw43 %>%
     add_row(read_csv(paste0("Step4-3_indID-hetPar_RS0", i, ".csv"), skip = 6))
 }
-for (i in c(10:24) {
+for (i in 10:24) {
   raw43 = raw43 %>%
     add_row(read_csv(paste0("Step4-3_indID-hetPar_RS", i, ".csv"), skip = 6))
 }
