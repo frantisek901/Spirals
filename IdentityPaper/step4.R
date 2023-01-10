@@ -26,6 +26,7 @@ library(tibble)
 library(forcats)
 library(ggplot2)
 library(rstatix)
+library(stringr)
 
 
 
@@ -104,6 +105,46 @@ ts42 = raw42 %>%
     spiro_sd = sqrt((SPIRO_0.15 * ((spiro_mean - 0.15) ^ 2) + SPIRO_0.25 * ((spiro_mean - 0.25) ^ 2) + SPIRO_0.35 * ((spiro_mean - 0.35) ^ 2) + SPIRO_0.45 * ((spiro_mean - 0.45) ^ 2) + SPIRO_0.55 * ((spiro_mean - 0.55) ^ 2) + SPIRO_0.65 * ((spiro_mean - 0.65) ^ 2) + SPIRO_0.75 * ((spiro_mean - 0.75) ^ 2) + SPIRO_0.85 * ((spiro_mean - 0.85) ^ 2)) / (N - 1)))
 
 
+
+## Step 4.3
+# Creating object 'raw' (tibble): Loading....
+raw43 = read_csv("Step4-3_indID-hetPar_RS01.csv", skip = 6)
+for (i in 2:9) {
+  raw43 = raw43 %>%
+    add_row(read_csv(paste0("Step4-3_indID-hetPar_RS0", i, ".csv"), skip = 6))
+}
+for (i in c(10:24) {
+  raw43 = raw43 %>%
+    add_row(read_csv(paste0("Step4-3_indID-hetPar_RS", i, ".csv"), skip = 6))
+}
+
+# Transforming 'raw4' to clean 'ts'
+ts43 = raw43 %>%
+  # Selecting and renaming...
+  select(HK_distribution = 4, 2, Use_identity = 12, 13:16,
+         N = 3, Boundary = 7, 8, Conformity = 10, 11,
+         steps = 38, diversity = 39, extremness = 40, ESBG = 41,
+         boundary_mean = 42, boundary_sd = 43,
+         conformity_mean = 44, conformity_sd = 45, 46:55, Entropy = 56,
+         Fractal_dimesion = 57, Fractal_R2 = 58) %>%
+  rename_with(.cols = starts_with("SPIRO_count"), ~paste0(str_sub(.x, end = 6), str_sub(.x, start = -4))) %>%
+
+    # Dropping duplicate observations due to experiment runs dubling:
+  distinct() %>% drop_na() %>%
+
+  # Processing.
+  mutate(
+    even_N = ((N %%2) == 0),
+    across(.cols = 4:7, factor),
+    Fractal_dimesion = parse_number(Fractal_dimesion, na = "<RuntimePrimitiveException>"),
+    Fractal_R2 = parse_number(Fractal_R2, na = "<RuntimePrimitiveException>"),
+    spiro_mean = ((SPIRO_0.05 * .05) + (SPIRO_0.15 * .15) + (SPIRO_0.25 * .25) + (SPIRO_0.35 * .35) + (SPIRO_0.45 * .45) + (SPIRO_0.55 * .55) + (SPIRO_0.65 * .65) + (SPIRO_0.75 * .75) + (SPIRO_0.85 * .85) + (SPIRO_0.95 * .95)) / N,
+    spiro_sd = sqrt((SPIRO_0.05 * ((spiro_mean - 0.05) ^ 2)) + (SPIRO_0.15 * ((spiro_mean - 0.15) ^ 2) + SPIRO_0.25 * ((spiro_mean - 0.25) ^ 2) + SPIRO_0.35 * ((spiro_mean - 0.35) ^ 2) + SPIRO_0.45 * ((spiro_mean - 0.45) ^ 2) + SPIRO_0.55 * ((spiro_mean - 0.55) ^ 2) + SPIRO_0.65 * ((spiro_mean - 0.65) ^ 2) + SPIRO_0.75 * ((spiro_mean - 0.75) ^ 2) + SPIRO_0.85 * ((spiro_mean - 0.85) ^ 2) + SPIRO_0.95 * ((spiro_mean - 0.95) ^ 2)) / (N - 1))
+    )
+
+
+
+
 # Checking RS distribution ------------------------------------------------
 
 ts %>% count(RS) %>% #filter( n == 7680) %>% nrow()
@@ -120,6 +161,14 @@ ts42 %>% count(RS) %>%
   scale_x_continuous(breaks = seq(5, 60, 5))+
   scale_y_continuous(limits = c(0, 5250), breaks = seq(0, 5000, 500)) +
   labs(title = "Step 4.2: RS distribution") +
+  theme_light()
+
+ts43 %>% count(RS) %>%
+  ggplot(aes(x = RS, y = n)) +
+  geom_point(size = 3, alpha = 0.4) +
+  scale_x_continuous(breaks = seq(0, 60, 2))+
+  scale_y_continuous(limits = c(0, 20000), breaks = seq(0, 20000, 5000), minor_breaks = F) +
+  labs(title = "Step 4.3: RS distribution") +
   theme_light()
 
 # What is missing?
@@ -398,6 +447,63 @@ heat_map_facets(.var = "diversity_sd", .y = "Boundary_STD", .y.facet = "Boundary
 heat_map_facets(.var = "diversity_mean", .y = "Boundary_STD", .y.facet = "Boundary",
                 .x = "SPIRO_STD", .x.facet = "SPIRO_Mean", .title = .tit) %>%
   ggsave("Pics/s04map75.png", plot = ., units = "cm", height = .height, width = .width)
+
+
+
+# STEP 4.3 ----------------------------------------------------------------
+
+
+heat_map_facets = function(.data = tm, .var = "ESBG_mean", .x = "Boundary_STD", .y = "Boundary",
+                           .y.facet = "SPIRO_STD", .x.facet = "SPIRO_Mean", .title = "") {
+  .data %>%
+    ggplot() +
+    aes(x = eval(str2lang(.x)), y = eval(str2lang(.y)), col = eval(str2lang(.var)),
+        label = round(eval(str2lang(.var)), 2)) +
+    facet_grid(cols = vars(eval(str2lang(.x.facet))),
+               rows = vars(eval(str2lang(.y.facet))),
+               labeller = "label_value") +  # labeller = "label_both") +
+    geom_point(shape = 15, size = 3) +
+    geom_text(col = "white", size = 1) +
+    scale_color_viridis_c() +
+    scale_x_continuous(breaks = seq(0.25, 0.75, 0.05)) +
+    scale_y_continuous(breaks = seq(0.1, 0.4, 0.05)) +
+    labs(x = .x, y = .y, col = .var, title = paste0(.title, ": ", .var)) +
+    theme_light() +
+    theme(legend.position = "top")
+}
+
+# Data preparation on boundary and conformity:
+tm = ts43 %>%
+  group_by(Boundary, Boundary_STD, SPIRO_Mean, SPIRO_STD) %>%
+  summarise(across(.cols = diversity:ESBG,
+                   list(mean = mean, sd = sd),
+                   .names = "{.col}_{.fn}")) %>% ungroup() %>%
+  mutate(Boundary_STD = factor(Boundary_STD) %>% fct_rev(),
+         SPIRO_STD = factor(SPIRO_STD),
+         SPIRO_Mean = as.character(SPIRO_Mean) %>% as.numeric())
+
+
+.height = 50
+.width = 23
+.tit = paste0("Complex Heat Map 4.3rd Step (N = ", nrow(ts43), " simulations)")
+heat_map_facets(.var = "ESBG_sd", .y = "Boundary", .y.facet = "Boundary_STD",
+                .x = "SPIRO_Mean", .x.facet = "SPIRO_STD", .title = .tit) %>%
+  ggsave("Pics/s04map82.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "ESBG_mean", .y = "Boundary", .y.facet = "Boundary_STD",
+                .x = "SPIRO_Mean", .x.facet = "SPIRO_STD", .title = .tit) %>%
+  ggsave("Pics/s04map81.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "extremness_sd", .y = "Boundary", .y.facet = "Boundary_STD",
+                .x = "SPIRO_Mean", .x.facet = "SPIRO_STD", .title = .tit) %>%
+  ggsave("Pics/s04map84.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "extremness_mean", .y = "Boundary", .y.facet = "Boundary_STD",
+                .x = "SPIRO_Mean", .x.facet = "SPIRO_STD", .title = .tit) %>%
+  ggsave("Pics/s04map83.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "diversity_sd", .y = "Boundary", .y.facet = "Boundary_STD",
+                .x = "SPIRO_Mean", .x.facet = "SPIRO_STD", .title = .tit) %>%
+  ggsave("Pics/s04map86.png", plot = ., units = "cm", height = .height, width = .width)
+heat_map_facets(.var = "diversity_mean", .y = "Boundary", .y.facet = "Boundary_STD",
+                .x = "SPIRO_Mean", .x.facet = "SPIRO_STD", .title = .tit) %>%
+  ggsave("Pics/s04map85.png", plot = ., units = "cm", height = .height, width = .width)
 
 
 
