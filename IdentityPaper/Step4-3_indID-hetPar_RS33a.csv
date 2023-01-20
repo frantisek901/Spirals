@@ -1,0 +1,7 @@
+"BehaviorSpace results (NetLogo 6.3.0)"
+"groupFormation_identityPaper_reducedModel.nlogo"
+"Step4.3_IndID-hetPar_RS33a"
+"01/20/2023 07:04:20:351 -0500"
+"min-pxcor","max-pxcor","min-pycor","max-pycor"
+"-5","5","-5","5"
+"[run number]","RS","Number_Of_Agents","HK_opinion_distribution?","Use_Present_Opinion?","Boundary_Distribution","Boundary_Mean","Boundary_STD","Conformity_Distribution","Conformity_Mean","Conformity_STD","Use_Identity?","Identity_Type","SPIRO_Distribution","SPIRO_Mean","SPIRO_STD","Identity_Levels","Minimum_SPIRO","Maximum_SPIRO","Proportion_Of_High_Covert_SPIRO","centroid_color?","N_centroids","killing_centroids?","avoid_seed_control?","updating","set-seed?","polar_repeats","Normalize_Distances?","Y-opinion","X-opinion","Number_Of_Opinion_Dimensions","model","max-ticks","Centroids_change","polarisation-each-n-steps","show_dice_rolls?","ESBG_furthest_out","[step]","precision diversity 3","precision extremness 3","precision ESBG_polarisation 3","precision mean [own-boundary] of turtles 3","precision standard-deviation [own-boundary] of turtles 3","precision mean [own-conformity] of turtles 3","precision standard-deviation [own-conformity] of turtles 3","SPIRO_count 0.05","SPIRO_count 0.15","SPIRO_count 0.25","SPIRO_count 0.35","SPIRO_count 0.45","SPIRO_count 0.55","SPIRO_count 0.65","SPIRO_count 0.75","SPIRO_count 0.85","SPIRO_count 0.95","Entropy_11","Fractal_dimension Fractals opinions_1800","Fractal_dimension_R2 Fractals opinions_1800"
