@@ -6,7 +6,7 @@
 
 ## Encoding: windows-1250
 ## Created:  2022-11-15 FrK
-## Edited:   2022-12-27 FrK
+## Edited:   2023-02-03 FrK
 
 ## Notes:
 ##
@@ -55,6 +55,9 @@ t3 = raw3 %>%
   # Dropping duplicate observations due to experiment runs dubling:
   distinct()
 
+# For Joining script we need these data stored under different name:
+ts30 = t3
+
 
 ## Step 2
 # Creating object 'raw' (tibble): Loading....
@@ -90,6 +93,7 @@ ts = t3 %>% add_row(t2) %>%
   mutate(
     even_N = ((N %%2) == 0),
     across(.cols = 4:7, factor))
+
 
 
 # Checking set factors and their real mean and SD ------------------------------------------------------

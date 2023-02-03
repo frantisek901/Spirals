@@ -461,6 +461,13 @@ to computing-polarisation
 end
 
 
+;; Reporter, which for sure reports actual value of ESBG
+to-report ESBG
+  compute-polarisation-repeatedly
+  report ESBG_polarisation
+end
+
+
 ;; Updating patches and global variables
 to updating-patches-and-globals
   ;; Patches update color according the number of turtles on it.
@@ -781,14 +788,17 @@ to __Reporters_for_computing_entropy_and_fractal_dimension_of_the_public end
 
 to-report Entropy [proc-list]
   ;; Setting needed parameters/lists
-  let tiles-nums (list 720 360 240 180 144 120 90 80 72 60 48 45 40 36 30 24 20 18 16 15 12 10 9 8 6 5 4 3 2)
+  let tiles-nums (list 1260 630 420 315 252 210 180 140 126 105  90  84 70 63 60 45 42 36 35 30 28 21 20 18 15 14 12 10 9 7 6 5 4 3 2)
+  ;let tiles-nums (list 1800 900 600 450 360 300 225 200 180 150 120 100 90 75 72 60 50 45 40 36 30 25 24 20 18 15 12 10 9 8 6 5 4 3 2)
+  ;let tiles-nums (list 720 360 240 180 144 120 90 80 72 60 48 45 40 36 30 24 20 18 16 15 12 10 9 8 6 5 4 3 2)
+  ;let tiles-nums (list 720 360 240 180 144 120 90 80 72 60 48 45 40 36 30 24 20 18 16 15 12 10 9 8 6 5 4 3 2)
   ;let tiles-nums (list 504 252 168 126 72 84 63 56 36 42 24 28 18 21 12 14 9 8 6 7 4 3 2)
   ;let tiles-nums (list 432 216 144 108 72 54 48 36 27 24 18 16 12 9 8 6 4 3 2)
   let bases map [i -> ifelse-value (length proc-list > (i ^ Number_Of_Opinion_Dimensions)) [(i ^ Number_Of_Opinion_Dimensions)] [length proc-list]] tiles-nums
-  let divs map [i -> ifelse-value (0 = (i mod 3)) [1] [0]] tiles-nums
+  let divs map [i -> ifelse-value (0 = (i mod 5)) [1] [0]] tiles-nums
 
   ;; Computing normalized entropy for each number of tiles:
-  let hs (map [[tn b] -> precision (compute_h (count_items reduced_opinions (proc-list) (720) (tn)) (b)) 3] tiles-nums bases)
+  let hs (map [[tn b] -> precision (compute_h (count_items reduced_opinions (proc-list) (1260) (tn)) (b)) 3] tiles-nums bases)
 
   ;; Performing regression:
   let reg2 matrix:regress matrix:from-column-list (list hs (map ln tiles-nums) divs (map [[tn d] -> tn * d] (map ln tiles-nums) divs))
@@ -808,16 +818,19 @@ to-report Entropy [proc-list]
   report (list reg1 reg2)
 end
 
-to-report Fractal_dimension [proc-list]
+to-report Fractals [proc-list]
   ;; Setting needed parameters/lists
-  let tiles-sizes (list 360 240 180 144 120 90 80 72 60 48 45 40 36 30 24 20 18 16 15 12 10 9 8 6 5 4 3 2 1)
+  let tiles-sizes (range (Number_Of_Agents - 1) 0 -1)
+  ;let tiles-sizes (list 630 420 315 252 210 180 140 126 105  90  84 70 63 60 45 42 36 35 30 28 21 20 18 15 14 12 10 9 7 6 5 4 3 2 1)
+  ;let tiles-sizes (list 900 600 450 360 300 225 200 180 150 120 100 90 75 72 60 50 45 40 36 30 25 24 20 18 15 12 10 9 8 6 5 4 3 2 1)
+  ;let tiles-sizes (list 360 240 180 144 120 90 80 72 60 48 45 40 36 30 24 20 18 16 15 12 10 9 8 6 5 4 3 2 1)
   ;let tiles-sizes (list 252 168 126 72 84 63 56 36 42 24 28 18 21 12 14 9 8 6 7 4 3 2 1)
   ;let tiles-sizes (list 216 144 108 72 54 48 36 27 24 18 16 12 9 8 6 4 3 2 1)
   let ln-sizes map [i -> ln (1 / i)] tiles-sizes
-  let divs map [i -> ifelse-value (0 = ((720 / i) mod 5)) [1] [0]] tiles-sizes
+  let divs map [i -> ifelse-value (0 = (i mod 4)) [1] [0]] tiles-sizes
 
   ;; Computing number of covered tiles:
-  let ln-covered map [i -> ln length remove-duplicates reduced_opinions (proc-list) (720) (720 / i)] tiles-sizes
+  let ln-covered map [i -> ln length remove-duplicates reduced_opinions (proc-list) (Number_Of_Agents) (Number_Of_Agents / i)] tiles-sizes
 
   ;; Performing regression:
   let reg2 matrix:regress matrix:from-column-list (list ln-covered ln-sizes divs (map [[lns d] -> lns * d] ln-sizes divs))
@@ -837,11 +850,20 @@ to-report Fractal_dimension [proc-list]
   report (list reg1 reg2)
 end
 
-to-report opinions_360
+to-report Fractal_dimension [reg_output]
+  report item 1 item 0 item 0 reg_output
+end
+
+to-report Fractal_dimension_R2 [reg_output]
+  report item 0 item 1 item 0 reg_output
+end
+
+
+to-report opinions_1260
   ;; Getting turtles' original opinions and setting needed parameters
   let ops [own-opinion] of turtles
   let ratio 2.001
-  let max_tile 720
+  let max_tile 1260
   let delta 1.0005
 
   ;; Recalculating opinions via cycles
@@ -850,6 +872,21 @@ to-report opinions_360
   ;; Presenting results
   report new_ops
 end
+
+to-report opinions_2001
+  ;; Getting turtles' original opinions and setting needed parameters
+  let ops [own-opinion] of turtles
+  let ratio 2.001
+  let max_tile 2001
+  let delta 1.001
+
+  ;; Recalculating opinions via cycles
+  let new_ops map [op -> map [o -> ceiling((o + delta) / ratio * max_tile)] op] ops
+
+  ;; Presenting results
+  report new_ops
+end
+
 
 to-report reduced_opinions [list-of-lists original-tiles reduced-tiles]
   ;; Setting needed parameters
@@ -897,10 +934,6 @@ to-report one_list [list-of-lists]
   foreach list-of-lists [op -> foreach op [o -> set x sentence x o]]
   report x
 end
-
-
-
-
 
 
 @#$#@#$#@
@@ -1006,7 +1039,7 @@ Number_Of_Opinion_Dimensions
 Number_Of_Opinion_Dimensions
 1
 4
-2.0
+1.0
 1
 1
 NIL
@@ -1222,7 +1255,7 @@ max-ticks
 max-ticks
 100
 10000
-365.0
+200.0
 5
 1
 NIL
@@ -1276,7 +1309,7 @@ INPUTBOX
 502
 521
 N_centroids
-2.0
+1.0
 1
 0
 Number
@@ -1356,7 +1389,7 @@ SPIRO_Mean
 SPIRO_Mean
 0
 1
-0.699
+0.495
 0.001
 1
 NIL
@@ -1454,7 +1487,7 @@ Identity_Levels
 Identity_Levels
 1
 10
-8.0
+10.0
 1
 1
 NIL
@@ -1499,7 +1532,7 @@ Boundary_STD
 Boundary_STD
 0
 1
-0.2
+0.15
 0.001
 1
 NIL
@@ -1514,7 +1547,7 @@ Minimum_SPIRO
 Minimum_SPIRO
 0
 0.5
-0.15
+0.05
 0.01
 1
 NIL
@@ -1529,7 +1562,7 @@ Maximum_SPIRO
 Maximum_SPIRO
 0.55
 1
-0.85
+0.95
 0.01
 1
 NIL
@@ -1634,7 +1667,7 @@ SWITCH
 298
 HK_opinion_distribution?
 HK_opinion_distribution?
-1
+0
 1
 -1000
 
@@ -1654,7 +1687,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 2 -16777216 true "" "  clear-plot\n  let tiles-nums (list 720 360 240 180 144 120 90 80 72 60 48 45 40 36 30 24 20 18 16 15 12 10 9 8 6 5 4 3 2) \n  ;let tiles-nums (list 504 252 168 126 72 84 63 56 36 42 24 28 18 21 12 14 9 8 6 7 4 3 2) \n  ;let tiles-nums (list 432 216 144 108 72 54 48 36 27 24 18 16 12 9 8 6 4 3 2)\n  let ln-nums map [i -> ln i] tiles-nums\n  let bases map [i -> ifelse-value (length opinions_360 > (i ^ Number_Of_Opinion_Dimensions)) [(i ^ Number_Of_Opinion_Dimensions)] [length opinions_360]] tiles-nums\n  let hs (map [[tn b] -> precision (compute_h (count_items reduced_opinions (opinions_360) (720) (tn)) (b)) 3] tiles-nums bases)\n(foreach ln-nums hs [[x y] -> plotxy x y])"
+"default" 1.0 2 -16777216 true "" "  clear-plot\n  let tiles-nums (list 1260 630 420 315 252 210 180 140 126 105  90  84 70 63 60 45 42 36 35 30 28 21 20 18 15 14 12 10 9 7 6 5 4 3 2)\n  ;let tiles-nums (list 1800 900 600 450 360 300 225 200 180 150 120 100 90 75 72 60 50 45 40 36 30 25 24 20 18 15 12 10 9 8 6 5 4 3 2)\n  ;let tiles-nums (list 720 360 240 180 144 120 90 80 72 60 48 45 40 36 30 24 20 18 16 15 12 10 9 8 6 5 4 3 2) \n  ;let tiles-nums (list 504 252 168 126 72 84 63 56 36 42 24 28 18 21 12 14 9 8 6 7 4 3 2) \n  ;let tiles-nums (list 432 216 144 108 72 54 48 36 27 24 18 16 12 9 8 6 4 3 2)\n  let ln-nums map [i -> ln i] tiles-nums\n  let bases map [i -> ifelse-value (length opinions_1260 > (i ^ Number_Of_Opinion_Dimensions)) [(i ^ Number_Of_Opinion_Dimensions)] [length opinions_1260]] tiles-nums\n  let hs (map [[tn b] -> precision (compute_h (count_items reduced_opinions (opinions_1260) (1260) (tn)) (b)) 3] tiles-nums bases)\n(foreach ln-nums hs [[x y] -> plotxy x y])"
 
 PLOT
 1279
@@ -1672,7 +1705,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 2 -16777216 true "" "  clear-plot\n  let tiles-sizes (list 360 240 180 144 120 90 80 72 60 48 45 40 36 30 24 20 18 16 15 12 10 9 8 6 5 4 3 2 1) \n  ;let tiles-sizes (list 252 168 126 72 84 63 56 36 42 24 28 18 21 12 14 9 8 6 7 4 3 2 1) \n  ;let tiles-sizes (list 216 144 108 72 54 48 36 27 24 18 16 12 9 8 6 4 3 2 1) \n  let ln-sizes map [i -> ln (1 / i)] tiles-sizes\n  let ln-covered map [i -> ln length remove-duplicates reduced_opinions (opinions_360) (720) (720 / i)] tiles-sizes\n(foreach ln-sizes ln-covered [[x y] -> plotxy x y])"
+"default" 1.0 2 -16777216 true "" "  clear-plot\n  let tiles-sizes (range (Number_Of_Agents - 1) 0 -1)\n  ;let tiles-sizes (list 630 420 315 252 210 180 140 126 105  90  84 70 63 60 45 42 36 35 30 28 21 20 18 15 14 12 10 9 7 6 5 4 3 2 1)\n  ;let tiles-sizes (list 900 600 450 360 300 225 200 180 150 120 100 90 75 72 60 50 45 40 36 30 25 24 20 18 15 12 10 9 8 6 5 4 3 2 1)\n  ;let tiles-sizes (list 360 240 180 144 120 90 80 72 60 48 45 40 36 30 24 20 18 16 15 12 10 9 8 6 5 4 3 2 1) \n  ;let tiles-sizes (list 252 168 126 72 84 63 56 36 42 24 28 18 21 12 14 9 8 6 7 4 3 2 1) \n  ;let tiles-sizes (list 216 144 108 72 54 48 36 27 24 18 16 12 9 8 6 4 3 2 1) \n  let ln-sizes map [i -> ln (1 / i)] tiles-sizes\n  let ln-covered map [i -> ln length remove-duplicates reduced_opinions (opinions_2001) (Number_Of_Agents) (Number_Of_Agents / i)] tiles-sizes\n(foreach ln-sizes ln-covered [[x y] -> plotxy x y])"
 
 @#$#@#$#@
 ## WHAT IS IT?

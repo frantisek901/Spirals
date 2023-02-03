@@ -4,7 +4,7 @@
 
 ## Encoding: windows-1250
 ## Created:  2022-11-15 FrK
-## Edited:   2022-12-06 FrK
+## Edited:   2023-02-03 FrK
 
 ## Notes:
 ## 1) We have to do very detailed experiments on classical HK and
@@ -165,6 +165,9 @@ tda = ted %>%
   # Ordering 'file'
   mutate(file = factor(file, levels = c("classic", "present opinion", "random position", "random + present")))
 
+# For Joining script we need these data stored under different name:
+ts10 = tb %>% add_row(filter(ted, file == "random position") %>% select(-file)) %>%
+  filter(N %in% 100:101)
 
 # And hopefully lastly, agregation over different files (only 4 values -- ada):
 ada = tda %>%
@@ -182,8 +185,6 @@ adaN = tda %>%
   # Summarise according N, Boundary, Conformity, and Even_N:
   summarise(across(.cols = c(ticks_mean, diversity_mean, extremness_mean, ESBG_mean), list(sd = sd))) %>%
   ungroup()
-
-
 
 
 

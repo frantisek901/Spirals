@@ -4,7 +4,7 @@
 
 ## Encoding: windows-1250
 ## Created:  2022-11-15 FrK
-## Edited:   2022-12-24 FrK
+## Edited:   2023-02-03 FrK
 
 ## Notes:
 ##
@@ -50,6 +50,9 @@ ts = raw %>%
   mutate(
     across(.cols = c(1:2, 4), factor),
     even_N = ((N %%2) == 0))
+
+# For Joining script we need these data stored under different name:
+ts20 = ts
 
 
 
