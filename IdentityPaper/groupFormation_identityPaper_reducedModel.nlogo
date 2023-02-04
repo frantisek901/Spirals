@@ -9478,7 +9478,7 @@ NetLogo 6.3.0
   <experiment name="SPIROdistribution_IndID-hetPar_RS01-10" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -9596,7 +9596,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -9614,7 +9614,7 @@ NetLogo 6.3.0
   <experiment name="SPIROdistribution_IndID-hetPar_RS11-20" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -9732,7 +9732,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -9750,7 +9750,7 @@ NetLogo 6.3.0
   <experiment name="SPIROdistribution_IndID-hetPar_RS21-30" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -9868,7 +9868,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -9886,7 +9886,7 @@ NetLogo 6.3.0
   <experiment name="SPIROdistribution_IndID-hetPar_RS31-40" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -10004,7 +10004,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -10022,7 +10022,7 @@ NetLogo 6.3.0
   <experiment name="SPIROdistribution_IndID-hetPar_RS41-50" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -10140,7 +10140,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -10158,7 +10158,7 @@ NetLogo 6.3.0
   <experiment name="SPIROdistribution_IndID-hetPar_RS51-60" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -10276,7 +10276,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -24506,7 +24506,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b013_IndID-hetPar_RS01-10" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -24562,14 +24562,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -24628,7 +24624,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -24646,7 +24642,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b016_IndID-hetPar_RS01-10" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -24702,14 +24698,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -24768,7 +24760,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -24786,7 +24778,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b019_IndID-hetPar_RS01-10" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -24842,14 +24834,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -24908,7 +24896,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -24926,7 +24914,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b023_IndID-hetPar_RS01-10" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -24982,14 +24970,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -25048,7 +25032,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -25066,7 +25050,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b026_IndID-hetPar_RS01-10" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -25122,14 +25106,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -25188,7 +25168,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -25206,7 +25186,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b029_IndID-hetPar_RS01-10" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -25262,14 +25242,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -25328,7 +25304,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -25346,7 +25322,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b013_IndID-hetPar_RS11-20" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -25402,14 +25378,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -25468,7 +25440,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -25486,7 +25458,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b016_IndID-hetPar_RS11-20" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -25542,14 +25514,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -25608,7 +25576,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -25626,7 +25594,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b019_IndID-hetPar_RS11-20" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -25682,14 +25650,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -25748,7 +25712,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -25766,7 +25730,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b023_IndID-hetPar_RS11-20" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -25822,14 +25786,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -25888,7 +25848,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -25906,7 +25866,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b026_IndID-hetPar_RS11-20" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -25962,14 +25922,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -26028,7 +25984,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -26046,7 +26002,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b029_IndID-hetPar_RS11-20" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -26102,14 +26058,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -26168,7 +26120,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -26186,7 +26138,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b013_IndID-hetPar_RS21-30" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -26242,14 +26194,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -26308,7 +26256,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -26326,7 +26274,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b016_IndID-hetPar_RS21-30" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -26382,14 +26330,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -26448,7 +26392,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -26466,7 +26410,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b019_IndID-hetPar_RS21-30" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -26522,14 +26466,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -26588,7 +26528,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -26606,7 +26546,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b023_IndID-hetPar_RS21-30" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -26662,14 +26602,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -26728,7 +26664,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -26746,7 +26682,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b026_IndID-hetPar_RS21-30" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -26802,14 +26738,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -26868,7 +26800,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -26886,7 +26818,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b029_IndID-hetPar_RS21-30" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -26942,14 +26874,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -27008,7 +26936,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -27026,7 +26954,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b013_IndID-hetPar_RS31-40" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -27082,14 +27010,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -27148,7 +27072,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -27166,7 +27090,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b016_IndID-hetPar_RS31-40" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -27222,14 +27146,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -27288,7 +27208,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -27306,7 +27226,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b019_IndID-hetPar_RS31-40" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -27362,14 +27282,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -27428,7 +27344,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -27446,7 +27362,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b023_IndID-hetPar_RS31-40" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -27502,14 +27418,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -27568,7 +27480,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -27586,7 +27498,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b026_IndID-hetPar_RS31-40" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -27642,14 +27554,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -27708,7 +27616,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -27726,7 +27634,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b029_IndID-hetPar_RS31-40" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -27782,14 +27690,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -27848,7 +27752,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -27866,7 +27770,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b013_IndID-hetPar_RS41-50" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -27922,14 +27826,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -27988,7 +27888,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -28006,7 +27906,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b016_IndID-hetPar_RS41-50" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -28062,14 +27962,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -28128,7 +28024,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -28146,7 +28042,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b019_IndID-hetPar_RS41-50" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -28202,14 +28098,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -28268,7 +28160,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -28286,7 +28178,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b023_IndID-hetPar_RS41-50" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -28342,14 +28234,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -28408,7 +28296,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -28426,7 +28314,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b026_IndID-hetPar_RS41-50" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -28482,14 +28370,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -28548,7 +28432,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -28566,7 +28450,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b029_IndID-hetPar_RS41-50" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -28622,14 +28506,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -28688,7 +28568,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -28706,7 +28586,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b013_IndID-hetPar_RS51-60" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -28762,14 +28642,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -28828,7 +28704,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -28846,7 +28722,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b016_IndID-hetPar_RS51-60" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -28902,14 +28778,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -28968,7 +28840,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -28986,7 +28858,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b019_IndID-hetPar_RS51-60" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -29042,14 +28914,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -29108,7 +28976,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -29126,7 +28994,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b023_IndID-hetPar_RS51-60" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -29182,14 +29050,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -29248,7 +29112,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -29266,7 +29130,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b026_IndID-hetPar_RS51-60" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -29322,14 +29186,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -29388,7 +29248,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
@@ -29406,7 +29266,7 @@ NetLogo 6.3.0
   <experiment name="Step4.1_b029_IndID-hetPar_RS51-60" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="370"/>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -29462,14 +29322,10 @@ NetLogo 6.3.0
       <value value="&quot;normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
-      <value value="0"/>
       <value value="0.25"/>
       <value value="0.37"/>
       <value value="0.49"/>
       <value value="0.61"/>
-      <value value="0.64"/>
-      <value value="0.67"/>
-      <value value="0.7"/>
       <value value="0.73"/>
       <value value="0.85"/>
     </enumeratedValueSet>
@@ -29528,7 +29384,7 @@ NetLogo 6.3.0
       <value value="&quot;HK&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="max-ticks">
-      <value value="1"/>
+      <value value="365"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Centroids_change">
       <value value="1.0E-5"/>
