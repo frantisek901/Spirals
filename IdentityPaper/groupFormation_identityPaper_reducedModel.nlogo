@@ -1046,7 +1046,7 @@ INPUTBOX
 905
 70
 RS
-2.1470737E8
+-1.264885257E9
 1
 0
 Number
@@ -24507,6 +24507,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -24643,6 +24651,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -24779,6 +24795,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -24915,6 +24939,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -25051,6 +25083,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -25187,6 +25227,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -25323,6 +25371,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -25459,6 +25515,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -25595,6 +25659,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -25731,6 +25803,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -25867,6 +25947,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -26003,6 +26091,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -26139,6 +26235,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -26275,6 +26379,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -26411,6 +26523,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -26547,6 +26667,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -26683,6 +26811,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -26819,6 +26955,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -26955,6 +27099,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -27091,6 +27243,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -27227,6 +27387,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -27363,6 +27531,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -27499,6 +27675,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -27635,6 +27819,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -27771,6 +27963,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -27907,6 +28107,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -28043,6 +28251,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -28179,6 +28395,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -28315,6 +28539,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -28451,6 +28683,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -28587,6 +28827,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -28723,6 +28971,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -28859,6 +29115,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -28995,6 +29259,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -29131,6 +29403,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
@@ -29267,6 +29547,14 @@ NetLogo 6.3.0
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
+    <metric>ticks</metric>
+    <metric>precision diversity 3</metric>
+    <metric>precision extremness 3</metric>
+    <metric>precision ESBG_polarisation 3</metric>
+    <metric>precision mean [own-boundary] of turtles 3</metric>
+    <metric>precision standard-deviation [own-boundary] of turtles 3</metric>
+    <metric>precision mean [own-conformity] of turtles 3</metric>
+    <metric>precision standard-deviation [own-conformity] of turtles 3</metric>
     <metric>SPIRO_0.15</metric>
     <metric>SPIRO_0.25</metric>
     <metric>SPIRO_0.35</metric>
