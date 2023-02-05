@@ -6,7 +6,7 @@
 
 ## Encoding: windows-1250
 ## Created:  2022-11-15 FrK
-## Edited:   2023-02-03 FrK
+## Edited:   2023-02-04 FrK
 
 ## Notes:
 ##
@@ -57,8 +57,28 @@ for (i in seq(11, 51, 10)) {
 }
 spiro = select(spiro, -1) %>% distinct()
 
+
+# Preparing additional data:
+raw41 = tibble()
+for (i in c(13, 16, 19, 23, 26, 29)) {
+  raw41 = read_csv(paste0("Step4.1_b0", i, "_indID-hetPar_RS01-10-table.csv"), skip = 6) %>%
+    add_row(raw41)
+}
+for (i in c(13, 16, 19, 23, 26, 29)) {
+  for (j in seq(11, 51, 10)) {
+  raw41 = read_csv(paste0("Step4.1_b0", i, "_indID-hetPar_RS", j,"-", j + 9, "-table.csv"), skip = 6) %>%
+    add_row(raw41)
+  }
+}
+
+
+
 # Transforming 'raw4' to clean 'ts'
 ts = left_join(raw4, spiro, by = names(raw4)[c(2:32, 34:37)]) %>%
+
+  # Adding extra data from raw41:
+  add_row(select(raw41, -`max-ticks`, -`[step]`)) %>%
+
   # Selecting and renaming...
   select(HK_distribution = 4, 2, Use_identity = 12, 13:16,
          N = 3, Boundary = 7, 8, Conformity = 10, 11,

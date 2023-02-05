@@ -25,6 +25,14 @@
 
 
 
+# Head --------------------------------------------------------------------
+
+# Packages:
+library(tidyverse)
+library(rstatix)
+
+
+
 # Combining data-files -----------------------------------------------------
 
 # We start by joining files -- we do just changes needed for joining.
@@ -44,14 +52,14 @@ tc = ts41 %>%
                    SPIRO_STD = factor(0), SPIRO_Mean = factor(0.25))) %>%
   add_row(select(ts10, -Present_opinion) %>%
             mutate(
-              Step = "No Identity, Constant Boundary",
+              Step =  if_else(HK_distribution == "TRUE", "Classical HK" ,"No Identity, Constant Boundary"),
               Identity_Type = "none", SPIRO_Distribution = "none",
               Boundary_STD = 0, Conformity_STD = 0, RS = 0,
               SPIRO_STD = factor(0),SPIRO_Mean = factor(0.25))) %>%
 
   # Now we do changes on joined file:
   mutate(
-    Step = factor(Step) %>% fct_inorder() %>% fct_rev()) %>%
+    Step = factor(Step) %>% fct_inorder() %>% fct_rev() %>%  fct_relevel("Classical HK")) %>%
 
   # Selecting out obsolete variables:
   select(-(17:31)) %>%
@@ -59,14 +67,200 @@ tc = ts41 %>%
   # Filtering only for comparable results:
   filter(Conformity %in% c(.2, .8), Conformity_STD %in% c(0, .1),
          as.numeric(as.character(SPIRO_Mean)) %in% seq(0.25, 0.85, 0.12),
-         Boundary_STD %in% seq(0, 0.15, .05), Boundary >= 0.1, Boundary <= 0.3) %>%
-  filter(Boundary %in% c(.1, .2, .3))
+         Boundary_STD %in% seq(0, 0.15, .05), Boundary >= 0.1, Boundary <= 0.3) #%>%
+  #filter(Boundary %in% c(.1, .2, .3))
 
-
-
+# Checking the final file:
 tc %>% count(HK_distribution, Use_identity, Identity_Type, Step)
 tc %>% count(fct_rev(Step), Boundary)
+tc %>% count(fct_rev(Step))
+tc %>% count(RS) %>% tail(20)
 
+
+
+# Steps' comparison -------------------------------------------------------
+
+# Comparison of summary statistics:
+tc %>% # filter(Boundary %in% c(.1, .2, .3)) %>%
+  group_by(Step) %>% get_summary_stats(ESBG)
+tc %>% # filter(Boundary %in% c(.1, .2, .3)) %>%
+  group_by(Step) %>% get_summary_stats(diversity)
+tc %>% # filter(Boundary %in% c(.1, .2, .3)) %>%
+  group_by(Step) %>% get_summary_stats(extremness)
+
+
+# Comparison of summary statistics -- all steps mapped to just one run of classy HK:
+tc %>% # filter(Boundary %in% c(.1, .2, .3)) %>%
+  group_by(Boundary, Conformity, N, Step) %>% get_summary_stats(ESBG) %>% knitr::kable()
+tc %>% # filter(Boundary %in% c(.1, .2, .3)) %>%
+  group_by(Boundary, Conformity, N, Step) %>% get_summary_stats(diversity) %>% knitr::kable()
+tc %>% # filter(Boundary %in% c(.1, .2, .3)) %>%
+  group_by(Boundary, Conformity, N, Step) %>% get_summary_stats(extremness) %>% knitr::kable()
+
+
+# Series of t-test -- whether do Steps 3 & 4 differ:
+tc %>% filter(Step %in% c("Constant SPIRO, Normal Boundary", "Normal SPIRO, Normal Boundary")) %>%
+  mutate(Step = factor(Step)) %>%
+  t_test(formula = ESBG ~ Step)
+
+results_34 = tc %>% filter(Step %in% c("Constant SPIRO, Normal Boundary", "Normal SPIRO, Normal Boundary")) %>%
+  mutate(Step = factor(Step)) %>%
+  group_by(Boundary, Conformity, N) %>%
+  t_test(formula = ESBG ~ Step, detailed = T) %>%
+  arrange(estimate) #%>% knitr::kable()
+
+
+# Series of t-test -- whether do Steps 1, 2, 3 & 4 differ:
+tc %>% filter(Step != "Classical HK") %>%
+  mutate(Step = factor(Step)) %>%
+  t_test(formula = ESBG ~ Step)
+
+results_1234 = tc %>% filter(Step != "Classical HK") %>%
+  mutate(Step = factor(Step)) %>%
+  group_by(Boundary, Conformity, N) %>%
+  t_test(formula = ESBG ~ Step, detailed = T) %>%
+  arrange(estimate) #%>% knitr::kable()
+
+
+
+
+# Graphs: ESBG
+tc %>%
+  ggplot() +
+  aes(x = ESBG) +
+  facet_grid(rows = vars(Step), scales = "free_y") +
+  geom_histogram(binwidth = 0.025, alpha = 0.7, fill = "steelblue") +
+  theme_light()
+
+# Graphs: diversity
+tc %>%
+  ggplot() +
+  aes(x = diversity) +
+  facet_grid(rows = vars(Step), scales = "free_y") +
+  geom_histogram(binwidth = 0.025, alpha = 0.7, fill = "steelblue") +
+  theme_light()
+
+# Graphs: extremness
+tc %>%
+  ggplot() +
+  aes(x = extremness) +
+  facet_grid(rows = vars(Step), scales = "free_y") +
+  geom_histogram(binwidth = 0.025, alpha = 0.7, fill = "steelblue") +
+  theme_light()
+
+
+# Boxplot: ESBG
+tc %>%
+  # filter(Boundary %in% c(.1, .2, .3)) %>%
+  ggplot() +
+  aes(y = Step, x = ESBG, fill = Step) +
+  facet_grid(rows = vars(Conformity, N), cols = vars(Boundary), scales = "free_y") +
+  geom_boxplot(alpha = 0.7) +
+  guides(fill = "none") +
+  theme_light()
+
+# Boxplot: diversity
+tc %>%
+  # filter(Boundary %in% c(.1, .2, .3)) %>%
+  ggplot() +
+  aes(y = Step, x = diversity, fill = Step) +
+  facet_grid(rows = vars(Conformity, N), cols = vars(Boundary), scales = "free_y") +
+  geom_boxplot(alpha = 0.7) +
+  guides(fill = "none") +
+  theme_light()
+
+# Boxplot: extremness
+tc %>%
+  # filter(Boundary %in% c(.1, .2, .3)) %>%
+  ggplot() +
+  aes(y = Step, x = extremness, fill = Step) +
+  facet_grid(rows = vars(Conformity, N), cols = vars(Boundary), scales = "free_y") +
+  geom_boxplot(alpha = 0.7) +
+  guides(fill = "none") +
+  theme_light()
+
+
+
+# Data focused on differences ---------------------------------------------
+
+tcd = tc %>%
+  group_by(Conformity, N, Boundary) %>%
+  mutate(
+    X = if_else(Step == "Classical HK", ESBG, NA_real_),
+    Difference = ESBG - mean(X, na.rm = TRUE)) %>% ungroup()
+
+tcd %>% filter(Step != "Classical HK") %>%
+  ggplot() +
+  aes(x = Difference) +
+  facet_grid(rows = vars(Step), scales = "free_y") +
+  geom_histogram(binwidth = 0.025, alpha = 0.7, fill = "steelblue") +
+  theme_light()
+
+tcd %>% filter(Step != "Classical HK") %>%
+  filter(Boundary %in% c(.1, .12, .14, .16, .18, .2, .225, .25, .3)) %>%
+  ggplot() +
+  aes(y = Step, x = Difference, fill = Step, col = Step) +
+  facet_grid(rows = vars(Conformity, N), cols = vars(Boundary), scales = "free_y") +
+  geom_vline(xintercept = 0, linewidth = 2, color = "red") +
+  geom_boxplot(alpha = 0.7) +
+  guides(fill = "none", col = "none") +
+  labs(x = "Difference from 'Classical HK'") +
+  theme_light()
+
+tcs = tc %>% #filter(Step != "Classical HK") %>%
+  group_by(Conformity, N, Boundary, Step) %>%
+  summarise(across(diversity:ESBG, list(mean = mean, sd = sd))) %>%
+  ungroup()
+
+tcds = tcd %>% filter(Step != "Classical HK") %>%
+  group_by(Conformity, N, Boundary, Step) %>%
+  summarise(across(Difference, list(mean = mean, sd = sd))) %>%
+  ungroup()
+
+
+tcds %>%
+  ggplot() +
+  aes(y = Difference_mean, x = Boundary, group = Step, col = Step) +
+  facet_grid(cols = vars(N), rows = vars(Conformity), scales = "fixed") +
+  geom_hline(yintercept = 0, linewidth = 1.2, color = "black") +
+  geom_line(linewidth = 2, alpha = 0.4) +
+  geom_point(alpha = 0.4, size = 5) +
+  # guides(fill = "none", col = "none") +
+  labs(x = "Difference from 'Classical HK'") +
+  theme_light()
+
+tcds %>%
+  ggplot() +
+  aes(y = Difference_sd, x = Boundary, group = Step, col = Step) +
+  facet_grid(cols = vars(N), rows = vars(Conformity), scales = "fixed") +
+  geom_hline(yintercept = 0, linewidth = 1.2, color = "black") +
+  geom_line(linewidth = 2, alpha = 0.4) +
+  geom_point(alpha = 0.4, size = 5) +
+  # guides(fill = "none", col = "none") +
+  labs(x = "SD of difference from 'Classical HK'") +
+  theme_light()
+
+tcs %>%
+  ggplot() +
+  aes(y = ESBG_mean, x = Boundary, group = Step, col = Step) +
+  facet_grid(cols = vars(N), rows = vars(Conformity), scales = "fixed") +
+  geom_hline(yintercept = 0, linewidth = 1.2, color = "black") +
+  geom_line(linewidth = 2, alpha = 0.4) +
+  geom_point(alpha = 0.4, size = 5) +
+  # guides(fill = "none", col = "none") +
+  labs(x = "Comparison of analysis/model steps: mean") +
+  theme_light()
+
+tcs %>%
+  ggplot() +
+  aes(y = ESBG_sd, x = Boundary, group = Step, col = Step) +
+  facet_grid(cols = vars(N), rows = vars(Conformity), scales = "fixed") +
+  geom_hline(yintercept = 0, linewidth = 1.2, color = "black") +
+  geom_line(linewidth = 2, alpha = 0.4) +
+  geom_point(alpha = 0.4, size = 5) +
+  # guides(fill = "none", col = "none") +
+  labs(x = "Comparison of analysis/model steps: SD") +
+  theme_light()
 
 
 
