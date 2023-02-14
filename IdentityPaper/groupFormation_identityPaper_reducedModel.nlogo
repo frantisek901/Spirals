@@ -1034,7 +1034,7 @@ Boundary_Mean
 Boundary_Mean
 0.0
 1
-0.26
+0.299
 0.001
 1
 NIL
@@ -1104,7 +1104,7 @@ CHOOSER
 Boundary_Distribution
 Boundary_Distribution
 "constant" "uniform" "normal"
-2
+0
 
 PLOT
 1120
@@ -1240,7 +1240,7 @@ Conformity_Mean
 Conformity_Mean
 0
 1
-0.8
+0.2
 0.001
 1
 NIL
@@ -1254,7 +1254,7 @@ CHOOSER
 Conformity_Distribution
 Conformity_Distribution
 "constant" "uniform" "normal"
-2
+0
 
 BUTTON
 611
@@ -1279,7 +1279,7 @@ INPUTBOX
 502
 521
 N_centroids
-1.0
+2.0
 1
 0
 Number
@@ -1359,7 +1359,7 @@ SPIRO_Mean
 SPIRO_Mean
 0
 1
-0.49
+0.25
 0.001
 1
 NIL
@@ -1418,7 +1418,7 @@ CHOOSER
 SPIRO_Distribution
 SPIRO_Distribution
 "constant" "uniform" "normal" "covert"
-2
+0
 
 PLOT
 1120
@@ -1446,7 +1446,7 @@ CHOOSER
 Identity_Type
 Identity_Type
 "global" "individual" "covert"
-1
+0
 
 SLIDER
 101
@@ -1472,7 +1472,7 @@ SPIRO_STD
 SPIRO_STD
 0
 1
-0.15
+0.0
 0.001
 1
 NIL
@@ -1487,7 +1487,7 @@ Conformity_STD
 Conformity_STD
 0
 1
-0.1
+0.0
 0.001
 1
 NIL
@@ -1502,7 +1502,7 @@ Boundary_STD
 Boundary_STD
 0
 1
-0.15
+0.0
 0.001
 1
 NIL
@@ -1578,7 +1578,7 @@ SWITCH
 111
 Use_Identity?
 Use_Identity?
-0
+1
 1
 -1000
 
@@ -1637,7 +1637,7 @@ SWITCH
 298
 HK_opinion_distribution?
 HK_opinion_distribution?
-1
+0
 1
 -1000
 
@@ -29687,7 +29687,7 @@ NetLogo 6.3.0
       <value value="1"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="Step4.1_b019_IndID-hetPar_RS01-10_B" repetitions="1" runMetricsEveryStep="false">
+  <experiment name="ClassicalHK_smooth" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="370"/>
@@ -29707,40 +29707,26 @@ NetLogo 6.3.0
     <metric>SPIRO_0.65</metric>
     <metric>SPIRO_0.75</metric>
     <metric>SPIRO_0.85</metric>
-    <enumeratedValueSet variable="RS">
-      <value value="10"/>
-      <value value="9"/>
-      <value value="8"/>
-      <value value="7"/>
-      <value value="6"/>
-    </enumeratedValueSet>
+    <steppedValueSet variable="RS" first="1" step="1" last="60"/>
     <enumeratedValueSet variable="Number_Of_Agents">
-      <value value="100"/>
       <value value="101"/>
+      <value value="100"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="HK_opinion_distribution?">
-      <value value="false"/>
       <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Boundary_Mean">
-      <value value="0.19"/>
-      <value value="0.18"/>
-      <value value="0.17"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Use_Present_Opinion?">
       <value value="false"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Boundary_Distribution">
-      <value value="&quot;normal&quot;"/>
+      <value value="&quot;constant&quot;"/>
     </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.1" step="0.001" last="0.3"/>
     <enumeratedValueSet variable="Boundary_STD">
       <value value="0"/>
-      <value value="0.05"/>
-      <value value="0.1"/>
-      <value value="0.15"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Conformity_Distribution">
-      <value value="&quot;normal&quot;"/>
+      <value value="&quot;constant&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Conformity_Mean">
       <value value="0.2"/>
@@ -29748,30 +29734,21 @@ NetLogo 6.3.0
     </enumeratedValueSet>
     <enumeratedValueSet variable="Conformity_STD">
       <value value="0"/>
-      <value value="0.1"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Use_Identity?">
-      <value value="true"/>
+      <value value="false"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Identity_Type">
-      <value value="&quot;individual&quot;"/>
+      <value value="&quot;global&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Distribution">
-      <value value="&quot;normal&quot;"/>
+      <value value="&quot;constant&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_Mean">
       <value value="0.25"/>
-      <value value="0.37"/>
-      <value value="0.49"/>
-      <value value="0.61"/>
-      <value value="0.73"/>
-      <value value="0.85"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="SPIRO_STD">
       <value value="0"/>
-      <value value="0.05"/>
-      <value value="0.1"/>
-      <value value="0.15"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Identity_Levels">
       <value value="8"/>

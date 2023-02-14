@@ -63,12 +63,24 @@ raw41 = tibble()
 for (i in c(13, 16, 19, 23, 26, 29)) {
   raw41 = read_csv(paste0("Step4.1_b0", i, "_indID-hetPar_RS01-10-table.csv"), skip = 6) %>%
     add_row(raw41)
+  if (i %in% c(13, 16, 19)) {
+    raw41 = read_csv(paste0("Step4.1_b0", i, "_indID-hetPar_RS01-10_B-table.csv"), skip = 6) %>%
+      add_row(raw41)
+  }
 }
 for (i in c(13, 16, 19, 23, 26, 29)) {
   for (j in seq(11, 51, 10)) {
   raw41 = read_csv(paste0("Step4.1_b0", i, "_indID-hetPar_RS", j,"-", j + 9, "-table.csv"), skip = 6) %>%
     add_row(raw41)
   }
+}
+for (i in c(13, 16, 19, 23, 26, 29)) {
+  for (j in seq(11, 51, 10)) {
+    raw41 = read_csv(paste0("Step4.1_b0", i, "_indID-hetPar_RS", j,"-", j + 9, "-table.csv"), skip = 6) %>%
+      add_row(raw41)
+  }
+  f = paste0("Step4.1_b0", i, "_indID-hetPar_RS", j,"-", j + 9, "_B-table.csv")
+  if (file.exists(f)) raw41 = read_csv(f, skip = 6) %>% add_row(raw41)
 }
 
 
@@ -86,7 +98,7 @@ ts = left_join(raw4, spiro, by = names(raw4)[c(2:32, 34:37)]) %>%
          boundary_mean = 43, boundary_sd = 44,
          conformity_mean = 45, conformity_sd = 46, 49:56) %>%
   # Dropping duplicate observations due to experiment runs dubling:
-  distinct() %>% drop_na() %>%
+  drop_na() %>% distinct() %>%
 
   # Processing.
   mutate(

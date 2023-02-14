@@ -71,10 +71,24 @@ tc = ts41 %>%
   #filter(Boundary %in% c(.1, .2, .3))
 
 # Checking the final file:
-tc %>% count(HK_distribution, Use_identity, Identity_Type, Step)
+tc %>% count(HK_distribution, Use_identity, Identity_Type, Step) %>% arrange(desc(n))
 tc %>% count(fct_rev(Step), Boundary)
 tc %>% count(fct_rev(Step))
 tc %>% count(RS) %>% tail(20)
+tc %>% filter(Step == "Normal SPIRO, Normal Boundary") %>% count(RS) %>%
+  filter((RS %% 10) == 0) %>% arrange(n) %>% tail(20)
+tc %>% filter(Step == "Normal SPIRO, Normal Boundary", Boundary %in% c(0.11, 0.12, 0.13)) %>%
+  count(RS) %>% arrange((n)) %>% head()
+tc %>% filter(Step == "Normal SPIRO, Normal Boundary", Boundary %in% c(0.14, 0.15, 0.16)) %>%
+  count(RS) %>% arrange((n)) %>% head()
+tc %>% filter(Step == "Normal SPIRO, Normal Boundary", Boundary %in% c(0.17, 0.18, 0.19)) %>%
+  count(RS) %>% arrange((n)) %>% head()
+tc %>% filter(Step == "Normal SPIRO, Normal Boundary", Boundary %in% c(0.21, 0.22, 0.23)) %>%
+  count(RS) %>% arrange((n)) %>% head()
+tc %>% filter(Step == "Normal SPIRO, Normal Boundary", Boundary %in% c(0.24, 0.25, 0.26)) %>%
+  count(RS) %>% arrange((n)) %>% head()
+tc %>% filter(Step == "Normal SPIRO, Normal Boundary", Boundary %in% c(0.27, 0.28, 0.29)) %>%
+  count(RS) %>% arrange((n)) %>% head()
 
 
 
@@ -101,13 +115,16 @@ tc %>% # filter(Boundary %in% c(.1, .2, .3)) %>%
 # Series of t-test -- whether do Steps 3 & 4 differ:
 tc %>% filter(Step %in% c("Constant SPIRO, Normal Boundary", "Normal SPIRO, Normal Boundary")) %>%
   mutate(Step = factor(Step)) %>%
-  t_test(formula = ESBG ~ Step)
+  t_test(formula = ESBG ~ Step, detailed = T)
 
-results_34 = tc %>% filter(Step %in% c("Constant SPIRO, Normal Boundary", "Normal SPIRO, Normal Boundary")) %>%
+results_34 = tc %>%
+  filter(Step %in% c("Constant SPIRO, Normal Boundary", "Normal SPIRO, Normal Boundary"),
+         !(Identity_Type == "individual" & SPIRO_STD %in% c(0.05, 0))) %>%
   mutate(Step = factor(Step)) %>%
   group_by(Boundary, Conformity, N) %>%
   t_test(formula = ESBG ~ Step, detailed = T) %>%
   arrange(estimate) #%>% knitr::kable()
+
 
 
 # Series of t-test -- whether do Steps 1, 2, 3 & 4 differ:
@@ -120,7 +137,6 @@ results_1234 = tc %>% filter(Step != "Classical HK") %>%
   group_by(Boundary, Conformity, N) %>%
   t_test(formula = ESBG ~ Step, detailed = T) %>%
   arrange(estimate) #%>% knitr::kable()
-
 
 
 
@@ -147,6 +163,7 @@ tc %>%
   facet_grid(rows = vars(Step), scales = "free_y") +
   geom_histogram(binwidth = 0.025, alpha = 0.7, fill = "steelblue") +
   theme_light()
+
 
 
 # Boxplot: ESBG
@@ -263,4 +280,7 @@ tcs %>%
   theme_light()
 
 
+filter(tc, Step == "Normal SPIRO, Normal Boundary", !(Boundary %in% c(0.1, 0.2, 0.3))) %>%
+  count(Boundary, RS) %>% filter(n == 1536,  RS %in% c(10, 20, 30, 40, 50, 60)) %>% count(RS) %>%
+  filter(n < 18) %>% arrange(desc(n), RS) %>% head(20)
 
