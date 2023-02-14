@@ -5,7 +5,7 @@ author:
     url: https://github.com/frantisek901/Spirals/Experiment
     affiliation: Department of Sociology, University of West Bohemia in Pilsen
     affiliation_url: https://les.zcu.cz
-date: "2023-02-13"
+date: "2023-02-14"
 output: 
   html_document:
     toc: true
@@ -18,7 +18,7 @@ output:
 ```{r setup, include=FALSE}
 ## Encoding: UTF-8
 ## Created:  2023-02-09 FrK
-## Edited:   2023-02-13 FrK
+## Edited:   2023-02-14 FrK
 
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -88,12 +88,12 @@ Here is number of individual simulation runs per each step:
 count(tc, Step) %>% kable()
 ```
 
-# Comparisons
+# Comparisons  
 
-## Summary statistics for each step
+## Summary statistics for each step  
 
-Let's start easy -- ESBG's (key output variable) summary statistics for each step:
-
+Let's start easy -- ESBG's (key output variable) summary statistics for each step:  
+  
 ```{r}
 # Comparison of summary statistics:
 tc %>% 
@@ -103,7 +103,7 @@ tc %>%
 
 COOL! It's evident that each step differs! We see it in case of all three output measures. ESBG, Extremeness and Diversity mean and also median are much higher in Steps 3 & 4, i.e. steps which include identity (`SPIRO` parameter). It is apparent that employment of identity in the model increased polarization in resulting state after end of simulations, evidently, mere use of identity increases polarization.  
 
-Besides this we see that random normal variation of `Boundary` across population around common mean decreases polarization. So, employment of random variation of Boundary decreased polarization, and then consecutive employment of identity increased polarization and increased it way off the level of the original model.
+Besides this we see that random normal variation of `Boundary` across population around common mean decreases polarization. So, employment of random variation of Boundary decreased polarization, and then consecutive employment of identity increased polarization and increased it way off the level of the original model.  
 
 
 ## Key graph -- The Graph  
@@ -122,11 +122,11 @@ tcs = ts10s %>%
 tcs %>%
   ggplot() +
   aes(y = ESBG_mean, x = Boundary, group = Step, col = Step) +
-  facet_grid(cols = vars(N), rows = vars(Conformity), scales = "fixed") +
-  geom_hline(yintercept = 0, linewidth = 1.2, color = "grey") +
-  geom_vline(xintercept = 0.16, linewidth = 1.2, color = "steelblue", alpha = 0.4) +
-  geom_vline(xintercept = 0.194, linewidth = 1.2, color = "steelblue", alpha = 0.4) +
-  geom_vline(xintercept = 0.25, linewidth = 1.2, color = "steelblue", alpha = 0.4) +
+  facet_grid(cols = vars(N), rows = vars(Conformity), scales = "fixed", labeller = "label_both") +
+  geom_hline(yintercept = 0, linewidth = 0.75, color = "grey") +
+  geom_vline(xintercept = 0.16, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
+  geom_vline(xintercept = 0.194, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
+  geom_vline(xintercept = 0.25, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
   geom_line(linewidth = 2, alpha = 0.4) +
   geom_point(alpha = 0.7, size = 1.5) +
   scale_x_continuous(breaks = seq(0.1, 0.3, 0.02)) +
@@ -142,15 +142,15 @@ tcs %>%
 The most surprising result brought by the smooth classy HK is the 'Glitches' are not exclusive for just  one panel (N = 101, Conformity = 0.8). This panel is just only one where the glitch happens for 2 digit value of `Boundary` -- in other panels the glitches also happen, but they happen there for three digit values (e.g. Boundary = 0.194, N = 100, Conformity = 0.8). 
 
 
-## Intended SOM -- t-Tests and graphs  
+# Intended SOM -- T-tests and graphs  
 
 And here we look at comparisons of consecutive steps, we use 84 classy HK combination of parameters and we compare averages for them.
 
-### Step 1 vs 2  
+## Step 1 vs 2  
   
 Here we compare classy HK with random starting position (Step 1) with model advanced by random normal distribution of `Boundary` and `Conformity` over the population of agents. We reduced simulations from Step 2 a little bit -- we do not use simulations with `Boundary_STD` == 0, we also do not use simulations with `Conformity_STD` == 0, because we want to show difference when the respective parameters (`Boundary` and `Conformity`) are randomly normal varied over the population; on the other hand we use only simulations from Step 2 with random start (not even distribution as in classy HK), because we want to show that potential differences stem from randomly normal variation of `Boundary` and `Conformity` and not from random or structured starting position of the simulation.   
 
-#### T-Tests  
+### T-tests  
    
 ```{r warning=FALSE}
 tc %>% 
@@ -167,7 +167,7 @@ tc %>%
 
 COOL! 76% of comparisons (64 out of 84) are of difference greater than 0.1 of mean ESBG. These differences are safely statistically significant. If we compare whole Step 2 with Step 1, 63 out of 84 comparisons are of difference greater than 0.1. 
 
-#### Graphs  
+### Graphs  
 
 We might map individual runs more closely -- we might take three runs with Boundary_STD = {0.05, 0.1, 0.15} and compute their difference with exactly same simulation run from Step 1, which differs just in one thing: uses constant Boundary. NOTE: After careful inspection model in NetLogo we have to say that initial positions of runs from Step 1 and their equivalents from Step 2 are not same -- Step 2 consumes random numbers in a way that is not equivalently established in Step 1 (and it is not even possible, only for high Boundary and low Boundary_STD values' combinations it is possible).  
 
@@ -188,6 +188,7 @@ tcd12 %>%
   aes(x = Difference, y = factor(Boundary_STD), fill = factor(Boundary_STD), col = factor(Boundary_STD)) +
   geom_violin(alpha = 0.2) +
   geom_jitter(height = 0.4, alpha = 0.05) +
+  scale_x_continuous(breaks = c(-0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6)) +
   labs(x = "Difference between individual pairs of runs") +
   theme_light() +
   theme(legend.position = "bottom")
@@ -216,6 +217,7 @@ tcd12 %>%
   aes(x = Difference, y = factor(Boundary_STD), fill = factor(Boundary_STD), col = factor(Boundary_STD)) +
   geom_violin(alpha = 0.2) +
   geom_jitter(height = 0.3, alpha = 0.35, size = 3) +
+  scale_x_continuous(breaks = c(-0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6)) +
   labs(x = "Difference among runs aggregated over random seeds") +
   theme_light() +
   theme(legend.position = "bottom")
@@ -225,11 +227,11 @@ tcd12 %>%
 Aggregated graph over random seeds supports previous conclusion -- ESBG decreases with increase of Boundary_STD.   
 
 
-### Step 2 vs 3
+## Step 2 vs 3
 
 Here we compare classy model advanced by random normal distribution of `Boundary` and `Conformity` over the population of agents (Step 2) with model employing identity -- constant value of SPIRO (Step 3). We use all simulations from both steps because they are completely comparable, the later just uses identity/SPIRO and that's it. Also the lowest value from Step 3, SPIRO = 0.25, is not equivalent for non-using of identity/SPIRO in Step 2. Also starting positions are completely the same for same parameters in both steps, regardless the value of SPIRO. Here the consumption of random numbers by the model are beneficial for us: model firstly sets agents opinions, boundaries and conformity, and then sets SPIRO in another phase of setup, in this second phase are random numbers consumed differently, but resulting state from the first phase is same for both Step 2 and Step 3 runs.      
 
-#### T-Tests 
+### T-tests 
 
 Here we show just comparisons over 84 combinations of parameters stemming from classy HK. We might do much more detailed comparison using 1,344 parameters combinations, and aggregate for each combination 60 runs from Step 2 (diversity given just by 60 random seeds) and 360 runs from Step 3 (360 = 60 random seeds x 6 SPIRO values). This comparison is performed and reported bellow in section `Extra material`/`t-Tests:`/`Step 2 vs 3`.  
    
@@ -246,7 +248,7 @@ tc %>%
 
 COOL! All comparisons (84 out of 84) are of difference greater than 0.15 of mean ESBG. These differences are safely statistically significant. It shows that employing identity/SPIRO raises ESBG/polarization again.   
 
-#### Graphs  
+### Graphs  
 
 We might map individual runs more closely at least in graph. We might take six runs with SPIRO_Mean = {0.25, 0.37, 0.49, 0.61, 0.73, 0.85} and compute their difference with exactly same simulation run from Step 2, which differs just in one thing: uses no SPIRO. NOTE: After careful inspection of model in NetLogo we could say that initial positions of runs from Step 2 and their equivalents from Step 3 are completely the same.  
 
@@ -265,8 +267,9 @@ tcd23 = tc %>%
 tcd23 %>% 
   ggplot() +
   aes(x = Difference, y = factor(SPIRO_Mean), fill = factor(SPIRO_Mean), col = factor(SPIRO_Mean)) +
-  geom_violin(alpha = 0.7) +
+  geom_violin(alpha = 0.3) +
   geom_jitter(height = 0.4, alpha = 0.005) +
+  scale_x_continuous(breaks = c(-0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9)) +
   labs(x = "Difference between individual pairs of runs") +
   theme_light() +
   theme(legend.position = "bottom") +
@@ -294,6 +297,7 @@ tcd23 %>%
   aes(x = Difference, y = factor(SPIRO_Mean), fill = factor(SPIRO_Mean), col = factor(SPIRO_Mean)) +
   geom_violin(alpha = 0.2) +
   geom_jitter(height = 0.3, alpha = 0.05, size = 3) +
+  scale_x_continuous(breaks = c(-0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6)) +
   labs(x = "Difference among runs aggregated over random seeds") +
   theme_light() +
   theme(legend.position = "bottom") +
@@ -304,9 +308,11 @@ tcd23 %>%
 Aggregated graph over random seeds supports previous conclusion -- ESBG increases with increase of SPIRO_Mean and then very slightly decreases.   
 
 
-### Step 3 vs 4
+## Step 3 vs 4
 
 Here we compare model employing identity via constant value of SPIRO over population (Step 3) with model where this important identity parameter varies over the population (Step 4). We reduced simulations from Step 4 a little bit -- we do not use simulations with `SPIRO_STD` == 0, because we want to show difference when the respective parameter (`SPIRO`) is randomly normal varied over the population. NOTE: Starting positions are completely the same for same parameters in both steps, regardless the value of SPIRO_STD. Here the consumption of random numbers by the model are beneficial for us: model firstly sets agents opinions, boundaries and conformity, and then sets SPIRO in another phase of setup, in this second phase are random numbers consumed differently, but resulting state from the first phase is same for both Step 3 and Step 4 runs.  
+
+### T-tests  
 
 ```{r warning=FALSE}
 tc %>% 
@@ -322,10 +328,11 @@ tc %>%
 
 My main conclusion here is that Step 4 doesn't matter that much. Maximum difference is 0.06 for certain set of conditions. It is not that much substantively significant difference, now it seems to me it doesn't worth the time and effort to use individual normally distributed SPIRO. Identity matters, but individual differences in SPIRO not that much.  
 
-But this is my conclusion now and here, there are still certain doubts. Firstly, we compare here again very aggregated results, for each comparison we employ 28,800 simulations distributed in two groups with ratio 1:4. I probably should compare them on one-on-one basis, take these 5 observation same in all parameters except `SPIRO_STD` and then compute deviance of each of four Step 4 observations from respective one Step 3 observation (`SPIRO_STD` equal to 0 for checking reason, other 3 for measuring difference between Steps).   
+But this is my conclusion now and here, there are still certain doubts. Firstly, we compare here again very aggregated results, for each comparison we employ 23,040 simulations distributed in two groups with ratio 1:3. I probably should compare them on one-on-one basis, take these 4 observation same in all parameters except `SPIRO_STD` and then compute deviance of each of three Step 4 observations from respective one Step 3 observation (`SPIRO_STD` equal to 0 left out, other 3 for measuring difference between Steps).   
 
+### Graphs  
 
-```{r warning=FALSE}
+```{r warning=FALSE, fig.width=10, fig.height=8}
 
 tcd34 = tc %>%
   filter(Step %in% c("Constant SPIRO, Normal Boundary", "Normal SPIRO, Normal Boundary")) %>% 
@@ -341,19 +348,19 @@ tcd34 = tc %>%
 tcd34 %>% 
   ggplot() +
   aes(x = Difference, y = factor(SPIRO_STD), fill = factor(SPIRO_STD), col = factor(SPIRO_STD)) +
-  geom_violin(alpha = 0.7) +
-  geom_boxplot(alpha = 0.2) +
-  geom_jitter(height = 0.4, alpha = 0.005) +
+  geom_violin(alpha = 0.3) +
+  geom_jitter(height = 0.4, alpha = 0.01) +
+  scale_x_continuous(breaks = c(-0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6)) +
   labs(x = "Difference among individual quartet of runs (one from Step 3, three from Step 4)") +
   theme_light() +
   theme(legend.position = "bottom") +
   coord_flip()
 
 ```
-
+  
 OK, it seems that mainly differences are around 0, we just might see small glitch around -0.4 for SPIRO_STD = {0.1, 0.15}. It still now seems that Step 4 is not needed and important. But we should carefully inspect where some differences happen and where not, in case there are regularities, the Step 4 it might be important -- just for fun see `Extra material`/`t-Tests:`/`Step 3 vs 4` where are comparisons computed including t-Tests and sorted according margin of difference. Now let's conclude with more aggregated graph, aggregated over all 60 random seeds per each combination of shared parameters values in compared Step 3 and Step 4.  
-
-
+  
+  
 ```{r message=FALSE, fig.width=10, fig.height=8}
 tcd34 = tc %>%
   filter(Step %in% c("Normal SPIRO, Normal Boundary", "Constant SPIRO, Normal Boundary")) %>% 
@@ -372,8 +379,8 @@ tcd34 %>%
   ggplot() +
   aes(x = Difference, y = factor(SPIRO_STD), fill = factor(SPIRO_STD), col = factor(SPIRO_STD)) +
   geom_violin(alpha = 0.2) +
-  geom_boxplot(alpha = 0.2) +
   geom_jitter(height = 0.3, alpha = 0.015, size = 3) +
+  scale_x_continuous(breaks = c(-0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6)) +
   labs(x = "Difference among runs aggregated over random seeds") +
   theme_light() +
   theme(legend.position = "bottom") +
@@ -391,7 +398,7 @@ OK... Majority of comparisons end at 0, or between 0 and 0.05, it is the case fo
 
 When we set Step 2 for random starting position (`HK_distribution` == FALSE) and keep only simulations with `Boundary_STD` == 0 and `Conformity_STD` == 0, we should receive same results since parameters of Step 2 exactly replicates parameters of Step 1, BUT we do receive different results! I don't know why... now. We should again examine model and random numbers consumption 
 
-### t-Tests
+### T-tests
 
 ```{r}
 tc %>% 
@@ -453,13 +460,13 @@ We also can graphically represent the relationship of ESBG_STD, Boundary, N and 
 tx %>%
   ggplot() +
   aes(y = ESBG_STD, x = Boundary) +
-  facet_grid(cols = vars(N), rows = vars(Conformity), scales = "fixed") +
+  facet_grid(cols = vars(N), rows = vars(Conformity), scales = "fixed", labeller = "label_both") +
   geom_hline(yintercept = 0, linewidth = 1.2, color = "grey") +
   geom_vline(xintercept = 0.16, linewidth = 1.2, color = "steelblue", alpha = 0.4) +
   geom_vline(xintercept = 0.194, linewidth = 1.2, color = "steelblue", alpha = 0.4) +
   geom_vline(xintercept = 0.25, linewidth = 1.2, color = "steelblue", alpha = 0.4) +
   geom_line(linewidth = 2, alpha = 0.4) +
-  geom_point(alpha = 0.7, size = 1.5) +
+  geom_point(alpha = 0.3, size = 1.5) +
   scale_x_continuous(breaks = seq(0.1, 0.3, 0.02)) +
   scale_y_continuous(breaks = seq(0, 0.06, 0.005)) +
   labs(title = "Spotting where the random seed really matters", 
@@ -508,10 +515,10 @@ tc %>% # filter(Boundary %in% c(.1, .2, .3)) %>%
 ```
 
 
-## t-Tests:
+## T-tests   
 
-### Step 2 vs 3
-
+### Step 2 vs 3   
+  
 ```{r warning=FALSE}
 tc %>% 
   filter(Step %in% c("No Identity, Normal Boundary", "Constant SPIRO, Normal Boundary")) %>% 
@@ -524,8 +531,8 @@ tc %>%
 ```
 
 
-### Step 3 vs 4
-
+### Step 3 vs 4   
+  
 ```{r warning=FALSE}
 tc %>% 
   filter(Step %in% c("Normal SPIRO, Normal Boundary", "Constant SPIRO, Normal Boundary")) %>% 
@@ -539,7 +546,7 @@ tc %>%
 
 Hmm... Many comparisons produced difference of size 0.1+!
 
-### Everything compared  
+### Everything compared   
   
 Finally, we compare each step with each step for each of 84 classy HKs:
 
@@ -555,9 +562,9 @@ kable(results_1234)
 ```
 
 
-## Graphs comparisons
+## Graphs comparisons  
 
-```{r}
+```{r fig.height=8, fig.width=10, message=FALSE, warning=FALSE}
 
 # Graphs: ESBG
 tc %>%
@@ -570,9 +577,9 @@ tc %>%
 
 ```
 
-Not that impresive...
+Not that impressive...
 
-```{r}
+```{r fig.height=8, fig.width=10, message=FALSE, warning=FALSE}
 
 tcd = tc %>%
   group_by(Conformity, N, Boundary) %>%
@@ -602,7 +609,7 @@ tcds = tcd %>% filter(Step != "Classical HK") %>%
 tcds %>%
   ggplot() +
   aes(y = Difference_mean, x = Boundary, group = Step, col = Step) +
-  facet_grid(cols = vars(N), rows = vars(Conformity), scales = "fixed") +
+  facet_grid(cols = vars(N), rows = vars(Conformity), scales = "fixed", labeller = "label_both") +
   geom_hline(yintercept = 0, linewidth = 1.2, color = "black") +
   geom_line(linewidth = 2, alpha = 0.4) +
   geom_point(alpha = 0.4, size = 5) +
@@ -613,7 +620,7 @@ tcds %>%
 tcds %>%
   ggplot() +
   aes(y = Difference_sd, x = Boundary, group = Step, col = Step) +
-  facet_grid(cols = vars(N), rows = vars(Conformity), scales = "fixed") +
+  facet_grid(cols = vars(N), rows = vars(Conformity), scales = "fixed", labeller = "label_both") +
   geom_hline(yintercept = 0, linewidth = 1.2, color = "black") +
   geom_line(linewidth = 2, alpha = 0.4) +
   geom_point(alpha = 0.4, size = 5) +
@@ -624,7 +631,7 @@ tcds %>%
 tcs %>%
   ggplot() +
   aes(y = ESBG_mean, x = Boundary, group = Step, col = Step) +
-  facet_grid(cols = vars(N), rows = vars(Conformity), scales = "fixed") +
+  facet_grid(cols = vars(N), rows = vars(Conformity), scales = "fixed", labeller = "label_both") +
   geom_hline(yintercept = 0, linewidth = 1.2, color = "black") +
   geom_line(linewidth = 2, alpha = 0.4) +
   geom_point(alpha = 0.4, size = 5) +
@@ -635,7 +642,7 @@ tcs %>%
 tcs %>%
   ggplot() +
   aes(y = ESBG_sd, x = Boundary, group = Step, col = Step) +
-  facet_grid(cols = vars(N), rows = vars(Conformity), scales = "fixed") +
+  facet_grid(cols = vars(N), rows = vars(Conformity), scales = "fixed", labeller = "label_both") +
   geom_hline(yintercept = 0, linewidth = 1.2, color = "black") +
   geom_line(linewidth = 2, alpha = 0.4) +
   geom_point(alpha = 0.4, size = 5) +
