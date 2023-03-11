@@ -12,9 +12,9 @@
 ;;
 
 ;; Created:  2021-10-21 FranCesko
-;; Edited:   2022-03-16 FranCesko
+;; Edited:   2023-03-11 FranCesko
 ;; Encoding: windows-1250
-;; NetLogo:  6.2.2
+;; NetLogo:  6.3.0
 ;;
 
 ;; IDEA: What about simply employ Spiral of Silence?
@@ -152,14 +152,16 @@ to setup
   ;; Then we migh initialize agents/turtles
   ask turtles [
     let pol-val ifelse-value (polrzd_ratio > random-float 1) [polrzd_dist] [0 - polrzd_dist] ;; Here we prepare value for polarized scenarios. (sentence n-values 2 [(2 * random 2) - 1 + random-float 0 ] n-values 2 [random-float 2])
+    set pol-val pol-val - (polrzd_jitter / 2) + random-float polrzd_jitter
+    while [pol-val < -1 or pol-val > 1] [set pol-val pol-val - (polrzd_jitter / 2) + random-float polrzd_jitter]
     set Opinion-position (sentence n-values polrzd_opnns [precision (pol-val + random-float 0) 3] n-values (opinions - polrzd_opnns) [precision (1 - random-float 2) 3])  ;; We set opinions...
     ;; NOTE: In the code line above we consume still same number of pseudorandom numbers despite the number of polarized opinions,
     ;        firstly we assign the polarized opinions, later we assign random opinions.
     set Last-opinion Opinion-position  ;; ...set last opinion as present opinion...
     set Record n-values record-length [0]  ;; ... we prepare indicator of turtle's stability, at all positions we set 0 as non-stability...
+    set Uncertainty get-uncertainty  ;;... setting value of Uncertainty.
     set P-speaking get-speaking  ;; ...assigning individual probability of speaking...
     set speak? speaking  ;; ...checking whether agent speaks...
-    set Uncertainty get-uncertainty  ;;... setting value of Uncertainty.
     set Tolerance get-tolerance  ;; Setting individual tolerance level, as well as ...
     set Conformity get-conformity  ;; setting individual conformity level, and ...
     set Group-threshold get-group-threshold  ;; Individual sensitivity for group tightness/threshold.
@@ -1183,7 +1185,7 @@ to-report get-speaking
                                                            [precision (random-float (2 * p-speaking-level)) 3]
                                                            [precision (1 - (random-float (2 * (1 - p-speaking-level)))) 3]]
   if p-speaking-drawn = "function" [set pValue (precision(sqrt (sum (map [ x -> x * x ] opinion-position)) / sqrt opinions) 3) + random-float 0]  ;; NOTE! 'random-float 0' is here for consuming one pseudorandom number to cunsume same number of pseudorandom numbers as "uniform
-
+  if p-speaking-drawn = "inverse uncertainty" [set pValue 1 - sqrt(Uncertainty)]
   ;; Report result back
   report pValue
 end
@@ -1522,7 +1524,7 @@ N-agents
 N-agents
 10
 1000
-129.0
+100.0
 1
 1
 NIL
@@ -1552,7 +1554,7 @@ p-random
 p-random
 0
 0.5
-0.27
+0.06
 0.01
 1
 NIL
@@ -1592,7 +1594,7 @@ p-speaking-level
 p-speaking-level
 0
 1
-0.5
+1.0
 0.001
 1
 NIL
@@ -1607,7 +1609,7 @@ boundary
 boundary
 0.01
 1
-0.04
+0.3
 0.01
 1
 NIL
@@ -1805,8 +1807,8 @@ SLIDER
 Y-opinion
 Y-opinion
 1
-50
-2.0
+5
+4.0
 1
 1
 NIL
@@ -2026,12 +2028,12 @@ HK-benchmark?
 CHOOSER
 10
 307
-107
+166
 352
 p-speaking-drawn
 p-speaking-drawn
-"constant" "uniform" "function"
-1
+"constant" "uniform" "function" "inverse uncertainty"
+3
 
 PLOT
 1127
@@ -2130,7 +2132,7 @@ conformity-level
 conformity-level
 0
 1
-0.45
+0.9
 0.01
 1
 NIL
@@ -2201,7 +2203,7 @@ INPUTBOX
 1389
 242
 N_centroids
-1.0
+2.0
 1
 0
 Number
@@ -2292,7 +2294,7 @@ id_threshold
 id_threshold
 0.01
 1
-0.05
+0.45
 0.01
 1
 NIL
@@ -2352,7 +2354,7 @@ ESBG_furthest_out
 ESBG_furthest_out
 0
 100
-5.0
+3.0
 1
 1
 NIL
@@ -2532,6 +2534,21 @@ polrzd_ratio
 0.95
 0.5
 .05
+1
+NIL
+HORIZONTAL
+
+SLIDER
+108
+185
+213
+218
+polrzd_jitter
+polrzd_jitter
+0
+1
+0.5
+.01
 1
 NIL
 HORIZONTAL
@@ -2878,7 +2895,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.2.2
+NetLogo 6.3.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
