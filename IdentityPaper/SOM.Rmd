@@ -5,7 +5,7 @@ author:
     url: https://github.com/frantisek901/Spirals/Experiment
     affiliation: Department of Sociology, University of West Bohemia in Pilsen
     affiliation_url: https://les.zcu.cz
-date: "2023-02-14"
+date: "2023-02-17"
 output: 
   html_document:
     toc: true
@@ -18,13 +18,33 @@ output:
 ```{r setup, include=FALSE}
 ## Encoding: UTF-8
 ## Created:  2023-02-09 FrK
-## Edited:   2023-02-14 FrK
+## Edited:   2023-02-17 FrK
 
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Edits  
 
+## 2023-02-18  
+
+I woke up and felt the urge consult with you 3 more graphs :-( and during their preparation I made also one more regression table...
+
+  1) just for the sake of consistency I tried to do The Graph without panels, i.e. even classy HK aggregated over 4 conditions -- but it sucks, but just have a look...
+  2) for the sake of consistency I did Graphs 2 & 3 also from Step 4 data (Normal SPIRO) -- it's because accompanying regression was made from Step 4 data and showed secondary/neglect-able effect of SPIRO_STD, so I think if we decide to show regression as support for our main title "Identity causes polarization" we should use graphs 2 & 3 produced from same data
+  3) for the sake of consistency I prepared also regression analysis/table from Step 3 data in case we really want: (a) use Graph 2 & 3 based on Step 3 data and (b) we want to show regression table  
+  
+I have to tell you, that I did these 7 extra graphs and 2 regression tables just for our comfort, I'm OK if we find a way how not to use any of them and throw everything to garbage (or real SOM).   
+
+
+## 2023-02-17
+
+We produced with Ashwin 4 more graphs :-( and one regression table :-(((  
+
+  - I don't feel comfortable that we titled paper 'Identity drives polarization: Advancing of HK by identity groups' and so far we proved clearly that this advancements make sense. So, I wanted to show in simple and parsimonious manner that it is identity/SPIRO that makes difference. So we produced the second and third graph. We might discuss it, probably the second is not needed, probably just the third shows that regardless the value of Boundary, SPIRO around 0.61 compresses all simulation to ESBG value around 0.45.
+  - I prepared regression table, just simple models, no models comparisons, showing that SPIRO_Mean and Boundary_STD makes bigger difference than Boundary_Mean and SPIRO_STD.
+  - Finally, we prepared in extra section two graphs addressing surprising effect of random seeds on classy HK that should be fully deterministic -- they show that majority of ESBG osculation is the case that ESBG algorithm is not fully deterministic, so the random seeds influenced the measure this way; we made same graphs for extremness and diversity and they show only three or four spikes of SD, rest is 0  
+  
+  
 ## 2023-02-13
 
 I focused only on ESBG output measure, since the other measures bring same results and we have not use them in The Graph already. 
@@ -67,9 +87,10 @@ library(ggplot2)
 library(rstatix)
 library(stringr)
 library(knitr)
+library(stargazer)
 
 #### Reading data in:
-source("SOM_loading.R")
+# source("SOM_loading.R")
 load("SOM.RData")
 
 ```
@@ -113,8 +134,9 @@ We might ask whether we could generalize the results from the table to whole par
 Note: Just for detective purposes I simulated very smooth data for classy HK, for Boundary from 0.1 to 0.3, but with the step 0.001, so 10 times smoother than in the rest of the experiment. I would do even smoother step, but it makes no sense -- smallest delta of opinion is 0.001, so the smoother step of Boundary can't be recognized in such 'rough' world.   
 
 ```{r message=FALSE, fig.width=10, fig.height=8}
-tcs = ts10s %>%  
-  add_row(tc %>% filter(Step != "Classical HK")) %>% 
+tcs = tc %>% 
+  # ts10s %>%  
+  # add_row(tc %>% filter(Step != "Classical HK")) %>% 
   group_by(Conformity, N, Boundary, Step) %>%
   summarise(across(diversity:ESBG, list(mean = mean, sd = sd))) %>%
   ungroup()
@@ -125,7 +147,8 @@ tcs %>%
   facet_grid(cols = vars(N), rows = vars(Conformity), scales = "fixed", labeller = "label_both") +
   geom_hline(yintercept = 0, linewidth = 0.75, color = "grey") +
   geom_vline(xintercept = 0.16, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
-  geom_vline(xintercept = 0.194, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
+  # geom_vline(xintercept = 0.194, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
+  geom_vline(xintercept = 0.2, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
   geom_vline(xintercept = 0.25, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
   geom_line(linewidth = 2, alpha = 0.4) +
   geom_point(alpha = 0.7, size = 1.5) +
@@ -142,6 +165,186 @@ tcs %>%
 The most surprising result brought by the smooth classy HK is the 'Glitches' are not exclusive for just  one panel (N = 101, Conformity = 0.8). This panel is just only one where the glitch happens for 2 digit value of `Boundary` -- in other panels the glitches also happen, but they happen there for three digit values (e.g. Boundary = 0.194, N = 100, Conformity = 0.8). 
 
 
+### The Graph without panels
+
+```{r message=FALSE, fig.width=10, fig.height=8}
+tcs = ts10s %>% 
+  add_row(tc %>% filter(Step != "Classical HK")) %>% 
+  group_by(Boundary, Step) %>%
+  summarise(across(diversity:ESBG, list(mean = mean, sd = sd))) %>%
+  ungroup()
+
+tcs %>%
+  ggplot() +
+  aes(y = ESBG_mean, x = Boundary, group = Step, col = Step) +
+  geom_hline(yintercept = 0, linewidth = 0.75, color = "grey") +
+  geom_vline(xintercept = 0.16, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
+  geom_vline(xintercept = 0.194, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
+  geom_vline(xintercept = 0.25, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
+  geom_line(linewidth = 2, alpha = 0.4) +
+  geom_point(alpha = 0.7, size = 1.5) +
+  scale_x_continuous(breaks = seq(0.1, 0.3, 0.02)) +
+  scale_y_continuous(breaks = seq(0, 0.4, 0.05)) +
+  labs(title = "Comparison of analysis/model steps", 
+       x = "Boundary/Opennes to different opinions",
+       caption = "Note: Just for sure I made many classy HK with the smoothest Boundary step 0.001, so we might see that glitches happens always, but with tiny differences of exact Boundary value.") +
+  theme_light() +
+  theme(legend.position = "bottom")
+
+```
+
+I'm just showing it and reporting for us, but it's apparent we will not use it. Mean ESBG is 0 when in all conditions classy HK produces ESBG equal to 0, that's why we receive these steps between 0.193 and 0.25. But the "pre-ESBG-equal-to-0 region" is messed with glitches that make orientation in graph much harder. I don't want to manipulate data and remove them manually. I also tried not to show classy HK smooth data with step 0.001 but only regular one with Boundary step 0.01, but it is the same case -- there is still one glitch at 0.16, but it looks like just as bias in trend since it happens only in one of four conditions at 0.16 (we see it also here). So, let me conclude -- I tried summarize ESBG also over 4 combinations of Conformity and N conditions as we do it now in proposed graphs 2 & 3, just for the sake of consistency, but it produces misleading and hard-to-follow graph, so we will omit it in the final proceedings.  
+
+
+## Two extra graphs  
+
+Probably just one needed...   
+
+### Graph 2 from Step 3 data (constant SPIRO)
+
+```{r message=FALSE, fig.width=10, fig.height=8}
+tcs = tc %>% filter(Step == "Constant SPIRO, Normal Boundary") %>% 
+  group_by(SPIRO_Mean, Boundary_STD, Boundary) %>%
+  summarise(across(diversity:ESBG, list(mean = mean, sd = sd))) %>%
+  ungroup()
+
+tcs %>%
+  ggplot() +
+  aes(y = ESBG_mean, x = Boundary, group = SPIRO_Mean, col = SPIRO_Mean) +
+  facet_wrap(vars(Boundary_STD), scales = "fixed", labeller = "label_both") +
+  geom_hline(yintercept = 0, linewidth = 0.75, color = "grey") +
+  geom_vline(xintercept = 0.16, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
+  geom_vline(xintercept = 0.194, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
+  geom_vline(xintercept = 0.25, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
+  geom_line(linewidth = 2, alpha = 0.4) +
+  geom_point(alpha = 0.7, size = 1.5) +
+  scale_x_continuous(breaks = seq(0.1, 0.3, 0.02)) +
+  scale_y_continuous(breaks = seq(0, 0.5, 0.05)) +
+  labs(title = "Comparison of analysis/model steps", 
+       x = "Boundary/Opennes to different opinions") +
+  theme_light() +
+  theme(legend.position = "bottom")
+
+```
+
+
+### Graph 2 from Step 4 data (random-normal SPIRO)
+
+```{r message=FALSE, fig.width=10, fig.height=8}
+tcs = tc %>% filter(Step == "Normal SPIRO, Normal Boundary") %>% 
+  group_by(SPIRO_Mean, Boundary_STD, Boundary) %>%
+  summarise(across(diversity:ESBG, list(mean = mean, sd = sd))) %>%
+  ungroup()
+
+tcs %>%
+  ggplot() +
+  aes(y = ESBG_mean, x = Boundary, group = SPIRO_Mean, col = SPIRO_Mean) +
+  facet_wrap(vars(Boundary_STD), scales = "fixed", labeller = "label_both") +
+  geom_hline(yintercept = 0, linewidth = 0.75, color = "grey") +
+  geom_vline(xintercept = 0.16, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
+  geom_vline(xintercept = 0.194, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
+  geom_vline(xintercept = 0.25, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
+  geom_line(linewidth = 2, alpha = 0.4) +
+  geom_point(alpha = 0.7, size = 1.5) +
+  scale_x_continuous(breaks = seq(0.1, 0.3, 0.02)) +
+  scale_y_continuous(breaks = seq(0, 0.5, 0.05)) +
+  labs(title = "Comparison of analysis/model steps", 
+       x = "Boundary/Opennes to different opinions") +
+  theme_light() +
+  theme(legend.position = "bottom")
+
+```
+
+
+### Graph 3 from Step 3 data (constant SPIRO)
+
+```{r message=FALSE, fig.width=10, fig.height=8}
+tcs = tc %>% filter(Step == "Constant SPIRO, Normal Boundary", Boundary %in% c(0.1, 0.15, 0.2, 0.25, 0.3)) %>% 
+  group_by(SPIRO_Mean, Boundary_STD, Boundary) %>%
+  summarise(across(diversity:ESBG, list(mean = mean, sd = sd))) %>%
+  ungroup() %>%
+  mutate(Boundary = factor(Boundary))
+
+tcs %>%
+  ggplot() +
+  aes(y = ESBG_mean, group = Boundary, x = as.numeric(as.character(SPIRO_Mean)), col = Boundary) +
+  facet_wrap(vars(Boundary_STD), scales = "fixed", labeller = "label_both") +
+  geom_hline(yintercept = 0, linewidth = 0.75, color = "grey") +
+  geom_line(linewidth = 2, alpha = 0.4) +
+  geom_point(alpha = 0.7, size = 1.5) +
+  scale_x_continuous(breaks = seq(0.25, 0.85, 0.12)) +
+  scale_y_continuous(breaks = seq(0, 0.55, 0.05)) +
+  labs(title = "Comparison of analysis/model steps") +
+  theme_light() +
+  theme(legend.position = "bottom")
+
+```
+
+
+### Graph 3 from Step 4 data (random-normal SPIRO)
+
+```{r message=FALSE, fig.width=10, fig.height=8}
+tcs = tc %>% filter(Step == "Normal SPIRO, Normal Boundary", Boundary %in% c(0.1, 0.15, 0.2, 0.25, 0.3)) %>% 
+  group_by(SPIRO_Mean, Boundary_STD, Boundary) %>%
+  summarise(across(diversity:ESBG, list(mean = mean, sd = sd))) %>%
+  ungroup() %>%
+  mutate(Boundary = factor(Boundary))
+
+tcs %>%
+  ggplot() +
+  aes(y = ESBG_mean, group = Boundary, x = as.numeric(as.character(SPIRO_Mean)), col = Boundary) +
+  facet_wrap(vars(Boundary_STD), scales = "fixed", labeller = "label_both") +
+  geom_hline(yintercept = 0, linewidth = 0.75, color = "grey") +
+  geom_line(linewidth = 2, alpha = 0.4) +
+  geom_point(alpha = 0.7, size = 1.5) +
+  scale_x_continuous(breaks = seq(0.25, 0.85, 0.12)) +
+  scale_y_continuous(breaks = seq(0, 0.55, 0.05)) +
+  labs(title = "Comparison of analysis/model steps") +
+  theme_light() +
+  theme(legend.position = "bottom")
+
+```
+
+
+## Regression table  
+
+No model comparisons, just plain model built on Step 4 data, no models comparisons.  
+  
+```{r results='asis', warning=FALSE}
+tc4 = tc %>% filter(Step == "Normal SPIRO, Normal Boundary", Boundary %in% c(0.1, 0.15, 0.2, 0.25, 0.3)) %>% 
+  select(HK_distribution, SPIRO_Mean:Conformity_STD, diversity:ESBG) %>% 
+  mutate(across(N:Conformity_STD, ~factor(.x)))
+
+mE = lm(ESBG ~ SPIRO_STD + SPIRO_Mean + Boundary_STD + Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
+md = lm(diversity ~ SPIRO_STD + SPIRO_Mean + Boundary_STD + Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
+me = lm(extremness ~ SPIRO_STD + SPIRO_Mean + Boundary_STD + Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
+
+stargazer(mE, md, me, type = 'html')
+
+```
+
+We might see that Boundary_STD has bigger effect than Boundary, but SPIRO_STD has smaller effect than SPIRO_Mean. Just now, just from the first sight on ESBG model, it seems to me that the biggest and primary effect have SPIRO_Mean and Boundary_STD, then secondary have SPIRO_STD and HK_distribution others are neglect-able.  
+ 
+ 
+### Regression table from Step 3 (sic!) data     
+
+No model comparisons, just plain model built on Step 3 (sic!) data, no models comparisons.  
+  
+```{r results='asis', warning=FALSE}
+tc3 = tc %>% filter(Step == "Constant SPIRO, Normal Boundary", Boundary %in% c(0.1, 0.15, 0.2, 0.25, 0.3)) %>% 
+  select(HK_distribution, SPIRO_Mean:Conformity_STD, diversity:ESBG) %>% 
+  mutate(across(N:Conformity_STD, ~factor(.x)))
+
+mE = lm(ESBG ~ SPIRO_Mean + Boundary_STD + Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc3)
+md = lm(diversity ~ SPIRO_Mean + Boundary_STD + Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc3)
+me = lm(extremness ~ SPIRO_Mean + Boundary_STD + Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc3)
+
+stargazer(mE, md, me, type = 'html')
+
+```
+
+
+ 
 # Intended SOM -- T-tests and graphs  
 
 And here we look at comparisons of consecutive steps, we use 84 classy HK combination of parameters and we compare averages for them.
@@ -446,7 +649,7 @@ Here are 20 highest SD in ESBG resulting variable:
 ```{r}
 tx = ts10s %>% ungroup() %>% 
   group_by(N, Conformity, Boundary) %>% 
-  summarise(ESBG_STD = sd(ESBG)) %>% 
+  summarise(ESBG_STD = sd(ESBG), diversity_STD = sd(diversity), extremness_STD = sd(extremness)) %>% 
   arrange(desc(ESBG_STD))
 
 head(tx, 20) %>%  kable(digits = 3)
@@ -474,6 +677,41 @@ tx %>%
   theme_light() +
   theme(legend.position = "bottom")
 
+
+tx %>%
+  ggplot() +
+  aes(y = extremness_STD, x = Boundary) +
+  facet_grid(cols = vars(N), rows = vars(Conformity), scales = "fixed", labeller = "label_both") +
+  geom_hline(yintercept = 0, linewidth = 1.2, color = "grey") +
+  geom_vline(xintercept = 0.16, linewidth = 1.2, color = "steelblue", alpha = 0.4) +
+  geom_vline(xintercept = 0.194, linewidth = 1.2, color = "steelblue", alpha = 0.4) +
+  geom_vline(xintercept = 0.25, linewidth = 1.2, color = "steelblue", alpha = 0.4) +
+  geom_line(linewidth = 2, alpha = 0.4) +
+  geom_point(alpha = 0.3, size = 1.5) +
+  scale_x_continuous(breaks = seq(0.1, 0.3, 0.02)) +
+  scale_y_continuous(breaks = seq(0, 0.06, 0.005)) +
+  labs(title = "Spotting where the random seed really matters", 
+       x = "Boundary/Opennes to different opinions") +
+  theme_light() +
+  theme(legend.position = "bottom")
+
+
+tx %>%
+  ggplot() +
+  aes(y = diversity_STD, x = Boundary) +
+  facet_grid(cols = vars(N), rows = vars(Conformity), scales = "fixed", labeller = "label_both") +
+  geom_hline(yintercept = 0, linewidth = 1.2, color = "grey") +
+  geom_vline(xintercept = 0.16, linewidth = 1.2, color = "steelblue", alpha = 0.4) +
+  geom_vline(xintercept = 0.194, linewidth = 1.2, color = "steelblue", alpha = 0.4) +
+  geom_vline(xintercept = 0.25, linewidth = 1.2, color = "steelblue", alpha = 0.4) +
+  geom_line(linewidth = 2, alpha = 0.4) +
+  geom_point(alpha = 0.3, size = 1.5) +
+  scale_x_continuous(breaks = seq(0.1, 0.3, 0.02)) +
+  scale_y_continuous(breaks = seq(0, 0.06, 0.005)) +
+  labs(title = "Spotting where the random seed really matters", 
+       x = "Boundary/Opennes to different opinions") +
+  theme_light() +
+  theme(legend.position = "bottom")
 
 ```
 
@@ -534,13 +772,22 @@ tc %>%
 ### Step 3 vs 4   
   
 ```{r warning=FALSE}
-tc %>% 
+ty = tc %>% 
   filter(Step %in% c("Normal SPIRO, Normal Boundary", "Constant SPIRO, Normal Boundary")) %>% 
   filter(!(Step == "Normal SPIRO, Normal Boundary" & SPIRO_STD == 0)) %>%
   mutate(Step = factor(Step)) %>%
   group_by(Conformity, Conformity_STD, N, HK_distribution, Boundary, Boundary_STD, SPIRO_Mean) %>%
   t_test(formula = ESBG ~ Step, detailed = T) %>%
-  arrange(estimate) %>% kable(digits = 3)
+  arrange(estimate) 
+
+ty %>% kable(digits = 3)
+
+ty %>% 
+  ggplot() +
+  aes(x = estimate) +
+  geom_histogram(binwidth = 0.05) +
+  scale_y_log10() +
+  theme_light()
 
 ```
 
