@@ -5,12 +5,10 @@
 ;; we apply Hegselmann-Krausse model in more than 1D and look how agents adapt in >1D opinion space and whether they form groups,
 ;; then we include individual assignment of openness and identity sensitivity.
 ;;
-;; !!!EXPERIMENTAL FEATURE: IDENTITY!!!
-;; !!!SUPER EXPERIMENTAL: INDIVIDUAL IDENTITY VISION!!!
 ;;
 
 ;; Created:  2021-10-21 FranCesko
-;; Edited:   2023-03-18 FranCesko
+;; Edited:   2023-03-21 FranCesko
 ;; Encoding: windows-1250
 ;; NetLogo:  6.3.0
 ;;
@@ -28,7 +26,7 @@ turtles-own [own-opinion own-previous-opinion own-boundary own-conformity own-SP
 centroids-own [last-position] ;; because of sticking to HK and also compatibility with previous results and algorithm for finding final position of group centroids, we need two variables for previous/last position, also, unsystematically, during the centroid position we have to copy 'last-position' to 'own-previous-position', since some 'distance' procedures finds opinions by themselves.
 Twitters-own [ID tw-position]
 
-globals [agents positions_clusters ESBG_polarisation SPIRO_set
+globals [agents common_agents positions_clusters ESBG_polarisation SPIRO_set
          IDs-and-ns-of-id-groups distance-matrices]
 
 
@@ -51,15 +49,17 @@ to setup
 
   ;; Then we migh initialize agents/turtles
   crt Number_Of_Agents [setup-agent]
-
-  ;; We also have to set up some globals and create links for measuring opinion distances:
-  set agents turtle-set turtles
-  ;; Note: If we just write 'set agents turtles', then variable 'agents' is a synonym for 'turtles',
-  ;; so it will contain in the future created centroids and Twitters!
+  set common_agents (turtle-set turtles)
 
   ;; Now, when we establish 'normal' agents, we might create Twitters -- always comunicating agents,
   ;; who don't change their opinion position
   if Use_Twitters? [setup-Twitters]
+
+  ;; We also have to set up some globals and create links for measuring opinion distances:
+  set agents (turtle-set turtles Twitters)  ;; Agentset 'agents' now includes also Twitters.
+
+  ;; Note: If we just write 'set agents turtles', then variable 'agents' is a synonym for 'turtles',
+  ;; so it will contain in the future created centroids!
 
   ;; In case we don't use identity, we don't need to create links
   if Use_Identity? [
@@ -333,7 +333,6 @@ to go
 
   tick
 
-
   ;; Finishing condition:
   ;; 1) We reached number of steps specified in MAX-TICKS
   recording-situation-and-computing-polarisation
@@ -393,26 +392,25 @@ to change-opinion-HK
   ;; selection of sample/fraction from whole population of agents. This gives higher voice to
   ;; Twitter agents, because they are listened always.
   let called_N round (Ratio_of_population_listened * (Number_Of_Agents - 1))
-  let neighbs n-of called_N other agents
+  let neighbs n-of called_N other common_agents
 
-  ;; Choosing positions:
+  ;; Choosing dimensions:
   ;; Note: This is potential to choose dimensions according their accessibility!
   ;; So! We chose positions which the agent is interested in and only these positions will be used for measuring distences.
   let chosen-dimensions range Number_Of_Opinion_Dimensions  ;; let's suppose we use all dimensions...
   if (Distance_dimensions = "Updated") [set chosen-dimensions sublist (shuffle chosen-dimensions) 0 updating] ;; ... but if we focus on updated, we shorten the list.
   ;print list-subset (own-opinion) (chosen-dimensions)
 
-  ;; We ask now brexit agents of to set their opinion regarding the updating agents,
-  ;; it might be done after identity check now, but later we might want use these updated
+  ;; We ask now Twitter agents to set their opinion,
+  ;; it might be done after identity check or now, but later we might want use these updated
   ;; opinions for identity check, so we ask for updating opinions now:
   ask Twitters [set-Twitter-opinion]
+  if When_include_Twitters = "BEFORE identity check" [set neighbs (turtle-set neighbs Twitters)]
 
   ;; In the first block of code we have to determine INFLUENTIALS -- the agents to whom the  updating agents listens to
   ;; Since rolling identity dice is computationally less demanding, we start with id dice:
   ;; If we use identity, we check distance of group centroids of NEIGHBS and filter them out.
   ;; In case we dont't use identity, them NEIGHBS are still all other agents.
-  ;; WE SUPPOSE FOR NOW, THAT BREXIT AGENTS WILL PASS THE IDENTITY CHECK AUTOMATICALLY,
-  ;; LATER WE MIGHT THINK ALSO ABOUT APROPRIATING OPINION OF BREXIT AGENTS REGARDING THE IDENTITY CHECK.
   if Use_Identity? [
     ;; Identity check -- preparation of myself from global variables:
     let my-group-id table:get own-WhichGroupHasEachSPIROSortedMeIn own-SPIRO
@@ -421,7 +419,7 @@ to change-opinion-HK
     let my-i (my-group-id - last group-info)  ;; 'my-i' is distance matrix column we want to use, so we subtract group ID of myself from minimal group ID in respective level
 
     ;; Sigmoid code:
-    ask other agents [
+    ask other neighbs [
       ;; Firstly, each neighbor has to find 'her-j', i.e. distance matrix row for identity check:
       let her-group-id table:get own-WhichGroupHasEachSPIROSortedMeIn [own-SPIRO] of myself
       let her-j  (her-group-id - last group-info)   ;; 'her-j' is distance matrix row we want to use, so we subtract group ID of self from minimal group ID in respective level
@@ -432,12 +430,12 @@ to change-opinion-HK
     ]
 
     ;; Now we set successful AGENTS as NEIGHBS:
-    set neighbs other agents with [own-identity-dice?]
+    set neighbs other neighbs with [own-identity-dice?]
     if show_dice_rolls? [print (word "Identity: " count neighbs)]
   ]
 
   ;; We include Twitters now automatically to the NEIGHBS turtle set, they do not need to pass identity check:
-  set neighbs (turtle-set neighbs Twitters)
+  if When_include_Twitters = "AFTER identity check" [set neighbs (turtle-set neighbs Twitters)]
   ;show neighbs
 
   ;; NOW we roll probabilistic dice based on opinion distance from influencer - if an agent is too far they are less likely to be heard this time.
@@ -578,7 +576,7 @@ to-report Ash-polarisation
 
   ;; Random assignment of agents to the groups -- we create random list of 'cent0s' and 'cent1s' of same length as agents number and then assign them based on agent's WHO
   let membership shuffle (sentence n-values round (Number_Of_Agents / 2) [cent0] n-values (ifelse-value (0 = Number_Of_Agents mod 2) [Number_Of_Agents / 2][(Number_Of_Agents - 1) / 2]) [cent1])
-  ask agents [set own-group-number item who membership]
+  ask common_agents [set own-group-number item who membership]
   updating-centroids-own-opinion (cent0) (cent1)  ;; Initial update
 
   ;; Iterating until centroids are stable
@@ -588,10 +586,10 @@ to-report Ash-polarisation
   ]
 
   ;; Computing polarisation -- cutting-out agents too distant from centroids
-  ask agents [set own-distance-to-centroid [opinion-distance ([own-opinion] of myself) ([own-opinion] of self) (true)] of centroid own-group-number]
-  let a0 agents with [own-group-number = cent0]
+  ask common_agents [set own-distance-to-centroid [opinion-distance ([own-opinion] of myself) ([own-opinion] of self) (true)] of centroid own-group-number]
+  let a0 common_agents with [own-group-number = cent0]
   set a0 min-n-of (count a0 - ESBG_furthest_out) a0 [opinion-distance ([own-opinion] of self) ([own-opinion] of centroid cent0) (false)]
-  let a1 agents with [own-group-number = cent1]
+  let a1 common_agents with [own-group-number = cent1]
   set a1 min-n-of (count a1 - ESBG_furthest_out) a1 [opinion-distance ([own-opinion] of self) ([own-opinion] of centroid cent1) (false)]
 
   ;; Updating centroids and agents opinion position (without furthest agents)
@@ -618,23 +616,23 @@ end
 
 to update-agents-opinion-group [cent0 cent1]
   ;; Checking the assignment -- is the assigned centroid the nearest? If not, reassign!
-  ask agents [set own-group-number own-group-number - ([who] of min-one-of centroids with [who >= cent0] [opinion-distance ([own-opinion] of myself) ([own-opinion] of self) (true)])]
-  let wrongly-at-grp0 turtle-set agents with [own-group-number = -1]  ;; they are in 0, but should be in 1: 0 - 1 = -1
-  let wrongly-at-grp1 turtle-set agents with [own-group-number = 1]  ;; they are in 1, but should be in 0: 1 - 0 = 1
+  ask common_agents [set own-group-number own-group-number - ([who] of min-one-of centroids with [who >= cent0] [opinion-distance ([own-opinion] of myself) ([own-opinion] of self) (true)])]
+  let wrongly-at-grp0 turtle-set common_agents with [own-group-number = -1]  ;; they are in 0, but should be in 1: 0 - 1 = -1
+  let wrongly-at-grp1 turtle-set common_agents with [own-group-number = 1]  ;; they are in 1, but should be in 0: 1 - 0 = 1
   ifelse count wrongly-at-grp0 = count wrongly-at-grp1 [
-    ask agents [set own-group-number [who] of min-one-of centroids with [who >= cent0] [opinion-distance ([own-opinion] of myself) ([own-opinion] of self) (true)]]
+    ask common_agents [set own-group-number [who] of min-one-of centroids with [who >= cent0] [opinion-distance ([own-opinion] of myself) ([own-opinion] of self) (true)]]
   ][
-    let peleton agents with [own-group-number = 0]
+    let peleton common_agents with [own-group-number = 0]
     ifelse count wrongly-at-grp0 < count wrongly-at-grp1 [
       set peleton (turtle-set peleton wrongly-at-grp0 max-n-of (count wrongly-at-grp0) wrongly-at-grp1 [opinion-distance ([own-opinion] of self) ([own-opinion] of centroid cent0) (false)]) ;; all agents assigned correctly + smaller group of wrong + from bigger group 'n of size of smaller group'
-      let stayed agents with [not member? self peleton]
+      let stayed common_agents with [not member? self peleton]
       ask peleton [set own-group-number [who] of min-one-of centroids with [who >= cent0] [opinion-distance ([own-opinion] of myself) ([own-opinion] of self) (true)]
       ]
       ask stayed [set own-group-number cent1 ;set color 15 + group * 10
       ]
      ][
       set peleton (turtle-set peleton wrongly-at-grp1 max-n-of (count wrongly-at-grp1) wrongly-at-grp0 [opinion-distance ([own-opinion] of self) ([own-opinion] of centroid cent1) (false)]) ;; all agents assigned correctly + smaller group of wrong + from bigger group 'n of size of smaller group'
-      let stayed agents with [not member? self peleton]
+      let stayed common_agents with [not member? self peleton]
       ask peleton [set own-group-number [who] of min-one-of centroids with [who >= cent0] [opinion-distance ([own-opinion] of myself) ([own-opinion] of self) (true)]
       ]
       ask stayed [set own-group-number cent0 ;set color 15 + group * 10
@@ -710,7 +708,7 @@ to compute-centroids-positions [sel-agents]
   let grp min [who] of centroids
   while [grp <= (max [who] of centroids)] [
     ask centroid grp [
-      ifelse (not any? agents with [own-group-number = grp]) [
+      ifelse (not any? common_agents with [own-group-number = grp]) [
         set own-opinion last-position
       ][
         let dim 0
@@ -820,7 +818,8 @@ end
 to getColor
   ;; speaking agents are colored from very dark red (average -1) through red (average 0) to very light red (average +1)
   set color 15 + 4 * mean(own-opinion)
-  set size (max-pxcor / 10)
+  set size (max-pxcor / ifelse-value (is-Twitter? self) [5][10])
+
 end
 
 
@@ -847,7 +846,7 @@ to __Jan_Lorenz_Measures end
 ;; Note: The code bellow is adapted code of Jan Lorenz for measuring diversity and extremness as measures of polarization:
 
 to-report diversity
-  report mean map [x -> standard-deviation [item x own-opinion] of agents] range Number_Of_Opinion_Dimensions
+  report mean map [x -> standard-deviation [item x own-opinion] of common_agents] range Number_Of_Opinion_Dimensions
 end
 
 to-report manhattan-distance [one second]
@@ -856,7 +855,7 @@ to-report manhattan-distance [one second]
 end
 
 to-report extremness
-  report (mean [manhattan-distance own-opinion n-values Number_Of_Opinion_Dimensions [0]] of agents) / Number_Of_Opinion_Dimensions
+  report (mean [manhattan-distance own-opinion n-values Number_Of_Opinion_Dimensions [0]] of common_agents) / Number_Of_Opinion_Dimensions
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -1010,7 +1009,7 @@ SWITCH
 43
 set-seed?
 set-seed?
-0
+1
 1
 -1000
 
@@ -1316,7 +1315,7 @@ INPUTBOX
 502
 521
 N_centroids
-1.0
+2.0
 1
 0
 Number
@@ -1396,7 +1395,7 @@ SPIRO_Mean
 SPIRO_Mean
 0
 1
-0.495
+0.642
 0.001
 1
 NIL
@@ -1441,7 +1440,7 @@ ESBG_furthest_out
 ESBG_furthest_out
 0
 100
-1.0
+10.0
 1
 1
 NIL
@@ -1539,7 +1538,7 @@ Boundary_STD
 Boundary_STD
 0
 1
-0.17
+0.065
 0.001
 1
 NIL
@@ -1870,12 +1869,12 @@ Distance_dimensions
 0
 
 INPUTBOX
-741
+1096
 502
 1453
 618
 Twitters_positions
-0.7,0.1\n0.1,0.7
+-0.75,0.75,-0.25,0.25,0.25,-0.25\n-0.75,0.75,-0.75,0.75,0.25,-0.25
 1
 1
 String
@@ -1893,33 +1892,28 @@ Use_Twitters?
 
 SLIDER
 384
-558
+602
 706
-591
-Ratio_distance_of_Brexiters_from_seduced_agent
-Ratio_distance_of_Brexiters_from_seduced_agent
-0.001
+635
+Ratio_of_population_listened
+Ratio_of_population_listened
+.01
 1
-1.0
-0.001
+0.2
+.01
 1
 NIL
 HORIZONTAL
 
-SLIDER
+CHOOSER
 384
-591
-706
-624
-Ratio_of_population_listened
-Ratio_of_population_listened
-.01
+557
+515
+602
+When_include_Twitters
+When_include_Twitters
+"BEFORE identity check" "AFTER identity check"
 1
-1.0
-.01
-1
-NIL
-HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
