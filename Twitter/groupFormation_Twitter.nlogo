@@ -22,12 +22,14 @@ undirected-link-breed [l-distances l-distance]
 l-distances-own [l-weight]
 
 turtles-own [own-opinion own-previous-opinion own-boundary own-conformity own-SPIRO own-WhichGroupHasEachSPIROSortedMeIn own-group-number own-distance-to-centroid
-  own-opinion-sigmoid-xOffset own-opinion-sigmoid-steepness own-opinion-dice? own-identity-sigmoid-xOffset own-identity-sigmoid-steepness own-identity-dice? nei-size]
+  own-opinion-sigmoid-xOffset own-opinion-sigmoid-steepness own-opinion-dice? own-identity-sigmoid-xOffset own-identity-sigmoid-steepness own-identity-dice? nei-size
+  interest-in-discussions present-threats threats accessibilities]
 centroids-own [last-position] ;; because of sticking to HK and also compatibility with previous results and algorithm for finding final position of group centroids, we need two variables for previous/last position, also, unsystematically, during the centroid position we have to copy 'last-position' to 'own-previous-position', since some 'distance' procedures finds opinions by themselves.
 Twitters-own [ID tw-position]
 
 globals [agents common_agents positions_clusters ESBG_polarisation SPIRO_set
-         IDs-and-ns-of-id-groups distance-matrices]
+         IDs-and-ns-of-id-groups distance-matrices
+         NT]
 
 
 ;; Initialization and setup
@@ -115,7 +117,7 @@ end
 to setup-Twitters
   ;; We have to start with determining number of brexiters we will create and the number of dimensions we will work in:
   let matOp csv:from-string Twitters_positions  ;; This is matrix with Brexiters opinions in different dimensions
-  let NT length item 0 matOp
+  set NT length item 0 matOp
   let nd ifelse-value (Number_Of_Opinion_Dimensions < length matOp) [Number_Of_Opinion_Dimensions][length matOp]
 
   ;; We might create them:
@@ -143,9 +145,32 @@ to setup-agent
     set own-conformity get-conformity  ;; setting individual conformity level, and ...
     set own-boundary get-HK-boundary  ;;... setting value of HK boundary.
     set own-SPIRO get-own-SPIRO  ;; Individual sensitivity for group tightness/threshold.
+    set interest-in-discussions get-interest-in-discussions  ;; Setting how many agents the agent talk to update her opinion
+    set present-threats n-values Number_Of_Opinion_Dimensions [ 0 ]
+    set threats n-values Number_Of_Opinion_Dimensions [ (list ingroup_threat) ]
+    set accessibilities accessibility (threats)
     get-sigmoids ;;getting sigmoid parameters for opinion and identity influence probabilities
     getColor  ;; Coloring the agents according their opinion.
     getPlace  ;; Moving agents to the opinion space according their opinions.
+end
+
+to-report accessibility [threats-list]
+  ;; initializing some globals
+  let sums 0
+  let accesses []
+
+  ;; iterating over the list
+  foreach threats-list [x ->
+    let sm sum x
+    set sums (sums + sm)
+    set accesses lput sm accesses
+  ]
+
+  ;; final processing of the accesses[] into fractions of weights summing to 1:
+  set accesses map [a -> precision (a / sums) 3] accesses
+
+  ;; final reporting
+  report accesses ;n-values Number_Of_Opinion_Dimensions [1 / Number_Of_Opinion_Dimensions]
 end
 
 
@@ -318,7 +343,7 @@ end
 ;; Main routine
 to go
   ;;;; Main part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ask agents [
+  ask common_agents [
     if model = "HK" [change-opinion-HK]
     ;; Note: Now here is only Hegselmann-Krause algorithm, but in the future we might easily employ other algorithms here!
   ]
@@ -352,7 +377,7 @@ to prepare-everything-for-the-next-step
   avoiding-run-time-errors
 
   ;; Coloring and updating
-  ask agents [preparing-myself]
+  ;ask agents [preparing-myself]
 
   ;; Update group identities via Louvain -- only if we use group identity.
   if Use_Identity? [
@@ -362,6 +387,15 @@ to prepare-everything-for-the-next-step
 
   ;; Coloring and updating, for sure...
   ask agents [preparing-myself]
+  ask common_agents [threats-errosion]
+end
+
+to threats-errosion
+  ;; processing threats[]
+  set threats map [tx -> (map [t -> precision (t * threats_degradation) 3] tx)] threats
+
+  ;; processing accessibilities[[][]]
+  set accessibilities accessibility (threats)
 end
 
 
@@ -393,12 +427,33 @@ to change-opinion-HK
   ;; Twitter agents, because they are listened always.
   let called_N round (Ratio_of_population_listened * (Number_Of_Agents - 1))
   let neighbs n-of called_N other common_agents
+  let agents-of-different-identity 0
+  let disagreeing-agents-of-same-identity 0
 
   ;; Choosing dimensions:
   ;; Note: This is potential to choose dimensions according their accessibility!
   ;; So! We chose positions which the agent is interested in and only these positions will be used for measuring distences.
-  let chosen-dimensions range Number_Of_Opinion_Dimensions  ;; let's suppose we use all dimensions...
+  let chosen-dimensions range Number_Of_Opinion_Dimensions  ;; let's suppose we use ALL dimensions...
   if (Distance_dimensions = "Updated") [set chosen-dimensions sublist (shuffle chosen-dimensions) 0 updating] ;; ... but if we focus on updated, we shorten the list.
+  if (Distance_dimensions = "Accessible") [
+    let used []
+    foreach chosen-dimensions [chd ->
+      if (accessibility_threshold < item chd accessibilities) [set used lput chd used]
+    ]
+    if 0 = length used [
+      let tickets range Number_Of_Opinion_Dimensions
+      let sd 0
+      foreach accessibilities [num ->
+        set tickets (sentence tickets n-values (num * 1000) [sd])
+        set sd (sd + 1)
+      ]
+      set tickets shuffle tickets
+      set used remove-duplicates (sublist (shuffle tickets) 0 Number_Of_Opinion_Dimensions)
+      ;print used
+    ]
+    set chosen-dimensions used
+    ;if Number_Of_Opinion_Dimensions > length used [print used]
+  ]
   ;print list-subset (own-opinion) (chosen-dimensions)
 
   ;; We ask now Twitter agents to set their opinion,
@@ -432,6 +487,9 @@ to change-opinion-HK
     ;; Now we set successful AGENTS as NEIGHBS:
     set neighbs other neighbs with [own-identity-dice?]
     if show_dice_rolls? [print (word "Identity: " count neighbs)]
+
+    ;; Updating agents of different identity
+    set agents-of-different-identity ((ifelse-value (When_include_Twitters = "BEFORE identity check") [NT][0]) + called_N) - (count other neighbs)
   ]
 
   ;; We include Twitters now automatically to the NEIGHBS turtle set, they do not need to pass identity check:
@@ -453,15 +511,53 @@ to change-opinion-HK
   ;; 3) we also add the updating agent into 'influentials'
   set influentials (turtle-set self influentials)
 
+  ;; Computing disagreeing agents of same identity
+  set disagreeing-agents-of-same-identity (NT + called_N) - agents-of-different-identity - (count influentials) + 1  ;; '+ 1' because 'influentials' include SELF
+  if (NT + called_N + 1) != (agents-of-different-identity + disagreeing-agents-of-same-identity + count influentials) [
+    print agents-of-different-identity
+    print disagreeing-agents-of-same-identity
+    print count influentials
+    print (NT + called_N + 1)
+  ]
+
+  ;; Because the identity threat is always scarry, we have to draw threaten dimension here,
+  ;; so here we draw a list of dimensions which we will update:
+  ;; by 'range opinions' we generate list of integers from '0' to 'opinions - 1',
+  ;; by 'n-of updating' we randomly take 'updating' number of integers from this list
+  ;; by 'shuffle' we randomize order of the resulting list
+  let op-list []
+  ifelse Choose_dimension_by_accessibility? [
+    let tickets chosen-dimensions
+    let sd 0
+    foreach chosen-dimensions [num ->
+      set tickets (sentence tickets n-values ((item num accessibilities) * 1000) [num])
+      set sd (sd + 1)
+    ]
+    ;print shuffle tickets
+    set op-list shuffle remove-duplicates (n-of updating tickets)
+    ;print op-list
+  ][
+    set op-list shuffle n-of updating chosen-dimensions
+  ]
+
+  ;; And immediately we update threats
+  let overall-threat agents-of-different-identity + (disagreeing-agents-of-same-identity * ingroup_threat)
+  let dim 0
+  foreach threats [tx ->
+    let val ifelse-value (member? dim op-list) [overall-threat] [0]
+    ;print (member? dim op-list)
+    ;print (word "val: " val)
+    let updated-threats fput val tx
+    if (threats_length < length updated-threats) [set updated-threats but-last updated-threats]
+    ;show updated-threats
+    set threats replace-item dim threats updated-threats
+    set dim (dim + 1)
+  ]
+ ;show threats
+
+
   ;; we check whether there is someone else then calling/updating agent in the agent set 'influentials'
   if count influentials > 1 [
-
-    ;; here we draw a list of dimensions which we will update:
-    ;; by 'range opinions' we generate list of integers from '0' to 'opinions - 1',
-    ;; by 'n-of updating' we randomly take 'updating' number of integers from this list
-    ;; by 'shuffle' we randomize order of the resulting list
-    let op-list shuffle n-of updating chosen-dimensions
-
     ;; we initialize counter 'step'
     let step 0
 
@@ -760,6 +856,20 @@ to-report get-own-SPIRO
 end
 
 
+;; Sub-routine for assigning value of interest-in-discussions
+to-report get-interest-in-discussions
+  ;; Temporary variable firstly...
+  let iValue 0
+
+  ;; Then we draw the value according the chosen method
+  if Interest_Distribution = "constant" [set iValue Ratio_of_population_listened + random-float 0]  ;; NOTE! 'random-float 0' is here for consuming one pseudorandom number to cunsume same number of pseudorandom numbers as "uniform
+  if Interest_Distribution = "normal" [set iValue precision (random-normal Ratio_of_population_listened Interest_STD) 3
+                                       while [iValue > Interest_max or iValue < Interest_min] [ set iValue precision (random-normal Ratio_of_population_listened Interest_STD) 3]
+  ]
+  report iValue
+
+end
+
 ;; sub-routine for assigning value of boundary to the agent
 to-report get-HK-boundary
   ;; We have to initialize empty temporary variable
@@ -818,7 +928,7 @@ end
 to getColor
   ;; speaking agents are colored from very dark red (average -1) through red (average 0) to very light red (average +1)
   set color 15 + 4 * mean(own-opinion)
-  set size (max-pxcor / ifelse-value (is-Twitter? self) [5][10])
+  set size (max-pxcor / ifelse-value (is-Twitter? self) [4][10])
 
 end
 
@@ -997,7 +1107,7 @@ INPUTBOX
 905
 70
 RS
-7.64885162E8
+-1.444235209E9
 1
 0
 Number
@@ -1036,7 +1146,7 @@ BUTTON
 669
 524
 sizes
-show sort remove-duplicates [count turtles-here] of turtles \nask patches [set plabel count turtles-here]
+show sort remove-duplicates [count turtles-here] of turtles \nask patches [set plabel count turtles-here - count Twitters-here]
 NIL
 1
 T
@@ -1315,7 +1425,7 @@ INPUTBOX
 502
 521
 N_centroids
-2.0
+3.0
 1
 0
 Number
@@ -1340,7 +1450,7 @@ PLOT
 106
 1282
 226
-'Conformity' Distribution
+'Interest' Distribution
 NIL
 NIL
 0.0
@@ -1351,7 +1461,7 @@ true
 false
 "" ""
 PENS
-"default" 0.05 1 -16777216 true "" "histogram [own-conformity] of agents"
+"default" 0.05 1 -16777216 true "" "histogram [interest-in-discussions] of common_agents"
 
 MONITOR
 933
@@ -1395,7 +1505,7 @@ SPIRO_Mean
 SPIRO_Mean
 0
 1
-0.642
+0.555
 0.001
 1
 NIL
@@ -1784,7 +1894,7 @@ SWITCH
 76
 avoid_seed_control?
 avoid_seed_control?
-0
+1
 1
 -1000
 
@@ -1866,15 +1976,15 @@ CHOOSER
 Distance_dimensions
 Distance_dimensions
 "All" "Updated" "Accessible"
-0
+2
 
 INPUTBOX
 1096
 502
-1453
-618
+1476
+662
 Twitters_positions
--0.75,0.75,-0.25,0.25,0.25,-0.25\n-0.75,0.75,-0.75,0.75,0.25,-0.25
+0.75,-0.25,0.25,0.25,-0.15\n0.75,-0.75,0.75,0.25,-0.15\n0.75,-0.25,0.25,0.25,-0.15\n0.75,-0.75,0.75,0.25,-0.15\n0.75,-0.75,0.75,0.25,-0.15\n0.75,-0.25,0.25,0.25,-0.15
 1
 1
 String
@@ -1893,7 +2003,7 @@ Use_Twitters?
 SLIDER
 384
 602
-706
+556
 635
 Ratio_of_population_listened
 Ratio_of_population_listened
@@ -1913,7 +2023,133 @@ CHOOSER
 When_include_Twitters
 When_include_Twitters
 "BEFORE identity check" "AFTER identity check"
+0
+
+CHOOSER
+515
+525
+624
+570
+Interest_Distribution
+Interest_Distribution
+"constant" "normal"
 1
+
+SLIDER
+515
+569
+624
+602
+Interest_STD
+Interest_STD
+0
+1
+0.2
+0.001
+1
+NIL
+HORIZONTAL
+
+SLIDER
+621
+558
+723
+591
+Interest_min
+Interest_min
+0.01
+0.3
+0.05
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+622
+525
+723
+558
+Interest_max
+Interest_max
+0.35
+1
+0.45
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+722
+525
+829
+558
+ingroup_threat
+ingroup_threat
+.1
+10
+1.0
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+723
+558
+868
+591
+accessibility_threshold
+accessibility_threshold
+0.1
+0.75
+0.15
+.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+830
+526
+974
+559
+threats_length
+threats_length
+7
+100
+100.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+558
+602
+730
+635
+threats_degradation
+threats_degradation
+0.01
+.99
+0.14
+0.01
+1
+NIL
+HORIZONTAL
+
+SWITCH
+733
+603
+937
+637
+Choose_dimension_by_accessibility?
+Choose_dimension_by_accessibility?
+0
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
