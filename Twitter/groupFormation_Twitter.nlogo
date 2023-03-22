@@ -147,7 +147,7 @@ to setup-agent
     set own-SPIRO get-own-SPIRO  ;; Individual sensitivity for group tightness/threshold.
     set interest-in-discussions get-interest-in-discussions  ;; Setting how many agents the agent talk to update her opinion
     set present-threats n-values Number_Of_Opinion_Dimensions [ 0 ]
-    set threats n-values Number_Of_Opinion_Dimensions [ (list ingroup_threat) ]
+    set threats n-values Number_Of_Opinion_Dimensions [ (list (10 * ingroup_threat)) ]
     set accessibilities accessibility (threats)
     get-sigmoids ;;getting sigmoid parameters for opinion and identity influence probabilities
     getColor  ;; Coloring the agents according their opinion.
@@ -156,7 +156,7 @@ end
 
 to-report accessibility [threats-list]
   ;; initializing some globals
-  let sums 0
+  let sums 1
   let accesses []
 
   ;; iterating over the list
@@ -167,6 +167,7 @@ to-report accessibility [threats-list]
   ]
 
   ;; final processing of the accesses[] into fractions of weights summing to 1:
+  if sums > 1 [set sums (sums - 1)]
   set accesses map [a -> precision (a / sums) 3] accesses
 
   ;; final reporting
@@ -408,6 +409,7 @@ to preparing-myself
   set own-previous-opinion own-opinion
 end
 
+
 ;; Routine for Twitters to set their opinion:
 ;; Note: It's accommodated from Brexit agents, for the Twitter agents it does almost not make sense,
 ;;       but let's keep it separate procedure for the easy future development.
@@ -415,7 +417,6 @@ to set-Twitter-opinion
   set own-opinion tw-position
   set own-previous-opinion own-opinion
 end
-
 
 
 
@@ -438,23 +439,20 @@ to change-opinion-HK
   if (Distance_dimensions = "Accessible") [
     let used []
     foreach chosen-dimensions [chd ->
-      if (accessibility_threshold < item chd accessibilities) [set used lput chd used]
+      if (accessibility_threshold <= item chd accessibilities) [set used lput chd used]
     ]
     if 0 = length used [
       let tickets range Number_Of_Opinion_Dimensions
       let sd 0
       foreach accessibilities [num ->
-        set tickets (sentence tickets n-values (num * 1000) [sd])
+        set tickets (sentence tickets n-values ((min_acessibility_distance + num) * 100) [sd])
         set sd (sd + 1)
       ]
       set tickets shuffle tickets
       set used remove-duplicates (sublist (shuffle tickets) 0 Number_Of_Opinion_Dimensions)
-      ;print used
     ]
     set chosen-dimensions used
-    ;if Number_Of_Opinion_Dimensions > length used [print used]
   ]
-  ;print list-subset (own-opinion) (chosen-dimensions)
 
   ;; We ask now Twitter agents to set their opinion,
   ;; it might be done after identity check or now, but later we might want use these updated
@@ -530,7 +528,7 @@ to change-opinion-HK
     let tickets chosen-dimensions
     let sd 0
     foreach chosen-dimensions [num ->
-      set tickets (sentence tickets n-values ((item num accessibilities) * 1000) [num])
+      set tickets (sentence tickets n-values ((min_acessibility_dimension + item num accessibilities) * 100) [num])
       set sd (sd + 1)
     ]
     ;print shuffle tickets
@@ -1107,7 +1105,7 @@ INPUTBOX
 905
 70
 RS
--1.444235209E9
+-1.126076721E9
 1
 0
 Number
@@ -1361,6 +1359,7 @@ PENS
 "ESBG" 1.0 0 -11221820 true "" "plot ESBG_polarisation"
 "extremness" 1.0 0 -2674135 true "" "plot extremness"
 "diversity" 1.0 0 -10899396 true "" "plot diversity"
+"accessibility" 1.0 0 -7500403 true "" "plot (sum map [l -> sum (remove 1 l)] [accessibilities] of common_agents) / Number_of_agents"
 
 SLIDER
 1147
@@ -1386,7 +1385,7 @@ Conformity_Mean
 Conformity_Mean
 0
 1
-1.0
+0.454
 0.001
 1
 NIL
@@ -1425,7 +1424,7 @@ INPUTBOX
 502
 521
 N_centroids
-3.0
+1.0
 1
 0
 Number
@@ -1505,8 +1504,8 @@ SPIRO_Mean
 SPIRO_Mean
 0
 1
-0.555
-0.001
+0.45
+0.01
 1
 NIL
 HORIZONTAL
@@ -1550,7 +1549,7 @@ ESBG_furthest_out
 ESBG_furthest_out
 0
 100
-10.0
+6.0
 1
 1
 NIL
@@ -1603,7 +1602,7 @@ Identity_Levels
 Identity_Levels
 1
 10
-2.0
+3.0
 1
 1
 NIL
@@ -1618,7 +1617,7 @@ SPIRO_STD
 SPIRO_STD
 0
 1
-0.125
+0.15
 0.001
 1
 NIL
@@ -1708,7 +1707,7 @@ Mean_Identity_Sigmoid_Steepness
 Mean_Identity_Sigmoid_Steepness
 0
 1
-0.7
+0.701
 0.001
 1
 NIL
@@ -1929,7 +1928,7 @@ Probability_Of_High_Covert_SPIRO
 Probability_Of_High_Covert_SPIRO
 0
 1
-0.41
+0.4
 0.01
 1
 NIL
@@ -1982,7 +1981,7 @@ INPUTBOX
 1096
 502
 1476
-662
+638
 Twitters_positions
 0.75,-0.25,0.25,0.25,-0.15\n0.75,-0.75,0.75,0.25,-0.15\n0.75,-0.25,0.25,0.25,-0.15\n0.75,-0.75,0.75,0.25,-0.15\n0.75,-0.75,0.75,0.25,-0.15\n0.75,-0.25,0.25,0.25,-0.15
 1
@@ -2009,7 +2008,7 @@ Ratio_of_population_listened
 Ratio_of_population_listened
 .01
 1
-0.2
+0.15
 .01
 1
 NIL
@@ -2051,10 +2050,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-621
-558
 723
-591
+525
+825
+558
 Interest_min
 Interest_min
 0.01
@@ -2074,52 +2073,52 @@ Interest_max
 Interest_max
 0.35
 1
-0.45
+0.8
 0.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-722
+825
 525
-829
+932
 558
 ingroup_threat
 ingroup_threat
 .1
 10
-1.0
+2.0
 0.1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-723
+622
 558
-868
+767
 591
 accessibility_threshold
 accessibility_threshold
-0.1
+0.01
 0.75
-0.15
+0.05
 .01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-830
-526
-974
-559
+932
+525
+1032
+558
 threats_length
 threats_length
 7
 100
-100.0
+70.0
 1
 1
 NIL
@@ -2128,28 +2127,58 @@ HORIZONTAL
 SLIDER
 558
 602
-730
+691
 635
 threats_degradation
 threats_degradation
 0.01
 .99
-0.14
+0.85
 0.01
 1
 NIL
 HORIZONTAL
 
 SWITCH
-733
-603
-937
-637
+689
+601
+900
+635
 Choose_dimension_by_accessibility?
 Choose_dimension_by_accessibility?
 0
 1
 -1000
+
+SLIDER
+767
+558
+925
+591
+min_acessibility_distance
+min_acessibility_distance
+0
+1
+0.1
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+899
+602
+1063
+635
+min_acessibility_dimension
+min_acessibility_dimension
+0
+1
+0.4
+.01
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
