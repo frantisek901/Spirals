@@ -61,15 +61,39 @@ dev.off()
 
 png(filename="step3_Extremness_Mean_vs_ESBG_Mean.png")
 plot(dependant_measures_aggregate[,1], dependant_measures_aggregate[,5],
-     main="Extremness_Mean vs Polarization_Mean for every run",
+     main="Extremness_Mean vs Polarization_Mean",
      xlab="ESBG_Mean polarization",
      ylab="Extremness_Mean")
 dev.off()
 
 png(filename="step3_Extremness_Mean_vs_Diversity_Mean.png")
 plot(dependant_measures_aggregate[,3], dependant_measures_aggregate[,5],
-     main="Extremness_Mean vs Diversity_Mean for every run",
+     main="Extremness_Mean vs Diversity_Mean",
      xlab="Diversity_Mean",
      ylab="Extremness_Mean")
+dev.off()
+
+
+
+png(filename="step3_ESBG_SD_vs_ESBG_Mean.png")
+plot(dependant_measures_aggregate[,1], dependant_measures_aggregate[,2],
+     main="ESBG_SD vs ESBG_Mean",
+     xlab="ESBG_Mean",
+     ylab="ESBG_SD")
+dev.off()
+
+png(filename="step3_Extremeness_SD_vs_Extremeness_Mean.png")
+plot(dependant_measures_aggregate[,5], dependant_measures_aggregate[,6],
+     main="Extremeness_SD vs Extremeness_Mean",
+     xlab="Extremeness_Mean",
+     ylab="Extremeness_SD")
+dev.off()
+
+
+png(filename="step3_Diversity_SD_vs_Diversity_Mean.png")
+plot(dependant_measures_aggregate[,3], dependant_measures_aggregate[,4],
+     main="Diversity_SD vs Diversity_Mean",
+     xlab="Diversity_Mean",
+     ylab="Diversity_SD")
 dev.off()
 
