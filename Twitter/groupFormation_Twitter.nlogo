@@ -14,16 +14,17 @@
 ;;
 
 
-extensions [nw matrix table csv]
+extensions [nw matrix table csv rnd]
 
 breed [centroids centroid]
 breed [Twitters Twitter]
 undirected-link-breed [l-distances l-distance]
+undirected-link-breed [partners partner]
 l-distances-own [l-weight]
 
 turtles-own [own-opinion own-previous-opinion own-boundary own-conformity own-SPIRO own-WhichGroupHasEachSPIROSortedMeIn own-group-number own-distance-to-centroid
   own-opinion-sigmoid-xOffset own-opinion-sigmoid-steepness own-opinion-dice? own-identity-sigmoid-xOffset own-identity-sigmoid-steepness own-identity-dice? nei-size
-  interest-in-discussions present-threats threats accessibilities]
+  discussion-capacity present-threats threats accessibilities]
 centroids-own [last-position] ;; because of sticking to HK and also compatibility with previous results and algorithm for finding final position of group centroids, we need two variables for previous/last position, also, unsystematically, during the centroid position we have to copy 'last-position' to 'own-previous-position', since some 'distance' procedures finds opinions by themselves.
 Twitters-own [ID tw-position]
 
@@ -50,7 +51,8 @@ to setup
   if Use_Twitters? and Number_Of_Opinion_Dimensions > length csv:from-string Twitters_positions [print "You specified less dimensions for Twitters than needed for simulation" stop]
 
   ;; Then we migh initialize agents/turtles
-  crt Number_Of_Agents [setup-agent]
+  nw:generate-watts-strogatz turtles partners Number_Of_Agents (permanent_partners / 2) rewiring [setup-agent]
+  if not create_permanent_partners? [ask links [die]]
   set common_agents (turtle-set turtles)
 
   ;; Now, when we establish 'normal' agents, we might create Twitters -- always comunicating agents,
@@ -145,7 +147,7 @@ to setup-agent
     set own-conformity get-conformity  ;; setting individual conformity level, and ...
     set own-boundary get-HK-boundary  ;;... setting value of HK boundary.
     set own-SPIRO get-own-SPIRO  ;; Individual sensitivity for group tightness/threshold.
-    set interest-in-discussions get-interest-in-discussions  ;; Setting how many agents the agent talk to update her opinion
+    set discussion-capacity get-discussion-capacity  ;; Setting how many agents the agent talk to update her opinion
     set present-threats n-values Number_Of_Opinion_Dimensions [ 0 ]
     set threats n-values Number_Of_Opinion_Dimensions [ (list (10 * ingroup_threat)) ]
     set accessibilities accessibility (threats)
@@ -426,8 +428,12 @@ to change-opinion-HK
   ;; but here we employ Mike's idea of pre-selection of agents, i.e. we at the very beginig make
   ;; selection of sample/fraction from whole population of agents. This gives higher voice to
   ;; Twitter agents, because they are listened always.
-  let called_N round (Ratio_of_population_listened * (Number_Of_Agents - 1))
-  let neighbs n-of called_N other common_agents
+  let called_N round (discussion-capacity * (Number_Of_Agents - 1))
+
+  ;; This is choosing according distance!
+  let neighbs rnd:weighted-n-of called_N other common_agents [((1 - opinion-distance (ifelse-value (Use_Present_Opinion?) [own-opinion][own-previous-opinion]) ([own-opinion] of myself) (false)) * delta) ^ alpha]
+  if create_permanent_partners? [set neighbs (turtle-set neighbs partner-neighbors)]  ;; adding cordial parners/communicators
+
   let agents-of-different-identity 0
   let disagreeing-agents-of-same-identity 0
 
@@ -855,7 +861,7 @@ end
 
 
 ;; Sub-routine for assigning value of interest-in-discussions
-to-report get-interest-in-discussions
+to-report get-discussion-capacity
   ;; Temporary variable firstly...
   let iValue 0
 
@@ -1068,7 +1074,7 @@ Number_Of_Opinion_Dimensions
 Number_Of_Opinion_Dimensions
 1
 10
-2.0
+1.0
 1
 1
 NIL
@@ -1105,7 +1111,7 @@ INPUTBOX
 905
 70
 RS
--1.126076721E9
+1.264424742E9
 1
 0
 Number
@@ -1117,7 +1123,7 @@ SWITCH
 43
 set-seed?
 set-seed?
-1
+0
 1
 -1000
 
@@ -1292,7 +1298,7 @@ Y-opinion
 Y-opinion
 1
 10
-2.0
+1.0
 1
 1
 NIL
@@ -1385,7 +1391,7 @@ Conformity_Mean
 Conformity_Mean
 0
 1
-0.454
+0.8
 0.001
 1
 NIL
@@ -1424,7 +1430,7 @@ INPUTBOX
 502
 521
 N_centroids
-1.0
+2.0
 1
 0
 Number
@@ -1449,7 +1455,7 @@ PLOT
 106
 1282
 226
-'Interest' Distribution
+'Capacity' Distribution
 NIL
 NIL
 0.0
@@ -1460,7 +1466,7 @@ true
 false
 "" ""
 PENS
-"default" 0.05 1 -16777216 true "" "histogram [interest-in-discussions] of common_agents"
+"default" 0.05 1 -16777216 true "" "histogram [discussion-capacity] of common_agents"
 
 MONITOR
 933
@@ -1504,7 +1510,7 @@ SPIRO_Mean
 SPIRO_Mean
 0
 1
-0.45
+0.46
 0.01
 1
 NIL
@@ -1549,7 +1555,7 @@ ESBG_furthest_out
 ESBG_furthest_out
 0
 100
-6.0
+1.0
 1
 1
 NIL
@@ -1647,7 +1653,7 @@ Boundary_STD
 Boundary_STD
 0
 1
-0.065
+0.121
 0.001
 1
 NIL
@@ -1904,7 +1910,7 @@ SWITCH
 111
 Use_Identity?
 Use_Identity?
-0
+1
 1
 -1000
 
@@ -1975,7 +1981,7 @@ CHOOSER
 Distance_dimensions
 Distance_dimensions
 "All" "Updated" "Accessible"
-2
+0
 
 INPUTBOX
 1096
@@ -1995,7 +2001,7 @@ SWITCH
 558
 Use_Twitters?
 Use_Twitters?
-0
+1
 1
 -1000
 
@@ -2006,7 +2012,7 @@ SLIDER
 635
 Ratio_of_population_listened
 Ratio_of_population_listened
-.01
+.0
 1
 0.15
 .01
@@ -2043,7 +2049,7 @@ Interest_STD
 Interest_STD
 0
 1
-0.2
+0.1
 0.001
 1
 NIL
@@ -2058,7 +2064,7 @@ Interest_min
 Interest_min
 0.01
 0.3
-0.05
+0.01
 0.01
 1
 NIL
@@ -2143,10 +2149,10 @@ SWITCH
 689
 601
 900
-635
+634
 Choose_dimension_by_accessibility?
 Choose_dimension_by_accessibility?
-0
+1
 1
 -1000
 
@@ -2179,6 +2185,77 @@ min_acessibility_dimension
 1
 NIL
 HORIZONTAL
+
+SLIDER
+386
+658
+558
+691
+delta
+delta
+0.25
+10
+2.5
+0.25
+1
+NIL
+HORIZONTAL
+
+SLIDER
+557
+658
+729
+691
+alpha
+alpha
+0.01
+10
+0.9
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+386
+691
+558
+724
+permanent_partners
+permanent_partners
+2
+20
+4.0
+2
+1
+NIL
+HORIZONTAL
+
+SLIDER
+558
+691
+730
+724
+rewiring
+rewiring
+0
+1
+0.0
+0.01
+1
+NIL
+HORIZONTAL
+
+SWITCH
+730
+691
+909
+724
+create_permanent_partners?
+create_permanent_partners?
+0
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
