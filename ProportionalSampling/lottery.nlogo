@@ -92,9 +92,9 @@ Wiinings over size
 NIL
 NIL
 0.0
-1.0
-0.0
-10.0
+1.1
+30000.0
+40000.0
 true
 false
 "" "clear-plot"
@@ -110,7 +110,7 @@ alpha
 alpha
 0.01
 10.01
-10.01
+0.01
 0.1
 1
 NIL
@@ -125,7 +125,7 @@ delta
 delta
 0
 9.9
-9.9
+1.0
 0.1
 1
 NIL
