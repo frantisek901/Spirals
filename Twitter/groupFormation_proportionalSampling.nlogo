@@ -950,7 +950,7 @@ Number_Of_Opinion_Dimensions
 Number_Of_Opinion_Dimensions
 1
 10
-1.0
+2.0
 1
 1
 NIL
@@ -987,7 +987,7 @@ INPUTBOX
 905
 70
 RS
-1.264424742E9
+2.055479967E9
 1
 0
 Number
@@ -1174,7 +1174,7 @@ Y-opinion
 Y-opinion
 1
 10
-1.0
+2.0
 1
 1
 NIL
@@ -1385,7 +1385,7 @@ SPIRO_Mean
 SPIRO_Mean
 0
 1
-0.63
+0.5
 0.01
 1
 NIL
@@ -1430,7 +1430,7 @@ ESBG_furthest_out
 ESBG_furthest_out
 0
 100
-1.0
+5.0
 1
 1
 NIL
@@ -1444,7 +1444,7 @@ CHOOSER
 SPIRO_Distribution
 SPIRO_Distribution
 "constant" "uniform" "normal" "covert"
-3
+2
 
 PLOT
 1282
@@ -1483,7 +1483,7 @@ Identity_Levels
 Identity_Levels
 1
 10
-3.0
+10.0
 1
 1
 NIL
@@ -1528,7 +1528,7 @@ Boundary_STD
 Boundary_STD
 0
 1
-0.121
+0.1
 0.001
 1
 NIL
@@ -1573,7 +1573,7 @@ STD_Opinion_Sigmoid_Steepness
 STD_Opinion_Sigmoid_Steepness
 0
 1
-0.099
+0.1
 0.001
 1
 NIL
@@ -1618,7 +1618,7 @@ Minimum_SPIRO
 Minimum_SPIRO
 0
 0.5
-0.5
+0.05
 0.01
 1
 NIL
@@ -1633,7 +1633,7 @@ Maximum_SPIRO
 Maximum_SPIRO
 0.55
 1
-0.9
+0.95
 0.01
 1
 NIL
@@ -1685,7 +1685,7 @@ STD_Identity_Sigmoid_xOffset
 STD_Identity_Sigmoid_xOffset
 0
 1
-0.101
+0.102
 0.001
 1
 NIL
@@ -1785,7 +1785,7 @@ SWITCH
 111
 Use_Identity?
 Use_Identity?
-1
+0
 1
 -1000
 
@@ -1867,7 +1867,7 @@ Ratio_of_population_listened
 Ratio_of_population_listened
 .0
 1
-0.1
+0.16
 .01
 1
 NIL
@@ -1881,7 +1881,7 @@ CHOOSER
 Interest_Distribution
 Interest_Distribution
 "constant" "normal"
-1
+0
 
 SLIDER
 407
@@ -1952,7 +1952,7 @@ alpha
 alpha
 0.01
 10
-0.01
+5.99
 0.01
 1
 NIL
@@ -1967,7 +1967,7 @@ permanent_partners
 permanent_partners
 2
 20
-2.0
+16.0
 2
 1
 NIL
@@ -2017,10 +2017,10 @@ NIL
 1
 
 BUTTON
-1001
-525
-1096
-558
+1000
+524
+1095
+557
 Show LINKS
 \nask links [set hidden? FALSE]
 NIL
