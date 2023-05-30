@@ -295,9 +295,9 @@ heat_map_facet = function(.data = tm, .var = "ESBG_mean", .x = "SPIRO_Mean", .y 
   # .Boundary_STD = eval(str2lang(.facet))
   .data %>%
     ggplot() +
-    aes(x = eval(str2lang(.x)), y = eval(str2lang(.y)), col = eval(str2lang(.var)),
-        label = round(eval(str2lang(.var)), 2)) +
-    facet_wrap(vars(Boundary_STD), nrow = 1, labeller = "label_both") +
+    aes(x = eval(str2lang(.var)), y = eval(str2lang(.y)), col = eval(str2lang(.var)),
+        label = round(Boundary_STD, 2)) +
+    facet_wrap(vars(eval(str2lang(.x))), nrow = 1, labeller = "label_both") +
     geom_point(shape = 15, size = 9) +
     geom_text(color = "black", size = 2.5) +
     scale_color_viridis_c() +
@@ -323,7 +323,7 @@ tm = ts %>%
 heat_map_facet(.var = "ESBG_sd") %>%
   ggsave("Pics/s03map32.png", plot = ., units = "cm", height = .height, width = .width)
 heat_map_facet(.var = "ESBG_mean") %>%
-  ggsave("Pics/s03map31.png", plot = ., units = "cm", height = .height, width = .width)
+  ggsave("Pics/s03map31alt.png", plot = ., units = "cm", height = .height, width = .width)
 heat_map_facet(.var = "extremness_sd") %>%
   ggsave("Pics/s03map34.png", plot = ., units = "cm", height = .height, width = .width)
 heat_map_facet(.var = "extremness_mean") %>%

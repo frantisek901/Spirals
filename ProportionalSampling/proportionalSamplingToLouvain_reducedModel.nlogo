@@ -83,7 +83,7 @@ to setup
 
   ;; Setting identity levels according identity scenario:
   (ifelse
-    Use_Identity? and Identity_Type = "individual" [
+    Use_Identity? and (Identity_Type = "individual" or Identity_Type = "simple Louvain" ) [
       ;; If we use 'individual' perceptions of identity groups, we have to set up levels of identity sensitivity:
       if Identity_Levels = 1 [set Maximum_SPIRO SPIRO_Mean]
       compute-identity-thresholds
@@ -329,7 +329,7 @@ to prepare-everything-for-the-next-step
   ;; Update group identities via Louvain -- only if we use group identity.
   if Use_Identity? [
     update-l-distances-weights
-    set-group-identities
+    if Identity_type != "simple Louvain" [set-group-identities]
   ]
 
   ;; Coloring and updating
@@ -373,23 +373,34 @@ to change-opinion-HK
   ;; If we use identity, we check distance of group centroids of NEIGHBS and filter them out.
   ;; In case we dont't use identity, them NEIGHBS are still all other agents.
   if Use_Identity? [
-    ;; Identity check -- preparation of myself from global variables:
-    let my-group-id table:get own-WhichGroupHasEachSPIROSortedMeIn own-SPIRO
-    let distance-matrix table:get Distance-matrices own-SPIRO
-    let group-info table:get IDs-and-ns-of-id-groups own-SPIRO  ;; NOTE: the first value in the list is number of groups, second/last is the lowest ID of group centroid.
-    let my-i (my-group-id - last group-info)  ;; 'my-i' is distance matrix column we want to use, so we subtract group ID of myself from minimal group ID in respective level
+    ifelse Identity_type = "simple Louvain"[
 
-    ;; Sigmoid code:
-    ask other agents [
-      ;; Firstly, each neighbor has to find 'her-j', i.e. distance matrix row for identity check:
-      let her-group-id table:get own-WhichGroupHasEachSPIROSortedMeIn [own-SPIRO] of myself
-      let her-j  (her-group-id - last group-info)   ;; 'her-j' is distance matrix row we want to use, so we subtract group ID of self from minimal group ID in respective level
+      ;; Detection of clusters via Louvain: Detection itself
+      nw:set-context (turtle-set neighbs self) l-distances with [l-weight >= [own-SPIRO] of myself]  ;; For starting centroids we take into account only not loosely connected agents, but later we set groups for all.
+      let communities nw:louvain-communities
+      ask other agents [set own-identity-dice? false]
+      foreach communities [x ->
+        let y (member? self x)
+        if y [ask x [set own-identity-dice? true]]
+      ]
+    ][
+      ;; Identity check -- preparation of myself from global variables:
+      let my-group-id table:get own-WhichGroupHasEachSPIROSortedMeIn own-SPIRO
+      let distance-matrix table:get Distance-matrices own-SPIRO
+      let group-info table:get IDs-and-ns-of-id-groups own-SPIRO  ;; NOTE: the first value in the list is number of groups, second/last is the lowest ID of group centroid.
+      let my-i (my-group-id - last group-info)  ;; 'my-i' is distance matrix column we want to use, so we subtract group ID of myself from minimal group ID in respective level
 
-      ;; Secondly, we roll the identity dice...
-      let our-distance matrix:get distance-matrix my-i her-j  ;; After all the computations we finally get distance of centroids from distance matrix...
-      roll-identity-dice (our-distance)
+      ;; Sigmoid code:
+      ask other agents [
+        ;; Firstly, each neighbor has to find 'her-j', i.e. distance matrix row for identity check:
+        let her-group-id table:get own-WhichGroupHasEachSPIROSortedMeIn [own-SPIRO] of myself
+        let her-j  (her-group-id - last group-info)   ;; 'her-j' is distance matrix row we want to use, so we subtract group ID of self from minimal group ID in respective level
+
+        ;; Secondly, we roll the identity dice...
+        let our-distance matrix:get distance-matrix my-i her-j  ;; After all the computations we finally get distance of centroids from distance matrix...
+        roll-identity-dice (our-distance)
+      ]
     ]
-
     ;; Now we set successful AGENTS as NEIGHBS:
     set neighbs other agents with [own-identity-dice?]
     if show_dice_rolls? [print (word "Identity: " count neighbs)]
@@ -681,8 +692,8 @@ to-report get-own-SPIRO
   if SPIRO_Distribution = "uniform" [set gtValue ifelse-value (SPIRO_Mean < 0.5)
                                                            [precision (random-float (2 * SPIRO_Mean)) 3]
                                                            [precision (1 - (random-float (2 * (1 - SPIRO_Mean)))) 3]]
-  if SPIRO_Distribution = "normal" [ set gtValue precision (random-normal SPIRO_Mean SPIRO_STD) 3
-                                  while [gtValue > 1 or gtValue < 0] [ set gtValue precision (random-normal SPIRO_Mean SPIRO_STD) 3]
+  if SPIRO_Distribution = "normal" or SPIRO_Distribution = "simple Louvain"[ set gtValue precision (random-normal SPIRO_Mean SPIRO_STD) 3
+                                                                             while [gtValue > 1 or gtValue < 0] [ set gtValue precision (random-normal SPIRO_Mean SPIRO_STD) 3]
   ]
   report gtValue
 end
@@ -1459,8 +1470,8 @@ CHOOSER
 233
 SPIRO_Distribution
 SPIRO_Distribution
-"constant" "uniform" "normal" "covert"
-0
+"constant" "uniform" "normal" "simple Louvain" "covert"
+2
 
 PLOT
 1129
@@ -1487,8 +1498,8 @@ CHOOSER
 188
 Identity_Type
 Identity_Type
-"global" "individual" "covert"
-0
+"global" "individual" "covert" "simple Louvain"
+3
 
 SLIDER
 91
@@ -1514,7 +1525,7 @@ SPIRO_STD
 SPIRO_STD
 0
 1
-0.0
+0.43
 0.001
 1
 NIL
@@ -1692,7 +1703,7 @@ permanent_partners
 permanent_partners
 2
 30
-16.0
+4.0
 2
 1
 NIL
@@ -1707,7 +1718,7 @@ rewiring
 rewiring
 0
 0.5
-0.1
+0.0
 0.01
 1
 NIL
@@ -1758,7 +1769,7 @@ Capacity_STD
 Capacity_STD
 0
 0.5
-0.05
+0.0
 0.01
 1
 NIL
