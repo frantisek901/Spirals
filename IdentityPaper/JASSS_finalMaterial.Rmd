@@ -1,0 +1,255 @@
+---
+title: 'SOM: Analysis  of model building blocks usefulness'
+author:
+- name: František Kalvas
+  url: https://github.com/frantisek901/Spirals/Experiment
+  affiliation: Department of Sociology, University of West Bohemia in Pilsen
+  affiliation_url: https://les.zcu.cz
+date: "2023-02-27"
+output:
+  word_document:
+    toc: yes
+    toc_depth: '4'
+  html_document:
+    toc: yes
+    toc_float: yes
+    toc_depth: 4
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+## Encoding: UTF-8
+## Created:  2023-02-09 FrK
+## Edited:   2023-02-27 FrK
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Edits  
+
+## 2023-02-18  
+
+I woke up and felt the urge consult with you 3 more graphs :-( and during their preparation I made also one more regression table...
+
+  1) just for the sake of consistency I tried to do The Graph without panels, i.e. even classy HK aggregated over 4 conditions -- but it sucks, but just have a look...
+  2) for the sake of consistency I did Graphs 2 & 3 also from Step 4 data (Normal SPIRO) -- it's because accompanying regression was made from Step 4 data and showed secondary/neglect-able effect of SPIRO_STD, so I think if we decide to show regression as support for our main title "Identity causes polarization" we should use graphs 2 & 3 produced from same data
+  3) for the sake of consistency I prepared also regression analysis/table from Step 3 data in case we really want: (a) use Graph 2 & 3 based on Step 3 data and (b) we want to show regression table  
+  
+I have to tell you, that I did these 7 extra graphs and 2 regression tables just for our comfort, I'm OK if we find a way how not to use any of them and throw everything to garbage (or real SOM).   
+
+
+## 2023-02-17
+
+We produced with Ashwin 4 more graphs :-( and one regression table :-(((  
+
+  - I don't feel comfortable that we titled paper 'Identity drives polarization: Advancing of HK by identity groups' and so far we proved clearly that this advancements make sense. So, I wanted to show in simple and parsimonious manner that it is identity/SPIRO that makes difference. So we produced the second and third graph. We might discuss it, probably the second is not needed, probably just the third shows that regardless the value of Boundary, SPIRO around 0.61 compresses all simulation to ESBG value around 0.45.
+  - I prepared regression table, just simple models, no models comparisons, showing that SPIRO_Mean and Boundary_STD makes bigger difference than Boundary_Mean and SPIRO_STD.
+  - Finally, we prepared in extra section two graphs addressing surprising effect of random seeds on classy HK that should be fully deterministic -- they show that majority of ESBG osculation is the case that ESBG algorithm is not fully deterministic, so the random seeds influenced the measure this way; we made same graphs for extremness and diversity and they show only three or four spikes of SD, rest is 0  
+  
+  
+## 2023-02-13
+
+I focused only on ESBG output measure, since the other measures bring same results and we have not use them in The Graph already. 
+I prepared more extra material for future SOM -- more detailed comparisons of consecutive steps.
+
+
+## 2023-02-12
+
+When I was working on restructuring of material according meeting with Ashwin, I spotted some strange results -- we expect no difference in subsets of two consecutive steps and we also expect no effect of running classy HK under different random seeds, but I spotted differences. So I prepared new headline `Strange results` and I reported these strange results there in detail.  
+
+
+## 2023-02-10
+
+After meeting with Ashwin we:
+
+  a) tip main table (contents probably too details, but it is The Table)
+  b) tip main graph
+  c) simplify supporting series of t-Tests (it remains probably supporting online material also after reduction of this supporting content)
+  d) the rest of material is clearly coined under the headline `Extra material` as rest of material prepared so far  
+  
+I moved The Graph and The Table forward, then supporting series o t-Tests, and all the other material, just for our discussions purposes I moved at the very end of page.   
+
+
+# Introduction  
+
+This page supports our paper written for Social Simulation Conference 2022 Proceedings planed to be published in Springer. In this paper we focus on our advancements of classical Hegselmann and Krause (2002) model of public opinion dynamics, so called bounded confidence model. Our major advancement is group identity -- agents observe opinion of others and according their position in opinion space they come into conclusion: (a) which identity groups exist, (b) to which identity group agent belongs and (c) take into account only opinions from their identity group. Here we investigate the usefulness of such an advancement. Now let us read data in! 
+
+
+```{r message=FALSE}
+# Clearing all
+rm(list=ls())
+
+# Packages:
+library(tidyverse)
+library(readr)
+library(dplyr)
+library(tibble)
+library(forcats)
+library(ggplot2)
+library(rstatix)
+library(stringr)
+library(knitr)
+library(kableExtra)
+library(stargazer)
+
+#### Reading data in:
+# source("SOM_loading.R")
+load("SOM.RData")
+
+```
+
+We will carefully add small advancements step after step until reaching full advanced model. All models share same properties: they operate only on 1D opinion space (our model is able to operate in more dimensions, but here we love to show differences despite we stay in classical 1D opinion space); all steps use just 2 values of parameter which we love to call `Conformity`, but in classical HK model it is coined \beta, i.e. the speed with which agent moves toward seen consensus; all steps use 21 values of key parameter `Boundary` (from 0.1 to 0.3 with step 0.01); lastly, all steps operate on populations of 100 or 101 agents. Each model/step we run for 60 random seeds per each combination of parameters, the exception is classy HK since there is no space for randomness, it is fully deterministic model, so this model we ran just once per each parameters combination and that leaded to 84 runs, next step, just with one random parameter added we ran 5040 times. Let's review each advancement in detail, each step differs from previous in some tiny detail:   
+  
+  0) We start with HK model in its classy shape -- model uses only above stated common parameters and is the only one which starts from standardized position: agents populates at the start the opinion dimension with even gaps from minimal pole to maximal pole (in classy HK it's 101 agents with opinion from 0 to 1 with step 0.01 -- we apply scale from -1 to +1, so in case of 101 agents the gap is 0.02, in case of 100 agents our gap is 0.0202... in HK case 0.0101...). As we are showing in another paper (in progress), the structure start in this step produces interesting sensitive effect: level of polarization depends differently on `Boundary` if the population is 101 or 100, in the mentioned paper we show that the case is in the evenness or oddness of the population size, here we just tease you for our next paper that we are able to show that 100 vs 101 is much bigger difference than 20 vs 100 vs 200 vs 1000 (alternatively 20 vs 100 vs 200 vs 1000). So that's why we focus just on these sizes 100 and 101 since they capture the most significant difference in terms of population size.
+  1) Then we take classy HK and just randomize start position, initial opinion is randomly uniformely generated from -1 to +1, the granularity is 0.001, so the 2001 values are possible, enough empty space for 100 or 101 agents.
+  2) Then we randomly normal disrtribute parameter `Boundary` over agents, i.e. population shares mean and SD, but each agent differs, we use 4 values of SD for `Boundary` SD = {0, 0.05, 0.1, 0.15}. We also randomly normal vary `Conformity`/`\beta`, but since this parameter is not that much important (as our detailed analyses showed), we use only 2 values of SD = {0, 0.1}.
+  3) Then we introduce group identity by parameter `SPIRO` constant over whole population/all agents. We use following six `SPIRO` values {0.25, 0.37, 0.49, 0.61, 0.73, 0.85}.
+  4) Finally, we randomly (normal distribution) vary the `SPIRO`parameter over agents around same mean as we used in previous step; we again use 4 values of SD for `SPIRO` SD = {0, 0.05, 0.1, 0.15}.  
+  
+Here is number of individual simulation runs per each step:  
+
+```{r}
+count(tc, Step) %>%# kable()
+# dt %>%
+  kbl(caption = "Recreating booktabs style table") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+```
+
+# Comparisons  
+
+## Summary statistics for each step  
+
+Let's start easy -- ESBG's (key output variable) summary statistics for each step:  
+  
+```{r}
+# Comparison of summary statistics:
+tc %>% 
+  group_by(Step) %>% get_summary_stats(ESBG) %>% kable(digits = 3)
+
+```
+
+COOL! It's evident that each step differs! We see it in case of all three output measures. ESBG, Extremeness and Diversity mean and also median are much higher in Steps 3 & 4, i.e. steps which include identity (`SPIRO` parameter). It is apparent that employment of identity in the model increased polarization in resulting state after end of simulations, evidently, mere use of identity increases polarization.  
+
+Besides this we see that random normal variation of `Boundary` across population around common mean decreases polarization. So, employment of random variation of Boundary decreased polarization, and then consecutive employment of identity increased polarization and increased it way off the level of the original model.  
+
+
+## Key graph -- The Graph  
+
+We might ask whether we could generalize the results from the table to whole parameter space, or they are valid only for some part of it. Now we can inspect it visually, in the graph. We visualize there resulting polarization (`ESBG`) in each simulation run of classy HK and mean ESBG for other steps. We always aggregate to one data point all simulations that share parameters with respective classy HK run (number of simulations aggregated towards classy HK simulation depends on the step, in Step 1 it is 60, in Step 2 it is 960, in Step 3 it is 5,760 and lastly, in Step 4 it is 23,040).   
+
+Note: Just for detective purposes I simulated very smooth data for classy HK, for Boundary from 0.1 to 0.3, but with the step 0.001, so 10 times smoother than in the rest of the experiment. I would do even smoother step, but it makes no sense -- smallest delta of opinion is 0.001, so the smoother step of Boundary can't be recognized in such 'rough' world.   
+
+```{r message=FALSE, fig.width=10, fig.height=8}
+tcs = tc %>% 
+  # ts10s %>%  
+  # add_row(tc %>% filter(Step != "Classical HK")) %>% 
+  group_by(Conformity, N, Boundary, Step) %>%
+  summarise(across(diversity:ESBG, list(mean = mean, sd = sd))) %>%
+  ungroup()
+
+tcs %>%
+  ggplot() +
+  aes(y = ESBG_mean, x = Boundary, group = Step, col = Step) +
+  facet_grid(cols = vars(N), rows = vars(Conformity), scales = "fixed", labeller = "label_both") +
+  geom_hline(yintercept = 0, linewidth = 0.75, color = "grey") +
+  geom_vline(xintercept = 0.16, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
+  # geom_vline(xintercept = 0.194, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
+  geom_vline(xintercept = 0.2, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
+  geom_vline(xintercept = 0.25, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
+  geom_line(linewidth = 2, alpha = 0.4) +
+  geom_point(alpha = 0.7, size = 1.5) +
+  scale_x_continuous(breaks = seq(0.1, 0.3, 0.02)) +
+  scale_y_continuous(breaks = seq(0, 0.4, 0.05)) +
+  labs(title = "Comparison of analysis/model steps", 
+       x = "Boundary/Opennes to different opinions",
+       caption = "Note: Just for sure I made many classy HK with the smoothest Boundary step 0.001, so we might see that glitches happens always, but with tiny differences of exact Boundary value.") +
+  theme_light() +
+  theme(legend.position = "bottom")
+
+```
+
+The most surprising result brought by the smooth classy HK is the 'Glitches' are not exclusive for just  one panel (N = 101, Conformity = 0.8). This panel is just only one where the glitch happens for 2 digit value of `Boundary` -- in other panels the glitches also happen, but they happen there for three digit values (e.g. Boundary = 0.194, N = 100, Conformity = 0.8). 
+
+
+## Two extra graphs  
+
+Probably just one needed...   
+
+### Graph 2 from Step 4 data (random-normal SPIRO)
+
+```{r message=FALSE, fig.width=10, fig.height=8}
+tcs = tc %>% filter(Step == "Normal SPIRO, Normal Boundary") %>% 
+  group_by(SPIRO_Mean, Boundary_STD, Boundary) %>%
+  summarise(across(diversity:ESBG, list(mean = mean, sd = sd))) %>%
+  ungroup()
+
+tcs %>%
+  ggplot() +
+  aes(y = ESBG_mean, x = Boundary, group = SPIRO_Mean, col = SPIRO_Mean) +
+  facet_wrap(vars(Boundary_STD), scales = "fixed", labeller = "label_both") +
+  geom_hline(yintercept = 0, linewidth = 0.75, color = "grey") +
+  geom_vline(xintercept = 0.16, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
+  geom_vline(xintercept = 0.194, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
+  geom_vline(xintercept = 0.25, linewidth = 0.75, color = "steelblue", alpha = 0.4) +
+  geom_line(linewidth = 2, alpha = 0.4) +
+  geom_point(alpha = 0.7, size = 1.5) +
+  scale_x_continuous(breaks = seq(0.1, 0.3, 0.02)) +
+  scale_y_continuous(breaks = seq(0, 0.5, 0.05)) +
+  labs(title = "Comparison of analysis/model steps", 
+       x = "Boundary/Opennes to different opinions") +
+  theme_light() +
+  theme(legend.position = "bottom")
+
+```
+
+
+### Graph 3 from Step 4 data (random-normal SPIRO)
+
+```{r message=FALSE, fig.width=10, fig.height=8}
+tcs = tc %>% filter(Step == "Normal SPIRO, Normal Boundary", Boundary %in% c(0.1, 0.15, 0.2, 0.25, 0.3)) %>% 
+  group_by(SPIRO_Mean, Boundary_STD, Boundary) %>%
+  summarise(across(diversity:ESBG, list(mean = mean, sd = sd))) %>%
+  ungroup() %>%
+  mutate(Boundary = factor(Boundary))
+
+tcs %>%
+  ggplot() +
+  aes(y = ESBG_mean, group = Boundary, x = as.numeric(as.character(SPIRO_Mean)), col = Boundary) +
+  facet_wrap(vars(Boundary_STD), scales = "fixed", labeller = "label_both") +
+  geom_hline(yintercept = 0, linewidth = 0.75, color = "grey") +
+  geom_line(linewidth = 2, alpha = 0.4) +
+  geom_point(alpha = 0.7, size = 1.5) +
+  scale_x_continuous(breaks = seq(0.25, 0.85, 0.12)) +
+  scale_y_continuous(breaks = seq(0, 0.55, 0.05)) +
+  labs(title = "Comparison of analysis/model steps") +
+  theme_light() +
+  theme(legend.position = "bottom")
+
+```
+
+
+## Regression table  
+
+No model comparisons, just plain model built on Step 4 data, no models comparisons.  
+  
+```{r results='asis', warning=FALSE}
+tc4 = tc %>% filter(Step == "Normal SPIRO, Normal Boundary", Boundary %in% c(0.1, 0.15, 0.2, 0.25, 0.3)) %>% 
+  select(HK_distribution, SPIRO_Mean:Conformity_STD, diversity:ESBG) %>% 
+  mutate(across(N:Conformity_STD, ~factor(.x)))
+
+mE = lm(ESBG ~ SPIRO_STD + SPIRO_Mean + Boundary_STD + Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
+# md = lm(diversity ~ SPIRO_STD + SPIRO_Mean + Boundary_STD + Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
+# me = lm(extremness ~ SPIRO_STD + SPIRO_Mean + Boundary_STD + Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
+
+stargazer(mE, type = 'html')
+
+coef(summary(mE)) %>% 
+  knitr::kable(digits = 3)
+
+
+
+```
+
+We might see that Boundary_STD has bigger effect than Boundary, but SPIRO_STD has smaller effect than SPIRO_Mean. Just now, just from the first sight on ESBG model, it seems to me that the biggest and primary effect have SPIRO_Mean and Boundary_STD, then secondary have SPIRO_STD and HK_distribution others are neglect-able.  
+ 
+ 

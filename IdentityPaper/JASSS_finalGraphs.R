@@ -1,12 +1,11 @@
-#### Script for producing final graphs:
-#### We want to add greek letters through LaTeX
+#### Script for producing final graphs and tables for JASSS paper
 
 ## Encoding: windows-1250
 ## Created:  2023-03-01 FrK
-## Updated:  2023-03-02 FrK
+## Updated:  2023-08-04 FrK
 
 ## NOTES:
-## Script does just graphs, nothing else!
+## Script does just graphs and tables, nothing else!
 
 
 
@@ -86,7 +85,7 @@ ggsave("SelectedPics/figure1.svg", units = "mm", height = 73, width = 122)
 # Fig.2 -------------------------------------------------------------------
 
 # Data preparation
-tcs = tc %>% filter(Step == "Normal SPIRO, Normal Boundary") %>%
+tcs = tc %>% filter(Step == "Constant SPIRO, Normal Boundary") %>%
   mutate(Boundary_STD = recode(Boundary_STD, `0` = r"($\sigma_{\epsilon} = 0$)", `0.05` = r"($\sigma_{\epsilon} = 0.05$)",
                                `0.1` = r"($\sigma_{\epsilon} = 0.10$)", `0.15` = r"($\sigma_{\epsilon} = 0.15$)")) %>%
   group_by(SPIRO_Mean, Boundary_STD, Boundary) %>%
@@ -118,7 +117,7 @@ tcs %>%
          axis.title = element_text(size = 9))
 
 # Saving
-ggsave("SelectedPics/figure2.png", units = "mm", height = 73, width = 122)
+ggsave("SelectedPics/figure2.png", units = "mm", height = 146, width = 122)
 ggsave("SelectedPics/figure2.svg", units = "mm", height = 73, width = 122)
 
 
@@ -126,7 +125,7 @@ ggsave("SelectedPics/figure2.svg", units = "mm", height = 73, width = 122)
 # Fig.3 -------------------------------------------------------------------
 
 # Data preparation
-tcs = tc %>% filter(Step == "Normal SPIRO, Normal Boundary", Boundary %in% c(0.1, 0.15, 0.2, 0.25, 0.3)) %>%
+tcs = tc %>% filter(Step == "Constant SPIRO, Normal Boundary", Boundary %in% c(0.1, 0.15, 0.2, 0.25, 0.3)) %>%
   mutate(Boundary_STD = recode(Boundary_STD, `0` = r"($\sigma_{\epsilon} = 0$)", `0.05` = r"($\sigma_{\epsilon} = 0.05$)",
                                `0.1` = r"($\sigma_{\epsilon} = 0.10$)", `0.15` = r"($\sigma_{\epsilon} = 0.15$)")) %>%
   group_by(SPIRO_Mean, Boundary_STD, Boundary) %>%
@@ -159,6 +158,40 @@ tcs %>%
          axis.title = element_text(size = 9))
 
 # Saving
-ggsave("SelectedPics/figure3.png", units = "mm", height = 73, width = 122)
+ggsave("SelectedPics/figure3.png", units = "mm", height = 146, width = 122)
 ggsave("SelectedPics/figure3.svg", units = "mm", height = 73, width = 122)
+
+
+
+# Tables ------------------------------------------------------------------
+
+tc4 = tc %>% filter(Step == "Normal SPIRO, Normal Boundary", Boundary %in% c(0.1, 0.15, 0.2, 0.25, 0.3)) %>%
+  select(HK_distribution, SPIRO_Mean:Conformity_STD, diversity:ESBG) %>%
+  mutate(across(N:Conformity_STD, ~factor(.x)))
+
+# mE = lm(ESBG ~ SPIRO_STD + SPIRO_Mean + Boundary_STD + Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
+# mF = lm(ESBG ~ SPIRO_STD + SPIRO_Mean * Boundary_STD * Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
+mG = lm(ESBG ~ SPIRO_STD * SPIRO_Mean * Boundary_STD * Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
+mH = lm(ESBG ~ SPIRO_Mean * Boundary_STD * Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
+mI = lm(ESBG ~ SPIRO_STD * Boundary_STD * Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
+mJ = lm(ESBG ~ SPIRO_STD * SPIRO_Mean * Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
+mK = lm(ESBG ~ SPIRO_STD * SPIRO_Mean * Boundary_STD + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
+
+# md = lm(diversity ~ SPIRO_STD + SPIRO_Mean + Boundary_STD + Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
+# me = lm(extremness ~ SPIRO_STD + SPIRO_Mean + Boundary_STD + Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
+
+stargazer(mG, mH, mI, mJ, mK, type = 'latex', omit = 18:805)
+
+coef(summary(mE)) %>%
+  knitr::kable(digits = 3)
+
+
+
+# TO-DO! ------------------------------------------------------------------
+
+# 1) Do pair-wise steps comparison step-by-step
+# 2) confirm that subset of Step N+1 is equal to Step N
+
+
+
 
