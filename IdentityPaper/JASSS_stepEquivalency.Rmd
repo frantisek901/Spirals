@@ -1,0 +1,337 @@
+---
+title: 'SOM: Analysis  of model building blocks usefulness'
+author:
+- name: František Kalvas
+  url: https://github.com/frantisek901/Spirals/Experiment
+  affiliation: Department of Sociology, University of West Bohemia in Pilsen
+  affiliation_url: https://les.zcu.cz
+date: "2023-08-25"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    toc_depth: 4
+    code_folding: hide
+  word_document:
+    toc: yes
+    toc_depth: '4'
+---
+
+```{r setup, include=FALSE}
+## Encoding: UTF-8
+## Created:  2023-02-09 FrK
+## Edited:   2023-02-27 FrK
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Edits  
+
+# Introduction  
+
+Now let us read data in! 
+
+
+```{r message=FALSE}
+# Clearing all
+rm(list=ls())
+
+# Packages:
+library(tidyverse)
+library(readr)
+library(dplyr)
+library(tibble)
+library(forcats)
+library(ggplot2)
+library(rstatix)
+library(stringr)
+library(knitr)
+# library(kableExtra)
+library(stargazer)
+
+#### Reading data in:
+# source("SOM_loading.R")
+load("SOM.RData")
+
+```
+
+
+
+# Step 1 VS. Step 2  
+
+Firstly, data filtering:   
+
+```{r step 1 vs 2}
+df = tc %>% filter((Step == "No Identity, Constant Boundary" | Step == "No Identity, Normal Boundary"), 
+                   Boundary_STD == 0, Conformity_STD == 0, HK_distribution == "FALSE")
+df %>% count(Step)
+
+```
+
+Comparison:   
+
+Computing sim-by-sim difference:
+
+```{r}
+# We split data into pairs according all relevant varibles, except STEP:
+dp = df %>% #group_by(RS, N, Boundary, Conformity) %>% 
+  pivot_longer(cols = diversity:ESBG) %>% 
+  pivot_wider(id_cols = c(HK_distribution:Conformity_STD, name), names_from = Step, values_from = value) %>% 
+  rename("S1" = 14, "S2" = 15) %>% 
+  mutate(
+    Difference = S2 - S1,
+    highDifference = abs(Difference) > 0.1) %>% 
+  # Then we compute difference:
+  # summarise(across(diversity:ESBG, ~sd(.x) / sqrt(2), .names = "{.col}_sd")) %>% ungroup() %>% 
+  # And now, also pivoting data for the future graph:
+  # select(ends_with("_sd")) %>% 
+  mutate(across(N:name, ~factor(.x)))
+
+# We split data into groups according all relevant varibles, except STEP:
+# dg = df %>% group_by(N, Boundary, Conformity) %>% 
+#   # Then we compute difference:
+#   summarise(across(diversity:ESBG, ~sd(.x), .names = "{.col}_sd")) %>% ungroup() %>% 
+#   # And now, also pivoting data for the future graph:
+#   # select(ends_with("_sd")) %>% 
+#   pivot_longer(cols = ends_with("_sd")) %>% 
+#   mutate(across(N:name, ~factor(.x)))
+dg = dp %>% group_by(N, Boundary, Conformity, name) %>% 
+  summarise(Difference_sd = sd(Difference)) %>% 
+  mutate(highDifference = Difference_sd > 0.1)
+  
+
+dp %>% 
+  ggplot() +
+  aes(x = Difference, fill = name) +
+  facet_wrap(~name) +
+  geom_histogram(alpha = 0.6) +
+  geom_vline(xintercept = c( 0.1, -0.1)) +
+  labs(title = "Absolute pair differences (S2 - S1)") + 
+  theme_light()
+
+dg %>% 
+  ggplot() +
+  aes(x = Difference_sd, fill = name) +
+  facet_wrap(~name) +
+  geom_histogram(alpha = 0.6) +
+  geom_vline(xintercept = c( 0.1)) +
+  labs(title = "SD of differences (S2 - S1) in groups") +
+  theme_light()
+
+mp = lm(Difference ~ name+Conformity+Boundary+N, data = dp)
+mpa = lm(abs(Difference) ~ name+Conformity+Boundary+N, data = dp)
+mg = lm(Difference_sd ~ name+Conformity+Boundary+N, data = dg)
+stargazer(mp, mpa, mg, type = "text")
+
+```
+
+
+## Tables with extremes  
+
+
+```{r}
+dp %>% group_by(name) %>% summarise(fractionOfHighDifferences = mean(highDifference)) %>% 
+  kable(caption = "Table with fraction of extreme absolute differences in pairs comparison")
+
+dg %>% group_by(name) %>% summarise(fractionOfHighDifferences = mean(highDifference)) %>% 
+  kable(caption = "Table with fraction of extreme SD of within-groups comparison")
+
+```
+
+
+ 
+
+# Step 2 VS. Step 3  
+
+Firstly, data filtering:   
+
+```{r step 3 vs 2}
+df = tc %>% filter((Step == "Constant SPIRO, Normal Boundary" | Step == "No Identity, Normal Boundary"), SPIRO_Mean == 0.25)
+df %>% count(Step)
+
+```
+
+Comparison:   
+
+Computing sim-by-sim difference:
+
+```{r}
+# We split data into pairs according all relevant varibles, except STEP:
+# dp = df %>% group_by(RS, HK_distribution, N, Boundary, Boundary_STD, Conformity, Conformity_STD) %>% 
+#   # Then we compute difference:
+#   summarise(across(diversity:ESBG, ~sd(.x) / sqrt(2), .names = "{.col}_sd")) %>% ungroup() %>% 
+#   # And now, also pivoting data for the future graph:
+#   # select(ends_with("_sd")) %>% 
+#   pivot_longer(cols = ends_with("_sd")) %>% 
+#   mutate(across(N:name, ~factor(.x)))
+dp = df %>% 
+  pivot_longer(cols = diversity:ESBG, values_drop_na = T) %>% 
+  pivot_wider(id_cols = c(RS, HK_distribution, N, Boundary, Boundary_STD, Conformity, Conformity_STD, name), 
+              names_from = Step, values_from = value) %>% 
+  rename("S1" = 9, "S2" = 10) %>% 
+  mutate(
+    Difference = S2 - S1,
+    highDifference = abs(Difference) > 0.1,
+    asymetryDifference = Difference < -0.25) %>% 
+  mutate(across(N:name, ~factor(.x)))
+
+# We split data into groups according all relevant varibles, except STEP:
+# dg = df %>% group_by(HK_distribution, N, Boundary, Boundary_STD, Conformity, Conformity_STD) %>% 
+#   # Then we compute difference:
+#   summarise(across(diversity:ESBG, ~sd(.x), .names = "{.col}_sd")) %>% ungroup() %>% 
+#   # And now, also pivoting data for the future graph:
+#   # select(ends_with("_sd")) %>% 
+#   pivot_longer(cols = ends_with("_sd")) %>% 
+#   mutate(across(N:name, ~factor(.x)))
+dg = dp %>% group_by(HK_distribution, N, Boundary, Boundary_STD, Conformity, Conformity_STD, name) %>% 
+  summarise(Difference_sd = sd(Difference)) %>% 
+  mutate(highDifference = Difference_sd > 0.1)
+
+
+dp %>% 
+  ggplot() +
+  aes(x = Difference, fill = name) +
+  facet_wrap(~name) +
+  geom_histogram(alpha = 0.6) +
+  geom_vline(xintercept = c( 0.1, -0.1)) +
+  labs(title = "Absolute pair differences (S3 - S2)") + 
+  theme_light()
+
+dg %>% 
+  ggplot() +
+  aes(x = Difference_sd, fill = name) +
+  facet_wrap(~name) +
+  geom_histogram(alpha = 0.6) +
+  geom_vline(xintercept = c( 0.1)) +
+  labs(title = "SD of differences (S3 - S2) in groups") +
+  theme_light()
+
+mp = lm(Difference ~ name+Conformity+Conformity_STD+Boundary+Boundary_STD+N+HK_distribution, data = dp)
+mpa = lm(abs(Difference) ~ name+Conformity+Conformity_STD+Boundary+Boundary_STD+N+HK_distribution, data = dp)
+mg = lm(Difference_sd ~ name+Conformity+Conformity_STD+Boundary+Boundary_STD+N+HK_distribution, data = dg)
+stargazer(mp, mpa, mg, type = "text")
+
+
+
+
+```
+
+
+
+
+## Tables with extremes  
+
+
+```{r}
+dp %>% group_by(name) %>% summarise(fractionOfHighDifferences = mean(asymetryDifference)) %>% 
+  kable(caption = "Table with fraction of extreme negative (asymetric) absolute differences in pairs comparison")
+
+dp %>% group_by(name) %>% summarise(fractionOfHighDifferences = mean(highDifference)) %>% 
+  kable(caption = "Table with fraction of extreme absolute differences in pairs comparison")
+
+dg %>% group_by(name) %>% summarise(fractionOfHighDifferences = mean(highDifference)) %>% 
+  kable(caption = "Table with fraction of extreme SD of within-groups comparison")
+
+```
+
+
+ 
+
+# Step 4 VS. Step 3  
+
+Firstly, data filtering:   
+
+```{r step 3 vs 4}
+df = tc %>% filter((Step == "Constant SPIRO, Normal Boundary" | Step == "Normal SPIRO, Normal Boundary"), SPIRO_STD == 0)
+df %>% count(Step)
+
+```
+
+Comparison:   
+
+Computing sim-by-sim difference:
+
+```{r}
+# We split data into pairs according all relevant varibles, except STEP:
+# dp = df %>% group_by(RS, HK_distribution, N, Boundary, Boundary_STD, Conformity, Conformity_STD, SPIRO_Mean) %>% 
+#   # Then we compute difference:
+#   summarise(across(diversity:ESBG, ~sd(.x) / sqrt(2), .names = "{.col}_sd")) %>% ungroup() %>% 
+#   # And now, also pivoting data for the future graph:
+#   # select(ends_with("_sd")) %>% 
+#   pivot_longer(cols = ends_with("_sd")) %>% 
+#   mutate(across(N:name, ~factor(.x)))
+# 
+# # We split data into groups according all relevant varibles, except STEP:
+# dg = df %>% group_by(HK_distribution, N, Boundary, Boundary_STD, Conformity, Conformity_STD, SPIRO_Mean) %>% 
+#   # Then we compute difference:
+#   summarise(across(diversity:ESBG, ~sd(.x), .names = "{.col}_sd")) %>% ungroup() %>% 
+#   # And now, also pivoting data for the future graph:
+#   # select(ends_with("_sd")) %>% 
+#   pivot_longer(cols = ends_with("_sd")) %>% 
+#   mutate(across(N:name, ~factor(.x)))
+dp = df %>% 
+  pivot_longer(cols = diversity:ESBG, values_drop_na = T) %>% 
+  pivot_wider(id_cols = c(RS, HK_distribution, N, Boundary, Boundary_STD, Conformity, Conformity_STD, SPIRO_Mean, name), 
+              names_from = Step, values_from = value) %>% 
+  rename("S1" = 10, "S2" = 11) %>% 
+  mutate(
+    Difference = S2 - S1,
+    highDifference = abs(Difference) > 0.1) %>% 
+  mutate(across(N:name, ~factor(.x)))
+
+# We split data into groups according all relevant varibles, except STEP:
+dg = dp %>% group_by(HK_distribution, N, Boundary, Boundary_STD, Conformity, Conformity_STD, SPIRO_Mean, name) %>% 
+  summarise(Difference_sd = sd(Difference)) %>% 
+  mutate(highDifference = Difference_sd > 0.1) %>% ungroup()
+
+
+dp %>% 
+  ggplot() +
+  aes(x = Difference, fill = name) +
+  facet_wrap(~name) +
+  geom_histogram(alpha = 0.6) +
+  geom_vline(xintercept = c( 0.1, -0.1)) +
+  labs(title = "Absolute pair differences (S4 - S3)") + 
+  theme_light()
+
+dg %>% 
+  ggplot() +
+  aes(x = Difference_sd, fill = name) +
+  facet_wrap(~name) +
+  geom_histogram(alpha = 0.6) +
+  geom_vline(xintercept = c( 0.1)) +
+  labs(title = "SD of differences (S4 - S3) in groups") +
+  theme_light()
+
+
+
+mp = lm(Difference ~ name+SPIRO_Mean+Conformity+Conformity_STD+Boundary+Boundary_STD+N+HK_distribution, data = dp)
+mpa = lm(abs(Difference) ~ name+SPIRO_Mean+Conformity+Conformity_STD+Boundary+Boundary_STD+N+HK_distribution, data = dp)
+mg = lm(Difference_sd ~ name+SPIRO_Mean+Conformity+Conformity_STD+Boundary+Boundary_STD+N+HK_distribution, data = dg)
+stargazer(mp, mpa, mg, type = "text" )
+
+
+```
+
+
+
+
+
+
+## Tables with extremes  
+
+
+```{r}
+
+dp %>% group_by(name) %>% summarise(fractionOfHighDifferences = mean(highDifference)) %>% 
+  kable(caption = "Table with fraction of extreme absolute differences in pairs comparison")
+
+dg %>% group_by(name) %>% summarise(fractionOfHighDifferences = mean(highDifference)) %>% 
+  kable(caption = "Table with fraction of extreme SD of within-groups comparison")
+
+```
+
+
+
+
+
