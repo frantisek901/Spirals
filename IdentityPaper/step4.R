@@ -36,24 +36,24 @@ library(stringr)
 
 ## Step 4
 # Creating object 'raw' (tibble): Loading....
-raw4 = read_csv("Step4_indID-hetPar_RS01-05.csv", skip = 6) %>%
-  add_row(read_csv("Step4_indID-hetPar_RS06-10.csv", skip = 6))
+raw4 = read_csv("DATA/Step4_indID-hetPar_RS01-05.csv", skip = 6) %>%
+  add_row(read_csv("DATA/Step4_indID-hetPar_RS06-10.csv", skip = 6))
 for (i in c(seq(30, 55, 5), 39, 49, "35B", "45B")) {
   raw4 = raw4 %>%
-    add_row(read_csv(paste0("Step4_indID-hetPar_RS", i, ".csv"), skip = 6))
+    add_row(read_csv(paste0("DATA/Step4_indID-hetPar_RS", i, ".csv"), skip = 6))
 }
 for (i in seq(11, 56, 5)) {
   raw4 = raw4 %>%
-    add_row(read_csv(paste0("Step4_indID-hetPar_RS", i, "-", i + 4, ".csv"), skip = 6))
+    add_row(read_csv(paste0("DATA/Step4_indID-hetPar_RS", i, "-", i + 4, ".csv"), skip = 6))
 }
 
 
 # Creating object 'raw' (tibble): Loading....
-spiro = read_csv("SPIROdistribution_indID-hetPar_RS01-10.csv", skip = 6) %>%
-  add_row(read_csv("SPIROdistribution_indID-hetPar_RS20.csv", skip = 6))
+spiro = read_csv("DATA/SPIROdistribution_indID-hetPar_RS01-10.csv", skip = 6) %>%
+  add_row(read_csv("DATA/SPIROdistribution_indID-hetPar_RS20.csv", skip = 6))
 for (i in seq(11, 51, 10)) {
   spiro = spiro %>%
-    add_row(read_csv(paste0("SPIROdistribution_indID-hetPar_RS", i, "-", i + 9, ".csv"), skip = 6))
+    add_row(read_csv(paste0("DATA/SPIROdistribution_indID-hetPar_RS", i, "-", i + 9, ".csv"), skip = 6))
 }
 spiro = select(spiro, -1) %>% distinct()
 
@@ -61,25 +61,25 @@ spiro = select(spiro, -1) %>% distinct()
 # Preparing additional data:
 raw41 = tibble()
 for (i in c(13, 16, 19, 23, 26, 29)) {
-  raw41 = read_csv(paste0("Step4.1_b0", i, "_indID-hetPar_RS01-10-table.csv"), skip = 6) %>%
+  raw41 = read_csv(paste0("DATA/Step4.1_b0", i, "_indID-hetPar_RS01-10-table.csv"), skip = 6) %>%
     add_row(raw41)
   if (i %in% c(13, 16, 19)) {
-    raw41 = read_csv(paste0("Step4.1_b0", i, "_indID-hetPar_RS01-10_B-table.csv"), skip = 6) %>%
+    raw41 = read_csv(paste0("DATA/Step4.1_b0", i, "_indID-hetPar_RS01-10_B-table.csv"), skip = 6) %>%
       add_row(raw41)
   }
 }
 for (i in c(13, 16, 19, 23, 26, 29)) {
   for (j in seq(11, 51, 10)) {
-  raw41 = read_csv(paste0("Step4.1_b0", i, "_indID-hetPar_RS", j,"-", j + 9, "-table.csv"), skip = 6) %>%
+  raw41 = read_csv(paste0("DATA/Step4.1_b0", i, "_indID-hetPar_RS", j,"-", j + 9, "-table.csv"), skip = 6) %>%
     add_row(raw41)
   }
 }
 for (i in c(13, 16, 19, 23, 26, 29)) {
   for (j in seq(11, 51, 10)) {
-    raw41 = read_csv(paste0("Step4.1_b0", i, "_indID-hetPar_RS", j,"-", j + 9, "-table.csv"), skip = 6) %>%
+    raw41 = read_csv(paste0("DATA/Step4.1_b0", i, "_indID-hetPar_RS", j,"-", j + 9, "-table.csv"), skip = 6) %>%
       add_row(raw41)
   }
-  f = paste0("Step4.1_b0", i, "_indID-hetPar_RS", j,"-", j + 9, "_B-table.csv")
+  f = paste0("DATA/Step4.1_b0", i, "_indID-hetPar_RS", j,"-", j + 9, "_B-table.csv")
   if (file.exists(f)) raw41 = read_csv(f, skip = 6) %>% add_row(raw41)
 }
 
@@ -113,12 +113,12 @@ ts41 = ts
 
 ## Step 4.2
 # Creating object 'raw' (tibble): Loading....
-raw42 = read_csv("Step4-2_indID-hetPar_RS01-05.csv", skip = 6) %>%
-  add_row(read_csv("Step4-2_indID-hetPar_RS06-10.csv", skip = 6)) %>%
-  add_row(read_csv("Step4-2_indID-hetPar_RS01-25.csv", skip = 6))
+raw42 = read_csv("DATA/Step4-2_indID-hetPar_RS01-05.csv", skip = 6) %>%
+  add_row(read_csv("DATA/Step4-2_indID-hetPar_RS06-10.csv", skip = 6)) %>%
+  add_row(read_csv("DATA/Step4-2_indID-hetPar_RS01-25.csv", skip = 6))
 for (i in seq(11, 56, 5)) {
   raw42 = raw42 %>%
-    add_row(read_csv(paste0("Step4-2_indID-hetPar_RS", i, "-", i + 4, ".csv"), skip = 6))
+    add_row(read_csv(paste0("DATA/Step4-2_indID-hetPar_RS", i, "-", i + 4, ".csv"), skip = 6))
 }
 
 # Transforming 'raw4' to clean 'ts'
@@ -145,30 +145,30 @@ ts42 = raw42 %>%
 # ## Step 4.3 -------------------------------------------------------------
 
 # Creating object 'raw' (tibble): Loading....
-raw43 = read_csv("Step4-3_indID-hetPar_RS01a.csv", skip = 6) %>%
+raw43 = read_csv("DATA/Step4-3_indID-hetPar_RS01a.csv", skip = 6) %>%
   rename(ESBG = 41) %>% mutate(across(57:58, ~as.character(.x)))
 for (i in 2:9) {
   print(i)
   raw43 = raw43 %>%
-    add_row(read_csv(paste0("Step4-3_indID-hetPar_RS0", i, "a.csv"), skip = 6) %>%
+    add_row(read_csv(paste0("DATA/Step4-3_indID-hetPar_RS0", i, "a.csv"), skip = 6) %>%
               rename(ESBG = 41) %>% mutate(across(57:58, ~as.character(.x))))
 }
 for (i in c(10:29, 32:33, 35:40)) {
   print(i)
   raw43 = raw43 %>%
-    add_row(read_csv(paste0("Step4-3_indID-hetPar_RS", i, "a.csv"), skip = 6) %>%
+    add_row(read_csv(paste0("DATA/Step4-3_indID-hetPar_RS", i, "a.csv"), skip = 6) %>%
               rename(ESBG = 41) %>% mutate(across(57:58, ~as.character(.x))))
 }
 for (i in 1:9) {
   print(i)
   raw43 = raw43 %>%
-    add_row(read_csv(paste0("Step4-3_indID-hetPar_RS0", i, ".csv"), skip = 6) %>%
+    add_row(read_csv(paste0("DATA/Step4-3_indID-hetPar_RS0", i, ".csv"), skip = 6) %>%
               rename(ESBG = 41) %>% mutate(across(57:58, ~as.character(.x))))
 }
 for (i in 10:40) {
   print(i)
   raw43 = raw43 %>%
-    add_row(read_csv(paste0("Step4-3_indID-hetPar_RS", i, ".csv"), skip = 6) %>%
+    add_row(read_csv(paste0("DATA/Step4-3_indID-hetPar_RS", i, ".csv"), skip = 6) %>%
               rename(ESBG = 41) %>% mutate(across(57:58, ~as.character(.x))))
 }
 

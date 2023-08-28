@@ -29,11 +29,11 @@ library(rstatix)
 # Loading and processing data ------------------------------------------------------------
 
 # Creating object 'raw' (tibble): Loading....
-raw = read_csv("ClassicalHK_heterogenousParameters_RS01-05.csv", skip = 6) %>%
-  add_row(read_csv("ClassicalHK_heterogenousParameters_RS06-10.csv", skip = 6))
+raw = read_csv("DATA/ClassicalHK_heterogenousParameters_RS01-05.csv", skip = 6) %>%
+  add_row(read_csv("DATA/ClassicalHK_heterogenousParameters_RS06-10.csv", skip = 6))
 for (i in seq(11, 56, 5)) {
   raw = raw %>%
-    add_row(read_csv(paste0("ClassicalHK_heterogenousParameters_RS", i, "-", i + 4, ".csv"), skip = 6))
+    add_row(read_csv(paste0("DATA/ClassicalHK_heterogenousParameters_RS", i, "-", i + 4, ".csv"), skip = 6))
 }
 
 # Transforming 'raw' to clean 'ts'

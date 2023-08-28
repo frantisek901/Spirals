@@ -35,7 +35,7 @@ library(ggplot2)
 # Loading and processing data ------------------------------------------------------------
 
 # Creating object 'tb' (tibble): Loading....
-tb = read_csv("ClassicalHK_moreN.csv", skip = 6) %>%
+tb = read_csv("DATA/ClassicalHK_moreN.csv", skip = 6) %>%
 
   # Selecting and renaming...
   select(HK_distribution = 4, Present_opinion = 5,
@@ -84,28 +84,28 @@ tc = tb %>%
 
 
 # Creating 'ted' (tibble with experiments deviating from classical HK):
-td1 = read_csv("ClassicalHK-PresentOpinionRS01-10.csv", skip = 6) %>%
-  add_row(read_csv("ClassicalHK-PresentOpinionRS11-20.csv", skip = 6)) %>%
-  add_row(read_csv("ClassicalHK-PresentOpinionRS21-30.csv", skip = 6)) %>%
-  add_row(read_csv("ClassicalHK-PresentOpinionRS31-40.csv", skip = 6)) %>%
-  add_row(read_csv("ClassicalHK-PresentOpinionRS41-50.csv", skip = 6)) %>%
-  add_row(read_csv("ClassicalHK-PresentOpinionRS51-60.csv", skip = 6)) %>%
+td1 = read_csv("DATA/ClassicalHK-PresentOpinionRS01-10.csv", skip = 6) %>%
+  add_row(read_csv("DATA/ClassicalHK-PresentOpinionRS11-20.csv", skip = 6)) %>%
+  add_row(read_csv("DATA/ClassicalHK-PresentOpinionRS21-30.csv", skip = 6)) %>%
+  add_row(read_csv("DATA/ClassicalHK-PresentOpinionRS31-40.csv", skip = 6)) %>%
+  add_row(read_csv("DATA/ClassicalHK-PresentOpinionRS41-50.csv", skip = 6)) %>%
+  add_row(read_csv("DATA/ClassicalHK-PresentOpinionRS51-60.csv", skip = 6)) %>%
   mutate(file = "present opinion")
 
-td2 = read_csv("ClassicalHK-RandomPositionAtStartRS01-10.csv", skip = 6) %>%
-  add_row(read_csv("ClassicalHK-RandomPositionAtStartRS11-20.csv", skip = 6)) %>%
-  add_row(read_csv("ClassicalHK-RandomPositionAtStartRS21-30.csv", skip = 6)) %>%
-  add_row(read_csv("ClassicalHK-RandomPositionAtStartRS31-40.csv", skip = 6)) %>%
-  add_row(read_csv("ClassicalHK-RandomPositionAtStartRS41-50.csv", skip = 6)) %>%
-  add_row(read_csv("ClassicalHK-RandomPositionAtStartRS51-60.csv", skip = 6)) %>%
+td2 = read_csv("DATA/ClassicalHK-RandomPositionAtStartRS01-10.csv", skip = 6) %>%
+  add_row(read_csv("DATA/ClassicalHK-RandomPositionAtStartRS11-20.csv", skip = 6)) %>%
+  add_row(read_csv("DATA/ClassicalHK-RandomPositionAtStartRS21-30.csv", skip = 6)) %>%
+  add_row(read_csv("DATA/ClassicalHK-RandomPositionAtStartRS31-40.csv", skip = 6)) %>%
+  add_row(read_csv("DATA/ClassicalHK-RandomPositionAtStartRS41-50.csv", skip = 6)) %>%
+  add_row(read_csv("DATA/ClassicalHK-RandomPositionAtStartRS51-60.csv", skip = 6)) %>%
   mutate(file = "random position")
 
-td3 = read_csv("ClassicalHK-RandomPositionAtStartPresentOpinionRS01-10.csv", skip = 6) %>%
-  add_row(read_csv("ClassicalHK-RandomPositionAtStartPresentOpinionRS11-20.csv", skip = 6)) %>%
-  add_row(read_csv("ClassicalHK-RandomPositionAtStartPresentOpinionRS21-30.csv", skip = 6)) %>%
-  add_row(read_csv("ClassicalHK-RandomPositionAtStartPresentOpinionRS31-40.csv", skip = 6)) %>%
-  add_row(read_csv("ClassicalHK-RandomPositionAtStartPresentOpinionRS41-50.csv", skip = 6)) %>%
-  add_row(read_csv("ClassicalHK-RandomPositionAtStartPresentOpinionRS51-60.csv", skip = 6)) %>%
+td3 = read_csv("DATA/ClassicalHK-RandomPositionAtStartPresentOpinionRS01-10.csv", skip = 6) %>%
+  add_row(read_csv("DATA/ClassicalHK-RandomPositionAtStartPresentOpinionRS11-20.csv", skip = 6)) %>%
+  add_row(read_csv("DATA/ClassicalHK-RandomPositionAtStartPresentOpinionRS21-30.csv", skip = 6)) %>%
+  add_row(read_csv("DATA/ClassicalHK-RandomPositionAtStartPresentOpinionRS31-40.csv", skip = 6)) %>%
+  add_row(read_csv("DATA/ClassicalHK-RandomPositionAtStartPresentOpinionRS41-50.csv", skip = 6)) %>%
+  add_row(read_csv("DATA/ClassicalHK-RandomPositionAtStartPresentOpinionRS51-60.csv", skip = 6)) %>%
   mutate(file = "random + present")
 
 

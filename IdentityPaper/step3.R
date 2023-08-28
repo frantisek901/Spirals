@@ -35,13 +35,13 @@ library(rstatix)
 
 ## Step 3
 # Creating object 'raw' (tibble): Loading....
-raw3 = read_csv("GlobalIdentityHK_heterogenousParameters_RS01-05-table.csv", skip = 6) %>%
-  add_row(read_csv("GlobalIdentityHK_heterogenousParameters_RS06-10-table.csv", skip = 6)) %>%
-  add_row(read_csv("GlobalIdentityHK_heterogenousParameters_RS20.csv", skip = 6)) %>%
-  add_row(read_csv("GlobalIdentityHK_heterogenousParameters_RS55.csv", skip = 6))
+raw3 = read_csv("DATA/GlobalIdentityHK_heterogenousParameters_RS01-05-table.csv", skip = 6) %>%
+  add_row(read_csv("DATA/GlobalIdentityHK_heterogenousParameters_RS06-10-table.csv", skip = 6)) %>%
+  add_row(read_csv("DATA/GlobalIdentityHK_heterogenousParameters_RS20.csv", skip = 6)) %>%
+  add_row(read_csv("DATA/GlobalIdentityHK_heterogenousParameters_RS55.csv", skip = 6))
 for (i in seq(11, 56, 5)) {
   raw3 = raw3 %>%
-    add_row(read_csv(paste0("GlobalIdentityHK_heterogenousParameters_RS", i, "-", i + 4, "-table.csv"), skip = 6))
+    add_row(read_csv(paste0("DATA/GlobalIdentityHK_heterogenousParameters_RS", i, "-", i + 4, "-table.csv"), skip = 6))
 }
 
 # Transforming 'raw3' to clean 't3'
@@ -61,11 +61,11 @@ ts30 = t3
 
 ## Step 2
 # Creating object 'raw' (tibble): Loading....
-raw2 = read_csv("ClassicalHK_heterogenousParameters_RS01-05.csv", skip = 6) %>%
-  add_row(read_csv("ClassicalHK_heterogenousParameters_RS06-10.csv", skip = 6))
+raw2 = read_csv("DATA/ClassicalHK_heterogenousParameters_RS01-05.csv", skip = 6) %>%
+  add_row(read_csv("DATA/ClassicalHK_heterogenousParameters_RS06-10.csv", skip = 6))
 for (i in seq(11, 56, 5)) {
   raw2 = raw2 %>%
-    add_row(read_csv(paste0("ClassicalHK_heterogenousParameters_RS", i, "-", i + 4, ".csv"), skip = 6))
+    add_row(read_csv(paste0("DATA/ClassicalHK_heterogenousParameters_RS", i, "-", i + 4, ".csv"), skip = 6))
 }
 
 # Transforming 'raw2' to clean 't2'
