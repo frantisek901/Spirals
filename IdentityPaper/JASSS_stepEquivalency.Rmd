@@ -1,11 +1,11 @@
 ---
-title: 'SOM: Analysis  of model building blocks usefulness'
+title: 'Analysis  of model building blocks equivalency'
 author:
 - name: František Kalvas
   url: https://github.com/frantisek901/Spirals/Experiment
   affiliation: Department of Sociology, University of West Bohemia in Pilsen
   affiliation_url: https://les.zcu.cz
-date: "2023-08-25"
+date: "2023-08-28"
 output:
   html_document:
     toc: yes
@@ -20,12 +20,18 @@ output:
 ```{r setup, include=FALSE}
 ## Encoding: UTF-8
 ## Created:  2023-02-09 FrK
-## Edited:   2023-02-27 FrK
+## Edited:   2023-08-28 FrK
 
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Edits  
+
+## 2023-08-28
+
+I spotted reversed order in data on Steps 2&3, now is the order correct, so Step 3 sometimes produces higher polarization than Step 2.  
+  
+  
 
 # Introduction  
 
@@ -48,6 +54,9 @@ library(stringr)
 library(knitr)
 # library(kableExtra)
 library(stargazer)
+library(caTools)
+library(ROCR)
+
 
 #### Reading data in:
 # source("SOM_loading.R")
@@ -168,11 +177,11 @@ dp = df %>%
   pivot_longer(cols = diversity:ESBG, values_drop_na = T) %>% 
   pivot_wider(id_cols = c(RS, HK_distribution, N, Boundary, Boundary_STD, Conformity, Conformity_STD, name), 
               names_from = Step, values_from = value) %>% 
-  rename("S1" = 9, "S2" = 10) %>% 
+  rename("S2" = 9, "S1" = 10) %>% 
   mutate(
     Difference = S2 - S1,
     highDifference = abs(Difference) > 0.1,
-    asymetryDifference = Difference < -0.25) %>% 
+    asymetryDifference = Difference > 0.25) %>% 
   mutate(across(N:name, ~factor(.x)))
 
 # We split data into groups according all relevant varibles, except STEP:
@@ -216,6 +225,49 @@ stargazer(mp, mpa, mg, type = "text")
 
 ```
 
+## Extra logistic regression  
+
+```{r}
+# Logit regression
+ml = glm(asymetryDifference ~ Boundary + Boundary_STD + Conformity + Conformity_STD + N + HK_distribution, 
+         data = dp, family = "binomial") 
+# stargazer(ml, type = "text")
+
+# Testing ability of prediction
+## Preparing splitted file 
+splited = dp %>% 
+  arrange(Boundary, Boundary_STD, Conformity, Conformity_STD, N, HK_distribution, name) %>% 
+  mutate(Test = TRUE)
+
+set.seed(20230828)
+for (set in 0:4031) {
+  tst = sample(c(rep(F, 48), rep(T, 12)), 60, replace = F)
+  splited[((set*60) + 1):((set + 1) * 60), "Test"] = tst
+}
+
+mdl = glm(asymetryDifference ~ Boundary + Boundary_STD + Conformity + Conformity_STD + N + HK_distribution, 
+         data = filter(splited, !Test), family = "binomial") 
+
+## Comparison of models estimated on full/reduced data:
+stargazer(ml, mdl, type = "text", title = "Comparison of models estimated on full/reduced data")
+
+## Calculating moddel precision:
+prd = predict(mdl, filter(splited, Test), type = "response") > 0.4
+splited$Prediction = NA
+splited[splited$Test,]$Prediction = prd
+
+## Quality of prediction of non/extreme
+mean(splited[splited$asymetryDifference,]$asymetryDifference == splited[splited$asymetryDifference,]$Prediction,
+  na.rm = T) %>% round(., 3) %>% paste("Prediction of extreme:", . * 100, "%") %>% print()
+mean(splited[!splited$asymetryDifference,]$asymetryDifference == splited[!splited$asymetryDifference,]$Prediction,
+  na.rm = T) %>% round(., 3) %>% paste("Prediction of NONextreme:", . * 100, "%") %>% print()
+mean(splited[splited$Prediction,]$asymetryDifference == splited[splited$Prediction,]$Prediction,
+  na.rm = T) %>% round(., 3) %>% paste("Predicted extreme:", . * 100, "%") %>% print()
+mean(splited[!splited$Prediction,]$asymetryDifference == splited[!splited$Prediction,]$Prediction,
+  na.rm = T) %>% round(., 3) %>% paste("Predicted NONextreme:", . * 100, "%") %>% print()
+
+```
+
 
 
 
@@ -224,7 +276,7 @@ stargazer(mp, mpa, mg, type = "text")
 
 ```{r}
 dp %>% group_by(name) %>% summarise(fractionOfHighDifferences = mean(asymetryDifference)) %>% 
-  kable(caption = "Table with fraction of extreme negative (asymetric) absolute differences in pairs comparison")
+  kable(caption = "Table with fraction of extreme positive (asymetric) absolute differences in pairs comparison")
 
 dp %>% group_by(name) %>% summarise(fractionOfHighDifferences = mean(highDifference)) %>% 
   kable(caption = "Table with fraction of extreme absolute differences in pairs comparison")
