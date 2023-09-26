@@ -1,0 +1,7 @@
+Agenda:
+- Start simulation on N=3000
+- discuss the regression strategy in Table 1
+- consensus measure (ESBG==0; ???)
+
+
+
