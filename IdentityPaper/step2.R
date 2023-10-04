@@ -4,7 +4,7 @@
 
 ## Encoding: windows-1250
 ## Created:  2022-11-15 FrK
-## Edited:   2023-02-03 FrK
+## Edited:   2023-09-29 FrK
 
 ## Notes:
 ##
@@ -54,7 +54,13 @@ ts = raw %>%
 # For Joining script we need these data stored under different name:
 ts20 = ts
 
-
+# Saving data from this step, but reduced one
+# ts20 = ts %>%
+#   filter(Boundary %in% c(.1, .15, .2, .25, .3), Boundary_STD %in% seq(0, .15, 0.05),
+#          Conformity %in% c(0.8, .2), Conformity_STD %in% c(0, 0.1))
+# save(ts20, file = "DATA/Step02data.RData")
+#
+# ts20 %>% count(Conformity_STD )
 
 # Checking set factors and their real mean and SD ------------------------------------------------------
 
