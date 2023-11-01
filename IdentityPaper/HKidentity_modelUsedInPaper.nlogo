@@ -994,7 +994,7 @@ Number_Of_Agents
 Number_Of_Agents
 9
 257
-1000.0
+100.0
 1
 1
 NIL
@@ -1034,7 +1034,7 @@ Boundary_Mean
 Boundary_Mean
 0.0
 1
-0.1
+0.185
 0.001
 1
 NIL
@@ -1279,7 +1279,7 @@ INPUTBOX
 502
 521
 N_centroids
-2.0
+1.0
 1
 0
 Number
@@ -1359,7 +1359,7 @@ SPIRO_Mean
 SPIRO_Mean
 0
 1
-0.001
+0.33
 0.001
 1
 NIL
@@ -1446,7 +1446,7 @@ CHOOSER
 Identity_Type
 Identity_Type
 "global" "individual" "covert"
-2
+0
 
 SLIDER
 101
@@ -1578,7 +1578,7 @@ SWITCH
 111
 Use_Identity?
 Use_Identity?
-1
+0
 1
 -1000
 

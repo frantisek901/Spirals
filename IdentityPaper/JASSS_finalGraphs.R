@@ -163,29 +163,71 @@ ggsave("SelectedPics/figure3.svg", units = "mm", height = 73, width = 122)
 
 
 
-# Tables ------------------------------------------------------------------
+# Tables and regressions ------------------------------------------------------------------
+
+tc1 = tc %>% filter(Step %in% c("Classical HK", "No Identity, Constant Boundary")#,
+                    #Boundary <= .25, Boundary >= .15
+                    ) %>%
+  select(HK_distribution, SPIRO_Mean:Conformity_STD, diversity:ESBG) %>%
+  mutate(across(N:Conformity_STD, ~factor(.x)))
 
 tc4 = tc %>% filter(Step == "Normal SPIRO, Normal Boundary", Boundary %in% c(0.1, 0.15, 0.2, 0.25, 0.3)) %>%
   select(HK_distribution, SPIRO_Mean:Conformity_STD, diversity:ESBG) %>%
   mutate(across(N:Conformity_STD, ~factor(.x)))
 
-# mE = lm(ESBG ~ SPIRO_STD + SPIRO_Mean + Boundary_STD + Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
-# mF = lm(ESBG ~ SPIRO_STD + SPIRO_Mean * Boundary_STD * Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
-mG = lm(ESBG ~ SPIRO_STD * SPIRO_Mean * Boundary_STD * Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
-mH = lm(ESBG ~ SPIRO_Mean * Boundary_STD * Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
-mI = lm(ESBG ~ SPIRO_STD * Boundary_STD * Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
-mJ = lm(ESBG ~ SPIRO_STD * SPIRO_Mean * Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
-mK = lm(ESBG ~ SPIRO_STD * SPIRO_Mean * Boundary_STD + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
+
+
+# Regression showing interaction effect of evenness  and non-random start --------
+
+mF = lm(ESBG ~ HK_distribution * N , data = tc1)
+stargazer(mF, type =  'text', digits = 3)
+
+
+
+# Regressions showing just main effects in Step 4 -------------------------
+
+mE = lm(ESBG ~ SPIRO_STD + SPIRO_Mean + Boundary_STD + Boundary + HK_distribution + N + Conformity_STD + Conformity, data = tc4)
+mD = lm(ESBG ~ SPIRO_Mean + Boundary_STD + Boundary + HK_distribution + N + Conformity_STD + Conformity, data = tc4)
+mC = lm(ESBG ~ SPIRO_STD + Boundary_STD + Boundary + HK_distribution + N + Conformity_STD + Conformity, data = tc4)
+mB = lm(ESBG ~ SPIRO_STD + SPIRO_Mean + Boundary + HK_distribution + N + Conformity_STD + Conformity, data = tc4)
+mA = lm(ESBG ~ SPIRO_STD + SPIRO_Mean + Boundary_STD + HK_distribution + N + Conformity_STD + Conformity, data = tc4)
+stargazer(mE, mD, mC, mB, mA, type =  'text', omit.stat = c("ser", "f"), digits = 3)
+
+
+
+# Regressions with 4-way interactions of main variables -------------------
+
+mG = lm(ESBG ~ SPIRO_STD * SPIRO_Mean * Boundary_STD * Boundary + HK_distribution + N + Conformity_STD + Conformity, data = tc4)
+mH = lm(ESBG ~ SPIRO_Mean * Boundary_STD * Boundary + HK_distribution + N + Conformity_STD + Conformity, data = tc4)
+mI = lm(ESBG ~ SPIRO_STD * Boundary_STD * Boundary + HK_distribution + N + Conformity_STD + Conformity, data = tc4)
+mJ = lm(ESBG ~ SPIRO_STD * SPIRO_Mean * Boundary + HK_distribution + N + Conformity_STD + Conformity, data = tc4)
+mK = lm(ESBG ~ SPIRO_STD * SPIRO_Mean * Boundary_STD + HK_distribution + N + Conformity_STD + Conformity, data = tc4)
+stargazer(mG, mH, mI, mJ, mK, type = 'text', omit = 21:805, omit.stat = c("ser", "f"), digits = 3)
+
+
+
+# Step-wise regression -------------------
+
+mL = lm(ESBG ~ HK_distribution + N + Conformity_STD + Conformity, data = tc4)
+mM = lm(ESBG ~ Boundary + HK_distribution + N + Conformity_STD + Conformity, data = tc4)
+mN = lm(ESBG ~ Boundary_STD + Boundary + HK_distribution + N + Conformity_STD + Conformity, data = tc4)
+mO = lm(ESBG ~ SPIRO_Mean + Boundary_STD + Boundary + HK_distribution + N + Conformity_STD + Conformity, data = tc4)
+mP = lm(ESBG ~ SPIRO_STD + SPIRO_Mean + Boundary_STD + Boundary + HK_distribution + N + Conformity_STD + Conformity, data = tc4)
+stargazer(mL, mM, mN, mO, mP, mG, type = 'text', omit = 21:805, omit.stat = c("ser", "f"), digits = 3)
+stargazer(mL, mM, mN, mO, mP, type = 'latex', omit = 21:805, omit.stat = c("ser", "f"), digits = 3)
+
+mQ = lm(ESBG ~ SPIRO_Mean + Boundary + HK_distribution + N + Conformity_STD + Conformity, data = tc4)
+stargazer(mL, mM, mN, mQ, mO, mP, type = 'text', omit = 21:805, omit.stat = c("ser", "f"), digits = 3)
+
+
+# Table of model with only main effects for proceedings -------------------
+
+coef(summary(mE)) %>%
+  knitr::kable(digits = 3, format = 'text')
+
 
 # md = lm(diversity ~ SPIRO_STD + SPIRO_Mean + Boundary_STD + Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
 # me = lm(extremness ~ SPIRO_STD + SPIRO_Mean + Boundary_STD + Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
-
-stargazer(mG, mH, mI, mJ, mK, type = 'latex', omit = 18:805)
-
-coef(summary(mE)) %>%
-  knitr::kable(digits = 3)
-
-
 
 # TO-DO! ------------------------------------------------------------------
 
