@@ -229,6 +229,214 @@ coef(summary(mE)) %>%
 # md = lm(diversity ~ SPIRO_STD + SPIRO_Mean + Boundary_STD + Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
 # me = lm(extremness ~ SPIRO_STD + SPIRO_Mean + Boundary_STD + Boundary + HK_distribution + Conformity_STD + Conformity + N, data = tc4)
 
+
+
+# NEW Fig.2 -------------------------------------------------------------------
+
+# Data preparation
+tcs = tc %>% filter(Step == "Constant SPIRO, Normal Boundary") %>%
+  mutate(Boundary_STD = recode(Boundary_STD, `0` = r"($\sigma_{\epsilon} = 0$)", `0.05` = r"($\sigma_{\epsilon} = 0.05$)",
+                               `0.1` = r"($\sigma_{\epsilon} = 0.10$)", `0.15` = r"($\sigma_{\epsilon} = 0.15$)")) %>%
+  group_by(SPIRO_Mean, Boundary_STD, Boundary) %>%
+  summarise(ESBG_mean = mean(ESBG)) %>%
+  ungroup()
+
+
+# Drawing Figure 2
+tcs %>%
+  ggplot() +
+  aes(x = SPIRO_Mean, y = Boundary, col = ESBG_mean,
+      label = round(ESBG_mean, 2)) +
+  facet_wrap(~ TeX(Boundary_STD, output = "character"), scales = "fixed",
+             labeller = label_parsed, nrow = 1) +
+  geom_point(shape = 15, size = 5.75) +
+  geom_text(color = "white", size = 2) +
+  scale_color_viridis_c() +
+  labs(y = TeX(r"( $\mu_{\epsilon}$ )"), col = "Mean ESBG", x = TeX(r"( $\mu_{SPIRO}$ )")) +
+  theme_light(6) +
+  theme( strip.background = element_rect(fill = "black", colour = NA),
+         strip.text = element_text(colour = "white", size = 12),
+         legend.position = "bottom",
+         legend.text = element_text(size = 9),
+         legend.title = element_text(size = 9),
+         legend.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+         legend.box.margin = margin(t = -3, r = 0, b = 0, l = 0, unit = "pt"),
+         plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+         axis.title = element_text(size = 12))
+
+
+# Saving
+ggsave("SelectedPics/JASS_newFig2.png", units = "px", height = 1475, width = 1485)
+ggsave("SelectedPics/JASS_newFig2.svg", units = "px", height = 770, width = 746)
+
+
+
+# NEW Fig.3 -------------------------------------------------------------------
+
+# Data preparation
+tcs = tc %>% filter(Step == "Constant SPIRO, Normal Boundary") %>%
+  mutate(Boundary_STD = recode(Boundary_STD, `0` = r"($\sigma_{\epsilon} = 0$)", `0.05` = r"($\sigma_{\epsilon} = 0.05$)",
+                               `0.1` = r"($\sigma_{\epsilon} = 0.10$)", `0.15` = r"($\sigma_{\epsilon} = 0.15$)")) %>%
+  group_by(SPIRO_Mean, Boundary_STD, Boundary) %>%
+  summarise(ESBG_sd = sd(ESBG)) %>%
+  ungroup()
+
+
+# Drawing Figure 3
+tcs %>%
+  ggplot() +
+  aes(x = SPIRO_Mean, y = Boundary, col = ESBG_sd,
+      label = round(ESBG_sd, 2)) +
+  facet_wrap(~ TeX(Boundary_STD, output = "character"), scales = "fixed",
+             labeller = label_parsed, nrow = 1) +
+  geom_point(shape = 15, size = 5.75) +
+  geom_text(color = "white", size = 2) +
+  scale_color_viridis_c() +
+  labs(y = TeX(r"( $\mu_{\epsilon}$ )"), col = "Standard deviation of ESBG", x = TeX(r"( $\mu_{SPIRO}$ )")) +
+  theme_light(6) +
+  theme( strip.background = element_rect(fill = "black", colour = NA),
+         strip.text = element_text(colour = "white", size = 12),
+         legend.position = "bottom",
+         legend.text = element_text(size = 9),
+         legend.title = element_text(size = 9),
+         legend.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+         legend.box.margin = margin(t = -3, r = 0, b = 0, l = 0, unit = "pt"),
+         plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+         axis.title = element_text(size = 12))
+
+
+# Saving
+ggsave("SelectedPics/JASS_newFig3.png", units = "px", height = 1475, width = 1485)
+ggsave("SelectedPics/JASS_newFig3.svg", units = "px", height = 740, width = 750)
+
+
+
+# NEW Fig.4 -------------------------------------------------------------------
+
+# Data preparation
+tcs = tc %>% filter(Step == "Constant SPIRO, Normal Boundary") %>%
+  mutate(Boundary_STD = recode(Boundary_STD, `0` = r"($\sigma_{\epsilon} = 0$)", `0.05` = r"($\sigma_{\epsilon} = 0.05$)",
+                               `0.1` = r"($\sigma_{\epsilon} = 0.10$)", `0.15` = r"($\sigma_{\epsilon} = 0.15$)")) %>%
+  group_by(SPIRO_Mean, Boundary_STD, Boundary) %>%
+  summarise(diversity_mean = mean(diversity)) %>%
+  ungroup()
+
+
+# Drawing Figure 4
+tcs %>%
+  ggplot() +
+  aes(x = SPIRO_Mean, y = Boundary, col = diversity_mean,
+      label = round(diversity_mean, 2)) +
+  facet_wrap(~ TeX(Boundary_STD, output = "character"), scales = "fixed",
+             labeller = label_parsed, nrow = 1) +
+  geom_point(shape = 15, size = 5.75) +
+  geom_text(color = "white", size = 2) +
+  scale_color_viridis_c() +
+  labs(y = TeX(r"( $\mu_{\epsilon}$ )"), col = "Mean diversity", x = TeX(r"( $\mu_{SPIRO}$ )")) +
+  theme_light(6) +
+  theme( strip.background = element_rect(fill = "black", colour = NA),
+         strip.text = element_text(colour = "white", size = 12),
+         legend.position = "bottom",
+         legend.text = element_text(size = 9),
+         legend.title = element_text(size = 9),
+         legend.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+         legend.box.margin = margin(t = -3, r = 0, b = 0, l = 0, unit = "pt"),
+         plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+         axis.title = element_text(size = 12))
+
+
+# Saving
+ggsave("SelectedPics/JASS_newFig4.png", units = "px", height = 1475, width = 1485)
+ggsave("SelectedPics/JASS_newFig4.svg", units = "px", height = 770, width = 746)
+
+
+
+# NEW Fig.5 -------------------------------------------------------------------
+
+# Data preparation
+tcs = tc %>% filter(Step == "Constant SPIRO, Normal Boundary") %>%
+  mutate(Boundary_STD = recode(Boundary_STD, `0` = r"($\sigma_{\epsilon} = 0$)", `0.05` = r"($\sigma_{\epsilon} = 0.05$)",
+                               `0.1` = r"($\sigma_{\epsilon} = 0.10$)", `0.15` = r"($\sigma_{\epsilon} = 0.15$)")) %>%
+  group_by(SPIRO_Mean, Boundary_STD, Boundary) %>%
+  summarise(extremness_mean = mean(extremness)) %>%
+  ungroup()
+
+
+# Drawing Figure 5
+tcs %>%
+  ggplot() +
+  aes(x = SPIRO_Mean, y = Boundary, col = extremness_mean,
+      label = round(extremness_mean, 2)) +
+  facet_wrap(~ TeX(Boundary_STD, output = "character"), scales = "fixed",
+             labeller = label_parsed, nrow = 1) +
+  geom_point(shape = 15, size = 5.75) +
+  geom_text(color = "white", size = 2) +
+  scale_color_viridis_c() +
+  labs(y = TeX(r"( $\mu_{\epsilon}$ )"), col = "Mean extremness", x = TeX(r"( $\mu_{SPIRO}$ )")) +
+  theme_light(6) +
+  theme( strip.background = element_rect(fill = "black", colour = NA),
+         strip.text = element_text(colour = "white", size = 12),
+         legend.position = "bottom",
+         legend.text = element_text(size = 9),
+         legend.title = element_text(size = 9),
+         legend.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+         legend.box.margin = margin(t = -3, r = 0, b = 0, l = 0, unit = "pt"),
+         plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+         axis.title = element_text(size = 12))
+
+
+# Saving
+ggsave("SelectedPics/JASS_newFig5.png", units = "px", height = 1475, width = 1485)
+ggsave("SelectedPics/JASS_newFig5.svg", units = "px", height = 770, width = 746)
+
+
+
+
+# NEW Fig.6 -------------------------------------------------------------------
+
+# Data preparation
+tcs = tc %>% filter(Step == "Constant SPIRO, Normal Boundary") %>%
+  mutate(Boundary_STD = recode(Boundary_STD, `0` = r"($\sigma_{\epsilon} = 0$)", `0.05` = r"($\sigma_{\epsilon} = 0.05$)",
+                               `0.1` = r"($\sigma_{\epsilon} = 0.10$)", `0.15` = r"($\sigma_{\epsilon} = 0.15$)")) %>%
+  group_by(SPIRO_Mean, Boundary_STD, Boundary) %>%
+  summarise(ESBG_Mean = mean(ESBG), ESBG_SD = sd(ESBG)) %>%
+  ungroup() %>%
+  pivot_longer(cols = starts_with("ESBG"), names_prefix = "ESBG_", names_to = "Measure", values_to = "ESBG")
+
+
+# Drawing Figure 6
+tcs %>%
+  ggplot() +
+  aes(y = SPIRO_Mean, x = Boundary, col = ESBG,
+      label = round(ESBG, 2)) +
+  facet_grid(TeX(Boundary_STD, output = "character") + Measure ~ ., scales = "fixed",
+             labeller = label_parsed, switch = "y" ) +
+  geom_point(shape = 15, size = 5.75) +
+  geom_text(color = "white", size = 2) +
+  scale_color_viridis_c() +
+  labs(x = TeX(r"( $\mu_{\epsilon}$ )"), col = "ESBG", y = TeX(r"( $\mu_{SPIRO}$ )")) +
+  theme_light(6) +
+  theme( strip.background = element_rect(fill = "black", colour = NA),
+         strip.text = element_text(colour = "white", size = 12),
+         strip.placement = "outside",
+         legend.position = "bottom",
+         legend.text = element_text(size = 9),
+         legend.title = element_text(size = 9),
+         legend.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+         legend.box.margin = margin(t = -3, r = 0, b = 0, l = 0, unit = "pt"),
+         plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "pt"),
+         axis.title = element_text(size = 12))
+
+
+# Saving
+ggsave("SelectedPics/JASS_newFig6.png", units = "px", height = 2950, width = 1400)
+ggsave("SelectedPics/JASS_newFig6.svg", units = "px", height = 1050, width = 500)
+
+
+
+
+
+
 # TO-DO! ------------------------------------------------------------------
 
 # 1) Do pair-wise steps comparison step-by-step
