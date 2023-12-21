@@ -1,9 +1,9 @@
-#### Script for project with Mike, Ashley and Ashwin
+#### Script for project with Mike, Ashley and Ashwin  
 ##   (Adapted from my work for Project Group '#public-opinion-project' from SFI-CI Winter 2022
 ##    and the example from `nlrx` package help: ??"nlrx-package")
 ##
 ##   This script handles getting data from NetLogo model,
-##   now named: groupFormation_pipeline.nlogo
+##   now named: groupFormation_pipeline.nlogo   
 ##   into R and storing them t/here for further network analyses.
 ##
 ##   NOTES:
