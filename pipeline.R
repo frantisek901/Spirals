@@ -1,4 +1,4 @@
-#### Script for project with Mike, Ashley and Ashwin  
+#### Script for project with Mike, Ashley and Ashwin  II
 ##   (Adapted from my work for Project Group '#public-opinion-project' from SFI-CI Winter 2022
 ##    and the example from `nlrx` package help: ??"nlrx-package")
 ##
