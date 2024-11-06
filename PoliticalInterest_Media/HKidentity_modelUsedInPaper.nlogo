@@ -667,8 +667,11 @@ to change-opinion-HK
 
 
   ;; Implementing political interest: Agent samples from influencers and consumes only a subset, proportional to their Political Interest
-  let number_sampled_influentials ceiling (own-Political_Interest * count influentials)
-  set influentials n-of number_sampled_influentials influentials
+  let number_sampled_influentials ceiling (own-Political_Interest * Number_Of_Agents)
+
+  if(number_sampled_influentials < count influentials)[ ;;need to sample only if the number of incoming opinions is large
+    set influentials n-of number_sampled_influentials influentials
+  ]
 
   ;; we check whether there is someone else then calling/updating agent in the agent set 'influentials'
   if count influentials > 1 [
@@ -2088,8 +2091,8 @@ Political_Interest_Mean
 Political_Interest_Mean
 0
 1
-0.5
-0.05
+0.085
+0.005
 1
 NIL
 HORIZONTAL
