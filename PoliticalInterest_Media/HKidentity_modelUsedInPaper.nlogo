@@ -75,7 +75,7 @@ to setup
   ;; Initializing Media Agents
   create-media_houses Number_Of_Media_Houses [
     set color magenta
-    set own-opinion n-values Number_Of_Opinion_Dimensions [precision ( 1 - (random-float 2) ) 3]  ;; We set opinions...
+    set own-opinion get-media-house-opinion
     set own-previous-opinion own-opinion
     getPlace
     set shape "house"
@@ -92,8 +92,6 @@ to setup
   ]
 
   build-networks        ;;setting up biconnections and uniconnections, along which communication can occur
-
-
 
   ;; Setting identity levels according identity scenario:
   (ifelse
@@ -138,6 +136,46 @@ to setup
 
 end
 
+to-report get-media-house-opinion
+
+  ;; NOTE: THERE IS A POSSIBLE CHANGE HERE - WE COULD MAKE THE BETA PARAMETER THE SINGLE PARAM THAT DIFFERENTIATES BETWEEN INVERTED U, UNIFORM AND NORMAL
+
+
+  let this-house-opinion n-values Number_Of_Opinion_Dimensions [0] ;;; Initializing media house opinions
+  if(Media_House_Distribution = "centered")[
+    set this-house-opinion n-values Number_Of_Opinion_Dimensions [precision (random-truncated-normal Media_House_Distribution_Normal_STD) 3]
+  ]
+  if(Media_House_Distribution = "polarized")[
+        set this-house-opinion n-values Number_Of_Opinion_Dimensions [(precision (2 * (random-U-shaped-distribution Media_House_Distribution_Beta_Shape) - 1) 3)]
+
+  ]
+   if(Media_House_Distribution = "uniform")[
+        set this-house-opinion n-values Number_Of_Opinion_Dimensions [precision (1 - random-float 2) 3]
+  ]
+  report this-house-opinion
+end
+
+
+to-report random-truncated-normal [sigma]
+  ;; Returns a value drawn from a random normal but re-sampled until the value is between -1 and 1.
+
+  let r random-normal 0 sigma
+  while [r < -1 or r > 1][
+    set r random-normal 0 sigma
+  ]
+  report r
+end
+
+to-report random-U-shaped-distribution [alphabeta]
+  ;; this samples from a Beta distribution, symmetric because alpha = beta.
+  ;; The parameter must be between 0 and 1 for a U-shaped distribution
+  ;; Since for any two independant gamma-distributed rv's X ~ Gamma(alpha, k); Y ~ Gamma(beta, k); X/(X+Y) ~ Beta(alpha, beta)
+  ;; Outputs a value between 0 and 1
+  let x random-gamma alphabeta 1
+  let y random-gamma alphabeta 1
+
+  report x / (x + y)
+end
 
 to build-networks
   if Network_Type = "Full" [
@@ -181,14 +219,14 @@ to create-scale-free-network
   let selection-order get-agent-sampling-order agents Scale_Free_selection-distribution
 
 
-  show (word "Creating Scale-free Network with " Scale_Free_degree " as minimum degree.")
-  show (word "The selection order is: " selection-order)
+  ;;show (word "Creating Scale-free Network with " Scale_Free_degree " as minimum degree.")
+  ;;show (word "The selection order is: " selection-order)
   ;; Initialize m links among the first m + 1 people in the list
   let m Scale_Free_degree
   let initial-nodes-ids sublist selection-order 0 (m + 1)
   let initial-nodes agents with [member? who initial-nodes-ids]
 
-  show (word "Initializing the following nodes: " initial-nodes-ids)
+  ;;show (word "Initializing the following nodes: " initial-nodes-ids)
   ;;Create fully connected subnetwork among the intialized nodes
   ask initial-nodes[
     ask initial-nodes[
@@ -198,7 +236,7 @@ to create-scale-free-network
     ]
   ]
 
-  show (word "Created Biconnections")
+  ;;show (word "Created Biconnections")
 
 
   ;;Remove initial node id's from the list
@@ -207,14 +245,14 @@ to create-scale-free-network
   ]
 
 
-  show (word "Removed initial nodes to get: " selection-order)
+  ;;show (word "Removed initial nodes to get: " selection-order)
 
   ;; Now we iterate over the rest of the list and implement the BA algorithm
   ;; Broadly, we will obtain a PMF over all possible connection targets and sample from it.
   foreach selection-order [ [id] ->
     ask agents with [who = id][
 
-      show (word "Currently on Who = " id)
+      ;;show (word "Currently on Who = " id)
       ;;  Find agents with whom this agent does not have a biconnection with
       let my-neighbors biconnection-neighbors  ;; Agents with a biconnection
 
@@ -278,7 +316,7 @@ to-report get-agent-sampling-order [agent-set distribution-type]
 
   let selection-order []
 
-  if distribution-type = "Uniform"[
+  if distribution-type = "uniform"[
     ;; sampling without replacement and without regard to position of agent in the opinion space.
     ;; Just iterate over the agent set and ask them to drop their ID's.
     ask agent-set [
@@ -287,8 +325,8 @@ to-report get-agent-sampling-order [agent-set distribution-type]
   ]
 
 
-  ;; If the distributions are centered or polarized, we bias our sampling according to a gaussian or inverted gaussian over opinion space.
-  if distribution-type = "Centered" or distribution-type = "Polarized"[
+  ;; If the distributions are centered or polarized, we bias our sampling according to a gaussian or U-shaped distribution over opinion space.
+  if distribution-type = "centered" or distribution-type = "polarized"[
     ;; We will sample from the Normal distribution with params as defined, and then put the ids either at the beginning or end of the list.
 
     let sampled-agents no-turtles
@@ -305,26 +343,26 @@ to-report get-agent-sampling-order [agent-set distribution-type]
 
       ;; Now add to list! If we need a polar-heavy selection
 
-      ifelse distribution-type = "Centered"[
+      ifelse distribution-type = "centered"[
         ask closest-agent[
           set selection-order lput who selection-order
         ]
       ][
         ask closest-agent[
-        ;; implement inverted gaussian by simply inverting the list.
+         ;; approximate a U-shaped distribution by simply inverting the list (inwhich more central values are more likely to be placed up top).
           set selection-order fput who selection-order
         ]
       ]
 
       ;; Add the closest agent to sampled agent set
       set sampled-agents (turtle-set sampled-agents closest-agent)
-      show (word "Remaining agents before removal: " remaining-agents)
-      show (word "closest agent before removal: " closest-agent)
+      ;;show (word "Remaining agents before removal: " remaining-agents)
+      ;;show (word "closest agent before removal: " closest-agent)
 
       ;; Remove the selected agent from the remaining pool
       ;;set remaining-agents remove closest-agent remaining-agents
       set remaining-agents remaining-agents with [who != [who] of closest-agent]
-      show (word "Remaining agents after removal: " remaining-agents)
+      ;;show (word "Remaining agents after removal: " remaining-agents)
 
     ]
   ]
@@ -386,6 +424,7 @@ to create-community-network
     ]
   ]
 end
+
 
 
 ;; for computing thresholds and assigning levels to each agent as per drawing parameters
@@ -1299,8 +1338,8 @@ SLIDER
 Number_Of_Agents
 Number_Of_Agents
 9
-257
-159.0
+1000
+967.0
 1
 1
 NIL
@@ -1340,7 +1379,7 @@ Boundary_Mean
 Boundary_Mean
 0.0
 1
-0.289
+0.237
 0.001
 1
 NIL
@@ -1966,7 +2005,7 @@ Scale_Free_degree
 Scale_Free_degree
 1
 10
-2.0
+4.0
 1
 1
 NIL
@@ -2054,8 +2093,8 @@ CHOOSER
 572
 Scale_Free_selection-distribution
 Scale_Free_selection-distribution
-"Uniform" "Centered" "Polarized"
-1
+"uniform" "centered" "polarized"
+0
 
 SLIDER
 539
@@ -2066,7 +2105,7 @@ Number_Of_Media_Houses
 Number_Of_Media_Houses
 0
 10
-2.0
+3.0
 1
 1
 NIL
@@ -2091,7 +2130,7 @@ Political_Interest_Mean
 Political_Interest_Mean
 0
 1
-0.085
+0.7
 0.005
 1
 NIL
@@ -2108,6 +2147,46 @@ Political_Interest_STD
 1
 0.1
 0.001
+1
+NIL
+HORIZONTAL
+
+CHOOSER
+537
+695
+710
+740
+Media_House_Distribution
+Media_House_Distribution
+"uniform" "centered" "polarized"
+1
+
+SLIDER
+749
+702
+1026
+735
+Media_House_Distribution_Normal_STD
+Media_House_Distribution_Normal_STD
+0
+0.5
+0.17
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+749
+668
+1022
+701
+Media_House_Distribution_Beta_Shape
+Media_House_Distribution_Beta_Shape
+0
+1
+0.5
+0.01
 1
 NIL
 HORIZONTAL
