@@ -994,7 +994,7 @@ Number_Of_Agents
 Number_Of_Agents
 9
 257
-100.0
+101.0
 1
 1
 NIL
@@ -1034,7 +1034,7 @@ Boundary_Mean
 Boundary_Mean
 0.0
 1
-0.185
+0.3
 0.001
 1
 NIL
@@ -1359,7 +1359,7 @@ SPIRO_Mean
 SPIRO_Mean
 0
 1
-0.33
+0.25
 0.001
 1
 NIL
@@ -1418,7 +1418,7 @@ CHOOSER
 SPIRO_Distribution
 SPIRO_Distribution
 "constant" "uniform" "normal" "covert"
-3
+2
 
 PLOT
 1120
@@ -1502,7 +1502,7 @@ Boundary_STD
 Boundary_STD
 0
 1
-0.0
+0.05
 0.001
 1
 NIL
@@ -1602,7 +1602,7 @@ Proportion_Of_High_Covert_SPIRO
 Proportion_Of_High_Covert_SPIRO
 0
 1
-0.1
+0.0
 0.01
 1
 NIL
@@ -1637,7 +1637,7 @@ SWITCH
 298
 HK_opinion_distribution?
 HK_opinion_distribution?
-0
+1
 1
 -1000
 
