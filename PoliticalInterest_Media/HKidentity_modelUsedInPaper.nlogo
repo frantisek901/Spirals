@@ -35,7 +35,7 @@ breed [media_houses media_house]
 undirected-link-breed [l-distances l-distance]  ;;For Identity computation
 undirected-link-breed [biconnections biconnection]  ;; Human relationshiops
 directed-link-breed [uniconnection uniconnections]   ;; Influences from Media/Celeb/Bot
-turtles-own [own-opinion own-previous-opinion own-boundary own-conformity own-SPIRO own-WhichGroupHasEachSPIROSortedMeIn own-group-number own-distance-to-centroid own-opinion-dice? own-identity-dice? own-reach own-political_interest]
+turtles-own [own-opinion own-previous-opinion own-boundary own-conformity own-SPIRO own-WhichGroupHasEachSPIROSortedMeIn own-group-number own-distance-to-centroid own-opinion-dice? own-identity-dice? own-reach own-political_interest own-current-influentials]
 ;; NOTE: because of sticking to HK and also compatibility with previous results and algorithm for finding final position of group centroids, we need two variables for previous/last position,
 ;; also, unsystematically, during the centroid position we have to copy 'last-position' to 'own-previous-position', since some 'distance' procedures finds opinions by themselves.
 centroids-own [last-position]
@@ -59,7 +59,7 @@ to setup
 
   ;; Then we migh initialize agents/turtles
   crt Number_Of_Agents [
-    set own-opinion n-values Number_Of_Opinion_Dimensions [ifelse-value (HK_opinion_distribution?) [1 - (who / ((Number_Of_Agents - 1) / 2))][precision (1 - random-float 2) 3]]  ;; We set opinions...
+set own-opinion get-agent-opinion
     set own-previous-opinion own-opinion  ;; ...set last opinion as present opinion...
     set own-conformity get-conformity  ;; setting individual conformity level, and ...
     set own-boundary get-HK-boundary  ;;... setting value of HK boundary.
@@ -131,6 +131,9 @@ to setup
   ;; Compute polarisation
   compute-polarisation-repeatedly
 
+  ;; To write data directly
+  setup-file
+
   reset-ticks
 
   ;;;; Preparation part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -141,253 +144,41 @@ to setup
 end
 
 
-to build-networks
-  if Network_Type = "Full" [
-    ask agents [
-    show "Building Full Network"
-      create-biconnections-with other agents
-    ]
-    ;;ask biconnections [set hidden? true]  ;; Hide links to save computational resources
-  ]
 
-  if Network_Type = "Scale-free" [
-    show "Building Scale-free Network"
-    create-scale-free-network
-  ]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;   G O !   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-  if Network_Type = "Modular" [
-    show "Building Modular Network"
-    create-community-network  ;; '5' communities, 80% intra-prob, 5% inter-prob
-  ]
-
-  ;; Now connecting media houses to agents
-  connect-agents-to-media
-end
-
-to connect-agents-to-media
-
-  ;; connecting every media house to every agent
-  ask media_houses [
-    ask agents [
-      create-biconnection-with myself
-    ]
-  ]
-end
-
-to create-scale-free-network
-  ;; Implementing Barabasi-Albert Algorithm with the pre-existing agentset
-  ;; Not using the nw:preferential-attachment because this way we can bias the network generation algorithm to make hubs appear along a distribution over the opinion space.
-
-  ;; Let's pre-generate an ordered list of agents
-  ;; since the order of selection in the BA algorithm determines which agents become hubs (earlier selected are more likely), we enable biasing the selection here.
-  let selection-order get-agent-sampling-order agents Scale_Free_selection-distribution
-
-
-  ;;show (word "Creating Scale-free Network with " Scale_Free_degree " as minimum degree.")
-  ;;show (word "The selection order is: " selection-order)
-  ;; Initialize m links among the first m + 1 people in the list
-  let m Scale_Free_degree
-  let initial-nodes-ids sublist selection-order 0 (m + 1)
-  let initial-nodes agents with [member? who initial-nodes-ids]
-
-  ;;show (word "Initializing the following nodes: " initial-nodes-ids)
-  ;;Create fully connected subnetwork among the intialized nodes
-  ask initial-nodes[
-    ask initial-nodes[
-      if self != myself [
-        create-biconnection-with myself   ;;Create a biconnection.
-      ]
-    ]
-  ]
-
-  ;;show (word "Created Biconnections")
-
-
-  ;;Remove initial node id's from the list
-  foreach initial-nodes-ids[ [id] ->
-    set selection-order remove id selection-order
-  ]
-
-
-  ;;show (word "Removed initial nodes to get: " selection-order)
-
-  ;; Now we iterate over the rest of the list and implement the BA algorithm
-  ;; Broadly, we will obtain a PMF over all possible connection targets and sample from it.
-  foreach selection-order [ [id] ->
-    ask agents with [who = id][
-
-      ;;show (word "Currently on Who = " id)
-      ;;  Find agents with whom this agent does not have a biconnection with
-      let my-neighbors biconnection-neighbors  ;; Agents with a biconnection
-
-
-      ;; Find agents not connected to the current agent
-      let unconnected-agents other agents with [not member? self my-neighbors]
-
-      ;; Putting them in a list so we have some order and can keep track of it across the variables of interest (degree and BA-associated pmf which is degree by total degrees).
-      let target-ids [] ;;the 'who' of other unconnected agents (potential connections) in a fixed but arbitrary order.
-      let target-degrees [] ;; the degrees of other unconnected agents (potential connections) in the same order.
-      let pmf [] ;;degree/total subnetwork degree of other unconnected agents in the same order
-      let total-subnetwork-degree 0 ;;storing the sum of degrees of all nodes in the target subnetwork, since we need this for pmf computation.
-
-      ;; Iterate over targets to store their relevant calues
-      ask unconnected-agents[
-        let prospect-degree count biconnection-neighbors ;;Local variable, storing the connection prospect's degree
-        set target-ids lput who target-ids
-        set target-degrees lput prospect-degree target-degrees
-        set total-subnetwork-degree (total-subnetwork-degree + prospect-degree)
-      ]
-
-      foreach target-degrees[ [d] ->
-        set pmf lput (d / total-subnetwork-degree) pmf
-      ]
-
-      ;;show (word  "Computed Scale-free selection order PMF by opinion")
-      ;;show(word "The PMF is " pmf)
-
-
-      ;; NOW FINALLY WE CAN ADD CONNECTIONS TO OUR AGENTS (PHEW)..
-      ;; Making new biconnections as per pmf
-
-      let new-connections-made 0 ;; keeping track so we don't exceed m in each step
-      while [new-connections-made < m][
-        ;;show (word "New connections made:" new-connections-made)
-        let this-target-id pmf-to-sample target-ids pmf ;;samples ID according to PMF and stores it
-
-        ;;show (word "Sampled ID:" this-target-id)
-
-        ;; Adding biconnection
-        ask unconnected-agents with [who = this-target-id][
-          if not in-biconnection-neighbor? myself [
-            create-biconnection-with myself
-            ;; Do this only if you create a biconnection!
-            set new-connections-made (new-connections-made + 1)
-          ]
-          ;;If there exists a connection, we want it to loop again so that a new sample is drawn.
-        ]
-        ;;set new-connections-made (new-connections-made + 1)
-      ]
-    ]
-  ]
-
-
-end
-
-
-to-report get-agent-sampling-order [agent-set distribution-type]
-  ;; returns a list of agent ID's representing the order in which they must be added to the scale-free network.
-  ;; order can depend on a distribution over the opinion space.
-
-  let selection-order []
-
-  if distribution-type = "uniform"[
-    ;; sampling without replacement and without regard to position of agent in the opinion space.
-    ;; Just iterate over the agent set and ask them to drop their ID's.
-    ask agent-set [
-      set selection-order lput who selection-order
-    ]
-  ]
-
-
-  ;; If the distributions are centered or polarized, we bias our sampling according to a gaussian or U-shaped distribution over opinion space.
-  if distribution-type = "centered" or distribution-type = "polarized"[
-    ;; We will sample from the Normal distribution with params as defined, and then put the ids either at the beginning or end of the list.
-
-    let sampled-agents no-turtles
-    let remaining-agents agent-set
-
-    while [count sampled-agents < count agent-set] [
-      ;; Find agent with the closest opinion to the one drawn on random-normal
-      ;;let x random-normal Scale_Free_selection-mu Scale_Free_selection-sigma
-      let x n-values Number_Of_Opinion_Dimensions [precision (random-normal Scale_Free_selection-mu Scale_Free_selection-sigma) 2]
-      ;; Now we choose the agent whose Euclidean opinion distance from the
-      let x-list []      ;; adding to list so we can call opinion distance
-      set x-list lput x x-list
-      let closest-agent min-one-of remaining-agents [opinion-distance (own-opinion) (x) (false)]
-
-      ;; Now add to list! If we need a polar-heavy selection
-
-      ifelse distribution-type = "centered"[
-        ask closest-agent[
-          set selection-order lput who selection-order
-        ]
-      ][
-        ask closest-agent[
-         ;; approximate a U-shaped distribution by simply inverting the list (inwhich more central values are more likely to be placed up top).
-          set selection-order fput who selection-order
-        ]
-      ]
-
-      ;; Add the closest agent to sampled agent set
-      set sampled-agents (turtle-set sampled-agents closest-agent)
-      ;;show (word "Remaining agents before removal: " remaining-agents)
-      ;;show (word "closest agent before removal: " closest-agent)
-
-      ;; Remove the selected agent from the remaining pool
-      ;;set remaining-agents remove closest-agent remaining-agents
-      set remaining-agents remaining-agents with [who != [who] of closest-agent]
-      ;;show (word "Remaining agents after removal: " remaining-agents)
-
-    ]
-  ]
-  report selection-order
-end
-
-to-report pmf-to-sample [X pmf]
-  ;; Takes as input an n-valued list representing a random variable and its pmf array.
-  ;; Reports the sample drawn under the pmf.
-
-  ;; Stack the PMF's on top of one another so they form the unit interval.
-  ;; Then draw a random float from 0 to 1, and pick the X value corresponding to the pmf subinterval it falls under.
-  let x-drawn random-float 1
-  let sum-so-far 0
-  let index 0
-  let sample-index 0
-  let stop-this False ;;flag for keeping track of when we need to exit the loop since netlogo can't break.
-
-  ;; Iterate through the pmf list
-  foreach pmf [p ->
-    set sum-so-far (sum-so-far + p)  ;; Update the sum
-    if x-drawn <= sum-so-far[
-      if stop-this = False[
-        set sample-index index
-        set stop-this True
-      ]
-      ;; would be good to break out of the loop here but I dont think netlogo allows that.
-    ]
-    set index (index + 1) ;; Update index
-  ]
-
-  report item sample-index X ;; Report the variable value associated with the index
-end
-
-
-
-to create-community-network
-  let community-size count agents / Modular_num-communities
-  let network-communities n-values Modular_num-communities [n -> n * community-size]
-
-  ;; Create intra-community connections
-  foreach network-communities [ [start-index] ->
-    let group agents with [who >= start-index and who < (start-index + community-size)]
-    ask group [
-      ask other group [
-        if random-float 1 < Modular_intra-prob [
-          create-biconnection-with myself
-        ]
-      ]
-    ]
-  ]
-
-  ;; Create inter-community connections
+;; Main routine
+to go
+  ;;;; Main part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ask agents [
-    ask other agents with [who >= community-size * Modular_num-communities] [
-      if random-float 1 < Modular_inter-prob [
-        create-biconnection-with myself
-      ]
-    ]
+    if model = "HK" [change-opinion-HK]
+    ;; Note: Now here is only Hegselmann-Krause algorithm, but in the future we might easily employ other algorithms here!
   ]
+
+  ;;saving data after steps are done.
+  save-fine-grained-data ticks
+
+  ;;;; Preparation part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; All preparations of agents, globals, avoiding errors etc. in one sub-routine
+  prepare-everything-for-the-next-step
+
+  ;;;; Final part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; Recoloring patches, agents, computing how model settled down
+  updating-patches-and-globals
+
+  tick
+
+  ;; Finishing condition:
+  ;; 1) We reached number of steps specified in MAX-TICKS
+  computing-polarisation
+  if ticks = max-ticks [stop]
+  if (precision diversity 7) = 0 [stop]
 end
+
 
 
 
@@ -548,38 +339,6 @@ to set-group-identities
 end
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;   G O !   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; Main routine
-to go
-  ;;;; Main part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ask agents [
-    if model = "HK" [change-opinion-HK]
-    ;; Note: Now here is only Hegselmann-Krause algorithm, but in the future we might easily employ other algorithms here!
-  ]
-
-  ;;;; Preparation part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; All preparations of agents, globals, avoiding errors etc. in one sub-routine
-  prepare-everything-for-the-next-step
-
-  ;;;; Final part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Recoloring patches, agents, computing how model settled down
-  updating-patches-and-globals
-
-  tick
-
-
-  ;; Finishing condition:
-  ;; 1) We reached number of steps specified in MAX-TICKS
-  computing-polarisation
-  if ticks = max-ticks [stop]
-  if (precision diversity 7) = 0 [stop]
-end
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -668,13 +427,16 @@ to change-opinion-HK
   set influentials (turtle-set self influentials)
 
 
+if Use_Political_Interest[
+    ;; Implementing political interest: Agent samples from influencers and consumes only a subset, proportional to their Political Interest
+    let number_sampled_influentials ceiling (own-political_Interest * Number_Of_Agents)
 
-  ;; Implementing political interest: Agent samples from influencers and consumes only a subset, proportional to their Political Interest
-  let number_sampled_influentials ceiling (own-political_Interest * Number_Of_Agents)
-
-  if(number_sampled_influentials < count influentials)[ ;;need to sample only if the number of incoming opinions is large
-    set influentials n-of number_sampled_influentials influentials
+    if(number_sampled_influentials < count influentials)[ ;;need to sample only if the number of incoming opinions is large
+      set influentials n-of number_sampled_influentials influentials
+    ]
   ]
+
+    set own-current-influentials influentials
 
   ;; we check whether there is someone else then calling/updating agent in the agent set 'influentials'
   if count influentials > 1 [
@@ -958,6 +720,33 @@ to-report get-political-interest
   report cValue
 
 end
+
+
+to-report get-agent-opinion
+  let oValues n-values Number_Of_Opinion_Dimensions [0]
+  if Opinion_Distribution = "uniform"[
+    set oValues n-values Number_Of_Opinion_Dimensions [ifelse-value (HK_opinion_distribution?) [1 - (who / ((Number_Of_Agents - 1) / 2))][precision (1 - random-float 2) 3]]  ;; We set opinions...
+  ]
+  if Opinion_Distribution = "constant"[
+    set oValues n-values Number_Of_Opinion_Dimensions [Opinion_Mean]
+  ]
+  if Opinion_Distribution = "normal" [
+    set oValues []
+    repeat Number_Of_Opinion_Dimensions [
+      let tempValue precision (random-normal Opinion_Mean Opinion_STD) 3
+      while [tempValue > 1 or tempValue < -1] [
+        set tempValue precision (random-normal Opinion_Mean Opinion_STD) 3
+      ]
+      set oValues lput tempValue oValues
+    ]
+  ]
+  if Opinion_Distribution = "beta" [
+      set oValues n-values Number_Of_Opinion_Dimensions [(precision (2 * (random-U-shaped-distribution Media_House_Distribution_Beta_Shape) - 1) 3)]
+  ]
+  report oValues
+end
+
+
 
 
 ;; Sub-routine for assigning value of
@@ -1275,6 +1064,353 @@ to setup-media-houses-from-input
       set shape "house"
     ]
   ]
+end
+
+
+
+
+to __COMMUNICATION-NETWORKS end
+
+  to build-networks
+  if Network_Type = "Full" [
+    ask agents [
+    show "Building Full Network"
+      create-biconnections-with other agents
+    ]
+    ;;ask biconnections [set hidden? true]  ;; Hide links to save computational resources
+  ]
+
+  if Network_Type = "Scale-free" [
+    show "Building Scale-free Network"
+    create-scale-free-network
+  ]
+
+  if Network_Type = "Modular" [
+    show "Building Modular Network"
+    create-community-network  ;; '5' communities, 80% intra-prob, 5% inter-prob
+  ]
+
+  ;; Now connecting media houses to agents
+  connect-agents-to-media
+end
+
+to connect-agents-to-media
+
+  ;; connecting every media house to every agent
+  ask media_houses [
+    ask agents [
+      create-biconnection-with myself
+    ]
+  ]
+end
+
+to create-scale-free-network
+  ;; Implementing Barabasi-Albert Algorithm with the pre-existing agentset
+  ;; Not using the nw:preferential-attachment because this way we can bias the network generation algorithm to make hubs appear along a distribution over the opinion space.
+
+  ;; Let's pre-generate an ordered list of agents
+  ;; since the order of selection in the BA algorithm determines which agents become hubs (earlier selected are more likely), we enable biasing the selection here.
+  let selection-order get-agent-sampling-order agents Scale_Free_selection-distribution
+
+
+  ;;show (word "Creating Scale-free Network with " Scale_Free_degree " as minimum degree.")
+  ;;show (word "The selection order is: " selection-order)
+  ;; Initialize m links among the first m + 1 people in the list
+  let m Scale_Free_degree
+  let initial-nodes-ids sublist selection-order 0 (m + 1)
+  let initial-nodes agents with [member? who initial-nodes-ids]
+
+  ;;show (word "Initializing the following nodes: " initial-nodes-ids)
+  ;;Create fully connected subnetwork among the intialized nodes
+  ask initial-nodes[
+    ask initial-nodes[
+      if self != myself [
+        create-biconnection-with myself   ;;Create a biconnection.
+      ]
+    ]
+  ]
+
+  ;;show (word "Created Biconnections")
+
+
+  ;;Remove initial node id's from the list
+  foreach initial-nodes-ids[ [id] ->
+    set selection-order remove id selection-order
+  ]
+
+
+  ;;show (word "Removed initial nodes to get: " selection-order)
+
+  ;; Now we iterate over the rest of the list and implement the BA algorithm
+  ;; Broadly, we will obtain a PMF over all possible connection targets and sample from it.
+  foreach selection-order [ [id] ->
+    ask agents with [who = id][
+
+      ;;show (word "Currently on Who = " id)
+      ;;  Find agents with whom this agent does not have a biconnection with
+      let my-neighbors biconnection-neighbors  ;; Agents with a biconnection
+
+
+      ;; Find agents not connected to the current agent
+      let unconnected-agents other agents with [not member? self my-neighbors]
+
+      ;; Putting them in a list so we have some order and can keep track of it across the variables of interest (degree and BA-associated pmf which is degree by total degrees).
+      let target-ids [] ;;the 'who' of other unconnected agents (potential connections) in a fixed but arbitrary order.
+      let target-degrees [] ;; the degrees of other unconnected agents (potential connections) in the same order.
+      let pmf [] ;;degree/total subnetwork degree of other unconnected agents in the same order
+      let total-subnetwork-degree 0 ;;storing the sum of degrees of all nodes in the target subnetwork, since we need this for pmf computation.
+
+      ;; Iterate over targets to store their relevant calues
+      ask unconnected-agents[
+        let prospect-degree count biconnection-neighbors ;;Local variable, storing the connection prospect's degree
+        set target-ids lput who target-ids
+        set target-degrees lput prospect-degree target-degrees
+        set total-subnetwork-degree (total-subnetwork-degree + prospect-degree)
+      ]
+
+      foreach target-degrees[ [d] ->
+        set pmf lput (d / total-subnetwork-degree) pmf
+      ]
+
+      ;;show (word  "Computed Scale-free selection order PMF by opinion")
+      ;;show(word "The PMF is " pmf)
+
+
+      ;; NOW FINALLY WE CAN ADD CONNECTIONS TO OUR AGENTS (PHEW)..
+      ;; Making new biconnections as per pmf
+
+      let new-connections-made 0 ;; keeping track so we don't exceed m in each step
+      while [new-connections-made < m][
+        ;;show (word "New connections made:" new-connections-made)
+        let this-target-id pmf-to-sample target-ids pmf ;;samples ID according to PMF and stores it
+
+        ;;show (word "Sampled ID:" this-target-id)
+
+        ;; Adding biconnection
+        ask unconnected-agents with [who = this-target-id][
+          if not in-biconnection-neighbor? myself [
+            create-biconnection-with myself
+            ;; Do this only if you create a biconnection!
+            set new-connections-made (new-connections-made + 1)
+          ]
+          ;;If there exists a connection, we want it to loop again so that a new sample is drawn.
+        ]
+        ;;set new-connections-made (new-connections-made + 1)
+      ]
+    ]
+  ]
+
+
+end
+
+
+to-report get-agent-sampling-order [agent-set distribution-type]
+  ;; returns a list of agent ID's representing the order in which they must be added to the scale-free network.
+  ;; order can depend on a distribution over the opinion space.
+
+  let selection-order []
+
+  if distribution-type = "uniform"[
+    ;; sampling without replacement and without regard to position of agent in the opinion space.
+    ;; Just iterate over the agent set and ask them to drop their ID's.
+    ask agent-set [
+      set selection-order lput who selection-order
+    ]
+  ]
+
+
+  ;; If the distributions are centered or polarized, we bias our sampling according to a gaussian or U-shaped distribution over opinion space.
+  if distribution-type = "centered" or distribution-type = "polarized"[
+    ;; We will sample from the Normal distribution with params as defined, and then put the ids either at the beginning or end of the list.
+
+    let sampled-agents no-turtles
+    let remaining-agents agent-set
+
+    while [count sampled-agents < count agent-set] [
+      ;; Find agent with the closest opinion to the one drawn on random-normal
+      ;;let x random-normal Scale_Free_selection-mu Scale_Free_selection-sigma
+      let x n-values Number_Of_Opinion_Dimensions [precision (random-normal Scale_Free_selection-mu Scale_Free_selection-sigma) 2]
+      ;; Now we choose the agent whose Euclidean opinion distance from the
+      let x-list []      ;; adding to list so we can call opinion distance
+      set x-list lput x x-list
+      let closest-agent min-one-of remaining-agents [opinion-distance (own-opinion) (x) (false)]
+
+      ;; Now add to list! If we need a polar-heavy selection
+
+      ifelse distribution-type = "centered"[
+        ask closest-agent[
+          set selection-order lput who selection-order
+        ]
+      ][
+        ask closest-agent[
+         ;; approximate a U-shaped distribution by simply inverting the list (inwhich more central values are more likely to be placed up top).
+          set selection-order fput who selection-order
+        ]
+      ]
+
+      ;; Add the closest agent to sampled agent set
+      set sampled-agents (turtle-set sampled-agents closest-agent)
+      ;;show (word "Remaining agents before removal: " remaining-agents)
+      ;;show (word "closest agent before removal: " closest-agent)
+
+      ;; Remove the selected agent from the remaining pool
+      ;;set remaining-agents remove closest-agent remaining-agents
+      set remaining-agents remaining-agents with [who != [who] of closest-agent]
+      ;;show (word "Remaining agents after removal: " remaining-agents)
+
+    ]
+  ]
+  report selection-order
+end
+
+to-report pmf-to-sample [X pmf]
+  ;; Takes as input an n-valued list representing a random variable and its pmf array.
+  ;; Reports the sample drawn under the pmf.
+
+  ;; Stack the PMF's on top of one another so they form the unit interval.
+  ;; Then draw a random float from 0 to 1, and pick the X value corresponding to the pmf subinterval it falls under.
+  let x-drawn random-float 1
+  let sum-so-far 0
+  let index 0
+  let sample-index 0
+  let stop-this False ;;flag for keeping track of when we need to exit the loop since netlogo can't break.
+
+  ;; Iterate through the pmf list
+  foreach pmf [p ->
+    set sum-so-far (sum-so-far + p)  ;; Update the sum
+    if x-drawn <= sum-so-far[
+      if stop-this = False[
+        set sample-index index
+        set stop-this True
+      ]
+      ;; would be good to break out of the loop here but I dont think netlogo allows that.
+    ]
+    set index (index + 1) ;; Update index
+  ]
+
+  report item sample-index X ;; Report the variable value associated with the index
+end
+
+
+
+to create-community-network
+  let community-size count agents / Modular_num-communities
+  let network-communities n-values Modular_num-communities [n -> n * community-size]
+
+  ;; Create intra-community connections
+  foreach network-communities [ [start-index] ->
+    let group agents with [who >= start-index and who < (start-index + community-size)]
+    ask group [
+      ask other group [
+        if random-float 1 < Modular_intra-prob [
+          create-biconnection-with myself
+        ]
+      ]
+    ]
+  ]
+
+  ;; Create inter-community connections
+  ask agents [
+    ask other agents with [who >= community-size * Modular_num-communities] [
+      if random-float 1 < Modular_inter-prob [
+        create-biconnection-with myself
+      ]
+    ]
+  ]
+end
+
+
+
+
+to __DATA-SAVING end
+
+
+
+to setup-file
+  file-close-all  ;; Close any open files to avoid conflicts
+
+;  let filename (word "fine-grained-data ___boundaryMean" Boundary_Mean
+;                     "___boundarySD" Boundary_STD
+;                     "___OpinionMean" Opinion_Mean
+;                     "___OpinionSD" Opinion_STD
+;                     "___OpinionDistribution" Opinion_Distribution
+;                     "___NetworkType" Network_Type
+;                     "___RS" RS
+;                     "___MediaOpinions" Media-House-Opinion-Values
+;                     ".csv")
+
+  let filename (word "fine-grained-data ___boundaryMean" Boundary_Mean "___boundarySD" Boundary_STD "___OpinionMean" Opinion_Mean "___OpinionSD" Opinion_STD "___OpinionDistribution" Opinion_Distribution "___NetworkType" Network_Type "___RS" RS "___MediaOpinions" Media-House-Opinion-Values ".csv")  ;; Open (or create) a CSV file
+
+  ;; Delete the file if it already exists
+  if file-exists? filename [
+    file-delete filename
+  ]
+
+  file-open filename
+
+  ;; Metadata/Params for each simulations
+  file-print (word "random-seed," RS)
+  file-print (word "conformity-mean," Conformity_Mean)
+  file-print (word "conformity-sd," Conformity_STD)
+  file-print (word "conformity-distribution," Conformity_Distribution)
+  file-print (word "HK-distribution," HK_opinion_distribution?)
+  file-print (word "N," Number_Of_Agents)
+  file-print (word "boundary-mean," Boundary_Mean)
+  file-print (word "boundary-sd," Boundary_STD)
+  file-print (word "boundary-distribution," Boundary_Distribution)
+  file-print (word "SPIRO-mean," SPIRO_Mean)
+  file-print (word "SPIRO-sd," SPIRO_STD)
+  file-print (word "SPIRO-distribution," SPIRO_Distribution)
+  file-print (word "Identity-Type," Identity_Type)
+  file-print (word "Identity-Levels," Identity_Levels)
+  file-print (word "Use_Identity?," Use_Identity?)
+  file-print (word "Media-House-Positions," Media-House-Opinion-Values)
+
+
+  ;; Add a separator line for clarity
+  file-print "-----------------"
+  file-print "biconnections (agentID1, agentID2)"  ;; Header for the link list
+
+  ;; Loop over all biconnections and write each link pair
+  ask biconnections [
+    file-print (word [who] of end1 "," [who] of end2)
+  ]
+
+  ;; Add another separator
+  file-print "-----------------"
+
+  file-print "Media Positions (House ID, opinion)"
+
+
+  ;; Loop over all media houses and write each opinion
+  ask media_houses [
+    file-print (word who "," own-opinion)
+  ]
+
+
+  file-print "-----------------"
+
+
+  file-print "timeStep, agentID, opinion, previousOpinion, boundary, conformity, SPIRO, groupNumber, Influencer ID's"  ;; Write the header
+end
+
+to save-fine-grained-data [t]
+  ask agents [
+    let influential-list []
+
+    ;; go through each agent in own-current-influentials and extract their 'who'
+    foreach sort own-current-influentials [
+      influencer ->
+      set influential-list lput [who] of influencer influential-list
+    ]
+
+    file-print (word t "," who "," own-opinion "," own-previous-opinion "," own-boundary "," own-conformity "," own-SPIRO "," own-group-number "," influential-list)  ;; Write time, agent ID, and opinion
+  ]
+end
+
+
+to close-file
+  file-close
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -2122,10 +2258,10 @@ Scale_Free_selection-distribution
 0
 
 SLIDER
-535
-663
-731
-696
+432
+664
+628
+697
 Number_Of_Media_Houses
 Number_Of_Media_Houses
 0
@@ -2177,10 +2313,10 @@ NIL
 HORIZONTAL
 
 CHOOSER
-537
-695
-710
-740
+434
+696
+607
+741
 Media_House_Distribution
 Media_House_Distribution
 "uniform" "centered" "polarized"
@@ -2217,10 +2353,10 @@ NIL
 HORIZONTAL
 
 INPUTBOX
-535
-605
-754
-665
+432
+606
+651
+666
 Media-House-Opinion-Values
 [-1 0.2 0.5 0.8]
 1
@@ -2228,13 +2364,64 @@ Media-House-Opinion-Values
 String
 
 SWITCH
-534
-572
-797
-605
+431
+573
+694
+606
 Media-Opinions_Use_specific_values
 Media-Opinions_Use_specific_values
 0
+1
+-1000
+
+CHOOSER
+757
+561
+898
+606
+Opinion_Distribution
+Opinion_Distribution
+"normal" "uniform" "polarized" "beta" "constant"
+0
+
+SLIDER
+726
+629
+898
+662
+Opinion_Mean
+Opinion_Mean
+-1
+1
+0.0
+0.05
+1
+NIL
+HORIZONTAL
+
+SLIDER
+823
+700
+995
+733
+Opinion_STD
+Opinion_STD
+0
+1
+1.0
+0.01
+1
+NIL
+HORIZONTAL
+
+SWITCH
+1181
+498
+1360
+531
+Use_Political_Interest
+Use_Political_Interest
+1
 1
 -1000
 
