@@ -131,8 +131,10 @@ set own-opinion get-agent-opinion
   ;; Compute polarisation
   compute-polarisation-repeatedly
 
-  ;; To write data directly
-  setup-file
+  if SAVE_DATA? [
+    ;; To write data directly
+    setup-file
+  ]
 
   reset-ticks
 
@@ -159,8 +161,11 @@ to go
     ;; Note: Now here is only Hegselmann-Krause algorithm, but in the future we might easily employ other algorithms here!
   ]
 
-  ;;saving data after steps are done.
-  save-fine-grained-data ticks
+  if SAVE_DATA? [
+    ;;saving data after steps are done.
+    save-fine-grained-data ticks
+  ]
+
 
   ;;;; Preparation part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; All preparations of agents, globals, avoiding errors etc. in one sub-routine
@@ -175,8 +180,12 @@ to go
   ;; Finishing condition:
   ;; 1) We reached number of steps specified in MAX-TICKS
   computing-polarisation
-  if ticks = max-ticks [stop]
-  if (precision diversity 7) = 0 [stop]
+  if ticks = max-ticks [
+    if SAVE_DATA? [close-file]
+    stop]
+  if (precision diversity 7) = 0 [
+    if SAVE_DATA? [close-file]
+    stop]
 end
 
 
@@ -1500,7 +1509,7 @@ Number_Of_Agents
 Number_Of_Agents
 9
 1000
-967.0
+966.0
 1
 1
 NIL
@@ -1540,7 +1549,7 @@ Boundary_Mean
 Boundary_Mean
 0.0
 1
-0.237
+0.35
 0.001
 1
 NIL
@@ -1610,7 +1619,7 @@ CHOOSER
 Boundary_Distribution
 Boundary_Distribution
 "constant" "uniform" "normal"
-0
+2
 
 PLOT
 1120
@@ -2008,7 +2017,7 @@ Boundary_STD
 Boundary_STD
 0
 1
-0.0
+0.2
 0.001
 1
 NIL
@@ -2073,7 +2082,7 @@ SWITCH
 76
 avoid_seed_control?
 avoid_seed_control?
-0
+1
 1
 -1000
 
@@ -2143,7 +2152,7 @@ SWITCH
 298
 HK_opinion_distribution?
 HK_opinion_distribution?
-0
+1
 1
 -1000
 
@@ -2358,7 +2367,7 @@ INPUTBOX
 651
 666
 Media-House-Opinion-Values
-[-1 0.2 0.5 0.8]
+[-0.9 -0.7 0 0.7 0.9]
 1
 0
 String
@@ -2408,7 +2417,7 @@ Opinion_STD
 Opinion_STD
 0
 1
-1.0
+0.2
 0.01
 1
 NIL
@@ -2421,6 +2430,39 @@ SWITCH
 531
 Use_Political_Interest
 Use_Political_Interest
+1
+1
+-1000
+
+INPUTBOX
+1331
+271
+1578
+331
+data_directory
+NIL
+1
+0
+String
+
+SWITCH
+1383
+238
+1577
+271
+auto_generate_directory
+auto_generate_directory
+1
+1
+-1000
+
+SWITCH
+1442
+195
+1574
+228
+SAVE_DATA?
+SAVE_DATA?
 1
 1
 -1000
