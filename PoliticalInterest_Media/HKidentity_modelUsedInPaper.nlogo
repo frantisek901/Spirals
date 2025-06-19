@@ -35,7 +35,7 @@ breed [media_houses media_house]
 undirected-link-breed [l-distances l-distance]  ;;For Identity computation
 undirected-link-breed [biconnections biconnection]  ;; Human relationshiops
 directed-link-breed [uniconnection uniconnections]   ;; Influences from Media/Celeb/Bot
-turtles-own [own-opinion own-previous-opinion own-boundary own-conformity own-SPIRO own-WhichGroupHasEachSPIROSortedMeIn own-group-number own-distance-to-centroid own-opinion-dice? own-identity-dice? own-political-interest own-reach own-political_interest]
+turtles-own [own-opinion own-previous-opinion own-boundary own-conformity own-SPIRO own-WhichGroupHasEachSPIROSortedMeIn own-group-number own-distance-to-centroid own-opinion-dice? own-identity-dice? own-reach own-political_interest]
 ;; NOTE: because of sticking to HK and also compatibility with previous results and algorithm for finding final position of group centroids, we need two variables for previous/last position,
 ;; also, unsystematically, during the centroid position we have to copy 'last-position' to 'own-previous-position', since some 'distance' procedures finds opinions by themselves.
 centroids-own [last-position]
@@ -72,13 +72,17 @@ to setup
   set agents turtle-set turtles  ;; Note: If we just write 'set agents turtles', then variable 'agents' is a synonym for 'turtles', so it will contain in the future created centroids!
 
 
-  ;; Initializing Media Agents
-  create-media_houses Number_Of_Media_Houses [
-    set color magenta
-    set own-opinion get-media-house-opinion
-    set own-previous-opinion own-opinion
-    getPlace
-    set shape "house"
+  ifelse Media-Opinions_Use_specific_values [
+    setup-media-houses-from-input
+  ][
+    ;; Initializing Media Agents
+    create-media_houses Number_Of_Media_Houses [
+      set color magenta
+      set own-opinion get-media-house-opinion
+      set own-previous-opinion own-opinion
+      getPlace
+      set shape "house"
+    ]
   ]
 
   ;; In case we don't use identity, we don't need to create links
@@ -136,46 +140,6 @@ to setup
 
 end
 
-to-report get-media-house-opinion
-
-  ;; NOTE: THERE IS A POSSIBLE CHANGE HERE - WE COULD MAKE THE BETA PARAMETER THE SINGLE PARAM THAT DIFFERENTIATES BETWEEN INVERTED U, UNIFORM AND NORMAL
-
-
-  let this-house-opinion n-values Number_Of_Opinion_Dimensions [0] ;;; Initializing media house opinions
-  if(Media_House_Distribution = "centered")[
-    set this-house-opinion n-values Number_Of_Opinion_Dimensions [precision (random-truncated-normal Media_House_Distribution_Normal_STD) 3]
-  ]
-  if(Media_House_Distribution = "polarized")[
-        set this-house-opinion n-values Number_Of_Opinion_Dimensions [(precision (2 * (random-U-shaped-distribution Media_House_Distribution_Beta_Shape) - 1) 3)]
-
-  ]
-   if(Media_House_Distribution = "uniform")[
-        set this-house-opinion n-values Number_Of_Opinion_Dimensions [precision (1 - random-float 2) 3]
-  ]
-  report this-house-opinion
-end
-
-
-to-report random-truncated-normal [sigma]
-  ;; Returns a value drawn from a random normal but re-sampled until the value is between -1 and 1.
-
-  let r random-normal 0 sigma
-  while [r < -1 or r > 1][
-    set r random-normal 0 sigma
-  ]
-  report r
-end
-
-to-report random-U-shaped-distribution [alphabeta]
-  ;; this samples from a Beta distribution, symmetric because alpha = beta.
-  ;; The parameter must be between 0 and 1 for a U-shaped distribution
-  ;; Since for any two independant gamma-distributed rv's X ~ Gamma(alpha, k); Y ~ Gamma(beta, k); X/(X+Y) ~ Beta(alpha, beta)
-  ;; Outputs a value between 0 and 1
-  let x random-gamma alphabeta 1
-  let y random-gamma alphabeta 1
-
-  report x / (x + y)
-end
 
 to build-networks
   if Network_Type = "Full" [
@@ -706,7 +670,7 @@ to change-opinion-HK
 
 
   ;; Implementing political interest: Agent samples from influencers and consumes only a subset, proportional to their Political Interest
-  let number_sampled_influentials ceiling (own-Political_Interest * Number_Of_Agents)
+  let number_sampled_influentials ceiling (own-political_Interest * Number_Of_Agents)
 
   if(number_sampled_influentials < count influentials)[ ;;need to sample only if the number of incoming opinions is large
     set influentials n-of number_sampled_influentials influentials
@@ -1250,6 +1214,67 @@ to-report count_items [list-of-lists]
 
   ;; Reporting counts:
   report counts
+end
+
+
+
+to __MEDIA-OPINION-DISTRIBUTION end
+
+to-report get-media-house-opinion
+
+  ;; NOTE: THERE IS A POSSIBLE CHANGE HERE - WE COULD MAKE THE BETA PARAMETER THE SINGLE PARAM THAT DIFFERENTIATES BETWEEN INVERTED U, UNIFORM AND NORMAL
+
+
+  let this-house-opinion n-values Number_Of_Opinion_Dimensions [0] ;;; Initializing media house opinions
+  if(Media_House_Distribution = "centered")[
+    set this-house-opinion n-values Number_Of_Opinion_Dimensions [precision (random-truncated-normal Media_House_Distribution_Normal_STD) 3]
+  ]
+  if(Media_House_Distribution = "polarized")[
+        set this-house-opinion n-values Number_Of_Opinion_Dimensions [(precision (2 * (random-U-shaped-distribution Media_House_Distribution_Beta_Shape) - 1) 3)]
+
+  ]
+   if(Media_House_Distribution = "uniform")[
+        set this-house-opinion n-values Number_Of_Opinion_Dimensions [precision (1 - random-float 2) 3]
+  ]
+  report this-house-opinion
+end
+
+
+to-report random-truncated-normal [sigma]
+  ;; Returns a value drawn from a random normal but re-sampled until the value is between -1 and 1.
+
+  let r random-normal 0 sigma
+  while [r < -1 or r > 1][
+    set r random-normal 0 sigma
+  ]
+  report r
+end
+
+to-report random-U-shaped-distribution [alphabeta]
+  ;; this samples from a Beta distribution, symmetric because alpha = beta.
+  ;; The parameter must be between 0 and 1 for a U-shaped distribution
+  ;; Since for any two independant gamma-distributed rv's X ~ Gamma(alpha, k); Y ~ Gamma(beta, k); X/(X+Y) ~ Beta(alpha, beta)
+  ;; Outputs a value between 0 and 1
+  let x random-gamma alphabeta 1
+  let y random-gamma alphabeta 1
+
+  report x / (x + y)
+end
+
+to setup-media-houses-from-input
+  ;; Read user input and split it into a list
+  let opinion-values read-from-string Media-House-Opinion-Values
+
+  ;; Create media-house agents and assign their own-opinion values
+  foreach opinion-values [ val ->
+    create-media_houses 1 [
+      set own-opinion n-values Number_Of_Opinion_Dimensions [val]
+      set color magenta
+      set own-previous-opinion own-opinion
+      getPlace
+      set shape "house"
+    ]
+  ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -1987,10 +2012,10 @@ HK_opinion_distribution?
 -1000
 
 CHOOSER
-80
-459
-218
-504
+0
+436
+138
+481
 Network_Type
 Network_Type
 "Full" "Scale-free" "Modular"
@@ -1998,9 +2023,9 @@ Network_Type
 
 SLIDER
 0
-598
+525
 173
-631
+558
 Scale_Free_degree
 Scale_Free_degree
 1
@@ -2012,10 +2037,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-189
-578
-392
-611
+214
+527
+417
+560
 Modular_num-communities
 Modular_num-communities
 0
@@ -2027,10 +2052,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-192
-624
-364
-657
+245
+561
+417
+594
 Modular_intra-prob
 Modular_intra-prob
 0
@@ -2042,10 +2067,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-200
-680
-372
-713
+245
+594
+417
+627
 Modular_inter-prob
 Modular_inter-prob
 0
@@ -2057,10 +2082,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-7
-658
-199
-691
+0
+556
+192
+589
 Scale_Free_selection-mu
 Scale_Free_selection-mu
 -1
@@ -2072,10 +2097,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-20
-707
-228
-740
+0
+587
+208
+620
 Scale_Free_selection-sigma
 Scale_Free_selection-sigma
 0
@@ -2088,19 +2113,19 @@ HORIZONTAL
 
 CHOOSER
 0
-527
+481
 212
-572
+526
 Scale_Free_selection-distribution
 Scale_Free_selection-distribution
 "uniform" "centered" "polarized"
 0
 
 SLIDER
-539
-644
-735
-677
+535
+663
+731
+696
 Number_Of_Media_Houses
 Number_Of_Media_Houses
 0
@@ -2112,20 +2137,20 @@ NIL
 HORIZONTAL
 
 CHOOSER
-546
-565
-740
-610
+1181
+531
+1375
+576
 Political_Interest_Distribution
 Political_Interest_Distribution
 "constant" "uniform" "normal"
 0
 
 SLIDER
-765
-560
-949
-593
+1184
+573
+1368
+606
 Political_Interest_Mean
 Political_Interest_Mean
 0
@@ -2137,10 +2162,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-766
-606
-943
-639
+1185
+619
+1362
+652
 Political_Interest_STD
 Political_Interest_STD
 0
@@ -2162,10 +2187,10 @@ Media_House_Distribution
 1
 
 SLIDER
-749
-702
-1026
-735
+1168
+715
+1445
+748
 Media_House_Distribution_Normal_STD
 Media_House_Distribution_Normal_STD
 0
@@ -2177,10 +2202,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-749
-668
-1022
-701
+1168
+681
+1441
+714
 Media_House_Distribution_Beta_Shape
 Media_House_Distribution_Beta_Shape
 0
@@ -2190,6 +2215,28 @@ Media_House_Distribution_Beta_Shape
 1
 NIL
 HORIZONTAL
+
+INPUTBOX
+535
+605
+754
+665
+Media-House-Opinion-Values
+[-1 0.2 0.5 0.8]
+1
+0
+String
+
+SWITCH
+534
+572
+797
+605
+Media-Opinions_Use_specific_values
+Media-Opinions_Use_specific_values
+0
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
