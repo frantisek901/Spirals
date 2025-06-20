@@ -136,6 +136,7 @@ set own-opinion get-agent-opinion
     setup-file
   ]
 
+
   reset-ticks
 
   ;;;; Preparation part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -174,7 +175,6 @@ to go
   ;;;; Final part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Recoloring patches, agents, computing how model settled down
   updating-patches-and-globals
-
   tick
 
   ;; Finishing condition:
@@ -1025,7 +1025,7 @@ to-report get-media-house-opinion
 
   let this-house-opinion n-values Number_Of_Opinion_Dimensions [0] ;;; Initializing media house opinions
   if(Media_House_Distribution = "centered")[
-    set this-house-opinion n-values Number_Of_Opinion_Dimensions [precision (random-truncated-normal Media_House_Distribution_Normal_STD) 3]
+    set this-house-opinion n-values Number_Of_Opinion_Dimensions [precision (random-truncated-normal Media_House_Distribution_Normal_Mean Media_House_Distribution_Normal_STD) 3]
   ]
   if(Media_House_Distribution = "polarized")[
         set this-house-opinion n-values Number_Of_Opinion_Dimensions [(precision (2 * (random-U-shaped-distribution Media_House_Distribution_Beta_Shape) - 1) 3)]
@@ -1038,12 +1038,12 @@ to-report get-media-house-opinion
 end
 
 
-to-report random-truncated-normal [sigma]
+to-report random-truncated-normal [mu sigma]
   ;; Returns a value drawn from a random normal but re-sampled until the value is between -1 and 1.
 
-  let r random-normal 0 sigma
+  let r random-normal mu sigma
   while [r < -1 or r > 1][
-    set r random-normal 0 sigma
+    set r random-normal mu sigma
   ]
   report r
 end
@@ -1348,7 +1348,19 @@ to setup-file
 ;                     "___MediaOpinions" Media-House-Opinion-Values
 ;                     ".csv")
 
-  let filename (word "fine-grained-data ___boundaryMean" Boundary_Mean "___boundarySD" Boundary_STD "___OpinionMean" Opinion_Mean "___OpinionSD" Opinion_STD "___OpinionDistribution" Opinion_Distribution "___NetworkType" Network_Type "___RS" RS "___MediaOpinions" Media-House-Opinion-Values ".csv")  ;; Open (or create) a CSV file
+  if USER_CHOOSES_DIRECTORY?[
+    set-current-directory user-directory
+  ]
+
+
+  let filename (word "epsM" Boundary_Mean "_epsSD" Boundary_STD "___OpD" Opinion_Distribution "_OpM" Opinion_Mean "_OpSD" Opinion_STD "___Net" Network_Type "___RS" RS)  ;; Open (or create) a CSV file
+  ifelse Media-Opinions_Use_specific_values[
+   set filename (word filename "___Med" Media-House-Opinion-Values)
+  ][
+   set filename (word filename "___MedD" Media_House_Distribution "_MedN" Number_Of_Media_Houses "_MedM" Media_House_Distribution_Normal_Mean "_MedSD" Media_House_Distribution_Normal_STD)
+  ]
+
+  set filename (word filename ".csv") ;;finish off with extension
 
   ;; Delete the file if it already exists
   if file-exists? filename [
@@ -1420,6 +1432,16 @@ end
 
 to close-file
   file-close
+end
+
+to update-opinion-histogram
+  clear-plot  ;; Reset the plot at each timestep
+  set-plot-x-range -1 1  ;; Adjust based on your opinion range
+  set-plot-pen-interval 0.1  ;; Bin width (adjust as needed)
+
+  ;; Create a histogram of agents' opinions
+  let opinions [own-opinion] of agents
+  histogram opinions
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -1509,7 +1531,7 @@ Number_Of_Agents
 Number_Of_Agents
 9
 1000
-966.0
+99.0
 1
 1
 NIL
@@ -1531,25 +1553,25 @@ NIL
 HORIZONTAL
 
 CHOOSER
-140
-331
-232
-376
+118
+301
+210
+346
 model
 model
 "HK"
 0
 
 SLIDER
-8
-297
-137
-330
+11
+232
+140
+265
 Boundary_Mean
 Boundary_Mean
 0.0
 1
-0.35
+0.114
 0.001
 1
 NIL
@@ -1561,7 +1583,7 @@ INPUTBOX
 905
 70
 RS
-1.0
+-1.487293002E9
 1
 0
 Number
@@ -1573,7 +1595,7 @@ SWITCH
 43
 set-seed?
 set-seed?
-0
+1
 1
 -1000
 
@@ -1747,10 +1769,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-8
-376
-141
-409
+2
+425
+135
+458
 Conformity_Mean
 Conformity_Mean
 0
@@ -1762,10 +1784,10 @@ NIL
 HORIZONTAL
 
 CHOOSER
-8
-331
-139
-376
+2
+381
+133
+426
 Conformity_Distribution
 Conformity_Distribution
 "constant" "uniform" "normal"
@@ -1819,7 +1841,7 @@ PLOT
 226
 1280
 346
-'Conformity' Distribution
+'Opinion' Distribution
 NIL
 NIL
 0.0
@@ -1830,7 +1852,7 @@ true
 false
 "" ""
 PENS
-"default" 0.05 1 -16777216 true "" "histogram [own-conformity] of agents"
+"default" 0.05 1 -13840069 true "" "update-opinion-histogram"
 
 MONITOR
 933
@@ -1866,10 +1888,10 @@ killing_centroids?
 -1000
 
 SLIDER
-10
-233
-128
-266
+11
+343
+129
+376
 SPIRO_Mean
 SPIRO_Mean
 0
@@ -1926,10 +1948,10 @@ NIL
 HORIZONTAL
 
 CHOOSER
-125
-188
-232
-233
+11
+297
+118
+342
 SPIRO_Distribution
 SPIRO_Distribution
 "constant" "uniform" "normal" "covert"
@@ -1979,25 +2001,25 @@ NIL
 HORIZONTAL
 
 SLIDER
-128
-233
-239
-266
-SPIRO_STD
-SPIRO_STD
-0
-1
-0.0
-0.001
-1
-NIL
-HORIZONTAL
-
-SLIDER
-141
+129
+343
+240
 376
-270
-409
+SPIRO_STD
+SPIRO_STD
+0
+1
+0.0
+0.001
+1
+NIL
+HORIZONTAL
+
+SLIDER
+135
+425
+264
+458
 Conformity_STD
 Conformity_STD
 0
@@ -2009,15 +2031,15 @@ NIL
 HORIZONTAL
 
 SLIDER
-137
-297
-259
-330
+140
+232
+262
+265
 Boundary_STD
 Boundary_STD
 0
 1
-0.2
+0.019
 0.001
 1
 NIL
@@ -2158,9 +2180,9 @@ HK_opinion_distribution?
 
 CHOOSER
 0
-436
+470
 138
-481
+515
 Network_Type
 Network_Type
 "Full" "Scale-free" "Modular"
@@ -2168,9 +2190,9 @@ Network_Type
 
 SLIDER
 0
-525
+559
 173
-558
+592
 Scale_Free_degree
 Scale_Free_degree
 1
@@ -2182,10 +2204,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-214
-527
-417
-560
+226
+555
+429
+588
 Modular_num-communities
 Modular_num-communities
 0
@@ -2197,10 +2219,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-245
-561
-417
-594
+239
+589
+411
+622
 Modular_intra-prob
 Modular_intra-prob
 0
@@ -2212,10 +2234,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-245
-594
-417
-627
+237
+632
+409
+665
 Modular_inter-prob
 Modular_inter-prob
 0
@@ -2228,9 +2250,9 @@ HORIZONTAL
 
 SLIDER
 0
-556
+590
 192
-589
+623
 Scale_Free_selection-mu
 Scale_Free_selection-mu
 -1
@@ -2243,9 +2265,9 @@ HORIZONTAL
 
 SLIDER
 0
-587
+621
 208
-620
+654
 Scale_Free_selection-sigma
 Scale_Free_selection-sigma
 0
@@ -2258,24 +2280,24 @@ HORIZONTAL
 
 CHOOSER
 0
-481
+515
 212
-526
+560
 Scale_Free_selection-distribution
 Scale_Free_selection-distribution
 "uniform" "centered" "polarized"
 0
 
 SLIDER
-432
-664
-628
-697
+916
+645
+1112
+678
 Number_Of_Media_Houses
 Number_Of_Media_Houses
 0
 10
-3.0
+10.0
 1
 1
 NIL
@@ -2322,35 +2344,35 @@ NIL
 HORIZONTAL
 
 CHOOSER
-434
-696
-607
-741
+916
+678
+1089
+723
 Media_House_Distribution
 Media_House_Distribution
 "uniform" "centered" "polarized"
 1
 
 SLIDER
-1168
-715
-1445
-748
+916
+755
+1193
+788
 Media_House_Distribution_Normal_STD
 Media_House_Distribution_Normal_STD
 0
-0.5
-0.17
+1
+0.41
 0.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-1168
-681
-1441
-714
+916
+721
+1189
+754
 Media_House_Distribution_Beta_Shape
 Media_House_Distribution_Beta_Shape
 0
@@ -2367,7 +2389,7 @@ INPUTBOX
 651
 666
 Media-House-Opinion-Values
-[-0.9 -0.7 0 0.7 0.9]
+[]
 1
 0
 String
@@ -2379,19 +2401,19 @@ SWITCH
 606
 Media-Opinions_Use_specific_values
 Media-Opinions_Use_specific_values
-0
+1
 1
 -1000
 
 CHOOSER
-757
-561
-898
-606
+726
+582
+867
+627
 Opinion_Distribution
 Opinion_Distribution
 "normal" "uniform" "polarized" "beta" "constant"
-0
+1
 
 SLIDER
 726
@@ -2409,10 +2431,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-823
-700
-995
-733
+729
+665
+901
+698
 Opinion_STD
 Opinion_STD
 0
@@ -2434,38 +2456,60 @@ Use_Political_Interest
 1
 -1000
 
-INPUTBOX
-1331
-271
-1578
-331
-data_directory
-NIL
-1
+SWITCH
+1480
+233
+1713
+266
+USER_CHOOSES_DIRECTORY?
+USER_CHOOSES_DIRECTORY?
 0
-String
-
-SWITCH
-1383
-238
-1577
-271
-auto_generate_directory
-auto_generate_directory
-1
 1
 -1000
 
 SWITCH
-1442
-195
-1574
-228
+1479
+198
+1611
+231
 SAVE_DATA?
 SAVE_DATA?
 1
 1
 -1000
+
+SLIDER
+917
+791
+1201
+824
+Media_House_Distribution_Normal_Mean
+Media_House_Distribution_Normal_Mean
+-1
+1
+0.0
+0.05
+1
+NIL
+HORIZONTAL
+
+PLOT
+1293
+161
+1493
+311
+opinion Distribution
+NIL
+NIL
+-1.0
+1.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16382462 true "" "histogram [own-opinion] of agents"
 
 @#$#@#$#@
 ## WHAT IS IT?
