@@ -162,9 +162,20 @@ to go
     ;; Note: Now here is only Hegselmann-Krause algorithm, but in the future we might easily employ other algorithms here!
   ]
 
+  ;; Data writing ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   if SAVE_DATA? [
     ;;saving data after steps are done.
     save-fine-grained-data ticks
+  ]
+
+  ;; Implementing any dynamic conditions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  ;; Sometimes we may want to change over time just the number of media agents but draw from the same distribution
+  if (Dynamic_Media_Number?) [
+    if (should-Nmedia-change-now?) [
+      let Nmedia get-Nmedia
+      reset-media-to-new-number-same-distribution Nmedia
+    ]
   ]
 
 
@@ -1078,6 +1089,42 @@ end
 
 
 
+to __DYNAMIC-MEDIA end
+
+
+
+
+to reset-media-to-new-number-same-distribution [Nmedia]
+  ;; kill all existing media agents, their links, and draw Nmedia new media agents as per the existing media distribution
+
+  ;; STEP 1: KILL
+  ask media_houses [
+    die ] ;;Kill media and links
+
+
+
+  ;; STEP 2: CREATE Nmedia NEW MEDIA AGENTS AND LINK THEM TO PEOPLE.
+  create-media_houses Nmedia [
+      set color magenta
+      set own-opinion get-media-house-opinion
+      set own-previous-opinion own-opinion
+      getPlace
+      set shape "house"
+   ]
+  connect-agents-to-media;
+end
+
+to-report should-Nmedia-change-now?
+  let x False
+  if  (ticks mod Ticks_Between_N_Media_Change = 0 and ticks > 0) [ set x True]
+  report x
+end
+
+to-report get-Nmedia
+  let Nmedia count media_houses + Delta_N_Media
+  report Nmedia
+end
+
 to __COMMUNICATION-NETWORKS end
 
   to build-networks
@@ -1104,7 +1151,6 @@ to __COMMUNICATION-NETWORKS end
 end
 
 to connect-agents-to-media
-
   ;; connecting every media house to every agent
   ask media_houses [
     ask agents [
@@ -1386,6 +1432,8 @@ to setup-file
   file-print (word "Identity-Levels," Identity_Levels)
   file-print (word "Use_Identity?," Use_Identity?)
   file-print (word "Media-House-Positions," Media-House-Opinion-Values)
+  file-print (word "Ticks_Between_N_Media_Change," Ticks_Between_N_Media_Change)
+  file-print (word "Delta_N_Media," Delta_N_Media)
 
 
   ;; Add a separator line for clarity
@@ -1400,19 +1448,17 @@ to setup-file
   ;; Add another separator
   file-print "-----------------"
 
-  file-print "Media Positions (House ID, opinion)"
+  file-print "Initial Media Positions (House ID, opinion)"
 
-
-  ;; Loop over all media houses and write each opinion
-  ask media_houses [
-    file-print (word who "," own-opinion)
-  ]
-
+    ;; Loop over all media houses and write each opinion
+    ask media_houses [
+      file-print (word who "," own-opinion)
+    ]
 
   file-print "-----------------"
 
 
-  file-print "timeStep, agentID, opinion, previousOpinion, boundary, conformity, SPIRO, groupNumber, Influencer ID's"  ;; Write the header
+  file-print "timeStep,agentType,agentID,opinion,previousOpinion,boundary,conformity,SPIRO,groupNumber,Influencer ID's"  ;; Write the header
 end
 
 to save-fine-grained-data [t]
@@ -1425,7 +1471,10 @@ to save-fine-grained-data [t]
       set influential-list lput [who] of influencer influential-list
     ]
 
-    file-print (word t "," who "," own-opinion "," own-previous-opinion "," own-boundary "," own-conformity "," own-SPIRO "," own-group-number "," influential-list)  ;; Write time, agent ID, and opinion
+    file-print (word t "," "Individual" "," who "," own-opinion "," own-previous-opinion "," own-boundary "," own-conformity "," own-SPIRO "," own-group-number "," influential-list)  ;; Write time, agent ID, and opinion
+  ]
+  ask media_houses[
+    file-print (word t "," "Media" "," who "," own-opinion "," own-previous-opinion) ;; Media house prints its position
   ]
 end
 
@@ -1531,7 +1580,7 @@ Number_Of_Agents
 Number_Of_Agents
 9
 1000
-99.0
+1000.0
 1
 1
 NIL
@@ -1571,7 +1620,7 @@ Boundary_Mean
 Boundary_Mean
 0.0
 1
-0.114
+0.333
 0.001
 1
 NIL
@@ -1583,7 +1632,7 @@ INPUTBOX
 905
 70
 RS
--1.487293002E9
+-1.202718342E9
 1
 0
 Number
@@ -1777,7 +1826,7 @@ Conformity_Mean
 Conformity_Mean
 0
 1
-0.2
+0.508
 0.001
 1
 NIL
@@ -2039,7 +2088,7 @@ Boundary_STD
 Boundary_STD
 0
 1
-0.019
+0.084
 0.001
 1
 NIL
@@ -2297,7 +2346,7 @@ Number_Of_Media_Houses
 Number_Of_Media_Houses
 0
 10
-10.0
+3.0
 1
 1
 NIL
@@ -2351,7 +2400,7 @@ CHOOSER
 Media_House_Distribution
 Media_House_Distribution
 "uniform" "centered" "polarized"
-1
+2
 
 SLIDER
 916
@@ -2389,7 +2438,7 @@ INPUTBOX
 651
 666
 Media-House-Opinion-Values
-[]
+[-0.7 0 0.7]
 1
 0
 String
@@ -2401,7 +2450,7 @@ SWITCH
 606
 Media-Opinions_Use_specific_values
 Media-Opinions_Use_specific_values
-1
+0
 1
 -1000
 
@@ -2493,23 +2542,46 @@ Media_House_Distribution_Normal_Mean
 NIL
 HORIZONTAL
 
-PLOT
-1293
-161
-1493
-311
-opinion Distribution
+SWITCH
+1346
+665
+1548
+698
+Dynamic_Media_Number?
+Dynamic_Media_Number?
+1
+1
+-1000
+
+SLIDER
+1345
+698
+1586
+731
+Ticks_Between_N_Media_Change
+Ticks_Between_N_Media_Change
+0
+100
+26.0
+1
+1
 NIL
-NIL
--1.0
+HORIZONTAL
+
+SLIDER
+1345
+731
+1517
+764
+Delta_N_Media
+Delta_N_Media
+0
+100
 1.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16382462 true "" "histogram [own-opinion] of agents"
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
