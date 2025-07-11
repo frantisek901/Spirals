@@ -83,6 +83,20 @@ set own-opinion get-agent-opinion
       getPlace
       set shape "house"
     ]
+    if Media_House_Distribution = "deterministic-normal" [
+      ;; In case we go with deterministically determining values according to the normal CDF, we need to reset the positions.
+
+
+      ;; Reset positions respecting normal distribution density
+      let media-positions deterministic-normal-points Number_Of_Media_Houses Media_House_Distribution_Normal_Mean Media_House_Distribution_Normal_STD
+      let i 0
+      ask media_houses[
+        set own-opinion replace-item 0 own-opinion (item i media-positions) ;;change just the first element from the list, this is a cheat since we are hardcoding 1D.
+        ;; reset positions
+        getPlace
+        set i (i + 1)
+      ]
+    ]
   ]
 
   ;; In case we don't use identity, we don't need to create links
@@ -1111,6 +1125,9 @@ to reset-media-to-new-number-same-distribution [Nmedia]
       getPlace
       set shape "house"
    ]
+
+
+
   connect-agents-to-media;
 end
 
@@ -1483,14 +1500,72 @@ to close-file
   file-close
 end
 
-to update-opinion-histogram
-  clear-plot  ;; Reset the plot at each timestep
-  set-plot-x-range -1 1  ;; Adjust based on your opinion range
-  set-plot-pen-interval 0.1  ;; Bin width (adjust as needed)
 
-  ;; Create a histogram of agents' opinions
-  let opinions [own-opinion] of agents
-  histogram opinions
+;; Taylor series approximation of standard normal CDF (mean=0, std-dev=1)
+;; Uses erf() approximation with 10 terms (error < 1e-6)
+to-report standard-normal-cdf [ x ]
+  let summed 0
+  let term x
+  let x-sq x * x
+  let sign 1
+  let denominator 1
+  let n 0
+
+  ;; Taylor series for erf(x/sqrt(2))
+  repeat 15 [
+    set summed summed + (sign * term) / (denominator * (2 * n + 1))
+    set term term * x-sq / (n + 1)
+    set sign sign * -1
+    set denominator denominator * 2
+    set n n + 1
+  ]
+
+  ;; Convert to CDF
+  report (1 + summed * sqrt(2 / pi)) / 2
+end
+
+;; General normal CDF with adjustable mean/std-dev
+to-report normal-cdf [ x mu std-dev ]
+  if (std-dev <= 0) [ error "Standard deviation must be positive" ]
+  report standard-normal-cdf ( (x - mu) / std-dev )
+end
+
+
+to-report deterministic-normal-points [ k mu std-dev ]
+  let lower -1
+  let upper 1
+  let tolerance 0.0001
+
+  let points []
+  let target-diff 1 / (k + 1)
+
+  foreach n-values k [ i -> (i + 1) * target-diff ] [
+    target-cdf ->
+    let low lower
+    let high upper
+    let guess 0
+    let found? false
+
+    repeat 100 [  ; Max iterations
+      if not found? [
+        set guess (low + high) / 2
+        let current-cdf normal-cdf guess mu std-dev
+
+        ifelse abs (current-cdf - target-cdf) < tolerance [
+          set found? true
+        ] [
+          ifelse current-cdf < target-cdf [
+            set low guess
+          ] [
+            set high guess
+          ]
+        ]
+      ]
+    ]
+    set points lput guess points
+  ]
+
+  report points
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -1580,7 +1655,7 @@ Number_Of_Agents
 Number_Of_Agents
 9
 1000
-1000.0
+999.0
 1
 1
 NIL
@@ -1620,7 +1695,7 @@ Boundary_Mean
 Boundary_Mean
 0.0
 1
-0.333
+0.281
 0.001
 1
 NIL
@@ -1632,7 +1707,7 @@ INPUTBOX
 905
 70
 RS
--1.202718342E9
+7.2019443E8
 1
 0
 Number
@@ -1644,7 +1719,7 @@ SWITCH
 43
 set-seed?
 set-seed?
-1
+0
 1
 -1000
 
@@ -1891,17 +1966,18 @@ PLOT
 1280
 346
 'Opinion' Distribution
-NIL
-NIL
-0.0
-1.0
-0.0
+opinion
+frequency
+-10.0
 10.0
-true
+0.0
+1500.0
 false
-"" ""
+true
+"set-current-plot-pen \"Media\"\nset-plot-pen-mode 2  ; Point mode\nask media_houses [\n  plotxy xcor 250    ; Plot single midpoint (adjust height as needed)\n]\nset-current-plot-pen \"People\"\nset-histogram-num-bars 10" ""
 PENS
-"default" 0.05 1 -13840069 true "" "update-opinion-histogram"
+"People" 1.0 0 -11033397 true "" " plot-pen-down set-plot-pen-mode 1 histogram [xcor] of agents plot-pen-up"
+"Media" 1.0 0 -2674135 true "" ""
 
 MONITOR
 933
@@ -2088,7 +2164,7 @@ Boundary_STD
 Boundary_STD
 0
 1
-0.084
+0.234
 0.001
 1
 NIL
@@ -2103,7 +2179,7 @@ Minimum_SPIRO
 Minimum_SPIRO
 0
 0.5
-0.3
+0.29
 0.01
 1
 NIL
@@ -2345,8 +2421,8 @@ SLIDER
 Number_Of_Media_Houses
 Number_Of_Media_Houses
 0
-10
-3.0
+20
+20.0
 1
 1
 NIL
@@ -2360,7 +2436,7 @@ CHOOSER
 Political_Interest_Distribution
 Political_Interest_Distribution
 "constant" "uniform" "normal"
-0
+1
 
 SLIDER
 1184
@@ -2399,8 +2475,8 @@ CHOOSER
 723
 Media_House_Distribution
 Media_House_Distribution
-"uniform" "centered" "polarized"
-2
+"uniform" "centered" "polarized" "deterministic-normal"
+3
 
 SLIDER
 916
@@ -2411,7 +2487,7 @@ Media_House_Distribution_Normal_STD
 Media_House_Distribution_Normal_STD
 0
 1
-0.41
+0.74
 0.01
 1
 NIL
@@ -2426,7 +2502,7 @@ Media_House_Distribution_Beta_Shape
 Media_House_Distribution_Beta_Shape
 0
 1
-0.5
+0.51
 0.01
 1
 NIL
@@ -2450,7 +2526,7 @@ SWITCH
 606
 Media-Opinions_Use_specific_values
 Media-Opinions_Use_specific_values
-0
+1
 1
 -1000
 
@@ -2582,6 +2658,24 @@ Delta_N_Media
 1
 NIL
 HORIZONTAL
+
+PLOT
+1306
+284
+1506
+434
+Media_Distribution
+NIL
+NIL
+-10.0
+10.0
+0.0
+10.0
+true
+false
+"set-plot-pen-mode 1\nset-histogram-num-bars 7" ""
+PENS
+"default" 1.0 0 -16777216 true "" "histogram [xcor] of media_houses"
 
 @#$#@#$#@
 ## WHAT IS IT?
