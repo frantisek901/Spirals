@@ -83,6 +83,20 @@ set own-opinion get-agent-opinion
       getPlace
       set shape "house"
     ]
+    if Media_House_Distribution = "deterministic-normal" [
+      ;; In case we go with deterministically determining values according to the normal CDF, we need to reset the positions.
+
+
+      ;; Reset positions respecting normal distribution density
+      let media-positions deterministic-normal-points Number_Of_Media_Houses Media_House_Distribution_Normal_Mean Media_House_Distribution_Normal_STD
+      let i 0
+      ask media_houses[
+        set own-opinion replace-item 0 own-opinion (item i media-positions) ;;change just the first element from the list, this is a cheat since we are hardcoding 1D.
+        ;; reset positions
+        getPlace
+        set i (i + 1)
+      ]
+    ]
   ]
 
   ;; In case we don't use identity, we don't need to create links
@@ -136,6 +150,7 @@ set own-opinion get-agent-opinion
     setup-file
   ]
 
+
   reset-ticks
 
   ;;;; Preparation part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -161,9 +176,20 @@ to go
     ;; Note: Now here is only Hegselmann-Krause algorithm, but in the future we might easily employ other algorithms here!
   ]
 
+  ;; Data writing ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   if SAVE_DATA? [
     ;;saving data after steps are done.
     save-fine-grained-data ticks
+  ]
+
+  ;; Implementing any dynamic conditions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  ;; Sometimes we may want to change over time just the number of media agents but draw from the same distribution
+  if (Dynamic_Media_Number?) [
+    if (should-Nmedia-change-now?) [
+      let Nmedia get-Nmedia
+      reset-media-to-new-number-same-distribution Nmedia
+    ]
   ]
 
 
@@ -174,7 +200,6 @@ to go
   ;;;; Final part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Recoloring patches, agents, computing how model settled down
   updating-patches-and-globals
-
   tick
 
   ;; Finishing condition:
@@ -1025,7 +1050,7 @@ to-report get-media-house-opinion
 
   let this-house-opinion n-values Number_Of_Opinion_Dimensions [0] ;;; Initializing media house opinions
   if(Media_House_Distribution = "centered")[
-    set this-house-opinion n-values Number_Of_Opinion_Dimensions [precision (random-truncated-normal Media_House_Distribution_Normal_STD) 3]
+    set this-house-opinion n-values Number_Of_Opinion_Dimensions [precision (random-truncated-normal Media_House_Distribution_Normal_Mean Media_House_Distribution_Normal_STD) 3]
   ]
   if(Media_House_Distribution = "polarized")[
         set this-house-opinion n-values Number_Of_Opinion_Dimensions [(precision (2 * (random-U-shaped-distribution Media_House_Distribution_Beta_Shape) - 1) 3)]
@@ -1038,12 +1063,12 @@ to-report get-media-house-opinion
 end
 
 
-to-report random-truncated-normal [sigma]
+to-report random-truncated-normal [mu sigma]
   ;; Returns a value drawn from a random normal but re-sampled until the value is between -1 and 1.
 
-  let r random-normal 0 sigma
+  let r random-normal mu sigma
   while [r < -1 or r > 1][
-    set r random-normal 0 sigma
+    set r random-normal mu sigma
   ]
   report r
 end
@@ -1078,6 +1103,45 @@ end
 
 
 
+to __DYNAMIC-MEDIA end
+
+
+
+
+to reset-media-to-new-number-same-distribution [Nmedia]
+  ;; kill all existing media agents, their links, and draw Nmedia new media agents as per the existing media distribution
+
+  ;; STEP 1: KILL
+  ask media_houses [
+    die ] ;;Kill media and links
+
+
+
+  ;; STEP 2: CREATE Nmedia NEW MEDIA AGENTS AND LINK THEM TO PEOPLE.
+  create-media_houses Nmedia [
+      set color magenta
+      set own-opinion get-media-house-opinion
+      set own-previous-opinion own-opinion
+      getPlace
+      set shape "house"
+   ]
+
+
+
+  connect-agents-to-media;
+end
+
+to-report should-Nmedia-change-now?
+  let x False
+  if  (ticks mod Ticks_Between_N_Media_Change = 0 and ticks > 0) [ set x True]
+  report x
+end
+
+to-report get-Nmedia
+  let Nmedia count media_houses + Delta_N_Media
+  report Nmedia
+end
+
 to __COMMUNICATION-NETWORKS end
 
   to build-networks
@@ -1104,7 +1168,6 @@ to __COMMUNICATION-NETWORKS end
 end
 
 to connect-agents-to-media
-
   ;; connecting every media house to every agent
   ask media_houses [
     ask agents [
@@ -1348,7 +1411,19 @@ to setup-file
 ;                     "___MediaOpinions" Media-House-Opinion-Values
 ;                     ".csv")
 
-  let filename (word "fine-grained-data ___boundaryMean" Boundary_Mean "___boundarySD" Boundary_STD "___OpinionMean" Opinion_Mean "___OpinionSD" Opinion_STD "___OpinionDistribution" Opinion_Distribution "___NetworkType" Network_Type "___RS" RS "___MediaOpinions" Media-House-Opinion-Values ".csv")  ;; Open (or create) a CSV file
+  if USER_CHOOSES_DIRECTORY?[
+    set-current-directory user-directory
+  ]
+
+
+  let filename (word "epsM" Boundary_Mean "_epsSD" Boundary_STD "___OpD" Opinion_Distribution "_OpM" Opinion_Mean "_OpSD" Opinion_STD "___Net" Network_Type "___RS" RS)  ;; Open (or create) a CSV file
+  ifelse Media-Opinions_Use_specific_values[
+   set filename (word filename "___Med" Media-House-Opinion-Values)
+  ][
+   set filename (word filename "___MedD" Media_House_Distribution "_MedN" Number_Of_Media_Houses "_MedM" Media_House_Distribution_Normal_Mean "_MedSD" Media_House_Distribution_Normal_STD)
+  ]
+
+  set filename (word filename ".csv") ;;finish off with extension
 
   ;; Delete the file if it already exists
   if file-exists? filename [
@@ -1374,6 +1449,8 @@ to setup-file
   file-print (word "Identity-Levels," Identity_Levels)
   file-print (word "Use_Identity?," Use_Identity?)
   file-print (word "Media-House-Positions," Media-House-Opinion-Values)
+  file-print (word "Ticks_Between_N_Media_Change," Ticks_Between_N_Media_Change)
+  file-print (word "Delta_N_Media," Delta_N_Media)
 
 
   ;; Add a separator line for clarity
@@ -1388,19 +1465,17 @@ to setup-file
   ;; Add another separator
   file-print "-----------------"
 
-  file-print "Media Positions (House ID, opinion)"
+  file-print "Initial Media Positions (House ID, opinion)"
 
-
-  ;; Loop over all media houses and write each opinion
-  ask media_houses [
-    file-print (word who "," own-opinion)
-  ]
-
+    ;; Loop over all media houses and write each opinion
+    ask media_houses [
+      file-print (word who "," own-opinion)
+    ]
 
   file-print "-----------------"
 
 
-  file-print "timeStep, agentID, opinion, previousOpinion, boundary, conformity, SPIRO, groupNumber, Influencer ID's"  ;; Write the header
+  file-print "timeStep,agentType,agentID,opinion,previousOpinion,boundary,conformity,SPIRO,groupNumber,Influencer ID's"  ;; Write the header
 end
 
 to save-fine-grained-data [t]
@@ -1413,13 +1488,84 @@ to save-fine-grained-data [t]
       set influential-list lput [who] of influencer influential-list
     ]
 
-    file-print (word t "," who "," own-opinion "," own-previous-opinion "," own-boundary "," own-conformity "," own-SPIRO "," own-group-number "," influential-list)  ;; Write time, agent ID, and opinion
+    file-print (word t "," "Individual" "," who "," own-opinion "," own-previous-opinion "," own-boundary "," own-conformity "," own-SPIRO "," own-group-number "," influential-list)  ;; Write time, agent ID, and opinion
+  ]
+  ask media_houses[
+    file-print (word t "," "Media" "," who "," own-opinion "," own-previous-opinion) ;; Media house prints its position
   ]
 end
 
 
 to close-file
   file-close
+end
+
+
+;; Taylor series approximation of standard normal CDF (mean=0, std-dev=1)
+;; Uses erf() approximation with 10 terms (error < 1e-6)
+to-report standard-normal-cdf [ x ]
+  let summed 0
+  let term x
+  let x-sq x * x
+  let sign 1
+  let denominator 1
+  let n 0
+
+  ;; Taylor series for erf(x/sqrt(2))
+  repeat 15 [
+    set summed summed + (sign * term) / (denominator * (2 * n + 1))
+    set term term * x-sq / (n + 1)
+    set sign sign * -1
+    set denominator denominator * 2
+    set n n + 1
+  ]
+
+  ;; Convert to CDF
+  report (1 + summed * sqrt(2 / pi)) / 2
+end
+
+;; General normal CDF with adjustable mean/std-dev
+to-report normal-cdf [ x mu std-dev ]
+  if (std-dev <= 0) [ error "Standard deviation must be positive" ]
+  report standard-normal-cdf ( (x - mu) / std-dev )
+end
+
+
+to-report deterministic-normal-points [ k mu std-dev ]
+  let lower -1
+  let upper 1
+  let tolerance 0.0001
+
+  let points []
+  let target-diff 1 / (k + 1)
+
+  foreach n-values k [ i -> (i + 1) * target-diff ] [
+    target-cdf ->
+    let low lower
+    let high upper
+    let guess 0
+    let found? false
+
+    repeat 100 [  ; Max iterations
+      if not found? [
+        set guess (low + high) / 2
+        let current-cdf normal-cdf guess mu std-dev
+
+        ifelse abs (current-cdf - target-cdf) < tolerance [
+          set found? true
+        ] [
+          ifelse current-cdf < target-cdf [
+            set low guess
+          ] [
+            set high guess
+          ]
+        ]
+      ]
+    ]
+    set points lput guess points
+  ]
+
+  report points
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -1509,7 +1655,7 @@ Number_Of_Agents
 Number_Of_Agents
 9
 1000
-966.0
+999.0
 1
 1
 NIL
@@ -1531,25 +1677,25 @@ NIL
 HORIZONTAL
 
 CHOOSER
-140
-331
-232
-376
+118
+301
+210
+346
 model
 model
 "HK"
 0
 
 SLIDER
-8
-297
-137
-330
+11
+232
+140
+265
 Boundary_Mean
 Boundary_Mean
 0.0
 1
-0.35
+0.281
 0.001
 1
 NIL
@@ -1561,7 +1707,7 @@ INPUTBOX
 905
 70
 RS
-1.0
+7.2019443E8
 1
 0
 Number
@@ -1747,25 +1893,25 @@ NIL
 HORIZONTAL
 
 SLIDER
-8
-376
-141
-409
+2
+425
+135
+458
 Conformity_Mean
 Conformity_Mean
 0
 1
-0.2
+0.508
 0.001
 1
 NIL
 HORIZONTAL
 
 CHOOSER
-8
-331
-139
-376
+2
+381
+133
+426
 Conformity_Distribution
 Conformity_Distribution
 "constant" "uniform" "normal"
@@ -1819,18 +1965,19 @@ PLOT
 226
 1280
 346
-'Conformity' Distribution
-NIL
-NIL
-0.0
-1.0
-0.0
+'Opinion' Distribution
+opinion
+frequency
+-10.0
 10.0
-true
+0.0
+1500.0
 false
-"" ""
+true
+"set-current-plot-pen \"Media\"\nset-plot-pen-mode 2  ; Point mode\nask media_houses [\n  plotxy xcor 250    ; Plot single midpoint (adjust height as needed)\n]\nset-current-plot-pen \"People\"\nset-histogram-num-bars 10" ""
 PENS
-"default" 0.05 1 -16777216 true "" "histogram [own-conformity] of agents"
+"People" 1.0 0 -11033397 true "" " plot-pen-down set-plot-pen-mode 1 histogram [xcor] of agents plot-pen-up"
+"Media" 1.0 0 -2674135 true "" ""
 
 MONITOR
 933
@@ -1866,10 +2013,10 @@ killing_centroids?
 -1000
 
 SLIDER
-10
-233
-128
-266
+11
+343
+129
+376
 SPIRO_Mean
 SPIRO_Mean
 0
@@ -1926,10 +2073,10 @@ NIL
 HORIZONTAL
 
 CHOOSER
-125
-188
-232
-233
+11
+297
+118
+342
 SPIRO_Distribution
 SPIRO_Distribution
 "constant" "uniform" "normal" "covert"
@@ -1979,25 +2126,25 @@ NIL
 HORIZONTAL
 
 SLIDER
-128
-233
-239
-266
-SPIRO_STD
-SPIRO_STD
-0
-1
-0.0
-0.001
-1
-NIL
-HORIZONTAL
-
-SLIDER
-141
+129
+343
+240
 376
-270
-409
+SPIRO_STD
+SPIRO_STD
+0
+1
+0.0
+0.001
+1
+NIL
+HORIZONTAL
+
+SLIDER
+135
+425
+264
+458
 Conformity_STD
 Conformity_STD
 0
@@ -2009,15 +2156,15 @@ NIL
 HORIZONTAL
 
 SLIDER
-137
-297
-259
-330
+140
+232
+262
+265
 Boundary_STD
 Boundary_STD
 0
 1
-0.2
+0.234
 0.001
 1
 NIL
@@ -2032,7 +2179,7 @@ Minimum_SPIRO
 Minimum_SPIRO
 0
 0.5
-0.3
+0.29
 0.01
 1
 NIL
@@ -2158,9 +2305,9 @@ HK_opinion_distribution?
 
 CHOOSER
 0
-436
+470
 138
-481
+515
 Network_Type
 Network_Type
 "Full" "Scale-free" "Modular"
@@ -2168,9 +2315,9 @@ Network_Type
 
 SLIDER
 0
-525
+559
 173
-558
+592
 Scale_Free_degree
 Scale_Free_degree
 1
@@ -2182,10 +2329,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-214
-527
-417
-560
+226
+555
+429
+588
 Modular_num-communities
 Modular_num-communities
 0
@@ -2197,10 +2344,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-245
-561
-417
-594
+239
+589
+411
+622
 Modular_intra-prob
 Modular_intra-prob
 0
@@ -2212,10 +2359,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-245
-594
-417
-627
+237
+632
+409
+665
 Modular_inter-prob
 Modular_inter-prob
 0
@@ -2228,9 +2375,9 @@ HORIZONTAL
 
 SLIDER
 0
-556
+590
 192
-589
+623
 Scale_Free_selection-mu
 Scale_Free_selection-mu
 -1
@@ -2243,9 +2390,9 @@ HORIZONTAL
 
 SLIDER
 0
-587
+621
 208
-620
+654
 Scale_Free_selection-sigma
 Scale_Free_selection-sigma
 0
@@ -2258,24 +2405,24 @@ HORIZONTAL
 
 CHOOSER
 0
-481
+515
 212
-526
+560
 Scale_Free_selection-distribution
 Scale_Free_selection-distribution
 "uniform" "centered" "polarized"
 0
 
 SLIDER
-432
-664
-628
-697
+916
+645
+1112
+678
 Number_Of_Media_Houses
 Number_Of_Media_Houses
 0
-10
-3.0
+20
+20.0
 1
 1
 NIL
@@ -2289,7 +2436,7 @@ CHOOSER
 Political_Interest_Distribution
 Political_Interest_Distribution
 "constant" "uniform" "normal"
-0
+1
 
 SLIDER
 1184
@@ -2322,40 +2469,40 @@ NIL
 HORIZONTAL
 
 CHOOSER
-434
-696
-607
-741
+916
+678
+1089
+723
 Media_House_Distribution
 Media_House_Distribution
-"uniform" "centered" "polarized"
-1
+"uniform" "centered" "polarized" "deterministic-normal"
+3
 
 SLIDER
-1168
-715
-1445
-748
+916
+755
+1193
+788
 Media_House_Distribution_Normal_STD
 Media_House_Distribution_Normal_STD
 0
-0.5
-0.17
+1
+0.74
 0.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-1168
-681
-1441
-714
+916
+721
+1189
+754
 Media_House_Distribution_Beta_Shape
 Media_House_Distribution_Beta_Shape
 0
 1
-0.5
+0.51
 0.01
 1
 NIL
@@ -2367,7 +2514,7 @@ INPUTBOX
 651
 666
 Media-House-Opinion-Values
-[-0.9 -0.7 0 0.7 0.9]
+[-0.7 0 0.7]
 1
 0
 String
@@ -2379,19 +2526,19 @@ SWITCH
 606
 Media-Opinions_Use_specific_values
 Media-Opinions_Use_specific_values
-0
+1
 1
 -1000
 
 CHOOSER
-757
-561
-898
-606
+726
+582
+867
+627
 Opinion_Distribution
 Opinion_Distribution
 "normal" "uniform" "polarized" "beta" "constant"
-0
+1
 
 SLIDER
 726
@@ -2409,10 +2556,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-823
-700
-995
-733
+729
+665
+901
+698
 Opinion_STD
 Opinion_STD
 0
@@ -2434,38 +2581,101 @@ Use_Political_Interest
 1
 -1000
 
-INPUTBOX
-1331
-271
-1578
-331
-data_directory
-NIL
-1
+SWITCH
+1480
+233
+1713
+266
+USER_CHOOSES_DIRECTORY?
+USER_CHOOSES_DIRECTORY?
 0
-String
-
-SWITCH
-1383
-238
-1577
-271
-auto_generate_directory
-auto_generate_directory
-1
 1
 -1000
 
 SWITCH
-1442
-195
-1574
-228
+1479
+198
+1611
+231
 SAVE_DATA?
 SAVE_DATA?
 1
 1
 -1000
+
+SLIDER
+917
+791
+1201
+824
+Media_House_Distribution_Normal_Mean
+Media_House_Distribution_Normal_Mean
+-1
+1
+0.0
+0.05
+1
+NIL
+HORIZONTAL
+
+SWITCH
+1346
+665
+1548
+698
+Dynamic_Media_Number?
+Dynamic_Media_Number?
+1
+1
+-1000
+
+SLIDER
+1345
+698
+1586
+731
+Ticks_Between_N_Media_Change
+Ticks_Between_N_Media_Change
+0
+100
+26.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+1345
+731
+1517
+764
+Delta_N_Media
+Delta_N_Media
+0
+100
+1.0
+1
+1
+NIL
+HORIZONTAL
+
+PLOT
+1306
+284
+1506
+434
+Media_Distribution
+NIL
+NIL
+-10.0
+10.0
+0.0
+10.0
+true
+false
+"set-plot-pen-mode 1\nset-histogram-num-bars 7" ""
+PENS
+"default" 1.0 0 -16777216 true "" "histogram [xcor] of media_houses"
 
 @#$#@#$#@
 ## WHAT IS IT?
