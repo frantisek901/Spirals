@@ -33,9 +33,9 @@ extensions [nw matrix table]
 breed [centroids centroid]
 breed [media_houses media_house]
 undirected-link-breed [l-distances l-distance]  ;;For Identity computation
-undirected-link-breed [biconnections biconnection]  ;; Human relationshiops
-directed-link-breed [uniconnection uniconnections]   ;; Influences from Media/Celeb/Bot
-turtles-own [own-opinion own-previous-opinion own-boundary own-conformity own-SPIRO own-WhichGroupHasEachSPIROSortedMeIn own-group-number own-distance-to-centroid own-opinion-dice? own-identity-dice? own-reach own-political_interest own-current-influentials]
+undirected-link-breed [biconnections biconnection]  ;; Human relationshiops and media influences
+;directed-link-breed [uniconnection uniconnections]   ;; Influences from Media/Celeb/Bot - currently not implemented distinctly from biconnections.
+turtles-own [own-opinion own-previous-opinion own-boundary own-conformity own-SPIRO own-WhichGroupHasEachSPIROSortedMeIn own-group-number own-distance-to-centroid own-opinion-dice? own-identity-dice? own-reach own-political_interest own-current-influentials own-agent-degree]
 ;; NOTE: because of sticking to HK and also compatibility with previous results and algorithm for finding final position of group centroids, we need two variables for previous/last position,
 ;; also, unsystematically, during the centroid position we have to copy 'last-position' to 'own-previous-position', since some 'distance' procedures finds opinions by themselves.
 centroids-own [last-position]
@@ -109,7 +109,7 @@ set own-opinion get-agent-opinion
     ask l-distances [set hidden? true]  ;; Hiding links for saving comp. resources
   ]
 
-  build-networks        ;;setting up biconnections and uniconnections, along which communication can occur
+  build-networks        ;;setting up networks, along which communication can occur
 
   ;; Setting identity levels according identity scenario:
   (ifelse
@@ -145,9 +145,9 @@ set own-opinion get-agent-opinion
   ;; Compute polarisation
   compute-polarisation-repeatedly
 
-  if SAVE_DATA? [
+  if SAVE_FG_DATA? [
     ;; To write data directly
-    setup-file
+    setup-fine-grained-file
   ]
 
 
@@ -177,7 +177,7 @@ to go
   ]
 
   ;; Data writing ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  if SAVE_DATA? [
+  if SAVE_FG_DATA? [
     ;;saving data after steps are done.
     save-fine-grained-data ticks
   ]
@@ -206,10 +206,18 @@ to go
   ;; 1) We reached number of steps specified in MAX-TICKS
   computing-polarisation
   if ticks = max-ticks [
-    if SAVE_DATA? [close-file]
+    if SAVE_FG_DATA? [close-fine-grained-file]
+    if SAVE_END_SIM_DATA [
+      ;;setting this up after the fine grained data has been saved and closed to prevent conflicts
+      save-end-sim-file ticks
+    ]
     stop]
   if (precision diversity 7) = 0 [
-    if SAVE_DATA? [close-file]
+    if SAVE_FG_DATA? [close-fine-grained-file]
+    if SAVE_END_SIM_DATA [
+      ;;setting this up after the fine grained data has been saved and closed to prevent conflicts
+      save-end-sim-file ticks
+    ]
     stop]
 end
 
@@ -411,10 +419,9 @@ end
 
 ;; sub-routine for updating opinion position of turtle according the Hegselmann-Krause (2002) model
 to change-opinion-HK
-  ;; We define all other agents as NEIGHBS, i.e. potential INFLUENTIALS
-  let neighbs (turtle-set [other-end] of my-biconnections)preparing-myself
 
-
+  ;;undirected link neighbors
+  let neighbs (turtle-set [other-end] of my-biconnections)
 
   ;; In the first block of code we have to determine INFLUENTIALS -- the agents to whom the  updating agents listens to
   ;; Since rolling identity dice is computationally less demanding, we start with id dice:
@@ -461,7 +468,7 @@ to change-opinion-HK
   set influentials (turtle-set self influentials)
 
 
-if Use_Political_Interest[
+  if Use_Political_Interest[
     ;; Implementing political interest: Agent samples from influencers and consumes only a subset, proportional to their Political Interest
     let number_sampled_influentials ceiling (own-political_Interest * Number_Of_Agents)
 
@@ -1102,6 +1109,73 @@ end
 
 
 
+;; Taylor series approximation of standard normal CDF (mean=0, std-dev=1)
+;; Uses erf() approximation with 10 terms (error < 1e-6)
+to-report standard-normal-cdf [ x ]
+  let summed 0
+  let term x
+  let x-sq x * x
+  let sign 1
+  let denominator 1
+  let n 0
+
+  ;; Taylor series for erf(x/sqrt(2))
+  repeat 15 [
+    set summed summed + (sign * term) / (denominator * (2 * n + 1))
+    set term term * x-sq / (n + 1)
+    set sign sign * -1
+    set denominator denominator * 2
+    set n n + 1
+  ]
+
+  ;; Convert to CDF
+  report (1 + summed * sqrt(2 / pi)) / 2
+end
+
+;; General normal CDF with adjustable mean/std-dev
+to-report normal-cdf [ x mu std-dev ]
+  if (std-dev <= 0) [ error "Standard deviation must be positive" ]
+  report standard-normal-cdf ( (x - mu) / std-dev )
+end
+
+
+to-report deterministic-normal-points [ k mu std-dev ]
+  let lower -1
+  let upper 1
+  let tolerance 0.0001
+
+  let points []
+  let target-diff 1 / (k + 1)
+
+  foreach n-values k [ i -> (i + 1) * target-diff ] [
+    target-cdf ->
+    let low lower
+    let high upper
+    let guess 0
+    let found? false
+
+    repeat 100 [  ; Max iterations
+      if not found? [
+        set guess (low + high) / 2
+        let current-cdf normal-cdf guess mu std-dev
+
+        ifelse abs (current-cdf - target-cdf) < tolerance [
+          set found? true
+        ] [
+          ifelse current-cdf < target-cdf [
+            set low guess
+          ] [
+            set high guess
+          ]
+        ]
+      ]
+    ]
+    set points lput guess points
+  ]
+
+  report points
+end
+
 
 to __DYNAMIC-MEDIA end
 
@@ -1144,7 +1218,7 @@ end
 
 to __COMMUNICATION-NETWORKS end
 
-  to build-networks
+to build-networks
   if Network_Type = "Full" [
     ask agents [
     show "Building Full Network"
@@ -1165,6 +1239,16 @@ to __COMMUNICATION-NETWORKS end
 
   ;; Now connecting media houses to agents
   connect-agents-to-media
+  compute-degrees
+end
+
+to compute-degrees
+  ;; compute degree for humans humans (agents) it is the number of other humans they share an undirected link to.
+  ask agents[
+    set own-agent-degree count biconnection-neighbors with [not (breed = media_houses)]
+;    show (word "Degree of agent #" who " is " own-agent-degree)
+  ]
+
 end
 
 to connect-agents-to-media
@@ -1187,6 +1271,7 @@ to create-scale-free-network
 
   ;;show (word "Creating Scale-free Network with " Scale_Free_degree " as minimum degree.")
   ;;show (word "The selection order is: " selection-order)
+
   ;; Initialize m links among the first m + 1 people in the list
   let m Scale_Free_degree
   let initial-nodes-ids sublist selection-order 0 (m + 1)
@@ -1195,12 +1280,16 @@ to create-scale-free-network
   ;;show (word "Initializing the following nodes: " initial-nodes-ids)
   ;;Create fully connected subnetwork among the intialized nodes
   ask initial-nodes[
+;    show (word " Say hello to initial node " who ".")
     ask initial-nodes[
       if self != myself [
         create-biconnection-with myself   ;;Create a biconnection.
+;        show (word "created bc bw " [who] of self " and " [who] of myself ".")
       ]
     ]
   ]
+
+;  show (word "for m = " m " we have " count biconnections " biconnections.")
 
   ;;show (word "Created Biconnections")
 
@@ -1225,6 +1314,8 @@ to create-scale-free-network
 
       ;; Find agents not connected to the current agent
       let unconnected-agents other agents with [not member? self my-neighbors]
+
+;      show (word "Agent #" who " has " count unconnected-agents " unconnected agents.")
 
       ;; Putting them in a list so we have some order and can keep track of it across the variables of interest (degree and BA-associated pmf which is degree by total degrees).
       let target-ids [] ;;the 'who' of other unconnected agents (potential connections) in a fixed but arbitrary order.
@@ -1269,8 +1360,11 @@ to create-scale-free-network
         ]
         ;;set new-connections-made (new-connections-made + 1)
       ]
+;      show (word "Agent #" who " has " count biconnection-neighbors " biconnections after first consideration.")
     ]
   ]
+
+
 
 
 end
@@ -1397,26 +1491,87 @@ end
 to __DATA-SAVING end
 
 
-
-to setup-file
+to save-end-sim-file [t]
   file-close-all  ;; Close any open files to avoid conflicts
 
-;  let filename (word "fine-grained-data ___boundaryMean" Boundary_Mean
-;                     "___boundarySD" Boundary_STD
-;                     "___OpinionMean" Opinion_Mean
-;                     "___OpinionSD" Opinion_STD
-;                     "___OpinionDistribution" Opinion_Distribution
-;                     "___NetworkType" Network_Type
-;                     "___RS" RS
-;                     "___MediaOpinions" Media-House-Opinion-Values
-;                     ".csv")
+  if USER_CHOOSES_DIRECTORY?[
+    set-current-directory user-directory
+  ]
+
+   let filename (word "EndSim_epsM" Boundary_Mean "_epsSD" Boundary_STD "___OpD" Opinion_Distribution "_OpM" Opinion_Mean "_OpSD" Opinion_STD "___Net" Network_Type "___NAgents" Number_Of_Agents "___RS" RS)  ;; Open (or create) a CSV file
+  ifelse Media-Opinions_Use_specific_values[
+   set filename (word filename "___Med" Media-House-Opinion-Values)
+  ][
+   set filename (word filename "___MedD" Media_House_Distribution "_MedN" Number_Of_Media_Houses "_MedM" Media_House_Distribution_Normal_Mean "_MedSD" Media_House_Distribution_Normal_STD)
+  ]
+
+  set filename (word filename ".csv") ;;finish off with extension
+
+  ;; Delete the file if it already exists
+  if file-exists? filename [
+    file-delete filename
+  ]
+
+  file-open filename
+
+  ;; Metadata/Params for each simulations
+  file-print (word "random-seed," RS)
+  file-print (word "conformity-mean," Conformity_Mean)
+  file-print (word "conformity-sd," Conformity_STD)
+  file-print (word "conformity-distribution," Conformity_Distribution)
+  file-print (word "HK-distribution," HK_opinion_distribution?)
+  file-print (word "N," Number_Of_Agents)
+  file-print (word "boundary-mean," Boundary_Mean)
+  file-print (word "boundary-sd," Boundary_STD)
+  file-print (word "boundary-distribution," Boundary_Distribution)
+  file-print (word "SPIRO-mean," SPIRO_Mean)
+  file-print (word "SPIRO-sd," SPIRO_STD)
+  file-print (word "SPIRO-distribution," SPIRO_Distribution)
+  file-print (word "Identity-Type," Identity_Type)
+  file-print (word "Identity-Levels," Identity_Levels)
+  file-print (word "Use_Identity?," Use_Identity?)
+  file-print (word "Media-House-Positions," Media-House-Opinion-Values)
+
+  ;; Add a separator line for clarity
+  file-print "-----------------"
+  file-print "biconnections (agentID1, agentID2)"  ;; Header for the link list
+
+  ;; Loop over all biconnections and write each link pair
+  ask biconnections [
+    file-print (word [who] of end1 "," [who] of end2)
+  ]
+
+  ;; Add another separator
+  file-print "-----------------"
+
+  file-print "Initial Media Positions (House ID, opinion)"
+
+    ;; Loop over all media houses and write each opinion
+    ask media_houses [
+      file-print (word who "," own-opinion)
+    ]
+
+
+  file-print "-----------------"
+  file-print "timeStep,agentType,agentID,opinion,previousOpinion,boundary,conformity,SPIRO,groupNumber,Degree"  ;; Write the header
+  ask agents[
+    file-print (word t "," "Individual" "," who "," own-opinion "," own-previous-opinion "," own-boundary "," own-conformity "," own-SPIRO "," own-group-number "," own-agent-degree)  ;; Write time, agent ID, and opinion
+  ]
+  file-close
+
+end
+
+
+
+to setup-fine-grained-file
+  file-close-all  ;; Close any open files to avoid conflicts
 
   if USER_CHOOSES_DIRECTORY?[
     set-current-directory user-directory
   ]
 
 
-  let filename (word "epsM" Boundary_Mean "_epsSD" Boundary_STD "___OpD" Opinion_Distribution "_OpM" Opinion_Mean "_OpSD" Opinion_STD "___Net" Network_Type "___RS" RS)  ;; Open (or create) a CSV file
+  let filename (word "FG_epsM" Boundary_Mean "_epsSD" Boundary_STD "___OpD" Opinion_Distribution "_OpM" Opinion_Mean "_OpSD" Opinion_STD "___Net" Network_Type "___NAgents" Number_Of_Agents "___RS" RS)  ;; Open (or create) a CSV file
   ifelse Media-Opinions_Use_specific_values[
    set filename (word filename "___Med" Media-House-Opinion-Values)
   ][
@@ -1473,8 +1628,6 @@ to setup-file
     ]
 
   file-print "-----------------"
-
-
   file-print "timeStep,agentType,agentID,opinion,previousOpinion,boundary,conformity,SPIRO,groupNumber,Influencer ID's"  ;; Write the header
 end
 
@@ -1496,76 +1649,8 @@ to save-fine-grained-data [t]
 end
 
 
-to close-file
+to close-fine-grained-file
   file-close
-end
-
-
-;; Taylor series approximation of standard normal CDF (mean=0, std-dev=1)
-;; Uses erf() approximation with 10 terms (error < 1e-6)
-to-report standard-normal-cdf [ x ]
-  let summed 0
-  let term x
-  let x-sq x * x
-  let sign 1
-  let denominator 1
-  let n 0
-
-  ;; Taylor series for erf(x/sqrt(2))
-  repeat 15 [
-    set summed summed + (sign * term) / (denominator * (2 * n + 1))
-    set term term * x-sq / (n + 1)
-    set sign sign * -1
-    set denominator denominator * 2
-    set n n + 1
-  ]
-
-  ;; Convert to CDF
-  report (1 + summed * sqrt(2 / pi)) / 2
-end
-
-;; General normal CDF with adjustable mean/std-dev
-to-report normal-cdf [ x mu std-dev ]
-  if (std-dev <= 0) [ error "Standard deviation must be positive" ]
-  report standard-normal-cdf ( (x - mu) / std-dev )
-end
-
-
-to-report deterministic-normal-points [ k mu std-dev ]
-  let lower -1
-  let upper 1
-  let tolerance 0.0001
-
-  let points []
-  let target-diff 1 / (k + 1)
-
-  foreach n-values k [ i -> (i + 1) * target-diff ] [
-    target-cdf ->
-    let low lower
-    let high upper
-    let guess 0
-    let found? false
-
-    repeat 100 [  ; Max iterations
-      if not found? [
-        set guess (low + high) / 2
-        let current-cdf normal-cdf guess mu std-dev
-
-        ifelse abs (current-cdf - target-cdf) < tolerance [
-          set found? true
-        ] [
-          ifelse current-cdf < target-cdf [
-            set low guess
-          ] [
-            set high guess
-          ]
-        ]
-      ]
-    ]
-    set points lput guess points
-  ]
-
-  report points
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -1655,7 +1740,7 @@ Number_Of_Agents
 Number_Of_Agents
 9
 1000
-999.0
+1000.0
 1
 1
 NIL
@@ -2119,7 +2204,7 @@ Identity_Levels
 Identity_Levels
 1
 10
-7.0
+10.0
 1
 1
 NIL
@@ -2322,7 +2407,7 @@ Scale_Free_degree
 Scale_Free_degree
 1
 10
-4.0
+3.0
 1
 1
 NIL
@@ -2595,10 +2680,10 @@ USER_CHOOSES_DIRECTORY?
 SWITCH
 1479
 198
-1611
+1634
 231
-SAVE_DATA?
-SAVE_DATA?
+SAVE_FG_DATA?
+SAVE_FG_DATA?
 1
 1
 -1000
@@ -2676,6 +2761,35 @@ false
 "set-plot-pen-mode 1\nset-histogram-num-bars 7" ""
 PENS
 "default" 1.0 0 -16777216 true "" "histogram [xcor] of media_houses"
+
+SWITCH
+1483
+95
+1670
+128
+SAVE_END_SIM_DATA
+SAVE_END_SIM_DATA
+0
+1
+-1000
+
+PLOT
+1292
+120
+1471
+248
+Degree Distribution
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "histogram [own-agent-degree] of agents"
 
 @#$#@#$#@
 ## WHAT IS IT?
