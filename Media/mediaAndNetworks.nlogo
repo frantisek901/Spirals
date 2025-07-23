@@ -33545,7 +33545,7 @@ NetLogo 6.4.0
       <value value="0.2"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="EndSimDirectory">
-      <value value="&quot;\\home\\ramaswamy.51\\Documents\\github\\Spirals\\Media\\data\\cluster\\endsim\\23.07.25&quot;"/>
+      <value value="&quot;home\\ramaswamy.51\\Documents\\github\\Spirals\\Media\\data\\cluster\\endsim\\23.07.25&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="centroid_color?">
       <value value="true"/>
