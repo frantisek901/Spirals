@@ -1493,7 +1493,7 @@ to __DATA-SAVING end
 
 to save-end-sim-file [t]
   file-close-all  ;; Close any open files to avoid conflicts
-
+  set-current-directory ""
   ifelse USER_CHOOSES_DIRECTORY?[
     set-current-directory user-directory
   ][
@@ -33341,7 +33341,7 @@ NetLogo 6.4.0
       <value value="0.2"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="EndSimDirectory">
-      <value value="&quot;C:\\Users\\Ashwin\\Documents\\GitHub\\Spirals\\PoliticalInterest_Media\\data&quot;"/>
+      <value value="&quot;C:\\Users\\Ashwin\\Documents\\GitHub\\Spirals\\Media\\data&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="centroid_color?">
       <value value="true"/>
