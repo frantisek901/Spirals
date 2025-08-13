@@ -1,0 +1,1 @@
+This is a speed test with 16 cores and equivalently scaled memory

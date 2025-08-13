@@ -1,0 +1,1 @@
+This was a run done in 11.08.25 to test some technical issues (of the auto-inserstion of the GUI cariables in a new run) and the simulation time for some populations in a 32 core run with 8 GB per core.

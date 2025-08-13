@@ -1,0 +1,1 @@
+This was a run on 24/07/25 to test size viability on 16 cores and equivalently scaled (something between 6 and 8 GB per core) memory.
