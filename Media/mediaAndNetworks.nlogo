@@ -1537,6 +1537,7 @@ to save-end-sim-file [t]
   file-print (word "Identity-Levels," Identity_Levels)
   file-print (word "Use_Identity?," Use_Identity?)
   file-print (word "Media-House-Positions," Media-House-Opinion-Values)
+  file-print (word "Scale-free Degree," Scale_Free_degree)
   file-print (word "Run-End-DateTime," date-and-time)
 
   ;; Add a separator line for clarity
@@ -1611,6 +1612,7 @@ to setup-fine-grained-file
   file-print (word "Identity-Levels," Identity_Levels)
   file-print (word "Use_Identity?," Use_Identity?)
   file-print (word "Media-House-Positions," Media-House-Opinion-Values)
+  file-print (word "Scale-free Degree," Scale_Free_degree)
   file-print (word "Ticks_Between_N_Media_Change," Ticks_Between_N_Media_Change)
   file-print (word "Delta_N_Media," Delta_N_Media)
 
@@ -1635,7 +1637,7 @@ to setup-fine-grained-file
     ]
 
   file-print "-----------------"
-  file-print "timeStep,agentType,agentID,opinion,previousOpinion,boundary,conformity,SPIRO,groupNumber,Influencer ID's"  ;; Write the header
+  file-print "timeStep,agentType,agentID,opinion,previousOpinion,boundary,conformity,SPIRO,groupNumber,Influencer ID's,Degree"  ;; Write the header
 end
 
 to save-fine-grained-data [t]
@@ -1648,7 +1650,7 @@ to save-fine-grained-data [t]
       set influential-list lput [who] of influencer influential-list
     ]
 
-    file-print (word t "," "Individual" "," who "," own-opinion "," own-previous-opinion "," own-boundary "," own-conformity "," own-SPIRO "," own-group-number "," influential-list)  ;; Write time, agent ID, and opinion
+    file-print (word t "," "Individual" "," who "," own-opinion "," own-previous-opinion "," own-boundary "," own-conformity "," own-SPIRO "," own-group-number "," influential-list "," own-agent-degree)  ;; Write time, agent ID, and opinion
   ]
   ask media_houses[
     file-print (word t "," "Media" "," who "," own-opinion "," own-previous-opinion) ;; Media house prints its position
