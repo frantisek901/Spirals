@@ -2658,7 +2658,7 @@ Opinion_STD
 Opinion_STD
 0
 1
-1.0
+0.5
 0.01
 1
 NIL
@@ -38275,6 +38275,9 @@ NetLogo 6.4.0
     <enumeratedValueSet variable="Number_Of_Media_Houses">
       <value value="20"/>
     </enumeratedValueSet>
+    <enumeratedValueSet variable="Opinion_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
     <steppedValueSet variable="Media_House_Distribution_Normal_Mean" first="-1" step="0.5" last="1"/>
     <steppedValueSet variable="Media_House_Distribution_Normal_STD" first="0" step="0.2" last="1"/>
     <steppedValueSet variable="Boundary_Mean" first="0.01" step="0.1" last="0.8"/>
@@ -38436,9 +38439,6 @@ NetLogo 6.4.0
     <enumeratedValueSet variable="Conformity_Mean">
       <value value="0.508"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="Opinion_Distribution">
-      <value value="&quot;uniform&quot;"/>
-    </enumeratedValueSet>
     <enumeratedValueSet variable="Media_House_Distribution_Beta_Shape">
       <value value="0.5"/>
     </enumeratedValueSet>
@@ -38454,7 +38454,7 @@ NetLogo 6.4.0
     <go>go</go>
     <metric>count turtles</metric>
     <enumeratedValueSet variable="EndSimDirectory">
-      <value value="&quot;/home/ramaswamy.51/Documents/github/Spirals/Media/data/cluster/endsim/QSTest&quot;"/>
+      <value value="&quot;/home/ramaswamy.51/Documents/github/Spirals/Media/data/cluster/endsim/MidSweep&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="RS">
       <value value="720194430"/>
@@ -38465,12 +38465,15 @@ NetLogo 6.4.0
     <enumeratedValueSet variable="Number_Of_Media_Houses">
       <value value="20"/>
     </enumeratedValueSet>
+    <enumeratedValueSet variable="Opinion_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
     <steppedValueSet variable="Media_House_Distribution_Normal_Mean" first="-1" step="0.5" last="1"/>
     <steppedValueSet variable="Media_House_Distribution_Normal_STD" first="0" step="0.2" last="1"/>
-    <steppedValueSet variable="Boundary_Mean" first="0.01" step="0.1" last="0.6"/>
-    <steppedValueSet variable="Boundary_STD" first="0" step="0.2" last="0.6"/>
+    <steppedValueSet variable="Boundary_Mean" first="0.01" step="0.01" last="0.15"/>
+    <steppedValueSet variable="Boundary_STD" first="0" step="0.07" last="0.15"/>
     <steppedValueSet variable="Opinion_Mean" first="-1" step="0.5" last="1"/>
-    <steppedValueSet variable="Opinion_STD" first="0" step="0.25" last="0.5"/>
+    <steppedValueSet variable="Opinion_STD" first="0" step="0.25" last="1"/>
     <enumeratedValueSet variable="Scale_Free_degree">
       <value value="1"/>
     </enumeratedValueSet>
@@ -38623,9 +38626,6 @@ NetLogo 6.4.0
     </enumeratedValueSet>
     <enumeratedValueSet variable="Conformity_Mean">
       <value value="0.508"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Opinion_Distribution">
-      <value value="&quot;uniform&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Media_House_Distribution_Beta_Shape">
       <value value="0.5"/>
