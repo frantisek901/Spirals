@@ -39179,7 +39179,7 @@ NetLogo 6.4.0
       <value value="0.49"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="EndSimDirectory">
-      <value value="&quot;/home/ramaswamy.51/Documents/github/Spirals/Media/data/cluster/Step1&quot;"/>
+      <value value="&quot;/home/ramaswamy.51/Documents/github/Spirals/Media/data/cluster/endsim/Step1&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="centroid_color?">
       <value value="true"/>
@@ -39375,7 +39375,7 @@ NetLogo 6.4.0
       <value value="0.49"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="EndSimDirectory">
-      <value value="&quot;/home/ramaswamy.51/Documents/github/Spirals/Media/data/cluster/Step2&quot;"/>
+      <value value="&quot;/home/ramaswamy.51/Documents/github/Spirals/Media/data/cluster/endsim/Step2&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="centroid_color?">
       <value value="true"/>
@@ -39567,7 +39567,7 @@ NetLogo 6.4.0
     <steppedValueSet variable="Boundary_Mean" first="0.01" step="0.07" last="0.21"/>
     <steppedValueSet variable="Opinion_STD" first="0.01" step="0.2" last="0.46"/>
     <enumeratedValueSet variable="EndSimDirectory">
-      <value value="&quot;/home/ramaswamy.51/Documents/github/Spirals/Media/data/cluster/Step3&quot;"/>
+      <value value="&quot;/home/ramaswamy.51/Documents/github/Spirals/Media/data/cluster/endsim/Step3&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="centroid_color?">
       <value value="true"/>
@@ -39759,7 +39759,7 @@ NetLogo 6.4.0
     <steppedValueSet variable="Boundary_Mean" first="0.01" step="0.07" last="0.21"/>
     <steppedValueSet variable="Opinion_STD" first="0.01" step="0.2" last="0.46"/>
     <enumeratedValueSet variable="EndSimDirectory">
-      <value value="&quot;/home/ramaswamy.51/Documents/github/Spirals/Media/data/cluster/Step4&quot;"/>
+      <value value="&quot;/home/ramaswamy.51/Documents/github/Spirals/Media/data/cluster/endsim/Step4&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="centroid_color?">
       <value value="true"/>
