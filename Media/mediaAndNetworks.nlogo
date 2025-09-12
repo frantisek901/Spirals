@@ -35,7 +35,7 @@ breed [media_houses media_house]
 undirected-link-breed [l-distances l-distance]  ;;For Identity computation
 undirected-link-breed [biconnections biconnection]  ;; Human relationshiops and media influences
 ;directed-link-breed [uniconnection uniconnections]   ;; Influences from Media/Celeb/Bot - currently not implemented distinctly from biconnections.
-turtles-own [own-opinion own-previous-opinion own-boundary own-conformity own-SPIRO own-WhichGroupHasEachSPIROSortedMeIn own-group-number own-distance-to-centroid own-opinion-dice? own-identity-dice? own-reach own-political_interest own-current-influentials own-agent-degree]
+turtles-own [own-opinion own-previous-opinion own-boundary own-conformity own-SPIRO own-WhichGroupHasEachSPIROSortedMeIn own-group-number own-distance-to-centroid own-opinion-dice? own-identity-dice? own-reach own-political_interest own-current-influentials own-agent-degree influence-weighted-own-opinion]
 ;; NOTE: because of sticking to HK and also compatibility with previous results and algorithm for finding final position of group centroids, we need two variables for previous/last position,
 ;; also, unsystematically, during the centroid position we have to copy 'last-position' to 'own-previous-position', since some 'distance' procedures finds opinions by themselves.
 centroids-own [last-position]
@@ -485,7 +485,19 @@ to change-opinion-HK
   ;; we check whether there is someone else then calling/updating agent in the agent set 'influentials'
   if count influentials > 1 [
     ;; We compute concensus as average opinion of  'Influentials':
-    let val  precision (mean [item 0 (ifelse-value (Use_Present_Opinion?) [own-opinion][own-previous-opinion])] of influentials) 3 ;; NOTE: classical H-K model operates in 1D, so 1D is hard-wired
+    let val 0
+    ifelse(Use_Media_Influence_Factor?)
+    [
+      ask influentials[
+        set influence-weighted-own-opinion []
+        set influence-weighted-own-opinion lput ifelse-value (breed = media_houses)[Media_Influence_Factor * (item 0 own-opinion)][item 0 (own-opinion)] influence-weighted-own-opinion
+      ]
+      set val precision (mean [item 0 influence-weighted-own-opinion] of influentials) 3  ;; would need conversion to list
+    ]
+    [
+      set val precision (mean [item 0 (ifelse-value (Use_Present_Opinion?) [own-opinion][own-previous-opinion])] of influentials) 3
+    ]
+    ;; NOTE: classical H-K model operates in 1D, so 1D is hard-wired
 
     ;; Updating/weighting 'val' by 'Conformity' and own opinion
     if  (precision (item 0 own-opinion - item 0 own-previous-opinion) 5) > 0 [print (word "Check of equality of past and contemporary opinion: " precision (item 0 own-opinion - item 0 own-previous-opinion) 5)]
@@ -1224,8 +1236,9 @@ to __COMMUNICATION-NETWORKS end
 
 to build-networks
   if Network_Type = "Full" [
-    ask agents [
     show "Building Full Network"
+    ask agents [
+
       create-biconnections-with other agents
     ]
     ;;ask biconnections [set hidden? true]  ;; Hide links to save computational resources
@@ -1789,7 +1802,7 @@ Boundary_Mean
 Boundary_Mean
 0.0
 1
-0.01
+0.193
 0.001
 1
 NIL
@@ -1801,7 +1814,7 @@ INPUTBOX
 905
 70
 RS
-7.2019443E8
+50.0
 1
 0
 Number
@@ -1813,7 +1826,7 @@ SWITCH
 43
 set-seed?
 set-seed?
-1
+0
 1
 -1000
 
@@ -2323,7 +2336,7 @@ SWITCH
 76
 avoid_seed_control?
 avoid_seed_control?
-0
+1
 1
 -1000
 
@@ -2405,7 +2418,7 @@ CHOOSER
 Network_Type
 Network_Type
 "Full" "Scale-free" "Modular"
-0
+1
 
 SLIDER
 0
@@ -2516,7 +2529,7 @@ Number_Of_Media_Houses
 Number_Of_Media_Houses
 0
 20
-0.0
+4.0
 1
 1
 NIL
@@ -2570,7 +2583,7 @@ CHOOSER
 Media_House_Distribution
 Media_House_Distribution
 "uniform" "centered" "polarized" "deterministic-normal"
-0
+3
 
 SLIDER
 916
@@ -2810,6 +2823,32 @@ C:\\Users\\Ashwin\\Documents\\GitHub\\Spirals\\Media\\data
 1
 0
 String
+
+SWITCH
+643
+726
+868
+759
+Use_Media_Influence_Factor?
+Use_Media_Influence_Factor?
+0
+1
+-1000
+
+SLIDER
+643
+759
+829
+792
+Media_Influence_Factor
+Media_Influence_Factor
+0
+1
+0.91
+0.01
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -39017,7 +39056,7 @@ NetLogo 6.4.0
       <value value="0.1"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="CLUSTER_STEPWISE_STEP1_PLAIN-HK" repetitions="30" runMetricsEveryStep="true">
+  <experiment name="CLUSTER_STEPWISE_STEP1_PLAIN-HK" repetitions="1" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
     <metric>count turtles</metric>
@@ -39034,7 +39073,7 @@ NetLogo 6.4.0
       <value value="1"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="set-seed?">
-      <value value="false"/>
+      <value value="true"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Minimum_SPIRO">
       <value value="0.26"/>
@@ -39094,7 +39133,7 @@ NetLogo 6.4.0
       <value value="&quot;uniform&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="avoid_seed_control?">
-      <value value="true"/>
+      <value value="false"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Use_Identity?">
       <value value="false"/>
@@ -39190,9 +39229,7 @@ NetLogo 6.4.0
     <enumeratedValueSet variable="Number_Of_Media_Houses">
       <value value="0"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="RS">
-      <value value="720194430"/>
-    </enumeratedValueSet>
+    <steppedValueSet variable="RS" first="1" step="1" last="30"/>
     <enumeratedValueSet variable="killing_centroids?">
       <value value="true"/>
     </enumeratedValueSet>
@@ -39215,7 +39252,7 @@ NetLogo 6.4.0
       <value value="0.79"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="CLUSTER_STEPWISE_STEP2_NORM-BOUNDARY" repetitions="30" runMetricsEveryStep="true">
+  <experiment name="CLUSTER_STEPWISE_STEP2_NORM-BOUNDARY" repetitions="1" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
     <metric>count turtles</metric>
@@ -39232,7 +39269,7 @@ NetLogo 6.4.0
       <value value="1"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="set-seed?">
-      <value value="false"/>
+      <value value="true"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Minimum_SPIRO">
       <value value="0.26"/>
@@ -39290,7 +39327,7 @@ NetLogo 6.4.0
       <value value="&quot;uniform&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="avoid_seed_control?">
-      <value value="true"/>
+      <value value="false"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Use_Identity?">
       <value value="false"/>
@@ -39386,9 +39423,7 @@ NetLogo 6.4.0
     <enumeratedValueSet variable="Number_Of_Media_Houses">
       <value value="0"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="RS">
-      <value value="720194430"/>
-    </enumeratedValueSet>
+    <steppedValueSet variable="RS" first="1" step="1" last="30"/>
     <enumeratedValueSet variable="killing_centroids?">
       <value value="true"/>
     </enumeratedValueSet>
@@ -39411,7 +39446,7 @@ NetLogo 6.4.0
       <value value="0.79"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="CLUSTER_STEPWISE_STEP3_NB_NO" repetitions="30" runMetricsEveryStep="true">
+  <experiment name="CLUSTER_STEPWISE_STEP3_NB_NO" repetitions="1" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
     <metric>count turtles</metric>
@@ -39428,7 +39463,7 @@ NetLogo 6.4.0
       <value value="1"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="set-seed?">
-      <value value="false"/>
+      <value value="true"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Minimum_SPIRO">
       <value value="0.26"/>
@@ -39484,7 +39519,7 @@ NetLogo 6.4.0
       <value value="&quot;uniform&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="avoid_seed_control?">
-      <value value="true"/>
+      <value value="false"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Use_Identity?">
       <value value="false"/>
@@ -39578,9 +39613,7 @@ NetLogo 6.4.0
     <enumeratedValueSet variable="Number_Of_Media_Houses">
       <value value="0"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="RS">
-      <value value="720194430"/>
-    </enumeratedValueSet>
+    <steppedValueSet variable="RS" first="1" step="1" last="30"/>
     <enumeratedValueSet variable="killing_centroids?">
       <value value="true"/>
     </enumeratedValueSet>
@@ -39603,7 +39636,7 @@ NetLogo 6.4.0
       <value value="0.79"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="CLUSTER_STEPWISE_STEP4_NB_NO_SF" repetitions="30" runMetricsEveryStep="true">
+  <experiment name="CLUSTER_STEPWISE_STEP4_NB_NO_SF" repetitions="1" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
     <metric>count turtles</metric>
@@ -39620,7 +39653,7 @@ NetLogo 6.4.0
       <value value="1"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="set-seed?">
-      <value value="false"/>
+      <value value="true"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Minimum_SPIRO">
       <value value="0.26"/>
@@ -39676,7 +39709,7 @@ NetLogo 6.4.0
       <value value="&quot;uniform&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="avoid_seed_control?">
-      <value value="true"/>
+      <value value="false"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Use_Identity?">
       <value value="false"/>
@@ -39770,9 +39803,7 @@ NetLogo 6.4.0
     <enumeratedValueSet variable="Number_Of_Media_Houses">
       <value value="0"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="RS">
-      <value value="720194430"/>
-    </enumeratedValueSet>
+    <steppedValueSet variable="RS" first="1" step="1" last="30"/>
     <enumeratedValueSet variable="killing_centroids?">
       <value value="true"/>
     </enumeratedValueSet>
@@ -39794,6 +39825,392 @@ NetLogo 6.4.0
     <enumeratedValueSet variable="Media_House_Distribution_Normal_STD">
       <value value="0.79"/>
     </enumeratedValueSet>
+  </experiment>
+  <experiment name="CLUSTER_STEPWISE_STEP5_NB_NO_SF_MED_1/30" repetitions="1" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>go</go>
+    <metric>count turtles</metric>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Delta_N_Media">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Media-House-Opinion-Values">
+      <value value="&quot;[-0.7 0 0.7]&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.26"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Ticks_Between_N_Media_Change">
+      <value value="26"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_STD" first="0" step="0.05" last="0.15"/>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;covert&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Opinion_Mean">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.9"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;constant&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Political_Interest_Mean">
+      <value value="0.7"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SAVE_FG_DATA?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Scale_Free_selection-distribution">
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Modular_num-communities">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Mean">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Media_House_Distribution">
+      <value value="&quot;deterministic-normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Network_Type">
+      <value value="&quot;Scale-free&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Modular_inter-prob">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SAVE_END_SIM_DATA">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="1000"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Media-Opinions_Use_specific_values">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Media_House_Distribution_Normal_Mean" first="-1" step="0.5" last="1"/>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;global&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Scale_Free_selection-sigma">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Political_Interest_Distribution">
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Dynamic_Media_Number?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Scale_Free_degree">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Scale_Free_selection-mu">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_STD">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Political_Interest">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.01" step="0.02" last="0.15"/>
+    <steppedValueSet variable="Opinion_STD" first="0" step="0.3" last="0.9"/>
+    <enumeratedValueSet variable="EndSimDirectory">
+      <value value="&quot;/home/ramaswamy.51/Documents/github/Spirals/Media/data/cluster/endsim/Step5&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Modular_intra-prob">
+      <value value="0.2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Media_Houses">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="RS">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Political_Interest_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Mean">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Opinion_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Media_House_Distribution_Beta_Shape">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="USER_CHOOSES_DIRECTORY?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Media_House_Distribution_Normal_STD" first="0" step="0.3" last="0.9"/>
+    <enumeratedValueSet variable="Use_Media_Influence_Factor?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Media_Influence_Factor" first="0" step="0.2" last="1"/>
+  </experiment>
+  <experiment name="CLUSTER_STEPWISE_STEP5_NB_NO_SF_MED" repetitions="1" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>go</go>
+    <metric>count turtles</metric>
+    <enumeratedValueSet variable="Proportion_Of_High_Covert_SPIRO">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Delta_N_Media">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Media-House-Opinion-Values">
+      <value value="&quot;[-0.7 0 0.7]&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="updating">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="set-seed?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Minimum_SPIRO">
+      <value value="0.26"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Normalize_Distances?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Ticks_Between_N_Media_Change">
+      <value value="26"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Opinion_Dimensions">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="HK_opinion_distribution?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="max-ticks">
+      <value value="365"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_STD" first="0" step="0.05" last="0.15"/>
+    <enumeratedValueSet variable="SPIRO_Distribution">
+      <value value="&quot;covert&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Boundary_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Opinion_Mean">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Maximum_SPIRO">
+      <value value="0.9"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polarisation-each-n-steps">
+      <value value="400"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ESBG_furthest_out">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Identity_Levels">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Distribution">
+      <value value="&quot;constant&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Political_Interest_Mean">
+      <value value="0.7"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SAVE_FG_DATA?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="N_centroids">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Scale_Free_selection-distribution">
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="avoid_seed_control?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Identity?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Modular_num-communities">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_Mean">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Media_House_Distribution">
+      <value value="&quot;deterministic-normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Network_Type">
+      <value value="&quot;Scale-free&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Modular_inter-prob">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SAVE_END_SIM_DATA">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="X-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Agents">
+      <value value="1000"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="polar_repeats">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Media-Opinions_Use_specific_values">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Media_House_Distribution_Normal_Mean" first="-1" step="0.5" last="1"/>
+    <enumeratedValueSet variable="Identity_Type">
+      <value value="&quot;global&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Scale_Free_selection-sigma">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Y-opinion">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_STD">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="model">
+      <value value="&quot;HK&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Political_Interest_Distribution">
+      <value value="&quot;uniform&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Dynamic_Media_Number?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Centroids_change">
+      <value value="1.0E-5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Scale_Free_degree">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Present_Opinion?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Scale_Free_selection-mu">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show_dice_rolls?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="SPIRO_STD">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Use_Political_Interest">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Boundary_Mean" first="0.01" step="0.02" last="0.15"/>
+    <steppedValueSet variable="Opinion_STD" first="0" step="0.3" last="0.9"/>
+    <enumeratedValueSet variable="EndSimDirectory">
+      <value value="&quot;/home/ramaswamy.51/Documents/github/Spirals/Media/data/cluster/endsim/Step5_full&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="centroid_color?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Modular_intra-prob">
+      <value value="0.2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Number_Of_Media_Houses">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="RS" first="1" step="1" last="30"/>
+    <enumeratedValueSet variable="killing_centroids?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Political_Interest_STD">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Conformity_Mean">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Opinion_Distribution">
+      <value value="&quot;normal&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Media_House_Distribution_Beta_Shape">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="USER_CHOOSES_DIRECTORY?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Media_House_Distribution_Normal_STD" first="0" step="0.3" last="0.9"/>
+    <enumeratedValueSet variable="Use_Media_Influence_Factor?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="Media_Influence_Factor" first="0" step="0.2" last="1"/>
   </experiment>
 </experiments>
 @#$#@#$#@
