@@ -1517,7 +1517,7 @@ to save-end-sim-file [t]
     set-current-directory EndSimDirectory
   ]
 
-   let filename (word "EndSim_epsM" Boundary_Mean "_epsSD" Boundary_STD "___OpD" Opinion_Distribution "_OpM" Opinion_Mean "_OpSD" Opinion_STD "___Net" Network_Type "___NAgents" Number_Of_Agents "___RS" RS)  ;; Open (or create) a CSV file
+   let filename (word "EndSim_epsM" Boundary_Mean "_epsSD" Boundary_STD "___OpD" Opinion_Distribution "_OpM" Opinion_Mean "_OpSD" Opinion_STD "___Net" Network_Type "___NAgents" Number_Of_Agents "___RS" RS "__MedInfF" Media_Influence_Factor)  ;; Open (or create) a CSV file
   ifelse Media-Opinions_Use_specific_values[
    set filename (word filename "___Med" Media-House-Opinion-Values)
   ][
@@ -1550,6 +1550,7 @@ to save-end-sim-file [t]
   file-print (word "Identity-Levels," Identity_Levels)
   file-print (word "Use_Identity?," Use_Identity?)
   file-print (word "Media-House-Positions," Media-House-Opinion-Values)
+  file-print (word "Media-Influence-Factor," Media_Influence_Factor)
   file-print (word "Scale-free Degree," Scale_Free_degree)
   file-print (word "Run-End-DateTime," date-and-time)
 
