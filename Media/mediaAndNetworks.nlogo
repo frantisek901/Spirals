@@ -40117,7 +40117,7 @@ NetLogo 6.4.0
       <value value="1"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Media_House_Distribution">
-      <value value="&quot;normal&quot;"/>
+      <value value="&quot;deterministic-normal&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Network_Type">
       <value value="&quot;Scale-free&quot;"/>
