@@ -40183,7 +40183,7 @@ NetLogo 6.4.0
     <enumeratedValueSet variable="Use_Political_Interest">
       <value value="false"/>
     </enumeratedValueSet>
-    <steppedValueSet variable="Boundary_Mean" first="0.01" step="0.03" last="0.25"/>
+    <steppedValueSet variable="Boundary_Mean" first="0.01" step="0.02" last="0.25"/>
     <enumeratedValueSet variable="Opinion_STD">
       <value value="0.8"/>
     </enumeratedValueSet>
