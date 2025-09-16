@@ -1557,11 +1557,15 @@ to save-end-sim-file [t]
 
   ;; Add a separator line for clarity
   file-print "-----------------"
-  file-print "biconnections (agentID1, agentID2)"  ;; Header for the link list
 
-  ;; Loop over all biconnections and write each link pair
-  ask biconnections [
-    file-print (word [who] of end1 "," [who] of end2)
+  ;; Don't write out the whole list of connections if its a full network
+  if (Network_Type != "Full")[
+    file-print "biconnections (agentID1, agentID2)"  ;; Header for the link list
+
+    ;; Loop over all biconnections and write each link pair
+    ask biconnections [
+      file-print (word [who] of end1 "," [who] of end2)
+    ]
   ]
 
   ;; Add another separator
