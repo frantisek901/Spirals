@@ -41187,7 +41187,7 @@ NetLogo 6.4.0
       <value value="0.5"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="CLUSTER_STEPWISE_STEP6_SF_NB_NO_MED_SILENCE1/30" repetitions="1" runMetricsEveryStep="false">
+  <experiment name="CLUSTER_STEPWISE_STEP6_SF_NB_NO_MED_SILENCE2/30" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <metric>count turtles</metric>
@@ -41297,7 +41297,7 @@ NetLogo 6.4.0
     <enumeratedValueSet variable="Media-Opinions_Use_specific_values">
       <value value="false"/>
     </enumeratedValueSet>
-    <steppedValueSet variable="Media_House_Distribution_Normal_Mean" first="-1" step="0.5" last="1"/>
+    <steppedValueSet variable="Media_House_Distribution_Normal_Mean" first="-0.75" step="0.75" last="0.75"/>
     <enumeratedValueSet variable="Identity_Type">
       <value value="&quot;global&quot;"/>
     </enumeratedValueSet>
@@ -41340,7 +41340,7 @@ NetLogo 6.4.0
     <enumeratedValueSet variable="Use_Political_Interest">
       <value value="false"/>
     </enumeratedValueSet>
-    <steppedValueSet variable="Boundary_Mean" first="0.01" step="0.02" last="0.3"/>
+    <steppedValueSet variable="Boundary_Mean" first="0.01" step="0.05" last="0.3"/>
     <enumeratedValueSet variable="Opinion_STD">
       <value value="0.8"/>
     </enumeratedValueSet>
@@ -41358,6 +41358,7 @@ NetLogo 6.4.0
     </enumeratedValueSet>
     <enumeratedValueSet variable="RS">
       <value value="1"/>
+      <value value="2"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="killing_centroids?">
       <value value="true"/>
@@ -41377,16 +41378,16 @@ NetLogo 6.4.0
     <enumeratedValueSet variable="USER_CHOOSES_DIRECTORY?">
       <value value="false"/>
     </enumeratedValueSet>
-    <steppedValueSet variable="Media_House_Distribution_Normal_STD" first="0" step="0.3" last="0.9"/>
+    <steppedValueSet variable="Media_House_Distribution_Normal_STD" first="0.1" step="0.3" last="1"/>
     <enumeratedValueSet variable="Use_Media_Influence_Factor?">
       <value value="true"/>
     </enumeratedValueSet>
-    <steppedValueSet variable="Media_Influence_Factor" first="0" step="0.2" last="1"/>
+    <steppedValueSet variable="Media_Influence_Factor" first="0" step="0.5" last="1"/>
     <enumeratedValueSet variable="Use_Silence?">
       <value value="true"/>
     </enumeratedValueSet>
     <steppedValueSet variable="Silence_Tau" first="1" step="4" last="9"/>
-    <steppedValueSet variable="Silence_Delta0" first="-1" step="0.5" last="1"/>
+    <steppedValueSet variable="Silence_Delta0" first="-0.75" step="0.75" last="0.75"/>
     <steppedValueSet variable="Silence_Alpha" first="0.1" step="0.3" last="1"/>
     <enumeratedValueSet variable="Classify_Proponents_By_Boundary?">
       <value value="true"/>
