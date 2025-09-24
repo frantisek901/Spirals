@@ -1331,7 +1331,7 @@ to __COMMUNICATION-NETWORKS end
 
 to build-networks
   if Network_Type = "Full" [
-    show "Building Full Network"
+    ;;show "Building Full Network"
     ask agents [
 
       create-biconnections-with other agents
@@ -1340,12 +1340,12 @@ to build-networks
   ]
 
   if Network_Type = "Scale-free" [
-    show "Building Scale-free Network"
+    ;;show "Building Scale-free Network"
     create-scale-free-network
   ]
 
   if Network_Type = "Modular" [
-    show "Building Modular Network"
+    ;;show "Building Modular Network"
     create-community-network  ;; '5' communities, 80% intra-prob, 5% inter-prob
   ]
 
@@ -1618,6 +1618,9 @@ to save-end-sim-file [t]
   ][
    set filename (word filename "___MedD" Media_House_Distribution "_MedN" Number_Of_Media_Houses "_MedM" Media_House_Distribution_Normal_Mean "_MedSD" Media_House_Distribution_Normal_STD)
   ]
+  if Use_Silence?[
+    set filename (word filename "_Silence_Alpha" Silence_Alpha "_Silence_Tau" Silence_Tau "_Silence_Delta0" Silence_Delta0 "_SilenceByBoundary?" Classify_Proponents_By_Boundary?)
+  ]
 
   set filename (word filename ".csv") ;;finish off with extension
 
@@ -1646,6 +1649,11 @@ to save-end-sim-file [t]
   file-print (word "Use_Identity?," Use_Identity?)
   file-print (word "Media-House-Positions," Media-House-Opinion-Values)
   file-print (word "Media-Influence-Factor," Media_Influence_Factor)
+  file-print (word "Use_Silence?," Use_Silence?)
+  file-print (word "Silence_Alpha," Silence_Alpha)
+  file-print (word "Silence_Delta0," Silence_Delta0)
+  file-print (word "Silence_Tau," Silence_Tau)
+  file-print (word "Classify_Proponents_By_Boundary?," Classify_Proponents_By_Boundary?)
   file-print (word "Scale-free Degree," Scale_Free_degree)
   file-print (word "Run-End-DateTime," date-and-time)
 
@@ -41380,6 +41388,10 @@ NetLogo 6.4.0
     <steppedValueSet variable="Silence_Tau" first="1" step="4" last="9"/>
     <steppedValueSet variable="Silence_Delta0" first="-1" step="0.5" last="1"/>
     <steppedValueSet variable="Silence_Alpha" first="0.1" step="0.3" last="1"/>
+    <enumeratedValueSet variable="Classify_Proponents_By_Boundary?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
   </experiment>
 </experiments>
 @#$#@#$#@
