@@ -35,7 +35,7 @@ breed [media_houses media_house]
 undirected-link-breed [l-distances l-distance]  ;;For Identity computation
 undirected-link-breed [biconnections biconnection]  ;; Human relationshiops and media influences
 ;directed-link-breed [uniconnection uniconnections]   ;; Influences from Media/Celeb/Bot - currently not implemented distinctly from biconnections.
-turtles-own [own-opinion own-previous-opinion own-initial-opinion own-boundary own-conformity own-SPIRO own-WhichGroupHasEachSPIROSortedMeIn own-group-number own-distance-to-centroid own-opinion-dice? own-identity-dice? own-reach own-political_interest own-current-influentials own-agent-degree influence-weighted-own-opinion]
+turtles-own [own-opinion own-previous-opinion own-initial-opinion own-boundary own-conformity own-SPIRO own-WhichGroupHasEachSPIROSortedMeIn own-group-number own-distance-to-centroid own-opinion-dice? own-identity-dice? own-reach own-political_interest own-current-influentials own-agent-degree influence-weighted-own-opinion own-delta own-previous-Wdelta own-Wdelta own-speak-now?]
 ;; NOTE: because of sticking to HK and also compatibility with previous results and algorithm for finding final position of group centroids, we need two variables for previous/last position,
 ;; also, unsystematically, during the centroid position we have to copy 'last-position' to 'own-previous-position', since some 'distance' procedures finds opinions by themselves.
 centroids-own [last-position]
@@ -65,6 +65,7 @@ set own-opinion get-agent-opinion
     set own-conformity get-conformity  ;; setting individual conformity level, and ...
     set own-boundary get-HK-boundary  ;;... setting value of HK boundary.
     set own-political_interest get-political-interest
+
     getColor  ;; Coloring the agents according their opinion.
     getPlace  ;; Moving agents to the opinion space according their opinions.
   ]
@@ -140,6 +141,27 @@ set own-opinion get-agent-opinion
   ;; we process it for all identity levels -- in case of non-identity and global, there is just one.
   if Use_Identity? [set-group-identities]
 
+
+  ;; Initializing Silence Variables if that dynamic is to be invoked
+
+    ask agents[
+      ifelse(Use_Silence?)[
+      ;;Speaking/Silence Variables
+      ;; show (word "Agent " who " being processed for silence.")
+      set own-delta get-agent-current-delta
+      set own-Wdelta own-delta
+      set own-speak-now? should-agent-speak-now?
+      ;; show (word "Agent " who " has" " opinion " own-opinion " boundary " own-boundary "Wdelta" own-Wdelta " and speech is: " should-agent-speak-now?)
+    ][
+      set own-speak-now? True
+    ]
+  ]
+
+  ask media_houses[
+    ;; Media always speak
+    set own-speak-now? True
+  ]
+
   ;; Coloring patches according the number of agents/turtles on them.
   ask patches [set pcolor patch-color]
 
@@ -173,6 +195,19 @@ end
 to go
   ;; To prevent multiThreading issues
   carefully [let myDummyVar ticks][reset-ticks]
+
+  if (Use_Silence?)[
+  ;; Updating Silence Variables before social influence kicks in
+  ask agents[
+    ;;Speaking/Silence Variables
+    ;;show (word "Agent " who " being processed for silence.")
+    set own-previous-Wdelta own-Wdelta
+    set own-delta get-agent-current-delta  ;;This is based only on the current neighborhood.
+    set own-Wdelta get-agent-Wdelta ;;Weighted Delta -- weighted by memory whose influence is controlled by alpha, will be what is used to determine whether one speaks.
+    set own-speak-now? should-agent-speak-now?
+    ;;show (word "Agent " who " has" " opinion " own-opinion " previousWdelta  " own-previous-Wdelta " Wdelta " own-Wdelta " and speech is: " should-agent-speak-now?)
+    ]
+  ]
 
   ;;;; Main part ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ask agents [
@@ -468,6 +503,9 @@ to change-opinion-HK
   let influentials neighbs with [own-opinion-dice?]
   if show_dice_rolls? [print (word "Opinion: " count influentials)]
 
+  set influentials influentials with [own-speak-now?]  ;; filter out influencers who aren't speaking now.
+
+
   ;; 3) we also add the updating agent into 'influentials'
   set influentials (turtle-set self influentials)
 
@@ -481,7 +519,9 @@ to change-opinion-HK
     ]
   ]
 
-    set own-current-influentials influentials
+
+
+  set own-current-influentials influentials
 
   ;; we check whether there is someone else then calling/updating agent in the agent set 'influentials'
   if count influentials > 1 [
@@ -558,6 +598,14 @@ to-report opinion-distance [my her normalize?]
   report precision (dist * normalization) 10
 end
 
+;; A regular signum function
+to-report signum [x]
+
+  let y 0
+  if (x > 0) [set y 1]
+  if (x < 0) [set y -1]
+  report y
+end
 
 to computing-polarisation
   ;; Recording condition:
@@ -1231,6 +1279,52 @@ end
 to-report get-Nmedia
   let Nmedia count media_houses + Delta_N_Media
   report Nmedia
+end
+
+to __SILENCE end
+
+to-report get-agent-current-delta
+
+  ;; delta is the fraction of excess supporters (in comparison to opponents)
+
+  ;; There are two ways to define supporters and opponents - controlled by the Classify_Proponents_By_Boundary? flag.
+  ;; Set to true, supporters are agents (and media) within the listener's neighbourhood that are within the HK confidence bound.
+  ;; Set to false, supporters are agents (and media) with the same opinion sign (similar to Sohn 2025).
+
+  let neighbs (turtle-set [other-end] of my-biconnections)
+  let NSupporters get-agent-supporter-count neighbs
+  let NOpponents (count (neighbs) - NSupporters)
+  ;;show (word "Total " count neighbs " supp " NSupporters " opp " NOpponents)
+  let delT 0
+  ifelse (NSupporters + NOpponents > 0)
+  [set delT (NSupporters - NOpponents) / (NSupporters + NOpponents)]
+  [set delT 0]
+   ;;show (word " delta " delT)
+  report delT
+end
+
+to update-agent-delta-Wdelta
+  ;; Pass the existing values over to the past.
+  set own-previous-Wdelta own-Wdelta
+  set own-delta get-agent-current-delta
+end
+
+to-report get-agent-Wdelta
+  ;; The final Weighted Delta
+  report Silence_Alpha * own-delta + (1 - Silence_Alpha) * own-previous-Wdelta
+end
+
+to-report should-agent-speak-now?
+  let phi 1 / ( 1 + exp(Silence_Tau * (own-Wdelta - Silence_Delta0)))
+  report abs (item 0 own-opinion) > phi
+end
+
+to-report get-agent-supporter-count [neighbs]
+  ;;
+  report ifelse-value (Classify_Proponents_By_Boundary?)
+  [count neighbs with [(item 0 own-opinion < ([item 0 own-opinion + own-boundary] of myself)) and (item 0 own-opinion > ([item 0 own-opinion - own-boundary] of myself))]]  ;;The boundary-based conditon
+    [count neighbs with [signum item 0 own-opinion = signum [item 0 own-opinion] of myself]] ;;The sign based condition
+
 end
 
 to __COMMUNICATION-NETWORKS end
@@ -2732,10 +2826,10 @@ NIL
 HORIZONTAL
 
 SWITCH
-1346
-665
-1548
-698
+391
+700
+593
+733
 Dynamic_Media_Number?
 Dynamic_Media_Number?
 1
@@ -2743,10 +2837,10 @@ Dynamic_Media_Number?
 -1000
 
 SLIDER
-1345
-698
-1586
-731
+390
+733
+631
+766
 Ticks_Between_N_Media_Change
 Ticks_Between_N_Media_Change
 0
@@ -2758,10 +2852,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-1345
-731
-1517
-764
+390
+766
+562
+799
 Delta_N_Media
 Delta_N_Media
 0
@@ -2855,6 +2949,73 @@ Media_Influence_Factor
 1
 NIL
 HORIZONTAL
+
+SLIDER
+1295
+787
+1467
+820
+Silence_Alpha
+Silence_Alpha
+0
+1
+0.79
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+1295
+719
+1467
+752
+Silence_Tau
+Silence_Tau
+0
+10
+5.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+1295
+753
+1467
+786
+Silence_Delta0
+Silence_Delta0
+-1
+1
+0.0
+0.05
+1
+NIL
+HORIZONTAL
+
+SWITCH
+1299
+825
+1557
+858
+Classify_Proponents_By_Boundary?
+Classify_Proponents_By_Boundary?
+1
+1
+-1000
+
+SWITCH
+1295
+686
+1424
+719
+Use_Silence?
+Use_Silence?
+0
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
