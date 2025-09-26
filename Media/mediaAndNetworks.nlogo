@@ -41345,7 +41345,7 @@ NetLogo 6.4.0
       <value value="0.8"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="EndSimDirectory">
-      <value value="&quot;/home/ramaswamy.51/Documents/github/Spirals/Media/data/cluster/endsim/Step6_1rep&quot;"/>
+      <value value="&quot;/home/ramaswamy.51/Documents/github/Spirals/Media/data/cluster/endsim/Step6_2reps&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="centroid_color?">
       <value value="true"/>
