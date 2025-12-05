@@ -42141,7 +42141,7 @@ NetLogo 6.4.0
     <steppedValueSet variable="Boundary_Mean" first="0.01" step="0.05" last="0.21"/>
     <steppedValueSet variable="Opinion_STD" first="0" step="0.5" last="1"/>
     <enumeratedValueSet variable="EndSimDirectory">
-      <value value="&quot;/home/ramaswamy.51/Documents/github/Spirals/Media/data/cluster/endsim/Step6_2reps&quot;"/>
+      <value value="&quot;/home/ramaswamy.51/Documents/github/Spirals/Media/data/cluster/endsim/Step6_New&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="centroid_color?">
       <value value="true"/>
