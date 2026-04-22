@@ -74,7 +74,7 @@ save_preprocessed_data = True
 save_fits = True
 
 # set a smaller processing unit if it benefits you, else keep it to range(1, 5)
-steps_to_process =  range(1, 3)
+steps_to_process =  range(1, 7)
 
 # For the folder names for each step
 step_input_folder_name = []
@@ -988,145 +988,145 @@ for i, df in enumerate(jsfit_dfs_stepwise):
 # In[ ]:
 
 
-import numpy as np
-import pandas as pd
-from scipy.spatial.distance import jensenshannon
+# import numpy as np
+# import pandas as pd
+# from scipy.spatial.distance import jensenshannon
 
-# Ensure vectors are numpy arrays of floats
-def to_array(x):
-    return np.array(x, dtype=float)
+# # Ensure vectors are numpy arrays of floats
+# def to_array(x):
+#     return np.array(x, dtype=float)
 
-# List of dataframes for the fits (now combined initial and final)
-jsfit_dfs_stepwise = []
-best_jsfits_stepwise = []
+# # List of dataframes for the fits (now combined initial and final)
+# jsfit_dfs_stepwise = []
+# best_jsfits_stepwise = []
 
-# Define all possible parameters including silence variables
-base_params = [
-    'cumulative_simulation_index', 'epsM', 'epsSD', 'OpM', 'OpSD', 
-    'MedM', 'RandomSeed', 'MedSD', 'MedInfF'
-]
+# # Define all possible parameters including silence variables
+# base_params = [
+#     'cumulative_simulation_index', 'epsM', 'epsSD', 'OpM', 'OpSD', 
+#     'MedM', 'RandomSeed', 'MedSD', 'MedInfF'
+# ]
 
-silence_vars = [
-    "Silence_Alpha",
-    "Silence_Tau", 
-    "Silence_Delta0",
-    "SilenceByBoundary"
-]
+# silence_vars = [
+#     "Silence_Alpha",
+#     "Silence_Tau", 
+#     "Silence_Delta0",
+#     "SilenceByBoundary"
+# ]
 
-all_possible_params = base_params + silence_vars
+# all_possible_params = base_params + silence_vars
 
-# Precompute survey distributions once for all steps
-print("Precomputing survey distributions...")
-survey_dists = []
-for _, surv_row in survey_df.iterrows():
-    survey_dists.append({
-        'country': surv_row['country'],
-        'year': surv_row['year'],
-        'distribution': to_array(surv_row['binned_distribution_5_6clubbed'])
-    })
-num_surveys = len(survey_dists)
-print(f"Precomputed {num_surveys} survey distributions")
+# # Precompute survey distributions once for all steps
+# print("Precomputing survey distributions...")
+# survey_dists = []
+# for _, surv_row in survey_df.iterrows():
+#     survey_dists.append({
+#         'country': surv_row['country'],
+#         'year': surv_row['year'],
+#         'distribution': to_array(surv_row['binned_distribution_5_6clubbed'])
+#     })
+# num_surveys = len(survey_dists)
+# print(f"Precomputed {num_surveys} survey distributions")
 
-for stepNo in steps_to_process:
-    print(f"\n{'='*60}")
-    print(f"PROCESSING STEP {stepNo}")
-    print('='*60)
+# for stepNo in steps_to_process:
+#     print(f"\n{'='*60}")
+#     print(f"PROCESSING STEP {stepNo}")
+#     print('='*60)
 
-    simulations_df = simulation_df_step[stepNo - 1]
+#     simulations_df = simulation_df_step[stepNo - 1]
 
-    # Identify which parameters actually exist in this step's data
-    existing_params = []
-    missing_params = []
+#     # Identify which parameters actually exist in this step's data
+#     existing_params = []
+#     missing_params = []
 
-    for param in all_possible_params:
-        if param in simulations_df.columns:
-            existing_params.append(param)
-        else:
-            missing_params.append(param)
+#     for param in all_possible_params:
+#         if param in simulations_df.columns:
+#             existing_params.append(param)
+#         else:
+#             missing_params.append(param)
 
-    print(f"Parameter Analysis:")
-    print(f"  Existing parameters: {len(existing_params)}")
-    print(f"  Missing parameters: {len(missing_params)}")
+#     print(f"Parameter Analysis:")
+#     print(f"  Existing parameters: {len(existing_params)}")
+#     print(f"  Missing parameters: {len(missing_params)}")
 
-    if missing_params:
-        print(f"  Missing: {missing_params}")
+#     if missing_params:
+#         print(f"  Missing: {missing_params}")
 
-    # Check specifically for silence variables
-    existing_silence = [var for var in silence_vars if var in existing_params]
-    print(f"  Silence variables found: {existing_silence}")
+#     # Check specifically for silence variables
+#     existing_silence = [var for var in silence_vars if var in existing_params]
+#     print(f"  Silence variables found: {existing_silence}")
 
-    # Process data in chunks to avoid memory issues
-    CHUNK_SIZE = 250  # Adjust based on your memory constraints
-    all_chunks_data = []
-    total_simulations = len(simulations_df)
+#     # Process data in chunks to avoid memory issues
+#     CHUNK_SIZE = 250  # Adjust based on your memory constraints
+#     all_chunks_data = []
+#     total_simulations = len(simulations_df)
 
-    print(f"\nProcessing {total_simulations:,} simulations in chunks of {CHUNK_SIZE}...")
-    print(f"Each simulation will be matched with {num_surveys} surveys")
-    print(f"Expected total rows: {total_simulations * num_surveys:,}")
+#     print(f"\nProcessing {total_simulations:,} simulations in chunks of {CHUNK_SIZE}...")
+#     print(f"Each simulation will be matched with {num_surveys} surveys")
+#     print(f"Expected total rows: {total_simulations * num_surveys:,}")
 
-    # Process simulations in chunks
-    for chunk_start in range(0, total_simulations, CHUNK_SIZE):
-        chunk_end = min(chunk_start + CHUNK_SIZE, total_simulations)
-        chunk_df = simulations_df.iloc[chunk_start:chunk_end]
+#     # Process simulations in chunks
+#     for chunk_start in range(0, total_simulations, CHUNK_SIZE):
+#         chunk_end = min(chunk_start + CHUNK_SIZE, total_simulations)
+#         chunk_df = simulations_df.iloc[chunk_start:chunk_end]
 
-        chunk_data = []
+#         chunk_data = []
 
-        for sim_idx, sim_row in chunk_df.iterrows():
-            # Progress reporting
-            if (sim_idx - chunk_start) % 1000 == 0 and (sim_idx - chunk_start) > 0:
-                print(f"  Step {stepNo}: Processed {sim_idx:,} simulations")
+#         for sim_idx, sim_row in chunk_df.iterrows():
+#             # Progress reporting
+#             if (sim_idx - chunk_start) % 1000 == 0 and (sim_idx - chunk_start) > 0:
+#                 print(f"  Step {stepNo}: Processed {sim_idx:,} simulations")
 
-            sim_dist_final = to_array(sim_row['binned_distributions_5_6clubbed'])
-            sim_dist_initial = to_array(sim_row['binned_initial_distributions_5_6clubbed'])
+#             sim_dist_final = to_array(sim_row['binned_distributions_5_6clubbed'])
+#             sim_dist_initial = to_array(sim_row['binned_initial_distributions_5_6clubbed'])
 
-            # Extract simulation parameters - only those that exist
-            sim_params = {}
-            for param in existing_params:
-                # Handle column name variations
-                if param == 'cumulative_simulation_index' and param not in sim_row:
-                    # Try alternative name
-                    if 'cum_sim_index' in sim_row:
-                        sim_params['cum_sim_index'] = sim_row['cum_sim_index']
-                    else:
-                        sim_params['cum_sim_index'] = sim_idx
-                else:
-                    sim_params[param] = sim_row[param]
+#             # Extract simulation parameters - only those that exist
+#             sim_params = {}
+#             for param in existing_params:
+#                 # Handle column name variations
+#                 if param == 'cumulative_simulation_index' and param not in sim_row:
+#                     # Try alternative name
+#                     if 'cum_sim_index' in sim_row:
+#                         sim_params['cum_sim_index'] = sim_row['cum_sim_index']
+#                     else:
+#                         sim_params['cum_sim_index'] = sim_idx
+#                 else:
+#                     sim_params[param] = sim_row[param]
 
-            # Process all surveys for this simulation
-            for surv_data in survey_dists:
-                surv_dist = surv_data['distribution']
+#             # Process all surveys for this simulation
+#             for surv_data in survey_dists:
+#                 surv_dist = surv_data['distribution']
 
-                # Jensen–Shannon divergence for both initial and final
-                jsd_final = jensenshannon(sim_dist_final, surv_dist)
-                jsd_initial = jensenshannon(sim_dist_initial, surv_dist)
+#                 # Jensen–Shannon divergence for both initial and final
+#                 jsd_final = jensenshannon(sim_dist_final, surv_dist)
+#                 jsd_initial = jensenshannon(sim_dist_initial, surv_dist)
 
-                # Create entry without building massive dictionary list
-                entry = {
-                    **sim_params,  # Unpack simulation parameters
-                    'country': surv_data['country'],
-                    'year': surv_data['year'],
-                    'distance_final': jsd_final,
-                    'distance_initial': jsd_initial,
-                    'distance_delta': jsd_final - jsd_initial
-                }
-                chunk_data.append(entry)
+#                 # Create entry without building massive dictionary list
+#                 entry = {
+#                     **sim_params,  # Unpack simulation parameters
+#                     'country': surv_data['country'],
+#                     'year': surv_data['year'],
+#                     'distance_final': jsd_final,
+#                     'distance_initial': jsd_initial,
+#                     'distance_delta': jsd_final - jsd_initial
+#                 }
+#                 chunk_data.append(entry)
 
-        # Store chunk data
-        all_chunks_data.append(chunk_data)
-        print(f"  Completed chunk {chunk_start:,}-{chunk_end:,} ({len(chunk_data):,} rows)")
+#         # Store chunk data
+#         all_chunks_data.append(chunk_data)
+#         print(f"  Completed chunk {chunk_start:,}-{chunk_end:,} ({len(chunk_data):,} rows)")
 
-    # Store chunked data for this step (we'll create DataFrame in Block 2)
-    jsfit_dfs_stepwise.append({
-        'stepNo': stepNo,
-        'chunks': all_chunks_data,
-        'existing_params': existing_params,
-        'existing_silence': existing_silence,
-        'num_simulations': total_simulations,
-        'num_surveys': num_surveys
-    })
+#     # Store chunked data for this step (we'll create DataFrame in Block 2)
+#     jsfit_dfs_stepwise.append({
+#         'stepNo': stepNo,
+#         'chunks': all_chunks_data,
+#         'existing_params': existing_params,
+#         'existing_silence': existing_silence,
+#         'num_simulations': total_simulations,
+#         'num_surveys': num_surveys
+#     })
 
-    print(f"\nStep {stepNo} completed processing.")
-    print(f"Total chunks: {len(all_chunks_data)}")
+#     print(f"\nStep {stepNo} completed processing.")
+#     print(f"Total chunks: {len(all_chunks_data)}")
 
 
 # In[21]:
