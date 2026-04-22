@@ -84,9 +84,9 @@ step_output_folder_name = []
 step_input_folder_name.append("Step1") 
 step_input_folder_name.append("Step2") 
 step_input_folder_name.append("Step3") 
-step_input_folder_name.append("Step4_5reps") 
-step_input_folder_name.append("Step5_5reps") 
-step_input_folder_name.append("Step6_2reps") 
+step_input_folder_name.append("Step4_NEW") 
+step_input_folder_name.append("Step5_New") 
+step_input_folder_name.append("Step6_New") 
 
 step_output_folder_name = step_input_folder_name
 
@@ -112,11 +112,11 @@ from scipy.spatial.distance import jensenshannon
 
 
 # Where the preprocessed data will be saved
-full_preprocessed_data_folder_path = os.path.join("data\\preprocessed\\cluster\\" + current_runs_title)
+full_preprocessed_data_folder_path = os.path.join("data", "preprocessed", "cluster", current_runs_title)
 
 
 # Wheer the output plots will be saved
-plots_folder_path =  os.path.join("analysis\\plots\\cluster\\" + current_runs_title)
+plots_folder_path = os.path.join("analysis", "plots", "cluster", current_runs_title)
 
 
 # ## Issue - Step 4 has a LOT OF redundancies and no media
