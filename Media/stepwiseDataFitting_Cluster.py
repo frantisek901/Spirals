@@ -793,7 +793,7 @@ def parse_year(year_val):
 
 
 # Set up paths
-folder_path = "data/EU_dataset"
+folder_path = "EU_dataset"
 file_title = "Cleaned_Parlemeter_Data-LeftRight"
 file_name = file_title + ".xlsx"
 survey_file = os.path.join(folder_path, file_name)
