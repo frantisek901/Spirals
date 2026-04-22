@@ -798,7 +798,11 @@ file_title = "Cleaned_Parlemeter_Data-LeftRight"
 file_name = file_title + ".xlsx"
 survey_file = os.path.join(folder_path, file_name)
 
-sheets = pd.ExcelFile(survey_file).sheet_names[1:]  # Skip 'RowHeaders'
+# sheets = pd.ExcelFile(survey_file).sheet_names[1:]  # Skip 'RowHeaders'
+
+## As xlrd doesnt support xlsx
+sheets = pd.ExcelFile(survey_file, engine='openpyxl').sheet_names[1:]  # Skip 'RowHeaders'
+
 
 survey_data = []
 
