@@ -808,7 +808,7 @@ survey_data = []
 
 for sheet in sheets:
     country = sheet.split("-")[0]  # Extract country code (e.g., "BE")
-    df_sheet = pd.read_excel(survey_file, sheet_name=sheet, header=None)
+    df_sheet = pd.read_excel(survey_file, sheet_name=sheet, header=None, engine='openpyxl')
 
     # Years are in the first row
     years = df_sheet.iloc[0, :].tolist()
