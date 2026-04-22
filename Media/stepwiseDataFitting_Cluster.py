@@ -377,7 +377,7 @@ def load_all_simulations(directory):
     return pd.DataFrame(all_data) if all_data else pd.DataFrame()
 
 def get_simulations_for_step(stepNo):
-    simulations_df = load_all_simulations("data\\cluster\\endsim\\" + step_input_folder_name[stepNo - 1])
+    simulations_df = load_all_simulations(os.path.join("data", "cluster", "endsim", step_input_folder_name[stepNo - 1]))
 
     if not simulations_df.empty:
         print(f"\nSuccessfully loaded {len(simulations_df)} simulations for Step {stepNo}")
