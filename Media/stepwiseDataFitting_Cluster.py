@@ -74,7 +74,7 @@ save_preprocessed_data = True
 save_fits = True
 
 # set a smaller processing unit if it benefits you, else keep it to range(1, 5)
-steps_to_process =  range(1, 6)
+steps_to_process =  range(1, 3)
 
 # For the folder names for each step
 step_input_folder_name = []
