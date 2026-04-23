@@ -34,10 +34,18 @@ steps_to_process = range(1,7)
 js_fits_stepwise = []
 
 
+print("Running 2SpaceParamSearch_Cluster.py")
+print(f"The following steps will be processed: \n")
+for i in (steps_to_process):
+    print(f"Step {i} \n")
+
+full_preprocessed_data_folder_path = os.path.join("data", "preprocessed", "cluster", current_runs_title)
+plots_folder_path = os.path.join("analysis", "plots", "cluster", current_runs_title)
+
+
 for stepNo in steps_to_process:
     step_idx = stepNo - 1
     filename = f'JS_fits_Step{stepNo}.csv'
-    full_preprocessed_data_folder_path = os.path.join("data", "preprocessed", "cluster", current_runs_title)
 
     file_path = os.path.join(full_preprocessed_data_folder_path, filename)
     df = pd.read_csv(file_path)
@@ -209,6 +217,10 @@ def create_percentile_boxplots(loaded_data, percentiles, model_numbers=None, fig
     ax2.grid(True, alpha=0.3)
 
     plt.tight_layout()
+    folder_path = os.path.join(plots_folder_path, "JSD_Top_Fits")
+    filename = "JSD_Top_Percentiles_Model_BoxplotAndViolin"
+    plt.savefig(os.path.join(folder_path, filename + ".png"), dpi=300, bbox_inches='tight')
+    plt.savefig(os.path.join(folder_path, filename + ".svg"), bbox_inches='tight')
 
     # Print statistics
     print(f"\n{'#'*60}")
@@ -285,6 +297,10 @@ def create_comparison_plots(loaded_data, percentiles, focus_model=None, figsize=
     ax4.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
 
     plt.tight_layout()
+    folder_path = os.path.join(plots_folder_path, "JSD_Top_Fits")
+    filename = "JSD_Distribution_by_Percentile_and_Model"
+    plt.savefig(os.path.join(folder_path, filename + '.png'), bbox_inches='tight', dpi=300)
+    plt.savefig(os.path.join(folder_path, filename + '.svg'), bbox_inches='tight')
 
     return fig, plot_df
 
@@ -293,8 +309,10 @@ def create_single_percentile_comparison(loaded_data, percentile, figsize=(12, 6)
     Create focused comparison for a single percentile across all models
     """
     plot_data = []
+    this_model_number = 0
 
     for model_number in loaded_data.keys():
+        this_model_number = model_number
         if percentile in loaded_data[model_number]:
             data = loaded_data[model_number][percentile]
             for jsd_value in data['distance_final']:
@@ -323,7 +341,16 @@ def create_single_percentile_comparison(loaded_data, percentile, figsize=(12, 6)
     ax2.set_ylabel('Jensen-Shannon Divergence')
     ax2.grid(True, alpha=0.3)
 
+
+
     plt.tight_layout()
+    folder_path = os.path.join(plots_folder_path, "JSD_Top_Fits")
+    filename = f"JSD Distribution by Model for {this_model_number}percentile of top fits"
+    plt.savefig(os.path.join(folder_path, filename + '.png'), bbox_inches='tight', dpi=300)
+    plt.savefig(os.path.join(folder_path, filename + '.svg'), bbox_inches='tight')
+
+
+
 
     # Print comparison statistics
     stats = plot_df.groupby('model')['jsd'].agg(['count', 'mean', 'std', 'min', 'median', 'max']).round(4)
@@ -627,6 +654,11 @@ def create_percentile_comparison_plots(loaded_data, percentiles, models_to_plot=
         ax2.grid(True, alpha=0.3)
 
         plt.tight_layout()
+        folder_path = os.path.join(plots_folder_path, "JSD_Top_Improved_Fits")
+        filename = f"JSD Improvement Distribution by Model for Top {percentile} percentile by fit"
+        plt.savefig(os.path.join(folder_path, filename + '.png'), bbox_inches='tight', dpi=300)
+        plt.savefig(os.path.join(folder_path, filename + '.svg'), bbox_inches='tight')
+
 
         # Store the figure
         figures[percentile] = fig
