@@ -15,13 +15,19 @@ current_runs_title = "15.09.25"
 steps_to_process = range(1,7)
 js_fits_stepwise = []
 
+print("Running analyzeStepwiseFits_Cluster.py")
+print(f"The following steps will be processed: \n")
+for i in (steps_to_process):
+    print(f"Step {i} \n")
+
+full_preprocessed_data_folder_path = os.path.join("data", "preprocessed", "cluster", current_runs_title)
+plots_folder_path = os.path.join("analysis", "plots", "cluster", current_runs_title)
+
 
 
 for stepNo in steps_to_process:
     step_idx = stepNo - 1
     filename = f'JS_fits_Step{stepNo}.csv'
-    full_preprocessed_data_folder_path = os.path.join("data\\preprocessed\\" + current_runs_title)
-
     file_path = os.path.join(full_preprocessed_data_folder_path, filename)
     df = pd.read_csv(file_path)
     js_fits_stepwise.append(df)
@@ -658,7 +664,7 @@ print(overlap_summary.round(3).to_string(index=False))
 
 
 # # Venn Diagrams for Overlap
-
+print("------------------ CREATING VENN DIAGRAMS FOR OVERLAP --------------------")
 # In[77]:
 
 
@@ -741,7 +747,11 @@ def create_country_venn_diagrams_fixed(overlap_results_stepwise, split_idx=0):
     for i in range(len(overlap_results_stepwise), len(axes)):
         fig.delaxes(axes[i])
 
+    plot_output_dir = os.path.join(plots_folder_path, "TestTrain_Overlap_Plots")
+    os.makedirs(plot_output_dir, exist_ok=True)
+
     plt.tight_layout()
+    plt.savefig(os.path.join(plot_output_dir, f'stepwise_Test_Train_Overlap.png'), dpi=300, bbox_inches='tight')
     plt.show()
 
 # Try the fixed version

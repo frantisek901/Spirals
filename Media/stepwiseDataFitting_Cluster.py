@@ -76,6 +76,11 @@ save_fits = True
 # set a smaller processing unit if it benefits you, else keep it to range(1, 5)
 steps_to_process =  range(1, 7)
 
+print("Running stepwiseDataFitting_Cluster.py")
+print(f"The following steps will be processed: \n")
+for i in (steps_to_process):
+    print(f"Step {i} \n")
+
 # For the folder names for each step
 step_input_folder_name = []
 step_output_folder_name = []
@@ -470,7 +475,7 @@ if(load_preprocessed_data):
                 lambda x: np.fromstring(x.strip('[]').replace('\n', ' '), sep=' ', dtype=float))
 
         simulation_df_step.append(df) # append to the stepwise dataframe list
-        print("---- Preprocessed data loaded -----")
+        print(f"---- Preprocessed data loaded for Step #{stepNo} -----")
 
 
 # In[10]:
