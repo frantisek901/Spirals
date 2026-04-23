@@ -63,18 +63,18 @@
 current_runs_title = "15.09.25"
 
 # Set below to True if rerunning after saving appropriately in //data//preprocessed//<current_runs_title>
-load_preprocessed_data = False
+load_preprocessed_data = True
 
 # Set below to True if there is a need to preprocess data (such as while running for the first time for new data)
-preprocess_data = True
+preprocess_data = False
 
 # Set below to True if running for the first time or need to preprocess and save for some other reason
-save_preprocessed_data = True
+save_preprocessed_data = False
 
-save_fits = False
+save_fits = True
 
 # set a smaller processing unit if it benefits you, else keep it to range(1, 5)
-steps_to_process =  range(6, 7)
+steps_to_process =  range(1, 7)
 
 # For the folder names for each step
 step_input_folder_name = []
@@ -405,10 +405,18 @@ def get_simulations_for_step(stepNo):
 # To Load simulation data
 simulation_df_step = []    # The main list of Dataframes in which we will be loading the data
 
+
+
 if(preprocess_data):
+    print("-------------------- PREPROCESSING DATA --------------------------------")
+
     # Running all sims and storing them as DF's
     for stepNo in steps_to_process:
         simulation_df_step.append(get_simulations_for_step(stepNo))
+        print(f"-------------------- PREPROCESSED STEP #{stepNo} DATA --------------------------------")
+
+    
+print(f"-------------------- PREPROCESSED ALL STEPS DATA --------------------------------")
 
 
 # In[7]:
@@ -423,12 +431,16 @@ simulation_df_step
 
 
 if(save_preprocessed_data and preprocess_data):
+    print("-------------------- SAVING PREPROCESSED DATA --------------------------------")
+
     if not os.path.exists(full_preprocessed_data_folder_path):
         os.makedirs(full_preprocessed_data_folder_path)
     for stepNo in steps_to_process:
         file_name = f"simulated_data_Step{stepNo}.csv"
         file_path = os.path.join(full_preprocessed_data_folder_path, file_name)
         simulation_df_step[stepNo - 1].to_csv(file_path, index=False)
+    print("-------------------- PREPROCESSED DATA SAVED --------------------------------")
+
 
 
 # ## Loading Preprocessed Simulation Dataframes from CSV
@@ -437,6 +449,8 @@ if(save_preprocessed_data and preprocess_data):
 
 
 if(load_preprocessed_data):
+    print("-------------------- LOADING PREPROCESSED DATA --------------------------------")
+
     del simulation_df_step
     simulation_df_step = [] # Don't do this unless we are loading subsequently, otherwise we will have an emptied list and much sadness to go with.
     for stepNo in steps_to_process:
@@ -456,6 +470,7 @@ if(load_preprocessed_data):
                 lambda x: np.fromstring(x.strip('[]').replace('\n', ' '), sep=' ', dtype=float))
 
         simulation_df_step.append(df) # append to the stepwise dataframe list
+        print("---- Preprocessed data loaded -----")
 
 
 # In[10]:
@@ -467,6 +482,7 @@ if(load_preprocessed_data):
 # ## For Binning Simulation Data
 
 # In[11]:
+print("-------------------- BINNING SIMULATION DATA --------------------------------")
 
 
 # Define bin edges for 10-point scale mapping
@@ -601,24 +617,26 @@ for stepNo in steps_to_process:
 
 # In[15]:
 
+print("-------------------- NOT GENERATING POOLED HISTOGRAMS --------------------------------")
 
-for stepNo in steps_to_process:
-    simulations_df = simulation_df_step[stepNo - 1]
-    # Create pooled histogram of all opinions
-    all_opinions = np.concatenate(simulations_df['individual_opinions'].values)
-    pooled_counts, _ = np.histogram(all_opinions, bins=bin_edges)
-    pooled_distribution = pooled_counts / pooled_counts.sum()
 
-    # Plot the pooled histogram
-    plt.figure(figsize=(12, 6))
-    plt.bar(range(1, 11), pooled_distribution, color='skyblue', edgecolor='black')
-    plt.xticks(range(1, 11), bin_intervals, rotation=45, ha='right')
-    plt.xlabel('Opinion Bins')
-    plt.ylabel('Proportion of Opinions')
-    plt.title('Pooled Opinion Distribution Across All Simulations in ' +  step_titles[stepNo - 1] + " (Step " +  str(stepNo)+ ")")
-    plt.grid(axis='y', linestyle='--', alpha=0.7)
-    plt.tight_layout()
-    plt.savefig('pooled_opinion_distribution.png', dpi=300)
+# for stepNo in steps_to_process:
+#     simulations_df = simulation_df_step[stepNo - 1]
+#     # Create pooled histogram of all opinions
+#     all_opinions = np.concatenate(simulations_df['individual_opinions'].values)
+#     pooled_counts, _ = np.histogram(all_opinions, bins=bin_edges)
+#     pooled_distribution = pooled_counts / pooled_counts.sum()
+
+#     # Plot the pooled histogram
+#     plt.figure(figsize=(12, 6))
+#     plt.bar(range(1, 11), pooled_distribution, color='skyblue', edgecolor='black')
+#     plt.xticks(range(1, 11), bin_intervals, rotation=45, ha='right')
+#     plt.xlabel('Opinion Bins')
+#     plt.ylabel('Proportion of Opinions')
+#     plt.title('Pooled Opinion Distribution Across All Simulations in ' +  step_titles[stepNo - 1] + " (Step " +  str(stepNo)+ ")")
+#     plt.grid(axis='y', linestyle='--', alpha=0.7)
+#     plt.tight_layout()
+#     plt.savefig('pooled_opinion_distribution.png', dpi=300)
     # plt.show()
 
 
@@ -627,157 +645,161 @@ for stepNo in steps_to_process:
 # In[16]:
 
 
-import os
-import matplotlib.pyplot as plt
-import numpy as np
-from pathlib import Path
-
-# Define bin edges and labels
-bin_edges = np.array([-1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
-bin_intervals = [
-    "[-1.0, -0.8)", "[-0.8, -0.6)", "[-0.6, -0.4)", "[-0.4, -0.2)", 
-    "[-0.2, 0.0)", "[0.0, 0.2)", "[0.2, 0.4)", "[0.4, 0.6)", 
-    "[0.6, 0.8)", "[0.8, 1.0]"
-]
-
-def save_simulation_histogram(row, index, stepNum, histograms_save_path):
-    # histograms_save_path = os.join(histograms_save_path, step_output_folder_name[stepNum - 1])
-    """Create and save histogram for a single simulation with both initial and final opinions"""
-    # Extract parameters for title and filename based on step number
-    if stepNum == 1 or stepNum == 2:
-        # Only epsM for steps 1 and 2
-        filename = f"sim_{index:04d}_epsM{row['epsM']:.2f}.png".replace(".", "dot")
-        title = f"Opinion Distribution (Step {stepNum}): εμ={row['epsM']:.2f}"
-    elif stepNum == 3:
-        # epsM and epsSD for step 3
-        filename = f"sim_{index:04d}_epsM{row['epsM']:.2f}_epsSD{row['epsSD']:.2f}.png".replace(".", "dot")
-        title = f"Opinion Distribution (Step {stepNum}): εμ={row['epsM']:.2f}, εσ={row['epsSD']:.2f}"
-    else:
-        # All parameters for step 4 and beyond
-        filename = (
-            f"sim_{index:04d}_"
-            f"epsM{row['epsM']:.2f}_epsSD{row['epsSD']:.2f}_"
-            f"OpM{row['OpM']:.2f}_OpSD{row['OpSD']:.2f}_"
-            f"MedM{row['MedM']:.2f}_MedSD{row['MedSD']:.2f}__"
-            f"MedInf{row['MedInfF']:.2f}.png"
-        ).replace(".", "dot")
-        title = (
-            f"Opinion Distribution (Step {stepNum}): "
-            f"εμ={row['epsM']:.2f}, εσ={row['epsSD']:.2f}, "
-            f"Medμ={row['MedM']:.2f}, Medσ={row['MedSD']:.2f}, "
-            f"MedInfF={row['MedInfF']:.2f}"
-        )
-
-    # Create figure
-    plt.figure(figsize=(12, 7))
-
-    # Plot histograms for both initial and final opinions
-    n_initial, _, _ = plt.hist(
-        row['individual_initial_opinions'],
-        bins=bin_edges,
-        density=False,
-        alpha=0.5,
-        color='steelblue',
-        edgecolor='black',
-        label='Initial Opinions'
-    )
-
-    n_final, bins, patches = plt.hist(
-        row['individual_opinions'], 
-        bins=bin_edges, 
-        density=False, 
-        alpha=0.7, 
-        color='green',
-        edgecolor='black',
-        label='Final Opinions'
-    )
+print("-------------------- NOT GENERATING INDIVIDUAL HISTOGRAMS --------------------------------")
 
 
+# import os
+# import matplotlib.pyplot as plt
+# import numpy as np
+# from pathlib import Path
 
-    # Add vertical lines at media positions for reference
-    if(stepNo == 5):
-        for medop in row['media_opinions']:
-                plt.axvline(medop, color='red', linestyle='--', alpha=0.5, label='Media Opinion' if medop == row['media_opinions'][0] else "")
+# # Define bin edges and labels
+# bin_edges = np.array([-1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
+# bin_intervals = [
+#     "[-1.0, -0.8)", "[-0.8, -0.6)", "[-0.6, -0.4)", "[-0.4, -0.2)", 
+#     "[-0.2, 0.0)", "[0.0, 0.2)", "[0.2, 0.4)", "[0.4, 0.6)", 
+#     "[0.6, 0.8)", "[0.8, 1.0]"
+# ]
 
-    # Format plot
-    plt.title(title, fontsize=14, pad=20)
-    plt.xlabel('Opinion Value', fontsize=12)
-    plt.ylabel('Frequency', fontsize=12)
-    plt.xticks(bin_edges, rotation=45)
-    plt.xlim(-1.05, 1.05)
-    # plt.grid(axis='y', linestyle='--', alpha=0.7)
-    plt.legend()
+# def save_simulation_histogram(row, index, stepNum, histograms_save_path):
+#     # histograms_save_path = os.join(histograms_save_path, step_output_folder_name[stepNum - 1])
+#     """Create and save histogram for a single simulation with both initial and final opinions"""
+#     # Extract parameters for title and filename based on step number
+#     if stepNum == 1 or stepNum == 2:
+#         # Only epsM for steps 1 and 2
+#         filename = f"sim_{index:04d}_epsM{row['epsM']:.2f}.png".replace(".", "dot")
+#         title = f"Opinion Distribution (Step {stepNum}): εμ={row['epsM']:.2f}"
+#     elif stepNum == 3:
+#         # epsM and epsSD for step 3
+#         filename = f"sim_{index:04d}_epsM{row['epsM']:.2f}_epsSD{row['epsSD']:.2f}.png".replace(".", "dot")
+#         title = f"Opinion Distribution (Step {stepNum}): εμ={row['epsM']:.2f}, εσ={row['epsSD']:.2f}"
+#     else:
+#         # All parameters for step 4 and beyond
+#         filename = (
+#             f"sim_{index:04d}_"
+#             f"epsM{row['epsM']:.2f}_epsSD{row['epsSD']:.2f}_"
+#             f"OpM{row['OpM']:.2f}_OpSD{row['OpSD']:.2f}_"
+#             f"MedM{row['MedM']:.2f}_MedSD{row['MedSD']:.2f}__"
+#             f"MedInf{row['MedInfF']:.2f}.png"
+#         ).replace(".", "dot")
+#         title = (
+#             f"Opinion Distribution (Step {stepNum}): "
+#             f"εμ={row['epsM']:.2f}, εσ={row['epsSD']:.2f}, "
+#             f"Medμ={row['MedM']:.2f}, Medσ={row['MedSD']:.2f}, "
+#             f"MedInfF={row['MedInfF']:.2f}"
+#         )
 
-    # Add bin labels
-    bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
-    # for i in range(len(bin_intervals)):
-    #     plt.text(
-    #         bin_centers[i], max(n_final[i], n_initial[i]) + 0.01, 
-    #         f"F:{n_final[i]}\nI:{n_initial[i]}\n{bin_intervals[i]}", 
-    #         ha='center', va='bottom', fontsize=8
-    #     )
+#     # Create figure
+#     plt.figure(figsize=(12, 7))
 
-    # Add statistics box
-    stats_text = (
-        f"N: {len(row['individual_opinions'])}\n"
-        f"Initial Mean: {np.mean(row['individual_initial_opinions']):.3f}\n"
-        f"Final Mean: {np.mean(row['individual_opinions']):.3f}\n"
-        f"Change: {np.mean(row['individual_opinions']) - np.mean(row['individual_initial_opinions']):.3f}"
-    )
+#     # Plot histograms for both initial and final opinions
+#     n_initial, _, _ = plt.hist(
+#         row['individual_initial_opinions'],
+#         bins=bin_edges,
+#         density=False,
+#         alpha=0.5,
+#         color='steelblue',
+#         edgecolor='black',
+#         label='Initial Opinions'
+#     )
 
-    plt.gcf().text(0.50, 0.85, stats_text, fontsize=10, 
-                   bbox=dict(facecolor='white', alpha=0.5))
+#     n_final, bins, patches = plt.hist(
+#         row['individual_opinions'], 
+#         bins=bin_edges, 
+#         density=False, 
+#         alpha=0.7, 
+#         color='green',
+#         edgecolor='black',
+#         label='Final Opinions'
+#     )
 
-    # Save and close
-    plt.tight_layout()
-    plt.savefig(os.path.join(histograms_save_path, filename), dpi=150)
-    plt.close()
-    return filename
 
-# Function to generate histogram by cumulative index
-def generate_histogram_by_cumulative_index(cumulative_index, histograms_save_path):
-    """Generate histogram for a simulation based on its cumulative index"""
-    for stepNo in steps_to_process:
-        simulations_df = simulation_df_step[stepNo - 1]
-        if cumulative_index in simulations_df['cumulative_simulation_index'].values:
-            row = simulations_df[simulations_df['cumulative_simulation_index'] == cumulative_index].iloc[0]
-            model_index = row['model_simulation_index']
-            return save_simulation_histogram(row, cumulative_index, stepNo, histograms_save_path)
-    print(f"Error: Cumulative index {cumulative_index} not found.")
-    return None
 
-# Function to generate histogram by step and model index
-def generate_histogram_by_step_model_index(stepNo, model_index, histograms_save_path):
-    """Generate histogram for a simulation based on step number and model index"""
-    if stepNo > len(simulation_df_step):
-        print(f"Error: Step number {stepNo} is out of range.")
-        return None
+#     # Add vertical lines at media positions for reference
+#     if(stepNo == 5):
+#         for medop in row['media_opinions']:
+#                 plt.axvline(medop, color='red', linestyle='--', alpha=0.5, label='Media Opinion' if medop == row['media_opinions'][0] else "")
 
-    simulations_df = simulation_df_step[stepNo - 1]
-    if model_index not in simulations_df['model_simulation_index'].values:
-        print(f"Error: Model index {model_index} not found in step {stepNo}.")
-        return None
+#     # Format plot
+#     plt.title(title, fontsize=14, pad=20)
+#     plt.xlabel('Opinion Value', fontsize=12)
+#     plt.ylabel('Frequency', fontsize=12)
+#     plt.xticks(bin_edges, rotation=45)
+#     plt.xlim(-1.05, 1.05)
+#     # plt.grid(axis='y', linestyle='--', alpha=0.7)
+#     plt.legend()
 
-    row = simulations_df[simulations_df['model_simulation_index'] == model_index].iloc[0]
-    cumulative_index = row['cumulative_simulation_index']
-    return save_simulation_histogram(row, cumulative_index, stepNo, histograms_save_path)
+#     # Add bin labels
+#     bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
+#     # for i in range(len(bin_intervals)):
+#     #     plt.text(
+#     #         bin_centers[i], max(n_final[i], n_initial[i]) + 0.01, 
+#     #         f"F:{n_final[i]}\nI:{n_initial[i]}\n{bin_intervals[i]}", 
+#     #         ha='center', va='bottom', fontsize=8
+#     #     )
 
-# Setup directories for each step
-for stepNo in steps_to_process:
-    # Setup Path
-    histograms_save_path = os.path.join(plots_folder_path, "selected_sims_histograms")
-    if not os.path.exists(histograms_save_path):
-        os.makedirs(histograms_save_path)
+#     # Add statistics box
+#     stats_text = (
+#         f"N: {len(row['individual_opinions'])}\n"
+#         f"Initial Mean: {np.mean(row['individual_initial_opinions']):.3f}\n"
+#         f"Final Mean: {np.mean(row['individual_opinions']):.3f}\n"
+#         f"Change: {np.mean(row['individual_opinions']) - np.mean(row['individual_initial_opinions']):.3f}"
+#     )
 
-    # You can now call either:
-    # generate_histogram_by_cumulative_index(1, histograms_save_path)
-    # or
-    generate_histogram_by_step_model_index(4, 1, histograms_save_path)
+#     plt.gcf().text(0.50, 0.85, stats_text, fontsize=10, 
+#                    bbox=dict(facecolor='white', alpha=0.5))
+
+#     # Save and close
+#     plt.tight_layout()
+#     plt.savefig(os.path.join(histograms_save_path, filename), dpi=150)
+#     plt.close()
+#     return filename
+
+# # Function to generate histogram by cumulative index
+# def generate_histogram_by_cumulative_index(cumulative_index, histograms_save_path):
+#     """Generate histogram for a simulation based on its cumulative index"""
+#     for stepNo in steps_to_process:
+#         simulations_df = simulation_df_step[stepNo - 1]
+#         if cumulative_index in simulations_df['cumulative_simulation_index'].values:
+#             row = simulations_df[simulations_df['cumulative_simulation_index'] == cumulative_index].iloc[0]
+#             model_index = row['model_simulation_index']
+#             return save_simulation_histogram(row, cumulative_index, stepNo, histograms_save_path)
+#     print(f"Error: Cumulative index {cumulative_index} not found.")
+#     return None
+
+# # Function to generate histogram by step and model index
+# def generate_histogram_by_step_model_index(stepNo, model_index, histograms_save_path):
+#     """Generate histogram for a simulation based on step number and model index"""
+#     if stepNo > len(simulation_df_step):
+#         print(f"Error: Step number {stepNo} is out of range.")
+#         return None
+
+#     simulations_df = simulation_df_step[stepNo - 1]
+#     if model_index not in simulations_df['model_simulation_index'].values:
+#         print(f"Error: Model index {model_index} not found in step {stepNo}.")
+#         return None
+
+#     row = simulations_df[simulations_df['model_simulation_index'] == model_index].iloc[0]
+#     cumulative_index = row['cumulative_simulation_index']
+#     return save_simulation_histogram(row, cumulative_index, stepNo, histograms_save_path)
+
+# # Setup directories for each step
+# for stepNo in steps_to_process:
+#     # Setup Path
+#     histograms_save_path = os.path.join(plots_folder_path, "selected_sims_histograms")
+#     if not os.path.exists(histograms_save_path):
+#         os.makedirs(histograms_save_path)
+
+#     # You can now call either:
+#     # generate_histogram_by_cumulative_index(1, histograms_save_path)
+#     # or
+#     generate_histogram_by_step_model_index(4, 1, histograms_save_path)
 
 
 # # Load Survey Data.
 
 # In[17]:
+print("-------------------- LOADING SURVEY DATA --------------------------------")
 
 
 def parse_year(year_val):
@@ -836,6 +858,7 @@ for sheet in sheets:
             "total_respondents": total_valid
         })
 survey_df = pd.DataFrame(survey_data)
+print("-------------------- SURVEY DATA LOADED --------------------------------")
 
 
 # In[18]:
@@ -850,7 +873,7 @@ survey_df
 
 # In[19]:
 
-
+print("-------------------- PREPARING TO FIT --Fitting Data for all Steps --------------------------------")
 # Ensure vectors are numpy arrays of floats
 def to_array(x):
     return np.array(x, dtype=float)
@@ -1247,116 +1270,116 @@ for i, df in enumerate(jsfit_dfs_stepwise):
 # In[ ]:
 
 
-import pandas as pd
-import pyarrow.dataset as ds
-import pyarrow.compute as pc
-import gc
+# import pandas as pd
+# import pyarrow.dataset as ds
+# import pyarrow.compute as pc
+# import gc
 
-print("\n" + "="*60)
-print("PROCESSING BEST FITS FROM PARQUET")
-print("="*60)
+# print("\n" + "="*60)
+# print("PROCESSING BEST FITS FROM PARQUET")
+# print("="*60)
 
-new_jsfit_dfs_stepwise = []
-new_best_jsfits_stepwise = []
+# new_jsfit_dfs_stepwise = []
+# new_best_jsfits_stepwise = []
 
-# Get unique country-year pairs
-unique_country_years = list(survey_df[['country', 'year']].drop_duplicates().itertools(index=False, name=None))
-print(f"Found {len(unique_country_years)} unique country-year pairs")
+# # Get unique country-year pairs
+# unique_country_years = list(survey_df[['country', 'year']].drop_duplicates().itertools(index=False, name=None))
+# print(f"Found {len(unique_country_years)} unique country-year pairs")
 
-for info in step_data_info:
-    stepNo = info['stepNo']
-    parquet_path = info['parquet_path']
-    total_rows = info['total_rows']
+# for info in step_data_info:
+#     stepNo = info['stepNo']
+#     parquet_path = info['parquet_path']
+#     total_rows = info['total_rows']
 
-    print(f"\nStep {stepNo}: Processing {total_rows:,} rows from parquet...")
+#     print(f"\nStep {stepNo}: Processing {total_rows:,} rows from parquet...")
 
-    # OPTION 1: Use pyarrow dataset for efficient filtering (most memory efficient)
-    print("  Using pyarrow dataset for efficient processing...")
+#     # OPTION 1: Use pyarrow dataset for efficient filtering (most memory efficient)
+#     print("  Using pyarrow dataset for efficient processing...")
 
-    dataset = ds.dataset(parquet_path, format='parquet')
+#     dataset = ds.dataset(parquet_path, format='parquet')
 
-    # Process each country-year separately to avoid memory issues
-    best_fits_rows = []
+#     # Process each country-year separately to avoid memory issues
+#     best_fits_rows = []
 
-    for i, (country, year) in enumerate(unique_country_years):
-        if i % 10 == 0:
-            print(f"    Processing country-year {i+1}/{len(unique_country_years)}: {country}, {year}")
+#     for i, (country, year) in enumerate(unique_country_years):
+#         if i % 10 == 0:
+#             print(f"    Processing country-year {i+1}/{len(unique_country_years)}: {country}, {year}")
 
-        # Filter for this specific country-year using pyarrow
-        filter_expr = (ds.field('country') == country) & (ds.field('year') == year)
+#         # Filter for this specific country-year using pyarrow
+#         filter_expr = (ds.field('country') == country) & (ds.field('year') == year)
 
-        # Convert filtered data to pandas
-        filtered_table = dataset.to_table(filter=filter_expr)
+#         # Convert filtered data to pandas
+#         filtered_table = dataset.to_table(filter=filter_expr)
 
-        if filtered_table.num_rows > 0:
-            filtered_df = filtered_table.to_pandas()
+#         if filtered_table.num_rows > 0:
+#             filtered_df = filtered_table.to_pandas()
 
-            # Get top 5 for final distance
-            top_final = filtered_df.nsmallest(5, 'distance_final')
-            top_final['distance_type'] = 'final'
+#             # Get top 5 for final distance
+#             top_final = filtered_df.nsmallest(5, 'distance_final')
+#             top_final['distance_type'] = 'final'
 
-            # Get top 5 for initial distance
-            top_initial = filtered_df.nsmallest(5, 'distance_initial')
-            top_initial['distance_type'] = 'initial'
+#             # Get top 5 for initial distance
+#             top_initial = filtered_df.nsmallest(5, 'distance_initial')
+#             top_initial['distance_type'] = 'initial'
 
-            best_fits_rows.append(top_final)
-            best_fits_rows.append(top_initial)
+#             best_fits_rows.append(top_final)
+#             best_fits_rows.append(top_initial)
 
-        # Clear memory
-        del filtered_table, filtered_df
-        gc.collect()
+#         # Clear memory
+#         del filtered_table, filtered_df
+#         gc.collect()
 
-    # Combine all best fits
-    if best_fits_rows:
-        best_fit_combined = pd.concat(best_fits_rows, ignore_index=True)
-    else:
-        best_fit_combined = pd.DataFrame()
+#     # Combine all best fits
+#     if best_fits_rows:
+#         best_fit_combined = pd.concat(best_fits_rows, ignore_index=True)
+#     else:
+#         best_fit_combined = pd.DataFrame()
 
-    new_best_jsfits_stepwise.append(best_fit_combined)
-    print(f"  Best fits extracted: {len(best_fit_combined):,} rows")
+#     new_best_jsfits_stepwise.append(best_fit_combined)
+#     print(f"  Best fits extracted: {len(best_fit_combined):,} rows")
 
-    # OPTION 2: Load full DataFrame for this step (only if you REALLY need it)
-    # Use memory mapping with chunks
-    print(f"  Loading full DataFrame with memory mapping...")
+#     # OPTION 2: Load full DataFrame for this step (only if you REALLY need it)
+#     # Use memory mapping with chunks
+#     print(f"  Loading full DataFrame with memory mapping...")
 
-    # Read in chunks to avoid memory issues
-    chunk_size = 100000  # Adjust based on available memory
-    df_chunks = []
+#     # Read in chunks to avoid memory issues
+#     chunk_size = 100000  # Adjust based on available memory
+#     df_chunks = []
 
-    for chunk in pd.read_parquet(parquet_path, chunksize=chunk_size):
-        df_chunks.append(chunk)
-        print(f"    Loaded chunk {len(df_chunks)}: {len(chunk):,} rows")
+#     for chunk in pd.read_parquet(parquet_path, chunksize=chunk_size):
+#         df_chunks.append(chunk)
+#         print(f"    Loaded chunk {len(df_chunks)}: {len(chunk):,} rows")
 
-        # If we have too many chunks, start combining incrementally
-        if len(df_chunks) >= 10:
-            combined = pd.concat(df_chunks, ignore_index=True)
-            df_chunks = [combined]  # Replace with combined chunk
-            print(f"    Combined to single chunk: {len(combined):,} rows")
-            gc.collect()
+#         # If we have too many chunks, start combining incrementally
+#         if len(df_chunks) >= 10:
+#             combined = pd.concat(df_chunks, ignore_index=True)
+#             df_chunks = [combined]  # Replace with combined chunk
+#             print(f"    Combined to single chunk: {len(combined):,} rows")
+#             gc.collect()
 
-    # Final combination
-    if df_chunks:
-        thisfit_df = pd.concat(df_chunks, ignore_index=True)
-    else:
-        thisfit_df = pd.DataFrame()
+#     # Final combination
+#     if df_chunks:
+#         thisfit_df = pd.concat(df_chunks, ignore_index=True)
+#     else:
+#         thisfit_df = pd.DataFrame()
 
-    print(f"  Final DataFrame shape: {thisfit_df.shape}")
-    new_jsfit_dfs_stepwise.append(thisfit_df)
+#     print(f"  Final DataFrame shape: {thisfit_df.shape}")
+#     new_jsfit_dfs_stepwise.append(thisfit_df)
 
-    # Clear memory
-    del df_chunks, thisfit_df
-    gc.collect()
+#     # Clear memory
+#     del df_chunks, thisfit_df
+#     gc.collect()
 
-# Replace the original lists
-jsfit_dfs_stepwise = new_jsfit_dfs_stepwise
-best_jsfits_stepwise = new_best_jsfits_stepwise
+# # Replace the original lists
+# jsfit_dfs_stepwise = new_jsfit_dfs_stepwise
+# best_jsfits_stepwise = new_best_jsfits_stepwise
 
-print("\n" + "="*60)
-print("PROCESSING COMPLETE")
-print("="*60)
-for i, df in enumerate(jsfit_dfs_stepwise):
-    step_no = i + 1
-    print(f"Step {step_no}: {len(df):,} rows | Best fits: {len(best_jsfits_stepwise[i]):,} rows")
+# print("\n" + "="*60)
+# print("PROCESSING COMPLETE")
+# print("="*60)
+# for i, df in enumerate(jsfit_dfs_stepwise):
+#     step_no = i + 1
+#     print(f"Step {step_no}: {len(df):,} rows | Best fits: {len(best_jsfits_stepwise[i]):,} rows")
 
 
 # In[ ]:
@@ -2075,7 +2098,7 @@ print("Test plot created successfully!")
 # In[ ]:
 
 
-jsfit_dfs_stepwise[5]
+# jsfit_dfs_stepwise[5]
 
 
 # In[ ]:
