@@ -1078,7 +1078,7 @@ def add_success_metrics_direct_to_file(js_fits_stepwise, all_results, current_ru
 
         # Save this model immediately to free memory
         filename = f'JS_fits_Step{stepNo}_with_success.csv'
-        full_preprocessed_data_folder_path = os.path.join("data\\preprocessed\\" + current_runs_title)
+        # full_preprocessed_data_folder_path = os.path.join("data\\preprocessed\\" + current_runs_title)
         file_path = os.path.join(full_preprocessed_data_folder_path, filename)
 
         # Create directory if it doesn't exist
@@ -1104,7 +1104,7 @@ def add_success_metrics_ultra_efficient(current_runs_title, top_percentile=5):
 
         # Load the original file
         filename = f'JS_fits_Step{stepNo}.csv'
-        full_preprocessed_data_folder_path = os.path.join("data\\preprocessed\\" + current_runs_title)
+        # full_preprocessed_data_folder_path = os.path.join("data\\preprocessed\\" + current_runs_title)
         file_path = os.path.join(full_preprocessed_data_folder_path, filename)
 
         if not os.path.exists(file_path):
@@ -1154,7 +1154,7 @@ def add_success_metrics_chunked(current_runs_title, top_percentile=5, chunk_size
 
         input_filename = f'JS_fits_Step{stepNo}.csv'
         output_filename = f'JS_fits_Step{stepNo}_with_success.csv'
-        full_preprocessed_data_folder_path = os.path.join("data\\preprocessed\\" + current_runs_title)
+        # full_preprocessed_data_folder_path = os.path.join("data\\preprocessed\\" + current_runs_title)
         input_path = os.path.join(full_preprocessed_data_folder_path, input_filename)
         output_path = os.path.join(full_preprocessed_data_folder_path, output_filename)
 
@@ -1247,7 +1247,7 @@ def reload_processed_files(current_runs_title):
 
     for stepNo in steps_to_process:
         filename = f'JS_fits_Step{stepNo}_with_success.csv'
-        full_preprocessed_data_folder_path = os.path.join("data\\preprocessed\\" + current_runs_title)
+        # full_preprocessed_data_folder_path = os.path.join("data\\preprocessed\\" + current_runs_title)
         file_path = os.path.join(full_preprocessed_data_folder_path, filename)
 
         if os.path.exists(file_path):
