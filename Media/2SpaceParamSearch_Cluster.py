@@ -2485,7 +2485,7 @@ def create_efficient_diagnostic_plot_corrected(df, low_threshold, high_threshold
                          cmap='viridis', s=10)
     ax1.set_xlabel('epsM')
     ax1.set_ylabel('distance_delta')
-    ax1.set_title(f'epsM vs distance_delta for top {CONFIG['success_percentile']} percentile\n(Color = Final JSD, Lower del = Better)')
+    ax1.set_title(f'epsM vs distance_delta for top {CONFIG["success_percentile"]} percentile\n(Color = Final JSD, Lower del = Better)')
     plt.colorbar(scatter, ax=ax1, label='Final JSD')
 
     # Add reference line at y=0 and threshold lines
