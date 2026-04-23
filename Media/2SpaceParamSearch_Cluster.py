@@ -2262,7 +2262,7 @@ def analyze_epsM_delta_relationship_memory_efficient(config, sample_size=50000):
     """
     print(f"\n{'#'*80}")
     print("EPSM - DISTANCE_DELTA RELATIONSHIP ANALYSIS (MEMORY EFFICIENT)")
-    print("CORRECTED: Negative Δ = Improvement, Positive Δ = Worse")
+    print("CORRECTED: Negative del = Improvement, Positive del = Worse")
     print(f"{'#'*80}")
 
     # Load only the columns we need to save memory
@@ -2332,7 +2332,7 @@ def analyze_epsM_delta_relationship_memory_efficient(config, sample_size=50000):
     # Sort by epsM value
     bin_results.sort(key=lambda x: x['avg_epsM'])
 
-    print("   epsM Range        | Avg ΔDistance | Avg Final JSD | Improv Rate | Count")
+    print("   epsM Range        | Avg delta(Distance) | Avg Final JSD | Improv Rate | Count")
     print("   " + "-" * 75)
     for result in bin_results[:6]:  # Show first 6 bins
         epsm_range = str(result['epsM_range'])[:18]
@@ -2434,7 +2434,7 @@ def analyze_epsM_delta_relationship_memory_efficient(config, sample_size=50000):
 
     # Assess validity based on improvement patterns
     if low_epsM_top_rate > high_epsM_top_rate and improvement_ratio < 0.8:
-        print(f"\n🚩 HIGH CONCERN: Potential artificial 'success' with low epsM!")
+        print(f"\n HIGH CONCERN: Potential artificial 'success' with low epsM!")
         print(f"   Low epsM has {improvement_ratio:.2f}x LOWER improvement rate but better 'fits'")
         print(f"   This suggests good fits may be due to lucky initial conditions, not genuine dynamics")
         print(f"\nRECOMMENDATIONS:")
@@ -2442,11 +2442,11 @@ def analyze_epsM_delta_relationship_memory_efficient(config, sample_size=50000):
         print(f"   2. Require minimum improvement: distance_delta < {df['distance_delta'].quantile(0.1):.4f}")
         print(f"   3. Focus on simulations that show genuine opinion dynamics")
     elif low_epsM_top_rate > high_epsM_top_rate and improvement_ratio < 1.2:
-        print(f"\n⚠️  MODERATE CONCERN: Mixed evidence for low epsM success")
+        print(f"\n  MODERATE CONCERN: Mixed evidence for low epsM success")
         print(f"   Similar improvement rates but different success rates")
         print(f"   Some success may be artificial - consider filtering non-improving simulations")
     else:
-        print(f"\n✅ Low epsM success appears valid")
+        print(f"\n Low epsM success appears valid")
         print(f"   Improvement patterns support genuine opinion dynamics")
 
     return {
@@ -2485,7 +2485,7 @@ def create_efficient_diagnostic_plot_corrected(df, low_threshold, high_threshold
                          cmap='viridis', s=10)
     ax1.set_xlabel('epsM')
     ax1.set_ylabel('distance_delta')
-    ax1.set_title(f'epsM vs distance_delta for top {CONFIG['success_percentile']} percentile\n(Color = Final JSD, Lower Δ = Better)')
+    ax1.set_title(f'epsM vs distance_delta for top {CONFIG['success_percentile']} percentile\n(Color = Final JSD, Lower del = Better)')
     plt.colorbar(scatter, ax=ax1, label='Final JSD')
 
     # Add reference line at y=0 and threshold lines
@@ -4320,7 +4320,7 @@ def analyze_and_display_trajectories_diverse(trajectories, country_years, active
         avg_change = np.mean(change_magnitudes) if change_magnitudes else 0
 
         print(f"    {param}: {len(trajs)} trajectories "
-              f"({up_count}↑ {down_count}↓, avg Δ: {avg_change:.3f})")
+              f"({up_count}↑ {down_count}↓, avg del: {avg_change:.3f})")
 
     # Show diverse examples - one from each parameter group
     print(f"\n  DIVERSE EXAMPLE TRAJECTORIES:")
@@ -4345,7 +4345,7 @@ def analyze_and_display_trajectories_diverse(trajectories, country_years, active
         print(f"\n    Example {i+1} - {identify_changing_parameter(traj, active_params)} evolution:")
         print(f"      Length: {len(traj)} years ({get_year_span(traj)})")
         print(f"      JSD: {traj[0]['avg_jsd']:.3f} → {traj[-1]['avg_jsd']:.3f} "
-              f"(Δ: {traj[-1]['avg_jsd'] - traj[0]['avg_jsd']:+.3f})")
+              f"(del: {traj[-1]['avg_jsd'] - traj[0]['avg_jsd']:+.3f})")
         print(f"      RS Consistency: {np.mean([n['consistency_score'] for n in traj]):.1%}")
 
         changing_param = identify_changing_parameter(traj, active_params)
@@ -4354,7 +4354,7 @@ def analyze_and_display_trajectories_diverse(trajectories, country_years, active
             end_val = traj[-1]['param_dict'][changing_param]
             change_pct = ((end_val - start_val) / abs(start_val) * 100) if start_val != 0 else float('inf')
             print(f"      Parameter evolution: {changing_param}: {start_val} → {end_val} "
-                  f"(Δ: {end_val - start_val:+.3f}, {change_pct:+.1f}%)")
+                  f"(del: {end_val - start_val:+.3f}, {change_pct:+.1f}%)")
 
         # Show key transition points (where parameters actually change)
         print(f"      Key transitions:")
