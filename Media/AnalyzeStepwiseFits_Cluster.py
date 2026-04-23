@@ -964,7 +964,7 @@ print(enhanced_summary.round(3).to_string(index=False))
 
 import os
 
-def save_summary_table(enhanced_summary, filepath=os.path.join("analysis\\" + current_runs_title)):
+def save_summary_table(enhanced_summary, filepath=os.path.join("analysis" , "cluster", current_runs_title)):
     """Save the enhanced summary table to CSV and Excel"""
     # Create directory if it doesn't exist
     os.makedirs(filepath, exist_ok=True)

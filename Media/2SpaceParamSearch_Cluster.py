@@ -55,7 +55,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-def save_top_percentile_data(js_fits_stepwise, percentiles_to_save=[5, 2, 1, 0.5, 0.05], base_save_path='/data/preprocessed/top_percentiles/'):
+def save_top_percentile_data(js_fits_stepwise, percentiles_to_save=[5, 2, 1, 0.5, 0.05], base_save_path=os.path.join('data','preprocessed', 'cluster','top_percentiles')):
     """
     Save top percentile data for each model to separate files
     """
@@ -125,7 +125,7 @@ def save_top_percentile_data(js_fits_stepwise, percentiles_to_save=[5, 2, 1, 0.5
 
     return all_models_results
 
-def load_top_percentile_data(model_numbers, percentiles, base_save_path='/data/preprocessed/top_percentiles/'):
+def load_top_percentile_data(model_numbers, percentiles, base_save_path=os.path.join('data','preprocessed', 'cluster','top_percentiles')):
     """
     Load pre-saved top percentile data
     """
@@ -438,7 +438,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-def save_improved_top_percentile_data(js_fits_stepwise, percentiles_to_save=[5, 2, 1, 0.5, 0.05], base_save_path='/data/preprocessed/improved_top_percentiles/'):
+def save_improved_top_percentile_data(js_fits_stepwise, percentiles_to_save=[5, 2, 1, 0.5, 0.05], base_save_path=os.path.join('data','preprocessed', 'cluster','improved_top_percentiles')):
     """
     Save top percentile data for each model, filtering only improved simulations (distance_final < distance_initial)
     """
@@ -526,7 +526,7 @@ def save_improved_top_percentile_data(js_fits_stepwise, percentiles_to_save=[5, 
 
     return all_models_results
 
-def load_improved_top_percentile_data(model_numbers, percentiles, base_save_path='/data/preprocessed/improved_top_percentiles/'):
+def load_improved_top_percentile_data(model_numbers, percentiles, base_save_path=os.path.join('data','preprocessed', 'cluster','improved_top_percentiles')):
     """
     Load pre-saved improved top percentile data
     """
