@@ -63,7 +63,7 @@
 current_runs_title = "15.09.25"
 
 # Set below to True if rerunning after saving appropriately in //data//preprocessed//<current_runs_title>
-load_preprocessed_data = True
+load_preprocessed_data = False
 
 # Set below to True if there is a need to preprocess data (such as while running for the first time for new data)
 preprocess_data = True
@@ -71,10 +71,10 @@ preprocess_data = True
 # Set below to True if running for the first time or need to preprocess and save for some other reason
 save_preprocessed_data = True
 
-save_fits = True
+save_fits = False
 
 # set a smaller processing unit if it benefits you, else keep it to range(1, 5)
-steps_to_process =  range(1, 7)
+steps_to_process =  range(6, 7)
 
 # For the folder names for each step
 step_input_folder_name = []
