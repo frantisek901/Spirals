@@ -25,7 +25,7 @@ import os
 import pandas as pd
 
 
-save_best_fit_data = False
+save_best_fit_data = True
 load_best_fit_data = True
 
 
@@ -209,7 +209,7 @@ def create_percentile_boxplots(loaded_data, percentiles, model_numbers=None, fig
     ax1.grid(True, alpha=0.3)
 
     # Plot 2: Violin plot for better distribution visualization
-    sns.violinplot(data=plot_df, x='percentile', y='jsd', hue='model', ax=ax2, split=True)
+    sns.violinplot(data=plot_df, x='percentile', y='jsd', hue='model', ax=ax2, split=False)
     ax2.set_title('JSD Distribution Across Percentiles (Violin Plot)')
     ax2.set_ylabel('Jensen-Shannon Divergence')
     ax2.set_xlabel('Percentile')
@@ -268,7 +268,7 @@ def create_comparison_plots(loaded_data, percentiles, focus_model=None, figsize=
 
     # 2. Violin plot
     ax2 = plt.subplot(2, 2, 2)
-    sns.violinplot(data=plot_df, x='percentile', y='jsd', hue='model', ax=ax2, split=True)
+    sns.violinplot(data=plot_df, x='percentile', y='jsd', hue='model', ax=ax2, split=False)
     ax2.set_title('JSD Distribution (Violin Plot)')
     ax2.set_ylabel('JSD')
     ax2.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
