@@ -213,7 +213,7 @@ pattern = (
     r"___OpD([a-zA-Z-]+)_OpM(-?[\d\.]+)_OpSD(-?[\d\.]+)"
     r"___Net([a-zA-Z-]+)___NAgents(\d+)___RS(\d+)"
     r"__MedInfF([\d\.]+)___MedD([a-zA-Z-]+)_MedN(\d+)_MedM(-?[\d\.]+)_MedSD(-?[\d\.]+)"
-    r"(_SA(-?[\d\.]+)_ST(-?[\d\.]+)_SDO(-?[\d\.]+)_SBB([a-zA-Z]+))?"
+    r"(?:_Silence_Alpha(-?[\d\.]+)_Silence_Tau(-?[\d\.]+)_Silence_Delta0(-?[\d\.]+)_SilenceByBoundary\?([a-zA-Z]+))?"  # FIXED HERE
 )
 
 def parse_filename(filename):
@@ -248,15 +248,15 @@ def parse_filename(filename):
                 'Silence_Delta0': float(match.group(17)),
                 'SilenceByBoundary': match.group(18).lower() == 'true'
             })
-        # else:
-            # no_silence_parsed_counts = no_silence_parsed_counts + 1
-            # Set default values for silence parameters if not present
-            # result.update({
-            #     'Silence_Alpha': None,
-            #     'Silence_Tau': None,
-            #     'Silence_Delta0': None,
-            #     'SilenceByBoundary': None
-            # })
+        else:
+            no_silence_parsed_counts = no_silence_parsed_counts + 1
+            Set default values for silence parameters if not present
+            result.update({
+                'Silence_Alpha': None,
+                'Silence_Tau': None,
+                'Silence_Delta0': None,
+                'SilenceByBoundary': None
+            })
 
         return result
     return None
