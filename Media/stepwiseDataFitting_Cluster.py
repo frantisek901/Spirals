@@ -248,15 +248,15 @@ def parse_filename(filename):
                 'Silence_Delta0': float(match.group(17)),
                 'SilenceByBoundary': match.group(18).lower() == 'true'
             })
-        else:
+        # else:
             # no_silence_parsed_counts = no_silence_parsed_counts + 1
             # Set default values for silence parameters if not present
-            result.update({
-                'Silence_Alpha': None,
-                'Silence_Tau': None,
-                'Silence_Delta0': None,
-                'SilenceByBoundary': None
-            })
+            # result.update({
+            #     'Silence_Alpha': None,
+            #     'Silence_Tau': None,
+            #     'Silence_Delta0': None,
+            #     'SilenceByBoundary': None
+            # })
 
         return result
     return None
