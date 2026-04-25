@@ -66,10 +66,10 @@ current_runs_title = "15.09.25"
 load_preprocessed_data = True
 
 # Set below to True if there is a need to preprocess data (such as while running for the first time for new data)
-preprocess_data = False
+preprocess_data = True
 
 # Set below to True if running for the first time or need to preprocess and save for some other reason
-save_preprocessed_data = False
+save_preprocessed_data = True
 
 save_fits = True
 
