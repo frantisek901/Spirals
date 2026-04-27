@@ -222,6 +222,10 @@ def parse_filename(filename):
     base_name = os.path.splitext(filename)[0]
     match = re.search(pattern, base_name)
 
+    print("Now parsing file: \n")
+    print(filename)
+    print("\n")
+
     if match:
         result = {
             # 'filename': filename,
@@ -239,8 +243,13 @@ def parse_filename(filename):
             'MedM': float(match.group(12)),
             'MedSD': float(match.group(13))
         }
+        print(f"MedSD should be {match.group(13)}")
+
         # Check if silence parameters are present
         if match.group(14):  # The entire silence block exists
+            print(f"Silence_Alpha is.. {print(match.group(15))} ")
+            print(f"Silence_Delta0 is.. {print(match.group(17))} ")
+
             # silence_parsed_counts = silence_parsed_counts + 1 # increment the silence parsed counter
             result.update({
                 'Silence_Alpha': float(match.group(15)),
