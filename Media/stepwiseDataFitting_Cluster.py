@@ -89,7 +89,7 @@ step_output_folder_name = []
 step_input_folder_name.append("Step1") 
 step_input_folder_name.append("Step2") 
 step_input_folder_name.append("Step3") 
-step_input_folder_name.append("Step4_NEW") 
+step_input_folder_name.append("Step4_NEWEST") 
 step_input_folder_name.append("Step5_New") 
 step_input_folder_name.append("Step6_New") 
 
