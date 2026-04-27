@@ -66,10 +66,10 @@ current_runs_title = "15.09.25"
 load_preprocessed_data = True
 
 # Set below to True if there is a need to preprocess data (such as while running for the first time for new data)
-preprocess_data = True
+preprocess_data = False
 
 # Set below to True if running for the first time or need to preprocess and save for some other reason
-save_preprocessed_data = True
+save_preprocessed_data = False
 
 save_fits = True
 
@@ -222,9 +222,9 @@ def parse_filename(filename):
     base_name = os.path.splitext(filename)[0]
     match = re.search(pattern, base_name)
 
-    print("Now parsing file: \n")
-    print(filename)
-    print("\n")
+    # print("Now parsing file: \n")
+    # print(filename)
+    # print("\n")
 
     if match:
         result = {
@@ -242,7 +242,7 @@ def parse_filename(filename):
             'MedM': float(match.group(12)),
             'MedSD': float(match.group(13))
         }
-        print(f"MedSD should be {match.group(13)}")
+        # print(f"MedSD should be {match.group(13)}")
 
         # Check if silence parameters are present (group 14 is the start of silence block)
         if match.group(14) is not None:  # The entire silence block exists
@@ -252,10 +252,10 @@ def parse_filename(filename):
             # group 16: Silence_Delta0 value (e.g., "0")
             # group 17: SilenceByBoundary value (e.g., "false")
             
-            print(f"Silence_Alpha value string: {match.group(14)}")
-            print(f"Silence_Tau value string: {match.group(15)}")
-            print(f"Silence_Delta0 value string: {match.group(16)}")
-            print(f"SilenceByBoundary value string: {match.group(17)}")
+            # print(f"Silence_Alpha value string: {match.group(14)}")
+            # print(f"Silence_Tau value string: {match.group(15)}")
+            # print(f"Silence_Delta0 value string: {match.group(16)}")
+            # print(f"SilenceByBoundary value string: {match.group(17)}")
             
             result.update({
                 'Silence_Alpha': float(match.group(14)),  # Was group 15, now 14

@@ -1294,7 +1294,7 @@ print(f"{'#'*80}")
 print(clustering_summary.round(3).to_string(index=False))
 
 # Save clustering results
-clustering_table_path = save_summary_table(clustering_summary, "/analysis/tables/")
+clustering_table_path = save_summary_table(clustering_summary, os.path.join("analysis" , "cluster", "tables", current_runs_title))
 
 
 #  # Nearby Parameter Search
