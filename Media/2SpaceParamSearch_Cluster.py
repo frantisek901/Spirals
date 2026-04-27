@@ -3605,7 +3605,7 @@ def plot_filtered_mds_fit(merged_df, country_filter=None, year_range=None, n_bes
     plt.grid(True, alpha=0.3)
 
     plt.tight_layout()
-        folder_path = os.path.join(plots_folder_path, "JSD_Top_Fits")
+    folder_path = os.path.join(plots_folder_path, "JSD_Top_Fits")
     filename = f"MDS_with_Best_{n_best}"
     plt.savefig(os.path.join(folder_path, filename + '.png'), bbox_inches='tight', dpi=300)
     plt.savefig(os.path.join(folder_path, filename + '.svg'), bbox_inches='tight')
