@@ -213,7 +213,7 @@ pattern = (
     r"___OpD([a-zA-Z-]+)_OpM(-?[\d\.]+)_OpSD(-?[\d\.]+)"
     r"___Net([a-zA-Z-]+)___NAgents(\d+)___RS(\d+)"
     r"__MedInfF([\d\.]+)___MedD([a-zA-Z-]+)_MedN(\d+)_MedM(-?[\d\.]+)_MedSD(-?[\d\.]+)"
-    r"(?:_Silence_Alpha(-?[\d\.]+)_Silence_Tau(-?[\d\.]+)_Silence_Delta0(-?[\d\.]+)_SilenceByBoundary\?([a-zA-Z]+))?"  # FIXED HERE
+    r"(?:_Silence_Alpha(-?[\d\.]+)_Silence_Tau(-?[\d\.]+)_Silence_Delta0(-?[\d\.]+)_SilenceByBoundary\?([a-zA-Z]+))?"
 )
 
 def parse_filename(filename):
@@ -228,7 +228,6 @@ def parse_filename(filename):
 
     if match:
         result = {
-            # 'filename': filename,
             'epsM': float(match.group(1)),
             'epsSD': float(match.group(2)),
             'OpD': match.group(3),
@@ -245,17 +244,24 @@ def parse_filename(filename):
         }
         print(f"MedSD should be {match.group(13)}")
 
-        # Check if silence parameters are present
-        if match.group(14):  # The entire silence block exists
-            print(f"Silence_Alpha is.. {print(match.group(15))} ")
-            print(f"Silence_Delta0 is.. {print(match.group(17))} ")
-
-            # silence_parsed_counts = silence_parsed_counts + 1 # increment the silence parsed counter
+        # Check if silence parameters are present (group 14 is the start of silence block)
+        if match.group(14) is not None:  # The entire silence block exists
+            # Group indices after the silence block:
+            # group 14: Silence_Alpha value (e.g., "0.79")
+            # group 15: Silence_Tau value (e.g., "5")  
+            # group 16: Silence_Delta0 value (e.g., "0")
+            # group 17: SilenceByBoundary value (e.g., "false")
+            
+            print(f"Silence_Alpha value string: {match.group(14)}")
+            print(f"Silence_Tau value string: {match.group(15)}")
+            print(f"Silence_Delta0 value string: {match.group(16)}")
+            print(f"SilenceByBoundary value string: {match.group(17)}")
+            
             result.update({
-                'Silence_Alpha': float(match.group(15)),
-                'Silence_Tau': float(match.group(16)),
-                'Silence_Delta0': float(match.group(17)),
-                'SilenceByBoundary': match.group(18).lower() == 'true'
+                'Silence_Alpha': float(match.group(14)),  # Was group 15, now 14
+                'Silence_Tau': float(match.group(15)),   # Was group 16, now 15
+                'Silence_Delta0': float(match.group(16)), # Was group 17, now 16
+                'SilenceByBoundary': match.group(17).lower() == 'true'  # Was group 18, now 17
             })
         else:
             # Set default values for silence parameters if not present
@@ -269,6 +275,7 @@ def parse_filename(filename):
         return result
     return None
 
+    
 def extract_opinion_sections(content):
     """Extract media and individual opinion sections from file content"""
     # Split content into sections using separator lines
