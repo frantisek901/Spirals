@@ -250,7 +250,7 @@ def parse_filename(filename):
             })
         else:
             no_silence_parsed_counts = no_silence_parsed_counts + 1
-            Set default values for silence parameters if not present
+            # Set default values for silence parameters if not present
             result.update({
                 'Silence_Alpha': None,
                 'Silence_Tau': None,
