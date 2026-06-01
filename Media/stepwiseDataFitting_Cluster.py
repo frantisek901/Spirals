@@ -59,9 +59,8 @@
 
 # In[1]:
 
-current_runs_title = "15.09.25"
-current_analysis_title = "Step1-May.26"
 
+current_runs_title = "15.09.25"
 
 # Set below to True if rerunning after saving appropriately in //data//preprocessed//<current_runs_title>
 load_preprocessed_data = True
@@ -122,7 +121,7 @@ full_preprocessed_data_folder_path = os.path.join("data", "preprocessed", "clust
 
 
 # Wheer the output plots will be saved
-plots_folder_path = os.path.join("analysis", "plots", "cluster", current_runs_title, current_analysis_title)
+plots_folder_path = os.path.join("analysis", "plots", "cluster", current_runs_title)
 
 
 # ## Issue - Step 4 has a LOT OF redundancies and no media
