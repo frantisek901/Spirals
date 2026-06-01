@@ -60,7 +60,7 @@
 # In[1]:
 
 current_runs_title = "15.09.25"
-current_analysis_title = "Step1-May.26"
+current_analysis_title = "Step1-May.26_Parlemeter_LR"
 
 
 # Set below to True if rerunning after saving appropriately in //data//preprocessed//<current_runs_title>

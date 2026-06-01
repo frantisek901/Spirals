@@ -12,7 +12,7 @@ import os
 import pandas as pd
 
 current_runs_title = "15.09.25"
-current_analysis_title = "Step1-May.26"
+current_analysis_title = "Step1-May.26_Parlemeter_LR"
 
 steps_to_process = range(1,7)
 js_fits_stepwise = []
@@ -966,7 +966,7 @@ print(enhanced_summary.round(3).to_string(index=False))
 
 import os
 
-def save_summary_table(enhanced_summary, filepath=os.path.join("analysis" , "cluster", current_runs_title, current_analysis_title)):
+def save_summary_table(enhanced_summary, filepath=os.path.join("analysis", "plots", current_runs_title, current_analysis_title)):
     """Save the enhanced summary table to CSV and Excel"""
     # Create directory if it doesn't exist
     os.makedirs(filepath, exist_ok=True)
@@ -1296,7 +1296,7 @@ print(f"{'#'*80}")
 print(clustering_summary.round(3).to_string(index=False))
 
 # Save clustering results
-clustering_table_path = save_summary_table(clustering_summary, os.path.join("analysis" , "cluster", "tables", current_runs_title, current_analysis_title))
+clustering_table_path = save_summary_table(clustering_summary, os.path.join("analysis", "plots", "cluster", current_runs_title, current_analysis_title))
 
 
 #  # Nearby Parameter Search

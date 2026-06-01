@@ -30,7 +30,7 @@ load_best_fit_data = True
 
 
 current_runs_title = "15.09.25"
-current_analysis_title = "Step1-May.26"
+current_analysis_title = "Step1-May.26_Parlemeter_LR"
 
 steps_to_process = range(1,7)
 js_fits_stepwise = []
