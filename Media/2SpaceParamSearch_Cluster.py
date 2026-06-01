@@ -25,11 +25,13 @@ import os
 import pandas as pd
 
 
-save_best_fit_data = True
+save_best_fit_data = False
 load_best_fit_data = True
 
 
 current_runs_title = "15.09.25"
+current_analysis_title = "Step1-May.26"
+
 steps_to_process = range(1,7)
 js_fits_stepwise = []
 
@@ -40,7 +42,7 @@ for i in (steps_to_process):
     print(f"Step {i} \n")
 
 full_preprocessed_data_folder_path = os.path.join("data", "preprocessed", "cluster", current_runs_title)
-plots_folder_path = os.path.join("analysis", "plots", "cluster", current_runs_title)
+plots_folder_path = os.path.join("analysis", "plots", "cluster", current_runs_title, current_analysis_title)
 
 
 for stepNo in steps_to_process:
