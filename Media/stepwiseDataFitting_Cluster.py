@@ -64,13 +64,13 @@ current_analysis_title = "Step1-May.26_Parlemeter_LR"
 
 
 # Set below to True if rerunning after saving appropriately in //data//preprocessed//<current_runs_title>
-load_preprocessed_data = True
+load_preprocessed_data = False
 
 # Set below to True if there is a need to preprocess data (such as while running for the first time for new data)
-preprocess_data = False
+preprocess_data = True
 
 # Set below to True if running for the first time or need to preprocess and save for some other reason
-save_preprocessed_data = False
+save_preprocessed_data = True
 
 save_fits = True
 
@@ -859,7 +859,7 @@ for sheet in sheets:
     # Extract counts for positions 1-10 (skip % rows and DK/Refusal)
     counts_matrix = []
     for i in range(10):  # Positions 1-10
-        row_index = 1 + 2 * i  # Count rows are at indices 1,3,5,...,19
+        row_index = 2 + 2 * i  # Count rows are at indices 1,3,5,...,19 (IF THERES A TOTAL ROW ITS 2,4,6,8...)
         counts_matrix.append(df_sheet.iloc[row_index, :].tolist())
 
     # Process each year
