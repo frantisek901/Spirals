@@ -64,13 +64,13 @@ current_analysis_title = "Step1-May.26_Parlemeter_LR"
 
 
 # Set below to True if rerunning after saving appropriately in //data//preprocessed//<current_runs_title>
-load_preprocessed_data = False
+load_preprocessed_data = True
 
 # Set below to True if there is a need to preprocess data (such as while running for the first time for new data)
-preprocess_data = True
+preprocess_data = False
 
 # Set below to True if running for the first time or need to preprocess and save for some other reason
-save_preprocessed_data = True
+save_preprocessed_data = False
 
 save_fits = True
 
