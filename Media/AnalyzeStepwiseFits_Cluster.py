@@ -608,11 +608,17 @@ for stepNo in steps_to_process:
     print(f"\nModel {stepNo} Summary:")
     if country_results:
         country_overlaps = [r['overlap_fraction_of_train'] for r in country_results]
+        country_overlaps_total = [r['overlap_fraction_of_total'] for r in country_results]
         print(f"  Country splits - Mean overlap: {np.mean(country_overlaps):.3f} ± {np.std(country_overlaps):.3f}")
+        print(f"  Country splits (Fraction of total) - Mean overlap: {np.mean(country_overlaps_total):.3f} ± {np.std(country_overlaps_total):.3f}")
 
     if model_results['seed_splits']:
         seed_overlaps = [r['overlap_fraction_of_train'] for r in model_results['seed_splits']]
+        seed_overlaps_total = [r['overlap_fraction_of_total'] for r in model_results['seed_splits']]
+
         print(f"  Seed splits - Mean overlap: {np.mean(seed_overlaps):.3f} ± {np.std(seed_overlaps):.3f}")
+        print(f"  Seed splits (Fraction of total) - Mean overlap: {np.mean(seed_overlaps_total):.3f} ± {np.std(seed_overlaps_total):.3f}")
+
 
 
 # In[26]:
