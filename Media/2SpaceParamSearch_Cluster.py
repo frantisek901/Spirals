@@ -1271,12 +1271,6 @@ if(load_best_fit_data):
 # In[7]:
 
 
-CONFIG = {
-    # 'target_countries': countries_of_interest,
-    'model_number': 6,
-    'success_percentile': 1
-}
-
 
 # # Parameter Sensitivity Analysis - Simulation Parameters
 
@@ -1292,7 +1286,7 @@ import scipy.stats as spstats
 CONFIG = {
     # 'target_countries': countries_of_interest,
     'model_number': 6,
-    'success_percentile': 1
+    'success_percentile': 5
 }
 
 # =============================================================================
@@ -1723,6 +1717,13 @@ def plot_sensitivity_results(sensitivity_results, config):
         axes[1, 1].grid(True, alpha=0.3)
 
     plt.tight_layout()
+    
+    plot_output_dir = os.path.join(plots_folder_path, "Parameter_Analysis")
+    os.makedirs(plot_output_dir, exist_ok=True)
+
+    plt.savefig(os.path.join(plot_output_dir, f'Param_Sensitivity.png'), dpi=300, bbox_inches='tight')
+    plt.close()
+
     plt.show()
 
     print("✓ Sensitivity analysis visualizations complete")
@@ -1781,6 +1782,17 @@ def run_comprehensive_sensitivity_analysis(config):
     print("3. Pay attention to parameter interactions in complex trajectory patterns")
 
     return sensitivity_results
+
+
+
+
+# Setting up configuration
+CONFIG = {
+    # 'target_countries': countries_of_interest,
+    'model_number': 6,
+    'success_percentile': 5
+}
+
 
 # Execute the sensitivity analysis
 sensitivity_results = run_comprehensive_sensitivity_analysis(CONFIG)
@@ -2190,6 +2202,11 @@ def plot_parameter_optimization_results(results, active_params, config):
                 ax.grid(True, alpha=0.3)
 
     plt.tight_layout()
+    plot_output_dir = os.path.join(plots_folder_path, "Parameter_Analysis")
+    os.makedirs(plot_output_dir, exist_ok=True)
+
+    plt.savefig(os.path.join(plot_output_dir, f'Param_Optimization.png'), dpi=300, bbox_inches='tight')
+    plt.close()
     plt.show()
 
 def run_parameter_optimization_analysis(config):
@@ -2549,6 +2566,11 @@ def create_efficient_diagnostic_plot_corrected(df, low_threshold, high_threshold
             box.set_alpha(0.6)
 
     plt.tight_layout()
+    plot_output_dir = os.path.join(plots_folder_path, "Parameter_Analysis")
+    os.makedirs(plot_output_dir, exist_ok=True)
+
+    plt.savefig(os.path.join(plot_output_dir, f'epsM-vs-distance_delta_top_{CONFIG["success_percentile"]}percentile'), dpi=300, bbox_inches='tight')
+    plt.close()
     plt.show()
 
 # Run the memory-efficient analysis
@@ -2958,6 +2980,11 @@ def create_improvement_vs_percentile_plot(results, success_percentile):
                     bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8))
 
     plt.tight_layout()
+    plot_output_dir = os.path.join(plots_folder_path, "Parameter_Analysis")
+    os.makedirs(plot_output_dir, exist_ok=True)
+
+    plt.savefig(os.path.join(plot_output_dir, f'improvement-vs-percentile.png'), dpi=300, bbox_inches='tight')
+    plt.close()
     plt.show()
 
     # Print key insights from the plot
@@ -2984,238 +3011,238 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 
-def analyze_silence_by_boundary_effect(model_number=6):
-    """
-    Analyze the effect of SilenceByBoundary parameter on model performance
-    """
-    print(f"Analyzing SilenceByBoundary effect for Model {model_number}")
+# def analyze_silence_by_boundary_effect(model_number=6):
+#     """
+#     Analyze the effect of SilenceByBoundary parameter on model performance
+#     """
+#     print(f"Analyzing SilenceByBoundary effect for Model {model_number}")
 
-    # Load the model data
-    model_idx = model_number - 1
-    df = js_fits_stepwise_with_success[model_idx].copy()
+#     # Load the model data
+#     model_idx = model_number - 1
+#     df = js_fits_stepwise_with_success[model_idx].copy()
 
-    # Check if SilenceByBoundary exists in this model
-    if 'SilenceByBoundary' not in df.columns:
-        print("SilenceByBoundary not found in model data")
-        return
+#     # Check if SilenceByBoundary exists in this model
+#     if 'SilenceByBoundary' not in df.columns:
+#         print("SilenceByBoundary not found in model data")
+#         return
 
-    # Convert to boolean if needed
-    df['SilenceByBoundary'] = df['SilenceByBoundary'].astype(bool)
+#     # Convert to boolean if needed
+#     df['SilenceByBoundary'] = df['SilenceByBoundary'].astype(bool)
 
-    print(f"Total rows: {len(df):,}")
-    print(f"SilenceByBoundary distribution:")
-    print(df['SilenceByBoundary'].value_counts())
+#     print(f"Total rows: {len(df):,}")
+#     print(f"SilenceByBoundary distribution:")
+#     print(df['SilenceByBoundary'].value_counts())
 
-    # Plot 1: Overall JSD distributions
-    plt.figure(figsize=(12, 5))
+#     # Plot 1: Overall JSD distributions
+#     plt.figure(figsize=(12, 5))
 
-    # Subplot 1: Histogram of JSD distributions
-    plt.subplot(1, 2, 1)
+#     # Subplot 1: Histogram of JSD distributions
+#     plt.subplot(1, 2, 1)
 
-    # Get data for both conditions
-    jsd_true = df[df['SilenceByBoundary'] == True]['distance_final']
-    jsd_false = df[df['SilenceByBoundary'] == False]['distance_final']
+#     # Get data for both conditions
+#     jsd_true = df[df['SilenceByBoundary'] == True]['distance_final']
+#     jsd_false = df[df['SilenceByBoundary'] == False]['distance_final']
 
-    # Plot histograms
-    plt.hist(jsd_true, bins=50, alpha=0.7, label='SilenceByBoundary=True', 
-             color='skyblue', density=True)
-    plt.hist(jsd_false, bins=50, alpha=0.7, label='SilenceByBoundary=False', 
-             color='lightcoral', density=True)
+#     # Plot histograms
+#     plt.hist(jsd_true, bins=50, alpha=0.7, label='SilenceByBoundary=True', 
+#              color='skyblue', density=True)
+#     plt.hist(jsd_false, bins=50, alpha=0.7, label='SilenceByBoundary=False', 
+#              color='lightcoral', density=True)
 
-    # Add mean lines
-    mean_true = jsd_true.mean()
-    mean_false = jsd_false.mean()
-    plt.axvline(mean_true, color='blue', linestyle='--', alpha=0.8, 
-                label=f'True mean: {mean_true:.3f}')
-    plt.axvline(mean_false, color='red', linestyle='--', alpha=0.8, 
-                label=f'False mean: {mean_false:.3f}')
+#     # Add mean lines
+#     mean_true = jsd_true.mean()
+#     mean_false = jsd_false.mean()
+#     plt.axvline(mean_true, color='blue', linestyle='--', alpha=0.8, 
+#                 label=f'True mean: {mean_true:.3f}')
+#     plt.axvline(mean_false, color='red', linestyle='--', alpha=0.8, 
+#                 label=f'False mean: {mean_false:.3f}')
 
-    plt.xlabel('Jensen-Shannon Divergence (JSD)')
-    plt.ylabel('Density')
-    plt.title('JSD Distribution by SilenceByBoundary\n(Model 6)')
-    plt.legend()
-    plt.grid(True, alpha=0.3)
+#     plt.xlabel('Jensen-Shannon Divergence (JSD)')
+#     plt.ylabel('Density')
+#     plt.title('JSD Distribution by SilenceByBoundary\n(Model 6)')
+#     plt.legend()
+#     plt.grid(True, alpha=0.3)
 
-    # Subplot 2: Success rates at different percentiles
-    plt.subplot(1, 2, 2)
+#     # Subplot 2: Success rates at different percentiles
+#     plt.subplot(1, 2, 2)
 
-    # Define success percentiles to test
-    percentiles = [0.1, 0.5, 1, 2, 5, 10, 15, 20, 25]
-    success_rates_true = []
-    success_rates_false = []
+#     # Define success percentiles to test
+#     percentiles = [0.1, 0.5, 1, 2, 5, 10, 15, 20, 25]
+#     success_rates_true = []
+#     success_rates_false = []
 
-    for percentile in percentiles:
-        # Calculate threshold for this percentile
-        threshold = df['distance_final'].quantile(percentile / 100)
+#     for percentile in percentiles:
+#         # Calculate threshold for this percentile
+#         threshold = df['distance_final'].quantile(percentile / 100)
 
-        # Calculate success rates
-        success_true = (df[df['SilenceByBoundary'] == True]['distance_final'] <= threshold).mean() * 100
-        success_false = (df[df['SilenceByBoundary'] == False]['distance_final'] <= threshold).mean() * 100
+#         # Calculate success rates
+#         success_true = (df[df['SilenceByBoundary'] == True]['distance_final'] <= threshold).mean() * 100
+#         success_false = (df[df['SilenceByBoundary'] == False]['distance_final'] <= threshold).mean() * 100
 
-        success_rates_true.append(success_true)
-        success_rates_false.append(success_false)
+#         success_rates_true.append(success_true)
+#         success_rates_false.append(success_false)
 
-    # Plot success rates
-    plt.plot(percentiles, success_rates_true, 'o-', label='SilenceByBoundary=True', 
-             color='blue', linewidth=2, markersize=6)
-    plt.plot(percentiles, success_rates_false, 'o-', label='SilenceByBoundary=False', 
-             color='red', linewidth=2, markersize=6)
+#     # Plot success rates
+#     plt.plot(percentiles, success_rates_true, 'o-', label='SilenceByBoundary=True', 
+#              color='blue', linewidth=2, markersize=6)
+#     plt.plot(percentiles, success_rates_false, 'o-', label='SilenceByBoundary=False', 
+#              color='red', linewidth=2, markersize=6)
 
-    plt.xlabel('Success Percentile Threshold (%)')
-    plt.ylabel('Success Rate (%)')
-    plt.title('Success Rate vs Percentile Threshold\n(Model 6)')
-    plt.legend()
-    plt.grid(True, alpha=0.3)
+#     plt.xlabel('Success Percentile Threshold (%)')
+#     plt.ylabel('Success Rate (%)')
+#     plt.title('Success Rate vs Percentile Threshold\n(Model 6)')
+#     plt.legend()
+#     plt.grid(True, alpha=0.3)
 
-    # Add some annotations for key percentiles
-    for i, p in enumerate([1, 5, 10]):
-        plt.annotate(f'{success_rates_true[i]:.1f}%', 
-                    (percentiles[i], success_rates_true[i]), 
-                    textcoords="offset points", xytext=(0,10), ha='center', fontsize=9)
-        plt.annotate(f'{success_rates_false[i]:.1f}%', 
-                    (percentiles[i], success_rates_false[i]), 
-                    textcoords="offset points", xytext=(0,-15), ha='center', fontsize=9)
+#     # Add some annotations for key percentiles
+#     for i, p in enumerate([1, 5, 10]):
+#         plt.annotate(f'{success_rates_true[i]:.1f}%', 
+#                     (percentiles[i], success_rates_true[i]), 
+#                     textcoords="offset points", xytext=(0,10), ha='center', fontsize=9)
+#         plt.annotate(f'{success_rates_false[i]:.1f}%', 
+#                     (percentiles[i], success_rates_false[i]), 
+#                     textcoords="offset points", xytext=(0,-15), ha='center', fontsize=9)
 
-    plt.tight_layout()
-    plt.show()
+#     plt.tight_layout()
+#     plt.show()
 
-    # Print statistical summary
-    print(f"\nSTATISTICAL SUMMARY:")
-    print(f"SilenceByBoundary=True:")
-    print(f"  Count: {len(jsd_true):,}")
-    print(f"  Mean JSD: {mean_true:.4f}")
-    print(f"  Std JSD: {jsd_true.std():.4f}")
-    print(f"  Median JSD: {jsd_true.median():.4f}")
+#     # Print statistical summary
+#     print(f"\nSTATISTICAL SUMMARY:")
+#     print(f"SilenceByBoundary=True:")
+#     print(f"  Count: {len(jsd_true):,}")
+#     print(f"  Mean JSD: {mean_true:.4f}")
+#     print(f"  Std JSD: {jsd_true.std():.4f}")
+#     print(f"  Median JSD: {jsd_true.median():.4f}")
 
-    print(f"SilenceByBoundary=False:")
-    print(f"  Count: {len(jsd_false):,}")
-    print(f"  Mean JSD: {mean_false:.4f}")
-    print(f"  Std JSD: {jsd_false.std():.4f}")
-    print(f"  Median JSD: {jsd_false.median():.4f}")
+#     print(f"SilenceByBoundary=False:")
+#     print(f"  Count: {len(jsd_false):,}")
+#     print(f"  Mean JSD: {mean_false:.4f}")
+#     print(f"  Std JSD: {jsd_false.std():.4f}")
+#     print(f"  Median JSD: {jsd_false.median():.4f}")
 
-    # Statistical test
-    from scipy import stats as spstats
-    t_stat, p_value = spstats.ttest_ind(jsd_true, jsd_false, equal_var=False)
-    print(f"\nStatistical Test (Welch's t-test):")
-    print(f"  t-statistic: {t_stat:.4f}")
-    print(f"  p-value: {p_value:.4f}")
-    print(f"  Significant difference: {'YES' if p_value < 0.05 else 'NO'}")
+#     # Statistical test
+#     from scipy import stats as spstats
+#     t_stat, p_value = spstats.ttest_ind(jsd_true, jsd_false, equal_var=False)
+#     print(f"\nStatistical Test (Welch's t-test):")
+#     print(f"  t-statistic: {t_stat:.4f}")
+#     print(f"  p-value: {p_value:.4f}")
+#     print(f"  Significant difference: {'YES' if p_value < 0.05 else 'NO'}")
 
-    # Success rate comparison at key percentiles
-    print(f"\nSUCCESS RATE COMPARISON:")
-    key_percentiles = [1, 5, 10]
-    for p in key_percentiles:
-        threshold = df['distance_final'].quantile(p / 100)
-        success_true = (jsd_true <= threshold).mean() * 100
-        success_false = (jsd_false <= threshold).mean() * 100
-        advantage = success_true - success_false
+#     # Success rate comparison at key percentiles
+#     print(f"\nSUCCESS RATE COMPARISON:")
+#     key_percentiles = [1, 5, 10]
+#     for p in key_percentiles:
+#         threshold = df['distance_final'].quantile(p / 100)
+#         success_true = (jsd_true <= threshold).mean() * 100
+#         success_false = (jsd_false <= threshold).mean() * 100
+#         advantage = success_true - success_false
 
-        print(f"  Top {p}%:")
-        print(f"    True: {success_true:.2f}%")
-        print(f"    False: {success_false:.2f}%")
-        print(f"    Advantage: {advantage:+.2f}%")
+#         print(f"  Top {p}%:")
+#         print(f"    True: {success_true:.2f}%")
+#         print(f"    False: {success_false:.2f}%")
+#         print(f"    Advantage: {advantage:+.2f}%")
 
-    return {
-        'jsd_true': jsd_true,
-        'jsd_false': jsd_false,
-        'success_rates_true': success_rates_true,
-        'success_rates_false': success_rates_false,
-        'percentiles': percentiles
-    }
+#     return {
+#         'jsd_true': jsd_true,
+#         'jsd_false': jsd_false,
+#         'success_rates_true': success_rates_true,
+#         'success_rates_false': success_rates_false,
+#         'percentiles': percentiles
+#     }
 
-# Run the analysis
-results = analyze_silence_by_boundary_effect(6)
+# # Run the analysis
+# results = analyze_silence_by_boundary_effect(6)
 
-# Additional analysis: Country-specific effects
-def analyze_silence_by_boundary_by_country(model_number=6, top_countries=10):
-    """
-    Analyze SilenceByBoundary effect across different countries
-    """
-    print(f"\n{'#'*80}")
-    print("COUNTRY-SPECIFIC ANALYSIS")
-    print(f"{'#'*80}")
+# # Additional analysis: Country-specific effects
+# def analyze_silence_by_boundary_by_country(model_number=6, top_countries=10):
+#     """
+#     Analyze SilenceByBoundary effect across different countries
+#     """
+#     print(f"\n{'#'*80}")
+#     print("COUNTRY-SPECIFIC ANALYSIS")
+#     print(f"{'#'*80}")
 
-    model_idx = model_number - 1
-    df = js_fits_stepwise_with_success[model_idx].copy()
-    df['SilenceByBoundary'] = df['SilenceByBoundary'].astype(bool)
+#     model_idx = model_number - 1
+#     df = js_fits_stepwise_with_success[model_idx].copy()
+#     df['SilenceByBoundary'] = df['SilenceByBoundary'].astype(bool)
 
-    # Get countries with sufficient data
-    country_counts = df['country'].value_counts()
-    countries_to_analyze = country_counts.head(top_countries).index
+#     # Get countries with sufficient data
+#     country_counts = df['country'].value_counts()
+#     countries_to_analyze = country_counts.head(top_countries).index
 
-    country_results = []
+#     country_results = []
 
-    for country in countries_to_analyze:
-        country_data = df[df['country'] == country]
-        if len(country_data) < 100:  # Minimum data threshold
-            continue
+#     for country in countries_to_analyze:
+#         country_data = df[df['country'] == country]
+#         if len(country_data) < 100:  # Minimum data threshold
+#             continue
 
-        jsd_true = country_data[country_data['SilenceByBoundary'] == True]['distance_final']
-        jsd_false = country_data[country_data['SilenceByBoundary'] == False]['distance_final']
+#         jsd_true = country_data[country_data['SilenceByBoundary'] == True]['distance_final']
+#         jsd_false = country_data[country_data['SilenceByBoundary'] == False]['distance_final']
 
-        if len(jsd_true) < 10 or len(jsd_false) < 10:
-            continue
+#         if len(jsd_true) < 10 or len(jsd_false) < 10:
+#             continue
 
-        mean_true = jsd_true.mean()
-        mean_false = jsd_false.mean()
-        advantage = mean_false - mean_true  # Positive means True is better (lower JSD)
+#         mean_true = jsd_true.mean()
+#         mean_false = jsd_false.mean()
+#         advantage = mean_false - mean_true  # Positive means True is better (lower JSD)
 
-        # Success rate at 5% threshold
-        threshold = country_data['distance_final'].quantile(0.05)
-        success_true = (jsd_true <= threshold).mean() * 100 if len(jsd_true) > 0 else 0
-        success_false = (jsd_false <= threshold).mean() * 100 if len(jsd_false) > 0 else 0
-        success_advantage = success_true - success_false
+#         # Success rate at 5% threshold
+#         threshold = country_data['distance_final'].quantile(0.05)
+#         success_true = (jsd_true <= threshold).mean() * 100 if len(jsd_true) > 0 else 0
+#         success_false = (jsd_false <= threshold).mean() * 100 if len(jsd_false) > 0 else 0
+#         success_advantage = success_true - success_false
 
-        country_results.append({
-            'country': country,
-            'samples': len(country_data),
-            'mean_true': mean_true,
-            'mean_false': mean_false,
-            'advantage': advantage,
-            'success_true': success_true,
-            'success_false': success_false,
-            'success_advantage': success_advantage
-        })
+#         country_results.append({
+#             'country': country,
+#             'samples': len(country_data),
+#             'mean_true': mean_true,
+#             'mean_false': mean_false,
+#             'advantage': advantage,
+#             'success_true': success_true,
+#             'success_false': success_false,
+#             'success_advantage': success_advantage
+#         })
 
-    # Sort by advantage
-    country_results.sort(key=lambda x: x['advantage'], reverse=True)
+#     # Sort by advantage
+#     country_results.sort(key=lambda x: x['advantage'], reverse=True)
 
-    print(f"Country-specific performance (sorted by JSD advantage):")
-    print(f"{'Country':<10} {'Samples':<8} {'Mean_True':<10} {'Mean_False':<10} {'Advantage':<10} {'Success_T':<10} {'Success_F':<10} {'S_Advantage':<10}")
-    print("-" * 90)
+#     print(f"Country-specific performance (sorted by JSD advantage):")
+#     print(f"{'Country':<10} {'Samples':<8} {'Mean_True':<10} {'Mean_False':<10} {'Advantage':<10} {'Success_T':<10} {'Success_F':<10} {'S_Advantage':<10}")
+#     print("-" * 90)
 
-    for result in country_results:
-        print(f"{result['country']:<10} {result['samples']:<8} {result['mean_true']:.4f}    {result['mean_false']:.4f}    {result['advantage']:+.4f}    "
-              f"{result['success_true']:.1f}%      {result['success_false']:.1f}%      {result['success_advantage']:+.1f}%")
+#     for result in country_results:
+#         print(f"{result['country']:<10} {result['samples']:<8} {result['mean_true']:.4f}    {result['mean_false']:.4f}    {result['advantage']:+.4f}    "
+#               f"{result['success_true']:.1f}%      {result['success_false']:.1f}%      {result['success_advantage']:+.1f}%")
 
-    # Plot country comparison
-    plt.figure(figsize=(12, 6))
+#     # Plot country comparison
+#     plt.figure(figsize=(12, 6))
 
-    countries = [r['country'] for r in country_results]
-    advantages = [r['advantage'] for r in country_results]
+#     countries = [r['country'] for r in country_results]
+#     advantages = [r['advantage'] for r in country_results]
 
-    colors = ['green' if adv > 0 else 'red' for adv in advantages]
+#     colors = ['green' if adv > 0 else 'red' for adv in advantages]
 
-    plt.bar(countries, advantages, color=colors, alpha=0.7)
-    plt.axhline(y=0, color='black', linestyle='-', alpha=0.3)
-    plt.xlabel('Country')
-    plt.ylabel('JSD Advantage (False - True)')
-    plt.title('SilenceByBoundary Advantage by Country\n(Positive = True performs better)')
-    plt.xticks(rotation=45)
-    plt.grid(True, alpha=0.3)
+#     plt.bar(countries, advantages, color=colors, alpha=0.7)
+#     plt.axhline(y=0, color='black', linestyle='-', alpha=0.3)
+#     plt.xlabel('Country')
+#     plt.ylabel('JSD Advantage (False - True)')
+#     plt.title('SilenceByBoundary Advantage by Country\n(Positive = True performs better)')
+#     plt.xticks(rotation=45)
+#     plt.grid(True, alpha=0.3)
 
-    # Add value labels on bars
-    for i, v in enumerate(advantages):
-        plt.text(i, v + (0.001 if v >= 0 else -0.003), f'{v:.4f}', 
-                ha='center', va='bottom' if v >= 0 else 'top', fontsize=9)
+#     # Add value labels on bars
+#     for i, v in enumerate(advantages):
+#         plt.text(i, v + (0.001 if v >= 0 else -0.003), f'{v:.4f}', 
+#                 ha='center', va='bottom' if v >= 0 else 'top', fontsize=9)
 
-    plt.tight_layout()
-    plt.show()
+#     plt.tight_layout()
+#     plt.show()
 
-    return country_results
+#     return country_results
 
-# Run country-specific analysis
-country_results = analyze_silence_by_boundary_by_country(6)
+# # Run country-specific analysis
+# country_results = analyze_silence_by_boundary_by_country(6)
 
 print(f"\n{'#'*80}")
 print("RECOMMENDATION SUMMARY")
