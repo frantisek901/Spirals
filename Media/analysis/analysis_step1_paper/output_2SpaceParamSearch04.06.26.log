@@ -1,0 +1,792 @@
+Running 2SpaceParamSearch_Cluster.py
+The following steps will be processed: 
+
+Step 1 
+
+Step 2 
+
+Step 3 
+
+Step 4 
+
+Step 5 
+
+Step 6 
+
+DEBUG MODE: Testing with limited data
+Saving top percentile data for models 1-6
+Percentiles to save: [5, 1]%
+
+############################################################
+PROCESSING MODEL 1
+############################################################
+  Loaded 1,047,900 comparisons for Model 1
+  ✓ Saved top 5% (52,395 rows) to data/preprocessed/cluster/top_percentiles/model_1_top_5pct.csv (CSV)
+  ✓ Saved top 1% (10,479 rows) to data/preprocessed/cluster/top_percentiles/model_1_top_1pct.csv (CSV)
+
+############################################################
+PROCESSING MODEL 2
+############################################################
+  Loaded 1,047,900 comparisons for Model 2
+  ✓ Saved top 5% (52,395 rows) to data/preprocessed/cluster/top_percentiles/model_2_top_5pct.csv (CSV)
+  ✓ Saved top 1% (10,479 rows) to data/preprocessed/cluster/top_percentiles/model_2_top_1pct.csv (CSV)
+
+############################################################
+PROCESSING MODEL 3
+############################################################
+  Loaded 1,497,000 comparisons for Model 3
+  ✓ Saved top 5% (74,850 rows) to data/preprocessed/cluster/top_percentiles/model_3_top_5pct.csv (CSV)
+  ✓ Saved top 1% (14,970 rows) to data/preprocessed/cluster/top_percentiles/model_3_top_1pct.csv (CSV)
+
+############################################################
+PROCESSING MODEL 4
+############################################################
+  Loaded 7,005,960 comparisons for Model 4
+  ✓ Saved top 5% (350,298 rows) to data/preprocessed/cluster/top_percentiles/model_4_top_5pct.csv (CSV)
+  ✓ Saved top 1% (70,060 rows) to data/preprocessed/cluster/top_percentiles/model_4_top_1pct.csv (CSV)
+
+############################################################
+PROCESSING MODEL 5
+############################################################
+  Loaded 58,203,360 comparisons for Model 5
+  ✓ Saved top 5% (2,910,168 rows) to data/preprocessed/cluster/top_percentiles/model_5_top_5pct.csv (CSV)
+  ✓ Saved top 1% (582,034 rows) to data/preprocessed/cluster/top_percentiles/model_5_top_1pct.csv (CSV)
+
+############################################################
+PROCESSING MODEL 6
+############################################################
+  Loaded 58,203,360 comparisons for Model 6
+  ✓ Saved top 5% (2,910,168 rows) to data/preprocessed/cluster/top_percentiles/model_6_top_5pct.csv (CSV)
+  ✓ Saved top 1% (582,041 rows) to data/preprocessed/cluster/top_percentiles/model_6_top_1pct.csv (CSV)
+
+############################################################
+SUMMARY
+############################################################
+
+Model 1:
+  Top  5.00%:   52,395 rows (JSD ≤ 0.3378)
+  Top  1.00%:   10,479 rows (JSD ≤ 0.2243)
+
+Model 2:
+  Top  5.00%:   52,395 rows (JSD ≤ 0.2009)
+  Top  1.00%:   10,479 rows (JSD ≤ 0.1662)
+
+Model 3:
+  Top  5.00%:   74,850 rows (JSD ≤ 0.1679)
+  Top  1.00%:   14,970 rows (JSD ≤ 0.1332)
+
+Model 4:
+  Top  5.00%:  350,298 rows (JSD ≤ 0.1497)
+  Top  1.00%:   70,060 rows (JSD ≤ 0.1102)
+
+Model 5:
+  Top  5.00%: 2,910,168 rows (JSD ≤ 0.1789)
+  Top  1.00%:  582,034 rows (JSD ≤ 0.1322)
+
+Model 6:
+  Top  5.00%: 2,910,168 rows (JSD ≤ 0.1726)
+  Top  1.00%:  582,041 rows (JSD ≤ 0.1250)
+
+Loaded data keys: dict_keys([5])
+Model 5 has percentiles: [5, 1]
+
+Comparison for Top 5%:
+           count    mean     std     min  median     max
+model                                                   
+Model 5  2910168  0.1504  0.0228  0.0229  0.1559  0.1789
+
+Debug successful! Running full analysis...
+Starting complete percentile analysis
+Models: [1, 2, 3, 4, 5, 6]
+Percentiles: [5, 0.5, 0.05]
+Saving top percentile data for models 1-6
+Percentiles to save: [5, 0.5, 0.05]%
+
+############################################################
+PROCESSING MODEL 1
+############################################################
+  Loaded 1,047,900 comparisons for Model 1
+  ✓ Saved top 5% (52,395 rows) to data/preprocessed/cluster/top_percentiles/model_1_top_5pct.csv (CSV)
+  ✓ Saved top 0.5% (5,240 rows) to data/preprocessed/cluster/top_percentiles/model_1_top_0.5pct.csv (CSV)
+  ✓ Saved top 0.05% (524 rows) to data/preprocessed/cluster/top_percentiles/model_1_top_0.05pct.csv (CSV)
+
+############################################################
+PROCESSING MODEL 2
+############################################################
+  Loaded 1,047,900 comparisons for Model 2
+  ✓ Saved top 5% (52,395 rows) to data/preprocessed/cluster/top_percentiles/model_2_top_5pct.csv (CSV)
+  ✓ Saved top 0.5% (5,240 rows) to data/preprocessed/cluster/top_percentiles/model_2_top_0.5pct.csv (CSV)
+  ✓ Saved top 0.05% (524 rows) to data/preprocessed/cluster/top_percentiles/model_2_top_0.05pct.csv (CSV)
+
+############################################################
+PROCESSING MODEL 3
+############################################################
+  Loaded 1,497,000 comparisons for Model 3
+  ✓ Saved top 5% (74,850 rows) to data/preprocessed/cluster/top_percentiles/model_3_top_5pct.csv (CSV)
+  ✓ Saved top 0.5% (7,485 rows) to data/preprocessed/cluster/top_percentiles/model_3_top_0.5pct.csv (CSV)
+  ✓ Saved top 0.05% (749 rows) to data/preprocessed/cluster/top_percentiles/model_3_top_0.05pct.csv (CSV)
+
+############################################################
+PROCESSING MODEL 4
+############################################################
+  Loaded 7,005,960 comparisons for Model 4
+  ✓ Saved top 5% (350,298 rows) to data/preprocessed/cluster/top_percentiles/model_4_top_5pct.csv (CSV)
+  ✓ Saved top 0.5% (35,030 rows) to data/preprocessed/cluster/top_percentiles/model_4_top_0.5pct.csv (CSV)
+  ✓ Saved top 0.05% (3,503 rows) to data/preprocessed/cluster/top_percentiles/model_4_top_0.05pct.csv (CSV)
+
+############################################################
+PROCESSING MODEL 5
+############################################################
+  Loaded 58,203,360 comparisons for Model 5
+  ✓ Saved top 5% (2,910,168 rows) to data/preprocessed/cluster/top_percentiles/model_5_top_5pct.csv (CSV)
+  ✓ Saved top 0.5% (291,017 rows) to data/preprocessed/cluster/top_percentiles/model_5_top_0.5pct.csv (CSV)
+  ✓ Saved top 0.05% (29,102 rows) to data/preprocessed/cluster/top_percentiles/model_5_top_0.05pct.csv (CSV)
+
+############################################################
+PROCESSING MODEL 6
+############################################################
+  Loaded 58,203,360 comparisons for Model 6
+  ✓ Saved top 5% (2,910,168 rows) to data/preprocessed/cluster/top_percentiles/model_6_top_5pct.csv (CSV)
+  ✓ Saved top 0.5% (291,017 rows) to data/preprocessed/cluster/top_percentiles/model_6_top_0.5pct.csv (CSV)
+  ✓ Saved top 0.05% (29,104 rows) to data/preprocessed/cluster/top_percentiles/model_6_top_0.05pct.csv (CSV)
+
+############################################################
+SUMMARY
+############################################################
+
+Model 1:
+  Top  5.00%:   52,395 rows (JSD ≤ 0.3378)
+  Top  0.50%:    5,240 rows (JSD ≤ 0.2037)
+  Top  0.05%:      524 rows (JSD ≤ 0.1556)
+
+Model 2:
+  Top  5.00%:   52,395 rows (JSD ≤ 0.2009)
+  Top  0.50%:    5,240 rows (JSD ≤ 0.1545)
+  Top  0.05%:      524 rows (JSD ≤ 0.1204)
+
+Model 3:
+  Top  5.00%:   74,850 rows (JSD ≤ 0.1679)
+  Top  0.50%:    7,485 rows (JSD ≤ 0.1210)
+  Top  0.05%:      749 rows (JSD ≤ 0.0894)
+
+Model 4:
+  Top  5.00%:  350,298 rows (JSD ≤ 0.1497)
+  Top  0.50%:   35,030 rows (JSD ≤ 0.0986)
+  Top  0.05%:    3,503 rows (JSD ≤ 0.0707)
+
+Model 5:
+  Top  5.00%: 2,910,168 rows (JSD ≤ 0.1789)
+  Top  0.50%:  291,017 rows (JSD ≤ 0.1175)
+  Top  0.05%:   29,102 rows (JSD ≤ 0.0828)
+
+Model 6:
+  Top  5.00%: 2,910,168 rows (JSD ≤ 0.1726)
+  Top  0.50%:  291,017 rows (JSD ≤ 0.1113)
+  Top  0.05%:   29,104 rows (JSD ≤ 0.0783)
+
+############################################################
+CREATING VISUALIZATIONS
+############################################################
+
+############################################################
+BOXPLOT STATISTICS
+############################################################
+                      count    mean     std     min     max
+model   percentile                                         
+Model 1 Top 0.05%       524  0.1405  0.0124  0.0923  0.1556
+        Top 0.5%       5240  0.1823  0.0187  0.0923  0.2037
+        Top 5%        52395  0.2646  0.0444  0.0923  0.3378
+Model 2 Top 0.05%       524  0.1108  0.0094  0.0601  0.1204
+        Top 0.5%       5240  0.1397  0.0132  0.0601  0.1545
+        Top 5%        52395  0.1797  0.0182  0.0601  0.2009
+Model 3 Top 0.05%       749  0.0795  0.0091  0.0417  0.0894
+        Top 0.5%       7485  0.1069  0.0124  0.0417  0.1210
+        Top 5%        74850  0.1468  0.0181  0.0417  0.1679
+Model 4 Top 0.05%      3503  0.0628  0.0067  0.0284  0.0707
+        Top 0.5%      35030  0.0859  0.0106  0.0284  0.0986
+        Top 5%       350298  0.1257  0.0189  0.0284  0.1497
+Model 5 Top 0.05%     29102  0.0726  0.0090  0.0229  0.0828
+        Top 0.5%     291017  0.1017  0.0133  0.0229  0.1175
+        Top 5%      2910168  0.1504  0.0228  0.0229  0.1789
+Model 6 Top 0.05%     29104  0.0690  0.0081  0.0257  0.0783
+        Top 0.5%     291017  0.0964  0.0125  0.0257  0.1113
+        Top 5%      2910168  0.1436  0.0225  0.0257  0.1726
+
+Comparison for Top 5%:
+           count    mean     std     min  median     max
+model                                                   
+Model 1    52395  0.2646  0.0444  0.0923  0.2684  0.3378
+Model 2    52395  0.1797  0.0182  0.0601  0.1845  0.2009
+Model 3    74850  0.1468  0.0181  0.0417  0.1517  0.1679
+Model 4   350298  0.1257  0.0189  0.0284  0.1300  0.1497
+Model 5  2910168  0.1504  0.0228  0.0229  0.1559  0.1789
+Model 6  2910168  0.1436  0.0225  0.0257  0.1485  0.1726
+
+Comparison for Top 0.5%:
+          count    mean     std     min  median     max
+model                                                  
+Model 1    5240  0.1823  0.0187  0.0923  0.1873  0.2037
+Model 2    5240  0.1397  0.0132  0.0601  0.1436  0.1545
+Model 3    7485  0.1069  0.0124  0.0417  0.1104  0.1210
+Model 4   35030  0.0859  0.0106  0.0284  0.0887  0.0986
+Model 5  291017  0.1017  0.0133  0.0229  0.1052  0.1175
+Model 6  291017  0.0964  0.0125  0.0257  0.0998  0.1113
+
+Comparison for Top 0.05%:
+         count    mean     std     min  median     max
+model                                                 
+Model 1    524  0.1405  0.0124  0.0923  0.1433  0.1556
+Model 2    524  0.1108  0.0094  0.0601  0.1134  0.1204
+Model 3    749  0.0795  0.0091  0.0417  0.0821  0.0894
+Model 4   3503  0.0628  0.0067  0.0284  0.0646  0.0707
+Model 5  29102  0.0726  0.0090  0.0229  0.0751  0.0828
+Model 6  29104  0.0690  0.0081  0.0257  0.0713  0.0783
+SAVING IMPROVED TOP PERCENTILE DATA...
+Saving IMPROVED top percentile data for models 1-6
+Percentiles to save: [5, 2, 1, 0.5, 0.05]%
+Filter: Only simulations where distance_final < distance_initial
+
+############################################################
+PROCESSING MODEL 1
+############################################################
+  Loaded 1,047,900 total comparisons
+  Found 20,589 improved simulations (2.0%)
+  ✓ Saved top 5% (1,030 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_1_top_5pct.csv (CSV)
+  ✓ Saved top 2% (412 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_1_top_2pct.csv (CSV)
+  ✓ Saved top 1% (206 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_1_top_1pct.csv (CSV)
+  ✓ Saved top 0.5% (103 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_1_top_0.5pct.csv (CSV)
+  ✓ Saved top 0.05% (11 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_1_top_0.05pct.csv (CSV)
+
+############################################################
+PROCESSING MODEL 2
+############################################################
+  Loaded 1,047,900 total comparisons
+  Found 172,618 improved simulations (16.5%)
+  ✓ Saved top 5% (8,631 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_2_top_5pct.csv (CSV)
+  ✓ Saved top 2% (3,453 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_2_top_2pct.csv (CSV)
+  ✓ Saved top 1% (1,727 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_2_top_1pct.csv (CSV)
+  ✓ Saved top 0.5% (864 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_2_top_0.5pct.csv (CSV)
+  ✓ Saved top 0.05% (87 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_2_top_0.05pct.csv (CSV)
+
+############################################################
+PROCESSING MODEL 3
+############################################################
+  Loaded 1,497,000 total comparisons
+  Found 609,106 improved simulations (40.7%)
+  ✓ Saved top 5% (30,456 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_3_top_5pct.csv (CSV)
+  ✓ Saved top 2% (12,183 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_3_top_2pct.csv (CSV)
+  ✓ Saved top 1% (6,092 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_3_top_1pct.csv (CSV)
+  ✓ Saved top 0.5% (3,046 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_3_top_0.5pct.csv (CSV)
+  ✓ Saved top 0.05% (305 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_3_top_0.05pct.csv (CSV)
+
+############################################################
+PROCESSING MODEL 4
+############################################################
+  Loaded 7,005,960 total comparisons
+  Found 473,263 improved simulations (6.8%)
+  ✓ Saved top 5% (23,664 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_4_top_5pct.csv (CSV)
+  ✓ Saved top 2% (9,466 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_4_top_2pct.csv (CSV)
+  ✓ Saved top 1% (4,733 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_4_top_1pct.csv (CSV)
+  ✓ Saved top 0.5% (2,367 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_4_top_0.5pct.csv (CSV)
+  ✓ Saved top 0.05% (237 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_4_top_0.05pct.csv (CSV)
+
+############################################################
+PROCESSING MODEL 5
+############################################################
+  Loaded 58,203,360 total comparisons
+  Found 13,580,475 improved simulations (23.3%)
+  ✓ Saved top 5% (679,024 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_5_top_5pct.csv (CSV)
+  ✓ Saved top 2% (271,610 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_5_top_2pct.csv (CSV)
+  ✓ Saved top 1% (135,805 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_5_top_1pct.csv (CSV)
+  ✓ Saved top 0.5% (67,903 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_5_top_0.5pct.csv (CSV)
+  ✓ Saved top 0.05% (6,791 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_5_top_0.05pct.csv (CSV)
+
+############################################################
+PROCESSING MODEL 6
+############################################################
+  Loaded 58,203,360 total comparisons
+  Found 18,663,400 improved simulations (32.1%)
+  ✓ Saved top 5% (933,170 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_6_top_5pct.csv (CSV)
+  ✓ Saved top 2% (373,276 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_6_top_2pct.csv (CSV)
+  ✓ Saved top 1% (186,634 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_6_top_1pct.csv (CSV)
+  ✓ Saved top 0.5% (93,317 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_6_top_0.5pct.csv (CSV)
+  ✓ Saved top 0.05% (9,332 rows) to data/preprocessed/cluster/improved_top_percentiles/improved_model_6_top_0.05pct.csv (CSV)
+
+############################################################
+SUMMARY - IMPROVED SIMULATIONS ONLY
+############################################################
+
+Model 1:
+  Total improved simulations: 20,589
+  Top  5.00%:    1,030 rows (JSD ≤ 0.1809)
+  Top  2.00%:      412 rows (JSD ≤ 0.1604)
+  Top  1.00%:      206 rows (JSD ≤ 0.1474)
+  Top  0.50%:      103 rows (JSD ≤ 0.1369)
+  Top  0.05%:       11 rows (JSD ≤ 0.1087)
+
+Model 2:
+  Total improved simulations: 172,618
+  Top  5.00%:    8,631 rows (JSD ≤ 0.1709)
+  Top  2.00%:    3,453 rows (JSD ≤ 0.1544)
+  Top  1.00%:    1,727 rows (JSD ≤ 0.1438)
+  Top  0.50%:      864 rows (JSD ≤ 0.1338)
+  Top  0.05%:       87 rows (JSD ≤ 0.1061)
+
+Model 3:
+  Total improved simulations: 609,106
+  Top  5.00%:   30,456 rows (JSD ≤ 0.1503)
+  Top  2.00%:   12,183 rows (JSD ≤ 0.1313)
+  Top  1.00%:    6,092 rows (JSD ≤ 0.1187)
+  Top  0.50%:    3,046 rows (JSD ≤ 0.1080)
+  Top  0.05%:      305 rows (JSD ≤ 0.0799)
+
+Model 4:
+  Total improved simulations: 473,263
+  Top  5.00%:   23,664 rows (JSD ≤ 0.1039)
+  Top  2.00%:    9,466 rows (JSD ≤ 0.0887)
+  Top  1.00%:    4,733 rows (JSD ≤ 0.0793)
+  Top  0.50%:    2,367 rows (JSD ≤ 0.0716)
+  Top  0.05%:      237 rows (JSD ≤ 0.0526)
+
+Model 5:
+  Total improved simulations: 13,580,475
+  Top  5.00%:  679,024 rows (JSD ≤ 0.1470)
+  Top  2.00%:  271,610 rows (JSD ≤ 0.1242)
+  Top  1.00%:  135,805 rows (JSD ≤ 0.1103)
+  Top  0.50%:   67,903 rows (JSD ≤ 0.0984)
+  Top  0.05%:    6,791 rows (JSD ≤ 0.0701)
+
+Model 6:
+  Total improved simulations: 18,663,400
+  Top  5.00%:  933,170 rows (JSD ≤ 0.1436)
+  Top  2.00%:  373,276 rows (JSD ≤ 0.1201)
+  Top  1.00%:  186,634 rows (JSD ≤ 0.1065)
+  Top  0.50%:   93,317 rows (JSD ≤ 0.0955)
+  Top  0.05%:    9,332 rows (JSD ≤ 0.0682)
+Creating individual plots for each percentile...
+
+############################################################
+STATISTICS - Top 5% Improved Simulations
+############################################################
+            jsd                          ... improvement                     
+          count    mean     std     min  ...        mean     std  min     max
+model                                    ...                                 
+Model 1    1030  0.1606  0.0168  0.0923  ...      0.0176  0.0147  0.0  0.0729
+Model 2    8631  0.1541  0.0149  0.0601  ...      0.0448  0.0456  0.0  0.2348
+Model 3   30456  0.1312  0.0164  0.0417  ...      0.0571  0.0390  0.0  0.2011
+Model 4   23664  0.0891  0.0122  0.0334  ...      0.0078  0.0081  0.0  0.0644
+Model 5  679024  0.1247  0.0182  0.0229  ...      0.0497  0.0494  0.0  0.3138
+Model 6  933170  0.1210  0.0179  0.0257  ...      0.0621  0.0526  0.0  0.2980
+
+[6 rows x 10 columns]
+
+############################################################
+STATISTICS - Top 2% Improved Simulations
+############################################################
+            jsd                          ... improvement                        
+          count    mean     std     min  ...        mean     std     min     max
+model                                    ...                                    
+Model 1     412  0.1438  0.0137  0.0923  ...      0.0205  0.0161  0.0001  0.0729
+Model 2    3453  0.1398  0.0134  0.0601  ...      0.0494  0.0485  0.0000  0.2348
+Model 3   12183  0.1151  0.0139  0.0417  ...      0.0680  0.0412  0.0000  0.2011
+Model 4    9466  0.0769  0.0097  0.0334  ...      0.0088  0.0091  0.0000  0.0644
+Model 5  271610  0.1065  0.0147  0.0229  ...      0.0531  0.0528  0.0000  0.2767
+Model 6  373276  0.1031  0.0140  0.0257  ...      0.0703  0.0571  0.0000  0.2980
+
+[6 rows x 10 columns]
+
+############################################################
+STATISTICS - Top 1% Improved Simulations
+############################################################
+            jsd                          ... improvement                        
+          count    mean     std     min  ...        mean     std     min     max
+model                                    ...                                    
+Model 1     206  0.1336  0.0122  0.0923  ...      0.0220  0.0164  0.0001  0.0729
+Model 2    1727  0.1300  0.0125  0.0601  ...      0.0492  0.0502  0.0000  0.1947
+Model 3    6092  0.1046  0.0123  0.0417  ...      0.0753  0.0427  0.0000  0.2011
+Model 4    4733  0.0694  0.0083  0.0334  ...      0.0093  0.0099  0.0000  0.0644
+Model 5  135805  0.0952  0.0126  0.0229  ...      0.0545  0.0546  0.0000  0.2767
+Model 6  186634  0.0923  0.0120  0.0257  ...      0.0763  0.0602  0.0000  0.2980
+
+[6 rows x 10 columns]
+
+############################################################
+STATISTICS - Top 0.5% Improved Simulations
+############################################################
+           jsd                          ... improvement                        
+         count    mean     std     min  ...        mean     std     min     max
+model                                   ...                                    
+Model 1    103  0.1244  0.0110  0.0923  ...      0.0205  0.0148  0.0004  0.0673
+Model 2    864  0.1208  0.0116  0.0601  ...      0.0474  0.0520  0.0000  0.1947
+Model 3   3046  0.0952  0.0110  0.0417  ...      0.0826  0.0434  0.0000  0.2011
+Model 4   2367  0.0630  0.0071  0.0334  ...      0.0098  0.0104  0.0000  0.0618
+Model 5  67903  0.0856  0.0109  0.0229  ...      0.0552  0.0562  0.0000  0.2767
+Model 6  93317  0.0831  0.0106  0.0257  ...      0.0825  0.0625  0.0000  0.2980
+
+[6 rows x 10 columns]
+
+############################################################
+STATISTICS - Top 0.05% Improved Simulations
+############################################################
+          jsd                          ... improvement                        
+        count    mean     std     min  ...        mean     std     min     max
+model                                  ...                                    
+Model 1    11  0.1028  0.0054  0.0923  ...      0.0233  0.0167  0.0012  0.0472
+Model 2    87  0.0954  0.0104  0.0601  ...      0.0330  0.0400  0.0001  0.1388
+Model 3   305  0.0709  0.0082  0.0417  ...      0.0959  0.0435  0.0007  0.1888
+Model 4   237  0.0476  0.0044  0.0334  ...      0.0127  0.0123  0.0001  0.0583
+Model 5  6791  0.0617  0.0075  0.0229  ...      0.0577  0.0594  0.0000  0.2767
+Model 6  9332  0.0600  0.0070  0.0257  ...      0.0951  0.0743  0.0000  0.2980
+
+[6 rows x 10 columns]
+
+################################################################################
+PROCESSING MODEL 1
+################################################################################
+
+============================================================
+MODEL 1 ANALYSIS
+============================================================
+Total rows: 1,047,900
+Unique simulation indices: 2,100
+
+RANDOM SEED ANALYSIS:
+Unique RandomSeed values: 30
+RandomSeeds per simulation index:
+  Min: 1
+  Max: 1
+  Mean: 1.00
+  Most common: 1
+
+PARAMETER ANALYSIS:
+  epsM                 ACTIVE     Unique:  70 Range: (0.01, 0.7)
+  epsSD                CONSTANT   Unique:   1 Range: (0.0, 0.0)
+  OpM                  CONSTANT   Unique:   1 Range: (0.0, 0.0)
+  OpSD                 CONSTANT   Unique:   1 Range: (0.49, 0.49)
+  MedM                 CONSTANT   Unique:   1 Range: (0.0, 0.0)
+  MedSD                CONSTANT   Unique:   1 Range: (0.79, 0.79)
+  MedInfF              CONSTANT   Unique:   1 Range: (0.91, 0.91)
+  Silence_Alpha        CONSTANT   Unique:   0 Range: (None, None)
+  Silence_Tau          CONSTANT   Unique:   0 Range: (None, None)
+  Silence_Delta0       CONSTANT   Unique:   0 Range: (None, None)
+  SilenceByBoundary    CONSTANT   Unique:   0 Range: (None, None)
+
+PARAMETER COMBINATIONS:
+Total unique parameter combinations: 70
+RandomSeeds per parameter combination:
+  Min: 30
+  Max: 30
+  Mean: 30.00
+
+SURVEY COVERAGE:
+Countries: 29
+Years: 14
+Total country-year surveys: 398
+
+JSD DISTRIBUTION (distance_final):
+  Min:    0.0923
+  Mean:   0.5086
+  Median: 0.5113
+  Max:    0.7670
+  Std:    0.0894
+  Good fits (JSD < 0.05): 0 (0.00%)
+
+################################################################################
+PROCESSING MODEL 2
+################################################################################
+
+============================================================
+MODEL 2 ANALYSIS
+============================================================
+Total rows: 1,047,900
+Unique simulation indices: 2,100
+
+RANDOM SEED ANALYSIS:
+Unique RandomSeed values: 30
+RandomSeeds per simulation index:
+  Min: 1
+  Max: 1
+  Mean: 1.00
+  Most common: 1
+
+PARAMETER ANALYSIS:
+  epsM                 ACTIVE     Unique:  70 Range: (0.01, 0.7)
+  epsSD                CONSTANT   Unique:   1 Range: (0.0, 0.0)
+  OpM                  CONSTANT   Unique:   1 Range: (0.0, 0.0)
+  OpSD                 CONSTANT   Unique:   1 Range: (0.49, 0.49)
+  MedM                 CONSTANT   Unique:   1 Range: (0.0, 0.0)
+  MedSD                CONSTANT   Unique:   1 Range: (0.79, 0.79)
+  MedInfF              CONSTANT   Unique:   1 Range: (0.91, 0.91)
+  Silence_Alpha        CONSTANT   Unique:   0 Range: (None, None)
+  Silence_Tau          CONSTANT   Unique:   0 Range: (None, None)
+  Silence_Delta0       CONSTANT   Unique:   0 Range: (None, None)
+  SilenceByBoundary    CONSTANT   Unique:   0 Range: (None, None)
+
+PARAMETER COMBINATIONS:
+Total unique parameter combinations: 70
+RandomSeeds per parameter combination:
+  Min: 30
+  Max: 30
+  Mean: 30.00
+
+SURVEY COVERAGE:
+Countries: 29
+Years: 14
+Total country-year surveys: 398
+
+JSD DISTRIBUTION (distance_final):
+  Min:    0.0601
+  Mean:   0.3747
+  Median: 0.3691
+  Max:    0.6415
+  Std:    0.1178
+  Good fits (JSD < 0.05): 0 (0.00%)
+
+################################################################################
+PROCESSING MODEL 3
+################################################################################
+
+============================================================
+MODEL 3 ANALYSIS
+============================================================
+Total rows: 1,497,000
+Unique simulation indices: 3,000
+
+RANDOM SEED ANALYSIS:
+Unique RandomSeed values: 30
+RandomSeeds per simulation index:
+  Min: 1
+  Max: 1
+  Mean: 1.00
+  Most common: 1
+
+PARAMETER ANALYSIS:
+  epsM                 ACTIVE     Unique:  25 Range: (0.01, 0.25)
+  epsSD                ACTIVE     Unique:   4 Range: (0.0, 0.15)
+  OpM                  CONSTANT   Unique:   1 Range: (0.0, 0.0)
+  OpSD                 CONSTANT   Unique:   1 Range: (0.49, 0.49)
+  MedM                 CONSTANT   Unique:   1 Range: (0.0, 0.0)
+  MedSD                CONSTANT   Unique:   1 Range: (0.79, 0.79)
+  MedInfF              CONSTANT   Unique:   1 Range: (0.91, 0.91)
+  Silence_Alpha        CONSTANT   Unique:   0 Range: (None, None)
+  Silence_Tau          CONSTANT   Unique:   0 Range: (None, None)
+  Silence_Delta0       CONSTANT   Unique:   0 Range: (None, None)
+  SilenceByBoundary    CONSTANT   Unique:   0 Range: (None, None)
+
+PARAMETER COMBINATIONS:
+Total unique parameter combinations: 100
+RandomSeeds per parameter combination:
+  Min: 30
+  Max: 30
+  Mean: 30.00
+
+SURVEY COVERAGE:
+Countries: 29
+Years: 14
+Total country-year surveys: 398
+
+JSD DISTRIBUTION (distance_final):
+  Min:    0.0417
+  Mean:   0.2612
+  Median: 0.2584
+  Max:    0.5573
+  Std:    0.0600
+  Good fits (JSD < 0.05): 11 (0.00%)
+
+################################################################################
+PROCESSING MODEL 4
+################################################################################
+
+============================================================
+MODEL 4 ANALYSIS
+============================================================
+Total rows: 7,005,960
+Unique simulation indices: 14,040
+
+RANDOM SEED ANALYSIS:
+Unique RandomSeed values: 30
+RandomSeeds per simulation index:
+  Min: 1
+  Max: 1
+  Mean: 1.00
+  Most common: 1
+
+PARAMETER ANALYSIS:
+  epsM                 ACTIVE     Unique:  13 Range: (0.01, 0.25)
+  epsSD                ACTIVE     Unique:   4 Range: (0.0, 0.15)
+  OpM                  ACTIVE     Unique:   3 Range: (-0.25, 0.25)
+  OpSD                 ACTIVE     Unique:   3 Range: (0.0, 1.0)
+  MedM                 CONSTANT   Unique:   1 Range: (0.0, 0.0)
+  MedSD                CONSTANT   Unique:   1 Range: (0.3, 0.3)
+  MedInfF              CONSTANT   Unique:   1 Range: (0.5, 0.5)
+  Silence_Alpha        CONSTANT   Unique:   1 Range: (0.79, 0.79)
+  Silence_Tau          CONSTANT   Unique:   1 Range: (5.0, 5.0)
+  Silence_Delta0       CONSTANT   Unique:   1 Range: (0.0, 0.0)
+  SilenceByBoundary    CONSTANT   Unique:   1 Range: (False, False)
+
+PARAMETER COMBINATIONS:
+Total unique parameter combinations: 468
+RandomSeeds per parameter combination:
+  Min: 30
+  Max: 30
+  Mean: 30.00
+
+SURVEY COVERAGE:
+Countries: 29
+Years: 14
+Total country-year surveys: 398
+
+JSD DISTRIBUTION (distance_final):
+  Min:    0.0284
+  Mean:   0.3797
+  Median: 0.2904
+  Max:    0.7966
+  Std:    0.2061
+  Good fits (JSD < 0.05): 189 (0.00%)
+
+################################################################################
+PROCESSING MODEL 5
+################################################################################
+
+============================================================
+MODEL 5 ANALYSIS
+============================================================
+Total rows: 58,203,360
+Unique simulation indices: 116,640
+
+RANDOM SEED ANALYSIS:
+Unique RandomSeed values: 3
+RandomSeeds per simulation index:
+  Min: 1
+  Max: 1
+  Mean: 1.00
+  Most common: 1
+
+PARAMETER ANALYSIS:
+  epsM                 ACTIVE     Unique:   5 Range: (0.01, 0.21)
+  epsSD                ACTIVE     Unique:   4 Range: (0.0, 0.15)
+  OpM                  ACTIVE     Unique:   3 Range: (-0.25, 0.25)
+  OpSD                 ACTIVE     Unique:   6 Range: (0.0, 1.0)
+  MedM                 ACTIVE     Unique:   9 Range: (-1.0, 1.0)
+  MedSD                ACTIVE     Unique:   4 Range: (0.0, 0.9)
+  MedInfF              ACTIVE     Unique:   3 Range: (0.0, 1.0)
+  Silence_Alpha        CONSTANT   Unique:   1 Range: (0.79, 0.79)
+  Silence_Tau          CONSTANT   Unique:   1 Range: (5.0, 5.0)
+  Silence_Delta0       CONSTANT   Unique:   1 Range: (0.0, 0.0)
+  SilenceByBoundary    CONSTANT   Unique:   1 Range: (False, False)
+
+PARAMETER COMBINATIONS:
+Total unique parameter combinations: 38,880
+RandomSeeds per parameter combination:
+  Min: 3
+  Max: 3
+  Mean: 3.00
+
+SURVEY COVERAGE:
+Countries: 29
+Years: 14
+Total country-year surveys: 398
+
+JSD DISTRIBUTION (distance_final):
+  Min:    0.0229
+  Mean:   0.3787
+  Median: 0.3707
+  Max:    0.8326
+  Std:    0.1358
+  Good fits (JSD < 0.05): 837 (0.00%)
+
+################################################################################
+PROCESSING MODEL 6
+################################################################################
+
+============================================================
+MODEL 6 ANALYSIS
+============================================================
+Total rows: 58,203,360
+Unique simulation indices: 116,640
+
+RANDOM SEED ANALYSIS:
+Unique RandomSeed values: 2
+RandomSeeds per simulation index:
+  Min: 1
+  Max: 1
+  Mean: 1.00
+  Most common: 1
+
+PARAMETER ANALYSIS:
+  epsM                 ACTIVE     Unique:   5 Range: (0.01, 0.21)
+  epsSD                ACTIVE     Unique:   4 Range: (0.0, 0.15)
+  OpM                  ACTIVE     Unique:   3 Range: (-0.25, 0.25)
+  OpSD                 ACTIVE     Unique:   3 Range: (0.0, 1.0)
+  MedM                 ACTIVE     Unique:   3 Range: (-0.75, 0.75)
+  MedSD                ACTIVE     Unique:   4 Range: (0.1, 1.0)
+  MedInfF              ACTIVE     Unique:   3 Range: (0.0, 1.0)
+  Silence_Alpha        CONSTANT   Unique:   1 Range: (0.8, 0.8)
+  Silence_Tau          ACTIVE     Unique:   3 Range: (1.0, 9.0)
+  Silence_Delta0       ACTIVE     Unique:   3 Range: (-0.75, 0.75)
+  SilenceByBoundary    CONSTANT   Unique:   1 Range: (True, True)
+
+PARAMETER COMBINATIONS:
+Total unique parameter combinations: 58,320
+RandomSeeds per parameter combination:
+  Min: 2
+  Max: 2
+  Mean: 2.00
+
+SURVEY COVERAGE:
+Countries: 29
+Years: 14
+Total country-year surveys: 398
+
+JSD DISTRIBUTION (distance_final):
+  Min:    0.0257
+  Mean:   0.3892
+  Median: 0.3809
+  Max:    0.8326
+  Std:    0.1475
+  Good fits (JSD < 0.05): 982 (0.00%)
+
+################################################################################
+SUMMARY ACROSS ALL MODELS
+################################################################################
+ Model  Total Rows Param Combinations  Active Parameters  Random Seeds Seeds/Combo  Countries  Years  Total Surveys
+     1   1,047,900                 70                  1            30        30.0         29     14            398
+     2   1,047,900                 70                  1            30        30.0         29     14            398
+     3   1,497,000                100                  2            30        30.0         29     14            398
+     4   7,005,960                468                  4            30        30.0         29     14            398
+     5  58,203,360             38,880                  7             3         3.0         29     14            398
+     6  58,203,360             58,320                  9             2         2.0         29     14            398
+
+################################################################################
+ACTIVE PARAMETERS BY MODEL
+################################################################################
+Model 1: ['epsM']
+Model 2: ['epsM']
+Model 3: ['epsM', 'epsSD']
+Model 4: ['epsM', 'epsSD', 'OpM', 'OpSD']
+Model 5: ['epsM', 'epsSD', 'OpM', 'OpSD', 'MedM', 'MedSD', 'MedInfF']
+Model 6: ['epsM', 'epsSD', 'OpM', 'OpSD', 'MedM', 'MedSD', 'MedInfF', 'Silence_Tau', 'Silence_Delta0']
+
+Reloading processed files...
+Warning: File not found for Model 1
+Warning: File not found for Model 2
+Warning: File not found for Model 3
+Warning: File not found for Model 4
+Warning: File not found for Model 5
+Warning: File not found for Model 6
+
+################################################################################
+COMPREHENSIVE PARAMETER SENSITIVITY ANALYSIS
+################################################################################
+
+################################################################################
+PARAMETER SENSITIVITY ANALYSIS
+################################################################################
+Traceback (most recent call last):
+  File "2SpaceParamSearch_Cluster.py", line 1786, in <module>
+    sensitivity_results = run_comprehensive_sensitivity_analysis(CONFIG)
+  File "2SpaceParamSearch_Cluster.py", line 1742, in run_comprehensive_sensitivity_analysis
+    sensitivity_results = perform_parameter_sensitivity_analysis(config)
+  File "2SpaceParamSearch_Cluster.py", line 1312, in perform_parameter_sensitivity_analysis
+    df = js_fits_stepwise_with_success[model_idx].copy()
+AttributeError: 'NoneType' object has no attribute 'copy'

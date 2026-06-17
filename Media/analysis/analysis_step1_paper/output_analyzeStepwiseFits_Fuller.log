@@ -1,0 +1,1653 @@
+/home/ramaswamy.51/.local/lib/python3.6/site-packages/libpysal/weights/util.py:23: UserWarning: geopandas not available. Some functionality will be disabled.
+  warn("geopandas not available. Some functionality will be disabled.")
+/home/ramaswamy.51/.local/lib/python3.6/site-packages/scipy/sparse/data.py:117: RuntimeWarning: divide by zero encountered in reciprocal
+  return self._with_data(data ** n)
+/home/ramaswamy.51/.local/lib/python3.6/site-packages/scipy/sparse/data.py:117: RuntimeWarning: divide by zero encountered in reciprocal
+  return self._with_data(data ** n)
+/home/ramaswamy.51/.local/lib/python3.6/site-packages/scipy/sparse/data.py:117: RuntimeWarning: divide by zero encountered in reciprocal
+  return self._with_data(data ** n)
+/home/ramaswamy.51/.local/lib/python3.6/site-packages/esda/moran.py:226: RuntimeWarning: invalid value encountered in double_scalars
+  k = k_num / k_den
+/home/ramaswamy.51/.local/lib/python3.6/site-packages/esda/moran.py:237: RuntimeWarning: invalid value encountered in double_scalars
+  return self.n / self.w.s0 * inum / self.z2ss
+/home/ramaswamy.51/.local/lib/python3.6/site-packages/esda/moran.py:201: RuntimeWarning: invalid value encountered in true_divide
+  self.z /= sy
+/home/ramaswamy.51/.local/lib/python3.6/site-packages/scipy/sparse/data.py:117: RuntimeWarning: divide by zero encountered in reciprocal
+  return self._with_data(data ** n)
+/home/ramaswamy.51/.local/lib/python3.6/site-packages/scipy/sparse/data.py:117: RuntimeWarning: divide by zero encountered in reciprocal
+  return self._with_data(data ** n)
+/home/ramaswamy.51/.local/lib/python3.6/site-packages/libpysal/weights/weights.py:172: UserWarning: The weights matrix is not fully connected: 
+ There are 9 disconnected components.
+ There are 7 islands with ids: 121, 269, 342, 531, 801, 1268, 1577.
+  warnings.warn(message)
+/home/ramaswamy.51/.local/lib/python3.6/site-packages/scipy/sparse/data.py:117: RuntimeWarning: divide by zero encountered in reciprocal
+  return self._with_data(data ** n)
+/home/ramaswamy.51/.local/lib/python3.6/site-packages/libpysal/weights/weights.py:172: UserWarning: The weights matrix is not fully connected: 
+ There are 1507 disconnected components.
+ There are 1051 islands with ids: 2, 5, 6, 10, 11, 15, 17, 22, 29, 34, 36, 37, 39, 42, 44, 53, 55, 58, 59, 63, 66, 67, 69, 76, 81, 82, 84, 85, 86, 90, 91, 92, 93, 95, 97, 100, 101, 106, 108, 114, 115, 120, 121, 123, 124, 125, 126, 127, 131, 138, 139, 140, 143, 145, 148, 152, 159, 163, 166, 171, 173, 176, 178, 179, 184, 185, 189, 194, 197, 199, 202, 208, 209, 212, 213, 214, 217, 220, 225, 227, 230, 231, 233, 236, 239, 244, 249, 252, 253, 256, 258, 262, 263, 265, 266, 269, 270, 272, 274, 276, 277, 281, 283, 284, 285, 289, 290, 294, 296, 299, 301, 304, 307, 318, 319, 324, 326, 330, 332, 334, 336, 340, 342, 344, 345, 348, 349, 351, 352, 363, 366, 372, 376, 378, 379, 381, 382, 383, 388, 396, 397, 399, 404, 409, 410, 415, 417, 423, 425, 426, 427, 429, 430, 435, 443, 447, 449, 451, 459, 462, 464, 465, 466, 468, 475, 476, 477, 480, 481, 486, 487, 491, 495, 496, 497, 500, 503, 505, 508, 510, 513, 515, 516, 519, 524, 529, 531, 535, 537, 541, 543, 547, 548, 554, 556, 561, 562, 570, 571, 573, 577, 579, 582, 587, 589, 592, 594, 599, 601, 602, 604, 607, 609, 613, 614, 618, 620, 624, 633, 637, 643, 645, 655, 656, 659, 660, 661, 668, 670, 672, 674, 675, 679, 682, 683, 685, 688, 691, 692, 697, 700, 701, 702, 704, 705, 706, 712, 713, 714, 718, 719, 720, 721, 722, 725, 730, 734, 735, 736, 737, 739, 741, 742, 743, 746, 747, 749, 752, 754, 759, 761, 763, 765, 768, 769, 782, 783, 785, 788, 790, 791, 793, 794, 795, 796, 797, 801, 802, 803, 818, 822, 828, 830, 831, 832, 833, 834, 835, 837, 838, 839, 841, 848, 849, 850, 853, 856, 858, 859, 862, 864, 867, 871, 872, 873, 876, 885, 890, 893, 896, 900, 902, 909, 910, 911, 912, 913, 914, 916, 924, 925, 926, 929, 931, 936, 937, 938, 939, 940, 942, 947, 949, 954, 957, 958, 959, 960, 962, 963, 964, 965, 969, 970, 973, 975, 976, 977, 979, 983, 988, 989, 993, 999, 1004, 1005, 1010, 1011, 1015, 1020, 1021, 1022, 1024, 1025, 1026, 1029, 1031, 1034, 1036, 1038, 1039, 1041, 1043, 1045, 1046, 1049, 1051, 1055, 1060, 1062, 1064, 1070, 1071, 1073, 1085, 1089, 1097, 1103, 1105, 1108, 1117, 1120, 1121, 1126, 1128, 1130, 1138, 1146, 1148, 1152, 1153, 1155, 1157, 1158, 1159, 1160, 1162, 1164, 1166, 1169, 1170, 1172, 1176, 1178, 1193, 1194, 1197, 1202, 1203, 1204, 1205, 1206, 1210, 1211, 1215, 1219, 1220, 1222, 1226, 1229, 1230, 1231, 1238, 1239, 1242, 1247, 1248, 1250, 1253, 1254, 1258, 1261, 1264, 1265, 1266, 1267, 1270, 1272, 1274, 1275, 1276, 1277, 1279, 1284, 1286, 1287, 1289, 1292, 1294, 1297, 1300, 1301, 1302, 1307, 1310, 1311, 1315, 1316, 1323, 1324, 1330, 1332, 1334, 1335, 1336, 1338, 1340, 1345, 1348, 1351, 1354, 1355, 1356, 1360, 1361, 1362, 1364, 1370, 1371, 1377, 1379, 1381, 1382, 1383, 1385, 1391, 1393, 1394, 1396, 1397, 1404, 1405, 1409, 1414, 1419, 1421, 1425, 1427, 1428, 1429, 1437, 1439, 1450, 1454, 1457, 1460, 1463, 1473, 1476, 1479, 1485, 1489, 1490, 1491, 1493, 1494, 1495, 1498, 1499, 1502, 1505, 1508, 1509, 1511, 1512, 1514, 1517, 1519, 1525, 1527, 1528, 1531, 1532, 1536, 1537, 1542, 1551, 1555, 1557, 1561, 1564, 1569, 1574, 1575, 1582, 1585, 1588, 1593, 1594, 1598, 1599, 1603, 1608, 1610, 1611, 1615, 1617, 1621, 1625, 1630, 1631, 1634, 1640, 1641, 1643, 1646, 1647, 1650, 1651, 1652, 1653, 1654, 1655, 1659, 1660, 1661, 1666, 1668, 1671, 1672, 1675, 1682, 1684, 1686, 1689, 1691, 1694, 1698, 1699, 1700, 1705, 1706, 1707, 1710, 1711, 1716, 1718, 1720, 1724, 1725, 1727, 1733, 1735, 1739, 1742, 1747, 1748, 1749, 1750, 1752, 1755, 1757, 1758, 1759, 1762, 1764, 1773, 1774, 1778, 1781, 1782, 1783, 1785, 1786, 1790, 1791, 1794, 1815, 1818, 1819, 1821, 1826, 1828, 1834, 1839, 1842, 1843, 1844, 1845, 1846, 1847, 1849, 1850, 1852, 1854, 1855, 1856, 1857, 1858, 1859, 1860, 1862, 1866, 1867, 1870, 1878, 1882, 1885, 1886, 1887, 1889, 1899, 1902, 1906, 1908, 1912, 1917, 1920, 1923, 1928, 1930, 1931, 1933, 1934, 1935, 1939, 1946, 1947, 1948, 1949, 1950, 1952, 1955, 1960, 1961, 1962, 1972, 1978, 1979, 1980, 1982, 1985, 1986, 1997, 1998, 2000, 2005, 2006, 2007, 2011, 2012, 2014, 2015, 2023, 2025, 2028, 2031, 2032, 2033, 2037, 2038, 2047, 2049, 2056, 2060, 2061, 2064, 2067, 2068, 2071, 2073, 2076, 2077, 2080, 2081, 2083, 2086, 2088, 2089, 2102, 2107, 2108, 2111, 2113, 2116, 2117, 2118, 2119, 2125, 2127, 2130, 2132, 2134, 2137, 2138, 2144, 2145, 2147, 2149, 2151, 2152, 2155, 2156, 2160, 2162, 2164, 2166, 2167, 2170, 2173, 2175, 2177, 2178, 2183, 2186, 2187, 2188, 2189, 2191, 2196, 2197, 2199, 2204, 2205, 2209, 2210, 2213, 2219, 2221, 2222, 2223, 2226, 2227, 2234, 2235, 2236, 2237, 2238, 2243, 2245, 2248, 2249, 2250, 2253, 2261, 2262, 2264, 2265, 2266, 2268, 2269, 2273, 2275, 2277, 2279, 2280, 2283, 2285, 2286, 2288, 2289, 2294, 2295, 2298, 2301, 2305, 2307, 2308, 2309, 2310, 2317, 2318, 2321, 2323, 2324, 2325, 2326, 2330, 2331, 2334, 2336, 2338, 2341, 2343, 2347, 2349, 2351, 2353, 2358, 2362, 2369, 2373, 2376, 2382, 2383, 2384, 2388, 2395, 2399, 2402, 2405, 2411, 2413, 2414, 2418, 2419, 2420, 2423, 2424, 2425, 2430, 2431, 2432, 2434, 2439, 2441, 2445, 2446, 2448, 2450, 2454, 2459, 2463, 2464, 2465, 2466, 2469, 2470, 2473, 2474, 2475, 2489, 2491, 2497, 2498, 2501, 2504, 2505, 2506, 2507, 2508, 2509, 2510, 2512, 2516, 2519, 2523, 2530, 2537, 2542, 2543, 2544, 2545, 2546, 2549, 2550, 2551, 2552, 2554, 2555, 2558, 2561, 2562, 2564, 2567, 2577, 2578, 2579, 2580, 2581, 2582, 2584, 2589, 2592, 2594, 2603, 2605, 2607, 2610, 2616, 2619, 2623, 2624, 2626, 2633, 2636, 2640, 2641, 2644, 2649, 2651, 2662, 2663, 2667, 2668, 2669, 2675, 2677, 2683, 2684, 2685, 2687, 2688, 2689, 2690, 2691, 2694, 2700, 2703, 2706, 2709, 2711, 2713, 2718, 2723, 2725, 2729, 2734, 2737, 2741, 2742, 2744, 2749, 2750, 2751, 2753, 2755, 2757, 2759, 2760, 2765, 2766, 2769, 2771, 2776, 2780, 2784, 2791, 2793, 2794, 2795, 2796, 2797, 2798, 2801, 2803, 2807, 2809, 2810, 2814, 2816, 2817, 2818, 2824, 2831, 2836, 2838, 2842, 2844, 2848, 2851, 2854, 2855, 2857, 2858, 2860, 2861, 2864, 2865, 2866, 2871, 2872, 2874, 2875, 2884, 2893, 2898, 2900, 2905, 2907, 2910, 2911.
+  warnings.warn(message)
+/home/ramaswamy.51/.local/lib/python3.6/site-packages/esda/moran.py:226: RuntimeWarning: invalid value encountered in double_scalars
+  k = k_num / k_den
+/home/ramaswamy.51/.local/lib/python3.6/site-packages/esda/moran.py:237: RuntimeWarning: invalid value encountered in double_scalars
+  return self.n / self.w.s0 * inum / self.z2ss
+/home/ramaswamy.51/.local/lib/python3.6/site-packages/esda/moran.py:201: RuntimeWarning: invalid value encountered in true_divide
+  self.z /= sy
+Running analyzeStepwiseFits_Cluster.py
+The following steps will be processed: 
+
+Step 1 
+
+Step 2 
+
+Step 3 
+
+Step 4 
+
+Step 5 
+
+Step 6 
+
+
+################################################################################
+PROCESSING MODEL 1
+################################################################################
+
+============================================================
+MODEL 1 ANALYSIS
+============================================================
+Total rows: 1,047,900
+Unique simulation indices: 2,100
+
+RANDOM SEED ANALYSIS:
+Unique RandomSeed values: 30
+RandomSeeds per simulation index:
+  Min: 1
+  Max: 1
+  Mean: 1.00
+  Most common: 1
+
+PARAMETER ANALYSIS:
+  epsM                 ACTIVE     Unique:  70 Range: (0.01, 0.7)
+  epsSD                CONSTANT   Unique:   1 Range: (0.0, 0.0)
+  OpM                  CONSTANT   Unique:   1 Range: (0.0, 0.0)
+  OpSD                 CONSTANT   Unique:   1 Range: (0.49, 0.49)
+  MedM                 CONSTANT   Unique:   1 Range: (0.0, 0.0)
+  MedSD                CONSTANT   Unique:   1 Range: (0.79, 0.79)
+  MedInfF              CONSTANT   Unique:   1 Range: (0.91, 0.91)
+  Silence_Alpha        CONSTANT   Unique:   0 Range: (None, None)
+  Silence_Tau          CONSTANT   Unique:   0 Range: (None, None)
+  Silence_Delta0       CONSTANT   Unique:   0 Range: (None, None)
+  SilenceByBoundary    CONSTANT   Unique:   0 Range: (None, None)
+
+PARAMETER COMBINATIONS:
+Total unique parameter combinations: 70
+RandomSeeds per parameter combination:
+  Min: 30
+  Max: 30
+  Mean: 30.00
+
+SURVEY COVERAGE:
+Countries: 29
+Years: 14
+Total country-year surveys: 398
+
+JSD DISTRIBUTION (distance_final):
+  Min:    0.0923
+  Mean:   0.5086
+  Median: 0.5113
+  Max:    0.7670
+  Std:    0.0894
+  Good fits (JSD < 0.05): 0 (0.00%)
+
+################################################################################
+PROCESSING MODEL 2
+################################################################################
+
+============================================================
+MODEL 2 ANALYSIS
+============================================================
+Total rows: 1,047,900
+Unique simulation indices: 2,100
+
+RANDOM SEED ANALYSIS:
+Unique RandomSeed values: 30
+RandomSeeds per simulation index:
+  Min: 1
+  Max: 1
+  Mean: 1.00
+  Most common: 1
+
+PARAMETER ANALYSIS:
+  epsM                 ACTIVE     Unique:  70 Range: (0.01, 0.7)
+  epsSD                CONSTANT   Unique:   1 Range: (0.0, 0.0)
+  OpM                  CONSTANT   Unique:   1 Range: (0.0, 0.0)
+  OpSD                 CONSTANT   Unique:   1 Range: (0.49, 0.49)
+  MedM                 CONSTANT   Unique:   1 Range: (0.0, 0.0)
+  MedSD                CONSTANT   Unique:   1 Range: (0.79, 0.79)
+  MedInfF              CONSTANT   Unique:   1 Range: (0.91, 0.91)
+  Silence_Alpha        CONSTANT   Unique:   0 Range: (None, None)
+  Silence_Tau          CONSTANT   Unique:   0 Range: (None, None)
+  Silence_Delta0       CONSTANT   Unique:   0 Range: (None, None)
+  SilenceByBoundary    CONSTANT   Unique:   0 Range: (None, None)
+
+PARAMETER COMBINATIONS:
+Total unique parameter combinations: 70
+RandomSeeds per parameter combination:
+  Min: 30
+  Max: 30
+  Mean: 30.00
+
+SURVEY COVERAGE:
+Countries: 29
+Years: 14
+Total country-year surveys: 398
+
+JSD DISTRIBUTION (distance_final):
+  Min:    0.0601
+  Mean:   0.3747
+  Median: 0.3691
+  Max:    0.6415
+  Std:    0.1178
+  Good fits (JSD < 0.05): 0 (0.00%)
+
+################################################################################
+PROCESSING MODEL 3
+################################################################################
+
+============================================================
+MODEL 3 ANALYSIS
+============================================================
+Total rows: 1,497,000
+Unique simulation indices: 3,000
+
+RANDOM SEED ANALYSIS:
+Unique RandomSeed values: 30
+RandomSeeds per simulation index:
+  Min: 1
+  Max: 1
+  Mean: 1.00
+  Most common: 1
+
+PARAMETER ANALYSIS:
+  epsM                 ACTIVE     Unique:  25 Range: (0.01, 0.25)
+  epsSD                ACTIVE     Unique:   4 Range: (0.0, 0.15)
+  OpM                  CONSTANT   Unique:   1 Range: (0.0, 0.0)
+  OpSD                 CONSTANT   Unique:   1 Range: (0.49, 0.49)
+  MedM                 CONSTANT   Unique:   1 Range: (0.0, 0.0)
+  MedSD                CONSTANT   Unique:   1 Range: (0.79, 0.79)
+  MedInfF              CONSTANT   Unique:   1 Range: (0.91, 0.91)
+  Silence_Alpha        CONSTANT   Unique:   0 Range: (None, None)
+  Silence_Tau          CONSTANT   Unique:   0 Range: (None, None)
+  Silence_Delta0       CONSTANT   Unique:   0 Range: (None, None)
+  SilenceByBoundary    CONSTANT   Unique:   0 Range: (None, None)
+
+PARAMETER COMBINATIONS:
+Total unique parameter combinations: 100
+RandomSeeds per parameter combination:
+  Min: 30
+  Max: 30
+  Mean: 30.00
+
+SURVEY COVERAGE:
+Countries: 29
+Years: 14
+Total country-year surveys: 398
+
+JSD DISTRIBUTION (distance_final):
+  Min:    0.0417
+  Mean:   0.2612
+  Median: 0.2584
+  Max:    0.5573
+  Std:    0.0600
+  Good fits (JSD < 0.05): 11 (0.00%)
+
+################################################################################
+PROCESSING MODEL 4
+################################################################################
+
+============================================================
+MODEL 4 ANALYSIS
+============================================================
+Total rows: 7,005,960
+Unique simulation indices: 14,040
+
+RANDOM SEED ANALYSIS:
+Unique RandomSeed values: 30
+RandomSeeds per simulation index:
+  Min: 1
+  Max: 1
+  Mean: 1.00
+  Most common: 1
+
+PARAMETER ANALYSIS:
+  epsM                 ACTIVE     Unique:  13 Range: (0.01, 0.25)
+  epsSD                ACTIVE     Unique:   4 Range: (0.0, 0.15)
+  OpM                  ACTIVE     Unique:   3 Range: (-0.25, 0.25)
+  OpSD                 ACTIVE     Unique:   3 Range: (0.0, 1.0)
+  MedM                 CONSTANT   Unique:   1 Range: (0.0, 0.0)
+  MedSD                CONSTANT   Unique:   1 Range: (0.3, 0.3)
+  MedInfF              CONSTANT   Unique:   1 Range: (0.5, 0.5)
+  Silence_Alpha        CONSTANT   Unique:   1 Range: (0.79, 0.79)
+  Silence_Tau          CONSTANT   Unique:   1 Range: (5.0, 5.0)
+  Silence_Delta0       CONSTANT   Unique:   1 Range: (0.0, 0.0)
+  SilenceByBoundary    CONSTANT   Unique:   1 Range: (False, False)
+
+PARAMETER COMBINATIONS:
+Total unique parameter combinations: 468
+RandomSeeds per parameter combination:
+  Min: 30
+  Max: 30
+  Mean: 30.00
+
+SURVEY COVERAGE:
+Countries: 29
+Years: 14
+Total country-year surveys: 398
+
+JSD DISTRIBUTION (distance_final):
+  Min:    0.0284
+  Mean:   0.3797
+  Median: 0.2904
+  Max:    0.7966
+  Std:    0.2061
+  Good fits (JSD < 0.05): 189 (0.00%)
+
+################################################################################
+PROCESSING MODEL 5
+################################################################################
+
+============================================================
+MODEL 5 ANALYSIS
+============================================================
+Total rows: 58,203,360
+Unique simulation indices: 116,640
+
+RANDOM SEED ANALYSIS:
+Unique RandomSeed values: 3
+RandomSeeds per simulation index:
+  Min: 1
+  Max: 1
+  Mean: 1.00
+  Most common: 1
+
+PARAMETER ANALYSIS:
+  epsM                 ACTIVE     Unique:   5 Range: (0.01, 0.21)
+  epsSD                ACTIVE     Unique:   4 Range: (0.0, 0.15)
+  OpM                  ACTIVE     Unique:   3 Range: (-0.25, 0.25)
+  OpSD                 ACTIVE     Unique:   6 Range: (0.0, 1.0)
+  MedM                 ACTIVE     Unique:   9 Range: (-1.0, 1.0)
+  MedSD                ACTIVE     Unique:   4 Range: (0.0, 0.9)
+  MedInfF              ACTIVE     Unique:   3 Range: (0.0, 1.0)
+  Silence_Alpha        CONSTANT   Unique:   1 Range: (0.79, 0.79)
+  Silence_Tau          CONSTANT   Unique:   1 Range: (5.0, 5.0)
+  Silence_Delta0       CONSTANT   Unique:   1 Range: (0.0, 0.0)
+  SilenceByBoundary    CONSTANT   Unique:   1 Range: (False, False)
+
+PARAMETER COMBINATIONS:
+Total unique parameter combinations: 38,880
+RandomSeeds per parameter combination:
+  Min: 3
+  Max: 3
+  Mean: 3.00
+
+SURVEY COVERAGE:
+Countries: 29
+Years: 14
+Total country-year surveys: 398
+
+JSD DISTRIBUTION (distance_final):
+  Min:    0.0229
+  Mean:   0.3787
+  Median: 0.3707
+  Max:    0.8326
+  Std:    0.1358
+  Good fits (JSD < 0.05): 837 (0.00%)
+
+################################################################################
+PROCESSING MODEL 6
+################################################################################
+
+============================================================
+MODEL 6 ANALYSIS
+============================================================
+Total rows: 58,203,360
+Unique simulation indices: 116,640
+
+RANDOM SEED ANALYSIS:
+Unique RandomSeed values: 2
+RandomSeeds per simulation index:
+  Min: 1
+  Max: 1
+  Mean: 1.00
+  Most common: 1
+
+PARAMETER ANALYSIS:
+  epsM                 ACTIVE     Unique:   5 Range: (0.01, 0.21)
+  epsSD                ACTIVE     Unique:   4 Range: (0.0, 0.15)
+  OpM                  ACTIVE     Unique:   3 Range: (-0.25, 0.25)
+  OpSD                 ACTIVE     Unique:   3 Range: (0.0, 1.0)
+  MedM                 ACTIVE     Unique:   3 Range: (-0.75, 0.75)
+  MedSD                ACTIVE     Unique:   4 Range: (0.1, 1.0)
+  MedInfF              ACTIVE     Unique:   3 Range: (0.0, 1.0)
+  Silence_Alpha        CONSTANT   Unique:   1 Range: (0.8, 0.8)
+  Silence_Tau          ACTIVE     Unique:   3 Range: (1.0, 9.0)
+  Silence_Delta0       ACTIVE     Unique:   3 Range: (-0.75, 0.75)
+  SilenceByBoundary    CONSTANT   Unique:   1 Range: (True, True)
+
+PARAMETER COMBINATIONS:
+Total unique parameter combinations: 58,320
+RandomSeeds per parameter combination:
+  Min: 2
+  Max: 2
+  Mean: 2.00
+
+SURVEY COVERAGE:
+Countries: 29
+Years: 14
+Total country-year surveys: 398
+
+JSD DISTRIBUTION (distance_final):
+  Min:    0.0257
+  Mean:   0.3892
+  Median: 0.3809
+  Max:    0.8326
+  Std:    0.1475
+  Good fits (JSD < 0.05): 982 (0.00%)
+
+################################################################################
+SUMMARY ACROSS ALL MODELS
+################################################################################
+ Model  Total Rows Param Combinations  Active Parameters  Random Seeds Seeds/Combo  Countries  Years  Total Surveys
+     1   1,047,900                 70                  1            30        30.0         29     14            398
+     2   1,047,900                 70                  1            30        30.0         29     14            398
+     3   1,497,000                100                  2            30        30.0         29     14            398
+     4   7,005,960                468                  4            30        30.0         29     14            398
+     5  58,203,360             38,880                  7             3         3.0         29     14            398
+     6  58,203,360             58,320                  9             2         2.0         29     14            398
+
+################################################################################
+ACTIVE PARAMETERS BY MODEL
+################################################################################
+Model 1: ['epsM']
+Model 2: ['epsM']
+Model 3: ['epsM', 'epsSD']
+Model 4: ['epsM', 'epsSD', 'OpM', 'OpSD']
+Model 5: ['epsM', 'epsSD', 'OpM', 'OpSD', 'MedM', 'MedSD', 'MedInfF']
+Model 6: ['epsM', 'epsSD', 'OpM', 'OpSD', 'MedM', 'MedSD', 'MedInfF', 'Silence_Tau', 'Silence_Delta0']
+Model 1: Active params: ['epsM']
+Model 1: 70 unique parameter combinations
+Model 2: Active params: ['epsM']
+Model 2: 70 unique parameter combinations
+Model 3: Active params: ['epsM', 'epsSD']
+Model 3: 100 unique parameter combinations
+Model 4: Active params: ['epsM', 'epsSD', 'OpM', 'OpSD']
+Model 4: 468 unique parameter combinations
+Model 5: Active params: ['epsM', 'epsSD', 'OpM', 'OpSD', 'MedM', 'MedSD', 'MedInfF']
+Model 5: 38880 unique parameter combinations
+Model 6: Active params: ['epsM', 'epsSD', 'OpM', 'OpSD', 'MedM', 'MedSD', 'MedInfF', 'Silence_Tau', 'Silence_Delta0']
+Model 6: 58320 unique parameter combinations
+Model 1: Computing cross-seed consistency...
+  Sampled 1 parameter combinations for consistency check
+  Mean coefficient of variation: 0.097
+  Consistent fraction: 1.000
+Model 2: Computing cross-seed consistency...
+  Sampled 1 parameter combinations for consistency check
+  Mean coefficient of variation: 0.103
+  Consistent fraction: 0.000
+Model 3: Computing cross-seed consistency...
+  Sampled 1 parameter combinations for consistency check
+  Mean coefficient of variation: 0.209
+  Consistent fraction: 0.000
+Model 4: Computing cross-seed consistency...
+  Sampled 5 parameter combinations for consistency check
+  Mean coefficient of variation: 0.211
+  Consistent fraction: 0.200
+Model 5: Computing cross-seed consistency...
+  Sampled 389 parameter combinations for consistency check
+  Mean coefficient of variation: 0.146
+  Consistent fraction: 0.252
+Model 6: Computing cross-seed consistency...
+  Sampled 583 parameter combinations for consistency check
+  Mean coefficient of variation: 0.140
+  Consistent fraction: 0.312
+CROSS-SEED CONSISTENCY INTERPRETATION:
+==================================================
+Coefficient of Variation (CV) = Standard Deviation / Mean
+Lower CV = More consistent across random seeds
+Consistent Fraction = % of param combos with CV < 0.1
+
+KEY INSIGHTS:
+
+Model 1:
+  CV: 0.097 | Consistent: 100.0%
+  → HIGH consistency: Results are robust to random initialization
+
+Model 2:
+  CV: 0.103 | Consistent: 0.0%
+  → MODERATE consistency: Some seed dependence
+
+Model 3:
+  CV: 0.209 | Consistent: 0.0%
+  → LOW consistency: Highly dependent on random seed
+
+Model 4:
+  CV: 0.211 | Consistent: 20.0%
+  → LOW consistency: Highly dependent on random seed
+
+Model 5:
+  CV: 0.146 | Consistent: 25.2%
+  → MODERATE consistency: Some seed dependence
+
+Model 6:
+  CV: 0.140 | Consistent: 31.2%
+  → MODERATE consistency: Some seed dependence
+
+============================================================
+MODEL 1 OVERLAP ANALYSIS
+============================================================
+Running country splits...
+Running seed splits...
+
+Model 1 Summary:
+  Country splits - Mean overlap: 1.000 ± 0.000
+  Country splits (Fraction of total) - Mean overlap: 0.057 ± 0.000
+  Seed splits - Mean overlap: 1.000 ± 0.000
+  Seed splits (Fraction of total) - Mean overlap: 0.057 ± 0.000
+
+============================================================
+MODEL 2 OVERLAP ANALYSIS
+============================================================
+Running country splits...
+Running seed splits...
+
+Model 2 Summary:
+  Country splits - Mean overlap: 0.000 ± 0.000
+  Country splits (Fraction of total) - Mean overlap: 0.000 ± 0.000
+  Seed splits - Mean overlap: 0.100 ± 0.122
+  Seed splits (Fraction of total) - Mean overlap: 0.006 ± 0.007
+
+============================================================
+MODEL 3 OVERLAP ANALYSIS
+============================================================
+Running country splits...
+Running seed splits...
+
+Model 3 Summary:
+  Country splits - Mean overlap: 0.400 ± 0.000
+  Country splits (Fraction of total) - Mean overlap: 0.020 ± 0.000
+  Seed splits - Mean overlap: 0.160 ± 0.080
+  Seed splits (Fraction of total) - Mean overlap: 0.008 ± 0.004
+
+============================================================
+MODEL 4 OVERLAP ANALYSIS
+============================================================
+Running country splits...
+Running seed splits...
+
+Model 4 Summary:
+  Country splits - Mean overlap: 0.658 ± 0.055
+  Country splits (Fraction of total) - Mean overlap: 0.034 ± 0.003
+  Seed splits - Mean overlap: 0.667 ± 0.046
+  Seed splits (Fraction of total) - Mean overlap: 0.034 ± 0.002
+
+============================================================
+MODEL 5 OVERLAP ANALYSIS
+============================================================
+Running country splits...
+Running seed splits...
+
+Model 5 Summary:
+  Country splits - Mean overlap: 0.632 ± 0.046
+  Country splits (Fraction of total) - Mean overlap: 0.032 ± 0.002
+  Seed splits - Mean overlap: 0.732 ± 0.001
+  Seed splits (Fraction of total) - Mean overlap: 0.037 ± 0.000
+
+============================================================
+MODEL 6 OVERLAP ANALYSIS
+============================================================
+Running country splits...
+Running seed splits...
+
+Model 6 Summary:
+  Country splits - Mean overlap: 0.601 ± 0.025
+  Country splits (Fraction of total) - Mean overlap: 0.030 ± 0.001
+  Seed splits - Mean overlap: 0.703 ± 0.000
+  Seed splits (Fraction of total) - Mean overlap: 0.035 ± 0.000
+
+################################################################################
+FINAL OVERLAP ANALYSIS SUMMARY
+################################################################################
+ Model Split Type  Mean Overlap  Std Overlap  Mean Train Success Rate  Mean Test Success Rate
+     1    Country         1.000        0.000                    0.057                   0.057
+     1       Seed         1.000        0.000                    0.057                   0.057
+     2    Country         0.000        0.000                    0.057                   0.057
+     2       Seed         0.100        0.122                    0.057                   0.057
+     3    Country         0.400        0.000                    0.050                   0.050
+     3       Seed         0.160        0.080                    0.050                   0.050
+     4    Country         0.658        0.055                    0.051                   0.051
+     4       Seed         0.667        0.046                    0.051                   0.051
+     5    Country         0.632        0.046                    0.050                   0.050
+     5       Seed         0.732        0.001                    0.050                   0.050
+     6    Country         0.601        0.025                    0.050                   0.050
+     6       Seed         0.703        0.000                    0.050                   0.050
+------------------ CREATING VENN DIAGRAMS FOR OVERLAP --------------------
+Creating fixed country split Venn diagrams...
+Venn diagrams failed: name 'plt' is not defined
+Skipping Venn diagrams and moving to clustering analysis...
+Debug: Checking keys in first model's first country split...
+Available keys: ['total_param_space_size', 'train_good_size', 'test_good_size', 'overlap_size', 'overlap_fraction_of_train', 'overlap_fraction_of_test', 'overlap_fraction_of_total', 'train_success_rate', 'test_success_rate', 'train_good_abs', 'test_good_abs', 'overlap_abs', 'split_idx', 'split_type', 'train_countries', 'test_countries', 'train_threshold', 'test_threshold']
+Calculating expected overlap by chance...
+
+################################################################################
+SUMMARY WITH EXPECTED VALUES
+################################################################################
+ Model Split Type  Mean Overlap  Std Overlap  Expected Overlap  Effect Size  Mean Train Success Rate  Mean Test Success Rate Effect Strength
+     1    Country         1.000        0.000             0.057        0.943                    0.057                   0.057          STRONG
+     1       Seed         1.000        0.000             0.057        0.943                    0.057                   0.057          STRONG
+     2    Country         0.000        0.000             0.057       -0.057                    0.057                   0.057          RANDOM
+     2       Seed         0.100        0.122             0.057        0.043                    0.057                   0.057            WEAK
+     3    Country         0.400        0.000             0.050        0.350                    0.050                   0.050          STRONG
+     3       Seed         0.160        0.080             0.050        0.110                    0.050                   0.050        MODERATE
+     4    Country         0.658        0.055             0.051        0.607                    0.051                   0.051          STRONG
+     4       Seed         0.667        0.046             0.051        0.615                    0.051                   0.051          STRONG
+     5    Country         0.632        0.046             0.050        0.582                    0.050                   0.050          STRONG
+     5       Seed         0.732        0.001             0.050        0.682                    0.050                   0.050          STRONG
+     6    Country         0.601        0.025             0.050        0.551                    0.050                   0.050          STRONG
+     6       Seed         0.703        0.000             0.050        0.653                    0.050                   0.050          STRONG
+Summary table saved to: analysis/plots/15.09.25/Step1-May.26_Parlemeter_LR/enhanced_summary.csv
+Summary table saved to: analysis/plots/15.09.25/Step1-May.26_Parlemeter_LR/enhanced_summary.xlsx
+
+################################################################################
+CLUSTERING ANALYSIS
+################################################################################
+
+Model 1: Clustering analysis...
+  Moran's I: 0.739
+
+Model 2: Clustering analysis...
+  Moran's I: 0.664
+
+Model 3: Clustering analysis...
+  Moran's I: nan
+
+Model 4: Clustering analysis...
+  Moran's I: 0.961
+
+Model 5: Clustering analysis...
+  Sampled 1944 parameter combinations for clustering analysis
+('WARNING: ', 121, ' is an island (no neighbors)')
+('WARNING: ', 269, ' is an island (no neighbors)')
+('WARNING: ', 342, ' is an island (no neighbors)')
+('WARNING: ', 531, ' is an island (no neighbors)')
+('WARNING: ', 801, ' is an island (no neighbors)')
+('WARNING: ', 1268, ' is an island (no neighbors)')
+('WARNING: ', 1577, ' is an island (no neighbors)')
+  Moran's I: -0.001
+
+Model 6: Clustering analysis...
+  Sampled 2916 parameter combinations for clustering analysis
+('WARNING: ', 2, ' is an island (no neighbors)')
+('WARNING: ', 5, ' is an island (no neighbors)')
+('WARNING: ', 6, ' is an island (no neighbors)')
+('WARNING: ', 10, ' is an island (no neighbors)')
+('WARNING: ', 11, ' is an island (no neighbors)')
+('WARNING: ', 15, ' is an island (no neighbors)')
+('WARNING: ', 17, ' is an island (no neighbors)')
+('WARNING: ', 22, ' is an island (no neighbors)')
+('WARNING: ', 29, ' is an island (no neighbors)')
+('WARNING: ', 34, ' is an island (no neighbors)')
+('WARNING: ', 36, ' is an island (no neighbors)')
+('WARNING: ', 37, ' is an island (no neighbors)')
+('WARNING: ', 39, ' is an island (no neighbors)')
+('WARNING: ', 42, ' is an island (no neighbors)')
+('WARNING: ', 44, ' is an island (no neighbors)')
+('WARNING: ', 53, ' is an island (no neighbors)')
+('WARNING: ', 55, ' is an island (no neighbors)')
+('WARNING: ', 58, ' is an island (no neighbors)')
+('WARNING: ', 59, ' is an island (no neighbors)')
+('WARNING: ', 63, ' is an island (no neighbors)')
+('WARNING: ', 66, ' is an island (no neighbors)')
+('WARNING: ', 67, ' is an island (no neighbors)')
+('WARNING: ', 69, ' is an island (no neighbors)')
+('WARNING: ', 76, ' is an island (no neighbors)')
+('WARNING: ', 81, ' is an island (no neighbors)')
+('WARNING: ', 82, ' is an island (no neighbors)')
+('WARNING: ', 84, ' is an island (no neighbors)')
+('WARNING: ', 85, ' is an island (no neighbors)')
+('WARNING: ', 86, ' is an island (no neighbors)')
+('WARNING: ', 90, ' is an island (no neighbors)')
+('WARNING: ', 91, ' is an island (no neighbors)')
+('WARNING: ', 92, ' is an island (no neighbors)')
+('WARNING: ', 93, ' is an island (no neighbors)')
+('WARNING: ', 95, ' is an island (no neighbors)')
+('WARNING: ', 97, ' is an island (no neighbors)')
+('WARNING: ', 100, ' is an island (no neighbors)')
+('WARNING: ', 101, ' is an island (no neighbors)')
+('WARNING: ', 106, ' is an island (no neighbors)')
+('WARNING: ', 108, ' is an island (no neighbors)')
+('WARNING: ', 114, ' is an island (no neighbors)')
+('WARNING: ', 115, ' is an island (no neighbors)')
+('WARNING: ', 120, ' is an island (no neighbors)')
+('WARNING: ', 121, ' is an island (no neighbors)')
+('WARNING: ', 123, ' is an island (no neighbors)')
+('WARNING: ', 124, ' is an island (no neighbors)')
+('WARNING: ', 125, ' is an island (no neighbors)')
+('WARNING: ', 126, ' is an island (no neighbors)')
+('WARNING: ', 127, ' is an island (no neighbors)')
+('WARNING: ', 131, ' is an island (no neighbors)')
+('WARNING: ', 138, ' is an island (no neighbors)')
+('WARNING: ', 139, ' is an island (no neighbors)')
+('WARNING: ', 140, ' is an island (no neighbors)')
+('WARNING: ', 143, ' is an island (no neighbors)')
+('WARNING: ', 145, ' is an island (no neighbors)')
+('WARNING: ', 148, ' is an island (no neighbors)')
+('WARNING: ', 152, ' is an island (no neighbors)')
+('WARNING: ', 159, ' is an island (no neighbors)')
+('WARNING: ', 163, ' is an island (no neighbors)')
+('WARNING: ', 166, ' is an island (no neighbors)')
+('WARNING: ', 171, ' is an island (no neighbors)')
+('WARNING: ', 173, ' is an island (no neighbors)')
+('WARNING: ', 176, ' is an island (no neighbors)')
+('WARNING: ', 178, ' is an island (no neighbors)')
+('WARNING: ', 179, ' is an island (no neighbors)')
+('WARNING: ', 184, ' is an island (no neighbors)')
+('WARNING: ', 185, ' is an island (no neighbors)')
+('WARNING: ', 189, ' is an island (no neighbors)')
+('WARNING: ', 194, ' is an island (no neighbors)')
+('WARNING: ', 197, ' is an island (no neighbors)')
+('WARNING: ', 199, ' is an island (no neighbors)')
+('WARNING: ', 202, ' is an island (no neighbors)')
+('WARNING: ', 208, ' is an island (no neighbors)')
+('WARNING: ', 209, ' is an island (no neighbors)')
+('WARNING: ', 212, ' is an island (no neighbors)')
+('WARNING: ', 213, ' is an island (no neighbors)')
+('WARNING: ', 214, ' is an island (no neighbors)')
+('WARNING: ', 217, ' is an island (no neighbors)')
+('WARNING: ', 220, ' is an island (no neighbors)')
+('WARNING: ', 225, ' is an island (no neighbors)')
+('WARNING: ', 227, ' is an island (no neighbors)')
+('WARNING: ', 230, ' is an island (no neighbors)')
+('WARNING: ', 231, ' is an island (no neighbors)')
+('WARNING: ', 233, ' is an island (no neighbors)')
+('WARNING: ', 236, ' is an island (no neighbors)')
+('WARNING: ', 239, ' is an island (no neighbors)')
+('WARNING: ', 244, ' is an island (no neighbors)')
+('WARNING: ', 249, ' is an island (no neighbors)')
+('WARNING: ', 252, ' is an island (no neighbors)')
+('WARNING: ', 253, ' is an island (no neighbors)')
+('WARNING: ', 256, ' is an island (no neighbors)')
+('WARNING: ', 258, ' is an island (no neighbors)')
+('WARNING: ', 262, ' is an island (no neighbors)')
+('WARNING: ', 263, ' is an island (no neighbors)')
+('WARNING: ', 265, ' is an island (no neighbors)')
+('WARNING: ', 266, ' is an island (no neighbors)')
+('WARNING: ', 269, ' is an island (no neighbors)')
+('WARNING: ', 270, ' is an island (no neighbors)')
+('WARNING: ', 272, ' is an island (no neighbors)')
+('WARNING: ', 274, ' is an island (no neighbors)')
+('WARNING: ', 276, ' is an island (no neighbors)')
+('WARNING: ', 277, ' is an island (no neighbors)')
+('WARNING: ', 281, ' is an island (no neighbors)')
+('WARNING: ', 283, ' is an island (no neighbors)')
+('WARNING: ', 284, ' is an island (no neighbors)')
+('WARNING: ', 285, ' is an island (no neighbors)')
+('WARNING: ', 289, ' is an island (no neighbors)')
+('WARNING: ', 290, ' is an island (no neighbors)')
+('WARNING: ', 294, ' is an island (no neighbors)')
+('WARNING: ', 296, ' is an island (no neighbors)')
+('WARNING: ', 299, ' is an island (no neighbors)')
+('WARNING: ', 301, ' is an island (no neighbors)')
+('WARNING: ', 304, ' is an island (no neighbors)')
+('WARNING: ', 307, ' is an island (no neighbors)')
+('WARNING: ', 318, ' is an island (no neighbors)')
+('WARNING: ', 319, ' is an island (no neighbors)')
+('WARNING: ', 324, ' is an island (no neighbors)')
+('WARNING: ', 326, ' is an island (no neighbors)')
+('WARNING: ', 330, ' is an island (no neighbors)')
+('WARNING: ', 332, ' is an island (no neighbors)')
+('WARNING: ', 334, ' is an island (no neighbors)')
+('WARNING: ', 336, ' is an island (no neighbors)')
+('WARNING: ', 340, ' is an island (no neighbors)')
+('WARNING: ', 342, ' is an island (no neighbors)')
+('WARNING: ', 344, ' is an island (no neighbors)')
+('WARNING: ', 345, ' is an island (no neighbors)')
+('WARNING: ', 348, ' is an island (no neighbors)')
+('WARNING: ', 349, ' is an island (no neighbors)')
+('WARNING: ', 351, ' is an island (no neighbors)')
+('WARNING: ', 352, ' is an island (no neighbors)')
+('WARNING: ', 363, ' is an island (no neighbors)')
+('WARNING: ', 366, ' is an island (no neighbors)')
+('WARNING: ', 372, ' is an island (no neighbors)')
+('WARNING: ', 376, ' is an island (no neighbors)')
+('WARNING: ', 378, ' is an island (no neighbors)')
+('WARNING: ', 379, ' is an island (no neighbors)')
+('WARNING: ', 381, ' is an island (no neighbors)')
+('WARNING: ', 382, ' is an island (no neighbors)')
+('WARNING: ', 383, ' is an island (no neighbors)')
+('WARNING: ', 388, ' is an island (no neighbors)')
+('WARNING: ', 396, ' is an island (no neighbors)')
+('WARNING: ', 397, ' is an island (no neighbors)')
+('WARNING: ', 399, ' is an island (no neighbors)')
+('WARNING: ', 404, ' is an island (no neighbors)')
+('WARNING: ', 409, ' is an island (no neighbors)')
+('WARNING: ', 410, ' is an island (no neighbors)')
+('WARNING: ', 415, ' is an island (no neighbors)')
+('WARNING: ', 417, ' is an island (no neighbors)')
+('WARNING: ', 423, ' is an island (no neighbors)')
+('WARNING: ', 425, ' is an island (no neighbors)')
+('WARNING: ', 426, ' is an island (no neighbors)')
+('WARNING: ', 427, ' is an island (no neighbors)')
+('WARNING: ', 429, ' is an island (no neighbors)')
+('WARNING: ', 430, ' is an island (no neighbors)')
+('WARNING: ', 435, ' is an island (no neighbors)')
+('WARNING: ', 443, ' is an island (no neighbors)')
+('WARNING: ', 447, ' is an island (no neighbors)')
+('WARNING: ', 449, ' is an island (no neighbors)')
+('WARNING: ', 451, ' is an island (no neighbors)')
+('WARNING: ', 459, ' is an island (no neighbors)')
+('WARNING: ', 462, ' is an island (no neighbors)')
+('WARNING: ', 464, ' is an island (no neighbors)')
+('WARNING: ', 465, ' is an island (no neighbors)')
+('WARNING: ', 466, ' is an island (no neighbors)')
+('WARNING: ', 468, ' is an island (no neighbors)')
+('WARNING: ', 475, ' is an island (no neighbors)')
+('WARNING: ', 476, ' is an island (no neighbors)')
+('WARNING: ', 477, ' is an island (no neighbors)')
+('WARNING: ', 480, ' is an island (no neighbors)')
+('WARNING: ', 481, ' is an island (no neighbors)')
+('WARNING: ', 486, ' is an island (no neighbors)')
+('WARNING: ', 487, ' is an island (no neighbors)')
+('WARNING: ', 491, ' is an island (no neighbors)')
+('WARNING: ', 495, ' is an island (no neighbors)')
+('WARNING: ', 496, ' is an island (no neighbors)')
+('WARNING: ', 497, ' is an island (no neighbors)')
+('WARNING: ', 500, ' is an island (no neighbors)')
+('WARNING: ', 503, ' is an island (no neighbors)')
+('WARNING: ', 505, ' is an island (no neighbors)')
+('WARNING: ', 508, ' is an island (no neighbors)')
+('WARNING: ', 510, ' is an island (no neighbors)')
+('WARNING: ', 513, ' is an island (no neighbors)')
+('WARNING: ', 515, ' is an island (no neighbors)')
+('WARNING: ', 516, ' is an island (no neighbors)')
+('WARNING: ', 519, ' is an island (no neighbors)')
+('WARNING: ', 524, ' is an island (no neighbors)')
+('WARNING: ', 529, ' is an island (no neighbors)')
+('WARNING: ', 531, ' is an island (no neighbors)')
+('WARNING: ', 535, ' is an island (no neighbors)')
+('WARNING: ', 537, ' is an island (no neighbors)')
+('WARNING: ', 541, ' is an island (no neighbors)')
+('WARNING: ', 543, ' is an island (no neighbors)')
+('WARNING: ', 547, ' is an island (no neighbors)')
+('WARNING: ', 548, ' is an island (no neighbors)')
+('WARNING: ', 554, ' is an island (no neighbors)')
+('WARNING: ', 556, ' is an island (no neighbors)')
+('WARNING: ', 561, ' is an island (no neighbors)')
+('WARNING: ', 562, ' is an island (no neighbors)')
+('WARNING: ', 570, ' is an island (no neighbors)')
+('WARNING: ', 571, ' is an island (no neighbors)')
+('WARNING: ', 573, ' is an island (no neighbors)')
+('WARNING: ', 577, ' is an island (no neighbors)')
+('WARNING: ', 579, ' is an island (no neighbors)')
+('WARNING: ', 582, ' is an island (no neighbors)')
+('WARNING: ', 587, ' is an island (no neighbors)')
+('WARNING: ', 589, ' is an island (no neighbors)')
+('WARNING: ', 592, ' is an island (no neighbors)')
+('WARNING: ', 594, ' is an island (no neighbors)')
+('WARNING: ', 599, ' is an island (no neighbors)')
+('WARNING: ', 601, ' is an island (no neighbors)')
+('WARNING: ', 602, ' is an island (no neighbors)')
+('WARNING: ', 604, ' is an island (no neighbors)')
+('WARNING: ', 607, ' is an island (no neighbors)')
+('WARNING: ', 609, ' is an island (no neighbors)')
+('WARNING: ', 613, ' is an island (no neighbors)')
+('WARNING: ', 614, ' is an island (no neighbors)')
+('WARNING: ', 618, ' is an island (no neighbors)')
+('WARNING: ', 620, ' is an island (no neighbors)')
+('WARNING: ', 624, ' is an island (no neighbors)')
+('WARNING: ', 633, ' is an island (no neighbors)')
+('WARNING: ', 637, ' is an island (no neighbors)')
+('WARNING: ', 643, ' is an island (no neighbors)')
+('WARNING: ', 645, ' is an island (no neighbors)')
+('WARNING: ', 655, ' is an island (no neighbors)')
+('WARNING: ', 656, ' is an island (no neighbors)')
+('WARNING: ', 659, ' is an island (no neighbors)')
+('WARNING: ', 660, ' is an island (no neighbors)')
+('WARNING: ', 661, ' is an island (no neighbors)')
+('WARNING: ', 668, ' is an island (no neighbors)')
+('WARNING: ', 670, ' is an island (no neighbors)')
+('WARNING: ', 672, ' is an island (no neighbors)')
+('WARNING: ', 674, ' is an island (no neighbors)')
+('WARNING: ', 675, ' is an island (no neighbors)')
+('WARNING: ', 679, ' is an island (no neighbors)')
+('WARNING: ', 682, ' is an island (no neighbors)')
+('WARNING: ', 683, ' is an island (no neighbors)')
+('WARNING: ', 685, ' is an island (no neighbors)')
+('WARNING: ', 688, ' is an island (no neighbors)')
+('WARNING: ', 691, ' is an island (no neighbors)')
+('WARNING: ', 692, ' is an island (no neighbors)')
+('WARNING: ', 697, ' is an island (no neighbors)')
+('WARNING: ', 700, ' is an island (no neighbors)')
+('WARNING: ', 701, ' is an island (no neighbors)')
+('WARNING: ', 702, ' is an island (no neighbors)')
+('WARNING: ', 704, ' is an island (no neighbors)')
+('WARNING: ', 705, ' is an island (no neighbors)')
+('WARNING: ', 706, ' is an island (no neighbors)')
+('WARNING: ', 712, ' is an island (no neighbors)')
+('WARNING: ', 713, ' is an island (no neighbors)')
+('WARNING: ', 714, ' is an island (no neighbors)')
+('WARNING: ', 718, ' is an island (no neighbors)')
+('WARNING: ', 719, ' is an island (no neighbors)')
+('WARNING: ', 720, ' is an island (no neighbors)')
+('WARNING: ', 721, ' is an island (no neighbors)')
+('WARNING: ', 722, ' is an island (no neighbors)')
+('WARNING: ', 725, ' is an island (no neighbors)')
+('WARNING: ', 730, ' is an island (no neighbors)')
+('WARNING: ', 734, ' is an island (no neighbors)')
+('WARNING: ', 735, ' is an island (no neighbors)')
+('WARNING: ', 736, ' is an island (no neighbors)')
+('WARNING: ', 737, ' is an island (no neighbors)')
+('WARNING: ', 739, ' is an island (no neighbors)')
+('WARNING: ', 741, ' is an island (no neighbors)')
+('WARNING: ', 742, ' is an island (no neighbors)')
+('WARNING: ', 743, ' is an island (no neighbors)')
+('WARNING: ', 746, ' is an island (no neighbors)')
+('WARNING: ', 747, ' is an island (no neighbors)')
+('WARNING: ', 749, ' is an island (no neighbors)')
+('WARNING: ', 752, ' is an island (no neighbors)')
+('WARNING: ', 754, ' is an island (no neighbors)')
+('WARNING: ', 759, ' is an island (no neighbors)')
+('WARNING: ', 761, ' is an island (no neighbors)')
+('WARNING: ', 763, ' is an island (no neighbors)')
+('WARNING: ', 765, ' is an island (no neighbors)')
+('WARNING: ', 768, ' is an island (no neighbors)')
+('WARNING: ', 769, ' is an island (no neighbors)')
+('WARNING: ', 782, ' is an island (no neighbors)')
+('WARNING: ', 783, ' is an island (no neighbors)')
+('WARNING: ', 785, ' is an island (no neighbors)')
+('WARNING: ', 788, ' is an island (no neighbors)')
+('WARNING: ', 790, ' is an island (no neighbors)')
+('WARNING: ', 791, ' is an island (no neighbors)')
+('WARNING: ', 793, ' is an island (no neighbors)')
+('WARNING: ', 794, ' is an island (no neighbors)')
+('WARNING: ', 795, ' is an island (no neighbors)')
+('WARNING: ', 796, ' is an island (no neighbors)')
+('WARNING: ', 797, ' is an island (no neighbors)')
+('WARNING: ', 801, ' is an island (no neighbors)')
+('WARNING: ', 802, ' is an island (no neighbors)')
+('WARNING: ', 803, ' is an island (no neighbors)')
+('WARNING: ', 818, ' is an island (no neighbors)')
+('WARNING: ', 822, ' is an island (no neighbors)')
+('WARNING: ', 828, ' is an island (no neighbors)')
+('WARNING: ', 830, ' is an island (no neighbors)')
+('WARNING: ', 831, ' is an island (no neighbors)')
+('WARNING: ', 832, ' is an island (no neighbors)')
+('WARNING: ', 833, ' is an island (no neighbors)')
+('WARNING: ', 834, ' is an island (no neighbors)')
+('WARNING: ', 835, ' is an island (no neighbors)')
+('WARNING: ', 837, ' is an island (no neighbors)')
+('WARNING: ', 838, ' is an island (no neighbors)')
+('WARNING: ', 839, ' is an island (no neighbors)')
+('WARNING: ', 841, ' is an island (no neighbors)')
+('WARNING: ', 848, ' is an island (no neighbors)')
+('WARNING: ', 849, ' is an island (no neighbors)')
+('WARNING: ', 850, ' is an island (no neighbors)')
+('WARNING: ', 853, ' is an island (no neighbors)')
+('WARNING: ', 856, ' is an island (no neighbors)')
+('WARNING: ', 858, ' is an island (no neighbors)')
+('WARNING: ', 859, ' is an island (no neighbors)')
+('WARNING: ', 862, ' is an island (no neighbors)')
+('WARNING: ', 864, ' is an island (no neighbors)')
+('WARNING: ', 867, ' is an island (no neighbors)')
+('WARNING: ', 871, ' is an island (no neighbors)')
+('WARNING: ', 872, ' is an island (no neighbors)')
+('WARNING: ', 873, ' is an island (no neighbors)')
+('WARNING: ', 876, ' is an island (no neighbors)')
+('WARNING: ', 885, ' is an island (no neighbors)')
+('WARNING: ', 890, ' is an island (no neighbors)')
+('WARNING: ', 893, ' is an island (no neighbors)')
+('WARNING: ', 896, ' is an island (no neighbors)')
+('WARNING: ', 900, ' is an island (no neighbors)')
+('WARNING: ', 902, ' is an island (no neighbors)')
+('WARNING: ', 909, ' is an island (no neighbors)')
+('WARNING: ', 910, ' is an island (no neighbors)')
+('WARNING: ', 911, ' is an island (no neighbors)')
+('WARNING: ', 912, ' is an island (no neighbors)')
+('WARNING: ', 913, ' is an island (no neighbors)')
+('WARNING: ', 914, ' is an island (no neighbors)')
+('WARNING: ', 916, ' is an island (no neighbors)')
+('WARNING: ', 924, ' is an island (no neighbors)')
+('WARNING: ', 925, ' is an island (no neighbors)')
+('WARNING: ', 926, ' is an island (no neighbors)')
+('WARNING: ', 929, ' is an island (no neighbors)')
+('WARNING: ', 931, ' is an island (no neighbors)')
+('WARNING: ', 936, ' is an island (no neighbors)')
+('WARNING: ', 937, ' is an island (no neighbors)')
+('WARNING: ', 938, ' is an island (no neighbors)')
+('WARNING: ', 939, ' is an island (no neighbors)')
+('WARNING: ', 940, ' is an island (no neighbors)')
+('WARNING: ', 942, ' is an island (no neighbors)')
+('WARNING: ', 947, ' is an island (no neighbors)')
+('WARNING: ', 949, ' is an island (no neighbors)')
+('WARNING: ', 954, ' is an island (no neighbors)')
+('WARNING: ', 957, ' is an island (no neighbors)')
+('WARNING: ', 958, ' is an island (no neighbors)')
+('WARNING: ', 959, ' is an island (no neighbors)')
+('WARNING: ', 960, ' is an island (no neighbors)')
+('WARNING: ', 962, ' is an island (no neighbors)')
+('WARNING: ', 963, ' is an island (no neighbors)')
+('WARNING: ', 964, ' is an island (no neighbors)')
+('WARNING: ', 965, ' is an island (no neighbors)')
+('WARNING: ', 969, ' is an island (no neighbors)')
+('WARNING: ', 970, ' is an island (no neighbors)')
+('WARNING: ', 973, ' is an island (no neighbors)')
+('WARNING: ', 975, ' is an island (no neighbors)')
+('WARNING: ', 976, ' is an island (no neighbors)')
+('WARNING: ', 977, ' is an island (no neighbors)')
+('WARNING: ', 979, ' is an island (no neighbors)')
+('WARNING: ', 983, ' is an island (no neighbors)')
+('WARNING: ', 988, ' is an island (no neighbors)')
+('WARNING: ', 989, ' is an island (no neighbors)')
+('WARNING: ', 993, ' is an island (no neighbors)')
+('WARNING: ', 999, ' is an island (no neighbors)')
+('WARNING: ', 1004, ' is an island (no neighbors)')
+('WARNING: ', 1005, ' is an island (no neighbors)')
+('WARNING: ', 1010, ' is an island (no neighbors)')
+('WARNING: ', 1011, ' is an island (no neighbors)')
+('WARNING: ', 1015, ' is an island (no neighbors)')
+('WARNING: ', 1020, ' is an island (no neighbors)')
+('WARNING: ', 1021, ' is an island (no neighbors)')
+('WARNING: ', 1022, ' is an island (no neighbors)')
+('WARNING: ', 1024, ' is an island (no neighbors)')
+('WARNING: ', 1025, ' is an island (no neighbors)')
+('WARNING: ', 1026, ' is an island (no neighbors)')
+('WARNING: ', 1029, ' is an island (no neighbors)')
+('WARNING: ', 1031, ' is an island (no neighbors)')
+('WARNING: ', 1034, ' is an island (no neighbors)')
+('WARNING: ', 1036, ' is an island (no neighbors)')
+('WARNING: ', 1038, ' is an island (no neighbors)')
+('WARNING: ', 1039, ' is an island (no neighbors)')
+('WARNING: ', 1041, ' is an island (no neighbors)')
+('WARNING: ', 1043, ' is an island (no neighbors)')
+('WARNING: ', 1045, ' is an island (no neighbors)')
+('WARNING: ', 1046, ' is an island (no neighbors)')
+('WARNING: ', 1049, ' is an island (no neighbors)')
+('WARNING: ', 1051, ' is an island (no neighbors)')
+('WARNING: ', 1055, ' is an island (no neighbors)')
+('WARNING: ', 1060, ' is an island (no neighbors)')
+('WARNING: ', 1062, ' is an island (no neighbors)')
+('WARNING: ', 1064, ' is an island (no neighbors)')
+('WARNING: ', 1070, ' is an island (no neighbors)')
+('WARNING: ', 1071, ' is an island (no neighbors)')
+('WARNING: ', 1073, ' is an island (no neighbors)')
+('WARNING: ', 1085, ' is an island (no neighbors)')
+('WARNING: ', 1089, ' is an island (no neighbors)')
+('WARNING: ', 1097, ' is an island (no neighbors)')
+('WARNING: ', 1103, ' is an island (no neighbors)')
+('WARNING: ', 1105, ' is an island (no neighbors)')
+('WARNING: ', 1108, ' is an island (no neighbors)')
+('WARNING: ', 1117, ' is an island (no neighbors)')
+('WARNING: ', 1120, ' is an island (no neighbors)')
+('WARNING: ', 1121, ' is an island (no neighbors)')
+('WARNING: ', 1126, ' is an island (no neighbors)')
+('WARNING: ', 1128, ' is an island (no neighbors)')
+('WARNING: ', 1130, ' is an island (no neighbors)')
+('WARNING: ', 1138, ' is an island (no neighbors)')
+('WARNING: ', 1146, ' is an island (no neighbors)')
+('WARNING: ', 1148, ' is an island (no neighbors)')
+('WARNING: ', 1152, ' is an island (no neighbors)')
+('WARNING: ', 1153, ' is an island (no neighbors)')
+('WARNING: ', 1155, ' is an island (no neighbors)')
+('WARNING: ', 1157, ' is an island (no neighbors)')
+('WARNING: ', 1158, ' is an island (no neighbors)')
+('WARNING: ', 1159, ' is an island (no neighbors)')
+('WARNING: ', 1160, ' is an island (no neighbors)')
+('WARNING: ', 1162, ' is an island (no neighbors)')
+('WARNING: ', 1164, ' is an island (no neighbors)')
+('WARNING: ', 1166, ' is an island (no neighbors)')
+('WARNING: ', 1169, ' is an island (no neighbors)')
+('WARNING: ', 1170, ' is an island (no neighbors)')
+('WARNING: ', 1172, ' is an island (no neighbors)')
+('WARNING: ', 1176, ' is an island (no neighbors)')
+('WARNING: ', 1178, ' is an island (no neighbors)')
+('WARNING: ', 1193, ' is an island (no neighbors)')
+('WARNING: ', 1194, ' is an island (no neighbors)')
+('WARNING: ', 1197, ' is an island (no neighbors)')
+('WARNING: ', 1202, ' is an island (no neighbors)')
+('WARNING: ', 1203, ' is an island (no neighbors)')
+('WARNING: ', 1204, ' is an island (no neighbors)')
+('WARNING: ', 1205, ' is an island (no neighbors)')
+('WARNING: ', 1206, ' is an island (no neighbors)')
+('WARNING: ', 1210, ' is an island (no neighbors)')
+('WARNING: ', 1211, ' is an island (no neighbors)')
+('WARNING: ', 1215, ' is an island (no neighbors)')
+('WARNING: ', 1219, ' is an island (no neighbors)')
+('WARNING: ', 1220, ' is an island (no neighbors)')
+('WARNING: ', 1222, ' is an island (no neighbors)')
+('WARNING: ', 1226, ' is an island (no neighbors)')
+('WARNING: ', 1229, ' is an island (no neighbors)')
+('WARNING: ', 1230, ' is an island (no neighbors)')
+('WARNING: ', 1231, ' is an island (no neighbors)')
+('WARNING: ', 1238, ' is an island (no neighbors)')
+('WARNING: ', 1239, ' is an island (no neighbors)')
+('WARNING: ', 1242, ' is an island (no neighbors)')
+('WARNING: ', 1247, ' is an island (no neighbors)')
+('WARNING: ', 1248, ' is an island (no neighbors)')
+('WARNING: ', 1250, ' is an island (no neighbors)')
+('WARNING: ', 1253, ' is an island (no neighbors)')
+('WARNING: ', 1254, ' is an island (no neighbors)')
+('WARNING: ', 1258, ' is an island (no neighbors)')
+('WARNING: ', 1261, ' is an island (no neighbors)')
+('WARNING: ', 1264, ' is an island (no neighbors)')
+('WARNING: ', 1265, ' is an island (no neighbors)')
+('WARNING: ', 1266, ' is an island (no neighbors)')
+('WARNING: ', 1267, ' is an island (no neighbors)')
+('WARNING: ', 1270, ' is an island (no neighbors)')
+('WARNING: ', 1272, ' is an island (no neighbors)')
+('WARNING: ', 1274, ' is an island (no neighbors)')
+('WARNING: ', 1275, ' is an island (no neighbors)')
+('WARNING: ', 1276, ' is an island (no neighbors)')
+('WARNING: ', 1277, ' is an island (no neighbors)')
+('WARNING: ', 1279, ' is an island (no neighbors)')
+('WARNING: ', 1284, ' is an island (no neighbors)')
+('WARNING: ', 1286, ' is an island (no neighbors)')
+('WARNING: ', 1287, ' is an island (no neighbors)')
+('WARNING: ', 1289, ' is an island (no neighbors)')
+('WARNING: ', 1292, ' is an island (no neighbors)')
+('WARNING: ', 1294, ' is an island (no neighbors)')
+('WARNING: ', 1297, ' is an island (no neighbors)')
+('WARNING: ', 1300, ' is an island (no neighbors)')
+('WARNING: ', 1301, ' is an island (no neighbors)')
+('WARNING: ', 1302, ' is an island (no neighbors)')
+('WARNING: ', 1307, ' is an island (no neighbors)')
+('WARNING: ', 1310, ' is an island (no neighbors)')
+('WARNING: ', 1311, ' is an island (no neighbors)')
+('WARNING: ', 1315, ' is an island (no neighbors)')
+('WARNING: ', 1316, ' is an island (no neighbors)')
+('WARNING: ', 1323, ' is an island (no neighbors)')
+('WARNING: ', 1324, ' is an island (no neighbors)')
+('WARNING: ', 1330, ' is an island (no neighbors)')
+('WARNING: ', 1332, ' is an island (no neighbors)')
+('WARNING: ', 1334, ' is an island (no neighbors)')
+('WARNING: ', 1335, ' is an island (no neighbors)')
+('WARNING: ', 1336, ' is an island (no neighbors)')
+('WARNING: ', 1338, ' is an island (no neighbors)')
+('WARNING: ', 1340, ' is an island (no neighbors)')
+('WARNING: ', 1345, ' is an island (no neighbors)')
+('WARNING: ', 1348, ' is an island (no neighbors)')
+('WARNING: ', 1351, ' is an island (no neighbors)')
+('WARNING: ', 1354, ' is an island (no neighbors)')
+('WARNING: ', 1355, ' is an island (no neighbors)')
+('WARNING: ', 1356, ' is an island (no neighbors)')
+('WARNING: ', 1360, ' is an island (no neighbors)')
+('WARNING: ', 1361, ' is an island (no neighbors)')
+('WARNING: ', 1362, ' is an island (no neighbors)')
+('WARNING: ', 1364, ' is an island (no neighbors)')
+('WARNING: ', 1370, ' is an island (no neighbors)')
+('WARNING: ', 1371, ' is an island (no neighbors)')
+('WARNING: ', 1377, ' is an island (no neighbors)')
+('WARNING: ', 1379, ' is an island (no neighbors)')
+('WARNING: ', 1381, ' is an island (no neighbors)')
+('WARNING: ', 1382, ' is an island (no neighbors)')
+('WARNING: ', 1383, ' is an island (no neighbors)')
+('WARNING: ', 1385, ' is an island (no neighbors)')
+('WARNING: ', 1391, ' is an island (no neighbors)')
+('WARNING: ', 1393, ' is an island (no neighbors)')
+('WARNING: ', 1394, ' is an island (no neighbors)')
+('WARNING: ', 1396, ' is an island (no neighbors)')
+('WARNING: ', 1397, ' is an island (no neighbors)')
+('WARNING: ', 1404, ' is an island (no neighbors)')
+('WARNING: ', 1405, ' is an island (no neighbors)')
+('WARNING: ', 1409, ' is an island (no neighbors)')
+('WARNING: ', 1414, ' is an island (no neighbors)')
+('WARNING: ', 1419, ' is an island (no neighbors)')
+('WARNING: ', 1421, ' is an island (no neighbors)')
+('WARNING: ', 1425, ' is an island (no neighbors)')
+('WARNING: ', 1427, ' is an island (no neighbors)')
+('WARNING: ', 1428, ' is an island (no neighbors)')
+('WARNING: ', 1429, ' is an island (no neighbors)')
+('WARNING: ', 1437, ' is an island (no neighbors)')
+('WARNING: ', 1439, ' is an island (no neighbors)')
+('WARNING: ', 1450, ' is an island (no neighbors)')
+('WARNING: ', 1454, ' is an island (no neighbors)')
+('WARNING: ', 1457, ' is an island (no neighbors)')
+('WARNING: ', 1460, ' is an island (no neighbors)')
+('WARNING: ', 1463, ' is an island (no neighbors)')
+('WARNING: ', 1473, ' is an island (no neighbors)')
+('WARNING: ', 1476, ' is an island (no neighbors)')
+('WARNING: ', 1479, ' is an island (no neighbors)')
+('WARNING: ', 1485, ' is an island (no neighbors)')
+('WARNING: ', 1489, ' is an island (no neighbors)')
+('WARNING: ', 1490, ' is an island (no neighbors)')
+('WARNING: ', 1491, ' is an island (no neighbors)')
+('WARNING: ', 1493, ' is an island (no neighbors)')
+('WARNING: ', 1494, ' is an island (no neighbors)')
+('WARNING: ', 1495, ' is an island (no neighbors)')
+('WARNING: ', 1498, ' is an island (no neighbors)')
+('WARNING: ', 1499, ' is an island (no neighbors)')
+('WARNING: ', 1502, ' is an island (no neighbors)')
+('WARNING: ', 1505, ' is an island (no neighbors)')
+('WARNING: ', 1508, ' is an island (no neighbors)')
+('WARNING: ', 1509, ' is an island (no neighbors)')
+('WARNING: ', 1511, ' is an island (no neighbors)')
+('WARNING: ', 1512, ' is an island (no neighbors)')
+('WARNING: ', 1514, ' is an island (no neighbors)')
+('WARNING: ', 1517, ' is an island (no neighbors)')
+('WARNING: ', 1519, ' is an island (no neighbors)')
+('WARNING: ', 1525, ' is an island (no neighbors)')
+('WARNING: ', 1527, ' is an island (no neighbors)')
+('WARNING: ', 1528, ' is an island (no neighbors)')
+('WARNING: ', 1531, ' is an island (no neighbors)')
+('WARNING: ', 1532, ' is an island (no neighbors)')
+('WARNING: ', 1536, ' is an island (no neighbors)')
+('WARNING: ', 1537, ' is an island (no neighbors)')
+('WARNING: ', 1542, ' is an island (no neighbors)')
+('WARNING: ', 1551, ' is an island (no neighbors)')
+('WARNING: ', 1555, ' is an island (no neighbors)')
+('WARNING: ', 1557, ' is an island (no neighbors)')
+('WARNING: ', 1561, ' is an island (no neighbors)')
+('WARNING: ', 1564, ' is an island (no neighbors)')
+('WARNING: ', 1569, ' is an island (no neighbors)')
+('WARNING: ', 1574, ' is an island (no neighbors)')
+('WARNING: ', 1575, ' is an island (no neighbors)')
+('WARNING: ', 1582, ' is an island (no neighbors)')
+('WARNING: ', 1585, ' is an island (no neighbors)')
+('WARNING: ', 1588, ' is an island (no neighbors)')
+('WARNING: ', 1593, ' is an island (no neighbors)')
+('WARNING: ', 1594, ' is an island (no neighbors)')
+('WARNING: ', 1598, ' is an island (no neighbors)')
+('WARNING: ', 1599, ' is an island (no neighbors)')
+('WARNING: ', 1603, ' is an island (no neighbors)')
+('WARNING: ', 1608, ' is an island (no neighbors)')
+('WARNING: ', 1610, ' is an island (no neighbors)')
+('WARNING: ', 1611, ' is an island (no neighbors)')
+('WARNING: ', 1615, ' is an island (no neighbors)')
+('WARNING: ', 1617, ' is an island (no neighbors)')
+('WARNING: ', 1621, ' is an island (no neighbors)')
+('WARNING: ', 1625, ' is an island (no neighbors)')
+('WARNING: ', 1630, ' is an island (no neighbors)')
+('WARNING: ', 1631, ' is an island (no neighbors)')
+('WARNING: ', 1634, ' is an island (no neighbors)')
+('WARNING: ', 1640, ' is an island (no neighbors)')
+('WARNING: ', 1641, ' is an island (no neighbors)')
+('WARNING: ', 1643, ' is an island (no neighbors)')
+('WARNING: ', 1646, ' is an island (no neighbors)')
+('WARNING: ', 1647, ' is an island (no neighbors)')
+('WARNING: ', 1650, ' is an island (no neighbors)')
+('WARNING: ', 1651, ' is an island (no neighbors)')
+('WARNING: ', 1652, ' is an island (no neighbors)')
+('WARNING: ', 1653, ' is an island (no neighbors)')
+('WARNING: ', 1654, ' is an island (no neighbors)')
+('WARNING: ', 1655, ' is an island (no neighbors)')
+('WARNING: ', 1659, ' is an island (no neighbors)')
+('WARNING: ', 1660, ' is an island (no neighbors)')
+('WARNING: ', 1661, ' is an island (no neighbors)')
+('WARNING: ', 1666, ' is an island (no neighbors)')
+('WARNING: ', 1668, ' is an island (no neighbors)')
+('WARNING: ', 1671, ' is an island (no neighbors)')
+('WARNING: ', 1672, ' is an island (no neighbors)')
+('WARNING: ', 1675, ' is an island (no neighbors)')
+('WARNING: ', 1682, ' is an island (no neighbors)')
+('WARNING: ', 1684, ' is an island (no neighbors)')
+('WARNING: ', 1686, ' is an island (no neighbors)')
+('WARNING: ', 1689, ' is an island (no neighbors)')
+('WARNING: ', 1691, ' is an island (no neighbors)')
+('WARNING: ', 1694, ' is an island (no neighbors)')
+('WARNING: ', 1698, ' is an island (no neighbors)')
+('WARNING: ', 1699, ' is an island (no neighbors)')
+('WARNING: ', 1700, ' is an island (no neighbors)')
+('WARNING: ', 1705, ' is an island (no neighbors)')
+('WARNING: ', 1706, ' is an island (no neighbors)')
+('WARNING: ', 1707, ' is an island (no neighbors)')
+('WARNING: ', 1710, ' is an island (no neighbors)')
+('WARNING: ', 1711, ' is an island (no neighbors)')
+('WARNING: ', 1716, ' is an island (no neighbors)')
+('WARNING: ', 1718, ' is an island (no neighbors)')
+('WARNING: ', 1720, ' is an island (no neighbors)')
+('WARNING: ', 1724, ' is an island (no neighbors)')
+('WARNING: ', 1725, ' is an island (no neighbors)')
+('WARNING: ', 1727, ' is an island (no neighbors)')
+('WARNING: ', 1733, ' is an island (no neighbors)')
+('WARNING: ', 1735, ' is an island (no neighbors)')
+('WARNING: ', 1739, ' is an island (no neighbors)')
+('WARNING: ', 1742, ' is an island (no neighbors)')
+('WARNING: ', 1747, ' is an island (no neighbors)')
+('WARNING: ', 1748, ' is an island (no neighbors)')
+('WARNING: ', 1749, ' is an island (no neighbors)')
+('WARNING: ', 1750, ' is an island (no neighbors)')
+('WARNING: ', 1752, ' is an island (no neighbors)')
+('WARNING: ', 1755, ' is an island (no neighbors)')
+('WARNING: ', 1757, ' is an island (no neighbors)')
+('WARNING: ', 1758, ' is an island (no neighbors)')
+('WARNING: ', 1759, ' is an island (no neighbors)')
+('WARNING: ', 1762, ' is an island (no neighbors)')
+('WARNING: ', 1764, ' is an island (no neighbors)')
+('WARNING: ', 1773, ' is an island (no neighbors)')
+('WARNING: ', 1774, ' is an island (no neighbors)')
+('WARNING: ', 1778, ' is an island (no neighbors)')
+('WARNING: ', 1781, ' is an island (no neighbors)')
+('WARNING: ', 1782, ' is an island (no neighbors)')
+('WARNING: ', 1783, ' is an island (no neighbors)')
+('WARNING: ', 1785, ' is an island (no neighbors)')
+('WARNING: ', 1786, ' is an island (no neighbors)')
+('WARNING: ', 1790, ' is an island (no neighbors)')
+('WARNING: ', 1791, ' is an island (no neighbors)')
+('WARNING: ', 1794, ' is an island (no neighbors)')
+('WARNING: ', 1815, ' is an island (no neighbors)')
+('WARNING: ', 1818, ' is an island (no neighbors)')
+('WARNING: ', 1819, ' is an island (no neighbors)')
+('WARNING: ', 1821, ' is an island (no neighbors)')
+('WARNING: ', 1826, ' is an island (no neighbors)')
+('WARNING: ', 1828, ' is an island (no neighbors)')
+('WARNING: ', 1834, ' is an island (no neighbors)')
+('WARNING: ', 1839, ' is an island (no neighbors)')
+('WARNING: ', 1842, ' is an island (no neighbors)')
+('WARNING: ', 1843, ' is an island (no neighbors)')
+('WARNING: ', 1844, ' is an island (no neighbors)')
+('WARNING: ', 1845, ' is an island (no neighbors)')
+('WARNING: ', 1846, ' is an island (no neighbors)')
+('WARNING: ', 1847, ' is an island (no neighbors)')
+('WARNING: ', 1849, ' is an island (no neighbors)')
+('WARNING: ', 1850, ' is an island (no neighbors)')
+('WARNING: ', 1852, ' is an island (no neighbors)')
+('WARNING: ', 1854, ' is an island (no neighbors)')
+('WARNING: ', 1855, ' is an island (no neighbors)')
+('WARNING: ', 1856, ' is an island (no neighbors)')
+('WARNING: ', 1857, ' is an island (no neighbors)')
+('WARNING: ', 1858, ' is an island (no neighbors)')
+('WARNING: ', 1859, ' is an island (no neighbors)')
+('WARNING: ', 1860, ' is an island (no neighbors)')
+('WARNING: ', 1862, ' is an island (no neighbors)')
+('WARNING: ', 1866, ' is an island (no neighbors)')
+('WARNING: ', 1867, ' is an island (no neighbors)')
+('WARNING: ', 1870, ' is an island (no neighbors)')
+('WARNING: ', 1878, ' is an island (no neighbors)')
+('WARNING: ', 1882, ' is an island (no neighbors)')
+('WARNING: ', 1885, ' is an island (no neighbors)')
+('WARNING: ', 1886, ' is an island (no neighbors)')
+('WARNING: ', 1887, ' is an island (no neighbors)')
+('WARNING: ', 1889, ' is an island (no neighbors)')
+('WARNING: ', 1899, ' is an island (no neighbors)')
+('WARNING: ', 1902, ' is an island (no neighbors)')
+('WARNING: ', 1906, ' is an island (no neighbors)')
+('WARNING: ', 1908, ' is an island (no neighbors)')
+('WARNING: ', 1912, ' is an island (no neighbors)')
+('WARNING: ', 1917, ' is an island (no neighbors)')
+('WARNING: ', 1920, ' is an island (no neighbors)')
+('WARNING: ', 1923, ' is an island (no neighbors)')
+('WARNING: ', 1928, ' is an island (no neighbors)')
+('WARNING: ', 1930, ' is an island (no neighbors)')
+('WARNING: ', 1931, ' is an island (no neighbors)')
+('WARNING: ', 1933, ' is an island (no neighbors)')
+('WARNING: ', 1934, ' is an island (no neighbors)')
+('WARNING: ', 1935, ' is an island (no neighbors)')
+('WARNING: ', 1939, ' is an island (no neighbors)')
+('WARNING: ', 1946, ' is an island (no neighbors)')
+('WARNING: ', 1947, ' is an island (no neighbors)')
+('WARNING: ', 1948, ' is an island (no neighbors)')
+('WARNING: ', 1949, ' is an island (no neighbors)')
+('WARNING: ', 1950, ' is an island (no neighbors)')
+('WARNING: ', 1952, ' is an island (no neighbors)')
+('WARNING: ', 1955, ' is an island (no neighbors)')
+('WARNING: ', 1960, ' is an island (no neighbors)')
+('WARNING: ', 1961, ' is an island (no neighbors)')
+('WARNING: ', 1962, ' is an island (no neighbors)')
+('WARNING: ', 1972, ' is an island (no neighbors)')
+('WARNING: ', 1978, ' is an island (no neighbors)')
+('WARNING: ', 1979, ' is an island (no neighbors)')
+('WARNING: ', 1980, ' is an island (no neighbors)')
+('WARNING: ', 1982, ' is an island (no neighbors)')
+('WARNING: ', 1985, ' is an island (no neighbors)')
+('WARNING: ', 1986, ' is an island (no neighbors)')
+('WARNING: ', 1997, ' is an island (no neighbors)')
+('WARNING: ', 1998, ' is an island (no neighbors)')
+('WARNING: ', 2000, ' is an island (no neighbors)')
+('WARNING: ', 2005, ' is an island (no neighbors)')
+('WARNING: ', 2006, ' is an island (no neighbors)')
+('WARNING: ', 2007, ' is an island (no neighbors)')
+('WARNING: ', 2011, ' is an island (no neighbors)')
+('WARNING: ', 2012, ' is an island (no neighbors)')
+('WARNING: ', 2014, ' is an island (no neighbors)')
+('WARNING: ', 2015, ' is an island (no neighbors)')
+('WARNING: ', 2023, ' is an island (no neighbors)')
+('WARNING: ', 2025, ' is an island (no neighbors)')
+('WARNING: ', 2028, ' is an island (no neighbors)')
+('WARNING: ', 2031, ' is an island (no neighbors)')
+('WARNING: ', 2032, ' is an island (no neighbors)')
+('WARNING: ', 2033, ' is an island (no neighbors)')
+('WARNING: ', 2037, ' is an island (no neighbors)')
+('WARNING: ', 2038, ' is an island (no neighbors)')
+('WARNING: ', 2047, ' is an island (no neighbors)')
+('WARNING: ', 2049, ' is an island (no neighbors)')
+('WARNING: ', 2056, ' is an island (no neighbors)')
+('WARNING: ', 2060, ' is an island (no neighbors)')
+('WARNING: ', 2061, ' is an island (no neighbors)')
+('WARNING: ', 2064, ' is an island (no neighbors)')
+('WARNING: ', 2067, ' is an island (no neighbors)')
+('WARNING: ', 2068, ' is an island (no neighbors)')
+('WARNING: ', 2071, ' is an island (no neighbors)')
+('WARNING: ', 2073, ' is an island (no neighbors)')
+('WARNING: ', 2076, ' is an island (no neighbors)')
+('WARNING: ', 2077, ' is an island (no neighbors)')
+('WARNING: ', 2080, ' is an island (no neighbors)')
+('WARNING: ', 2081, ' is an island (no neighbors)')
+('WARNING: ', 2083, ' is an island (no neighbors)')
+('WARNING: ', 2086, ' is an island (no neighbors)')
+('WARNING: ', 2088, ' is an island (no neighbors)')
+('WARNING: ', 2089, ' is an island (no neighbors)')
+('WARNING: ', 2102, ' is an island (no neighbors)')
+('WARNING: ', 2107, ' is an island (no neighbors)')
+('WARNING: ', 2108, ' is an island (no neighbors)')
+('WARNING: ', 2111, ' is an island (no neighbors)')
+('WARNING: ', 2113, ' is an island (no neighbors)')
+('WARNING: ', 2116, ' is an island (no neighbors)')
+('WARNING: ', 2117, ' is an island (no neighbors)')
+('WARNING: ', 2118, ' is an island (no neighbors)')
+('WARNING: ', 2119, ' is an island (no neighbors)')
+('WARNING: ', 2125, ' is an island (no neighbors)')
+('WARNING: ', 2127, ' is an island (no neighbors)')
+('WARNING: ', 2130, ' is an island (no neighbors)')
+('WARNING: ', 2132, ' is an island (no neighbors)')
+('WARNING: ', 2134, ' is an island (no neighbors)')
+('WARNING: ', 2137, ' is an island (no neighbors)')
+('WARNING: ', 2138, ' is an island (no neighbors)')
+('WARNING: ', 2144, ' is an island (no neighbors)')
+('WARNING: ', 2145, ' is an island (no neighbors)')
+('WARNING: ', 2147, ' is an island (no neighbors)')
+('WARNING: ', 2149, ' is an island (no neighbors)')
+('WARNING: ', 2151, ' is an island (no neighbors)')
+('WARNING: ', 2152, ' is an island (no neighbors)')
+('WARNING: ', 2155, ' is an island (no neighbors)')
+('WARNING: ', 2156, ' is an island (no neighbors)')
+('WARNING: ', 2160, ' is an island (no neighbors)')
+('WARNING: ', 2162, ' is an island (no neighbors)')
+('WARNING: ', 2164, ' is an island (no neighbors)')
+('WARNING: ', 2166, ' is an island (no neighbors)')
+('WARNING: ', 2167, ' is an island (no neighbors)')
+('WARNING: ', 2170, ' is an island (no neighbors)')
+('WARNING: ', 2173, ' is an island (no neighbors)')
+('WARNING: ', 2175, ' is an island (no neighbors)')
+('WARNING: ', 2177, ' is an island (no neighbors)')
+('WARNING: ', 2178, ' is an island (no neighbors)')
+('WARNING: ', 2183, ' is an island (no neighbors)')
+('WARNING: ', 2186, ' is an island (no neighbors)')
+('WARNING: ', 2187, ' is an island (no neighbors)')
+('WARNING: ', 2188, ' is an island (no neighbors)')
+('WARNING: ', 2189, ' is an island (no neighbors)')
+('WARNING: ', 2191, ' is an island (no neighbors)')
+('WARNING: ', 2196, ' is an island (no neighbors)')
+('WARNING: ', 2197, ' is an island (no neighbors)')
+('WARNING: ', 2199, ' is an island (no neighbors)')
+('WARNING: ', 2204, ' is an island (no neighbors)')
+('WARNING: ', 2205, ' is an island (no neighbors)')
+('WARNING: ', 2209, ' is an island (no neighbors)')
+('WARNING: ', 2210, ' is an island (no neighbors)')
+('WARNING: ', 2213, ' is an island (no neighbors)')
+('WARNING: ', 2219, ' is an island (no neighbors)')
+('WARNING: ', 2221, ' is an island (no neighbors)')
+('WARNING: ', 2222, ' is an island (no neighbors)')
+('WARNING: ', 2223, ' is an island (no neighbors)')
+('WARNING: ', 2226, ' is an island (no neighbors)')
+('WARNING: ', 2227, ' is an island (no neighbors)')
+('WARNING: ', 2234, ' is an island (no neighbors)')
+('WARNING: ', 2235, ' is an island (no neighbors)')
+('WARNING: ', 2236, ' is an island (no neighbors)')
+('WARNING: ', 2237, ' is an island (no neighbors)')
+('WARNING: ', 2238, ' is an island (no neighbors)')
+('WARNING: ', 2243, ' is an island (no neighbors)')
+('WARNING: ', 2245, ' is an island (no neighbors)')
+('WARNING: ', 2248, ' is an island (no neighbors)')
+('WARNING: ', 2249, ' is an island (no neighbors)')
+('WARNING: ', 2250, ' is an island (no neighbors)')
+('WARNING: ', 2253, ' is an island (no neighbors)')
+('WARNING: ', 2261, ' is an island (no neighbors)')
+('WARNING: ', 2262, ' is an island (no neighbors)')
+('WARNING: ', 2264, ' is an island (no neighbors)')
+('WARNING: ', 2265, ' is an island (no neighbors)')
+('WARNING: ', 2266, ' is an island (no neighbors)')
+('WARNING: ', 2268, ' is an island (no neighbors)')
+('WARNING: ', 2269, ' is an island (no neighbors)')
+('WARNING: ', 2273, ' is an island (no neighbors)')
+('WARNING: ', 2275, ' is an island (no neighbors)')
+('WARNING: ', 2277, ' is an island (no neighbors)')
+('WARNING: ', 2279, ' is an island (no neighbors)')
+('WARNING: ', 2280, ' is an island (no neighbors)')
+('WARNING: ', 2283, ' is an island (no neighbors)')
+('WARNING: ', 2285, ' is an island (no neighbors)')
+('WARNING: ', 2286, ' is an island (no neighbors)')
+('WARNING: ', 2288, ' is an island (no neighbors)')
+('WARNING: ', 2289, ' is an island (no neighbors)')
+('WARNING: ', 2294, ' is an island (no neighbors)')
+('WARNING: ', 2295, ' is an island (no neighbors)')
+('WARNING: ', 2298, ' is an island (no neighbors)')
+('WARNING: ', 2301, ' is an island (no neighbors)')
+('WARNING: ', 2305, ' is an island (no neighbors)')
+('WARNING: ', 2307, ' is an island (no neighbors)')
+('WARNING: ', 2308, ' is an island (no neighbors)')
+('WARNING: ', 2309, ' is an island (no neighbors)')
+('WARNING: ', 2310, ' is an island (no neighbors)')
+('WARNING: ', 2317, ' is an island (no neighbors)')
+('WARNING: ', 2318, ' is an island (no neighbors)')
+('WARNING: ', 2321, ' is an island (no neighbors)')
+('WARNING: ', 2323, ' is an island (no neighbors)')
+('WARNING: ', 2324, ' is an island (no neighbors)')
+('WARNING: ', 2325, ' is an island (no neighbors)')
+('WARNING: ', 2326, ' is an island (no neighbors)')
+('WARNING: ', 2330, ' is an island (no neighbors)')
+('WARNING: ', 2331, ' is an island (no neighbors)')
+('WARNING: ', 2334, ' is an island (no neighbors)')
+('WARNING: ', 2336, ' is an island (no neighbors)')
+('WARNING: ', 2338, ' is an island (no neighbors)')
+('WARNING: ', 2341, ' is an island (no neighbors)')
+('WARNING: ', 2343, ' is an island (no neighbors)')
+('WARNING: ', 2347, ' is an island (no neighbors)')
+('WARNING: ', 2349, ' is an island (no neighbors)')
+('WARNING: ', 2351, ' is an island (no neighbors)')
+('WARNING: ', 2353, ' is an island (no neighbors)')
+('WARNING: ', 2358, ' is an island (no neighbors)')
+('WARNING: ', 2362, ' is an island (no neighbors)')
+('WARNING: ', 2369, ' is an island (no neighbors)')
+('WARNING: ', 2373, ' is an island (no neighbors)')
+('WARNING: ', 2376, ' is an island (no neighbors)')
+('WARNING: ', 2382, ' is an island (no neighbors)')
+('WARNING: ', 2383, ' is an island (no neighbors)')
+('WARNING: ', 2384, ' is an island (no neighbors)')
+('WARNING: ', 2388, ' is an island (no neighbors)')
+('WARNING: ', 2395, ' is an island (no neighbors)')
+('WARNING: ', 2399, ' is an island (no neighbors)')
+('WARNING: ', 2402, ' is an island (no neighbors)')
+('WARNING: ', 2405, ' is an island (no neighbors)')
+('WARNING: ', 2411, ' is an island (no neighbors)')
+('WARNING: ', 2413, ' is an island (no neighbors)')
+('WARNING: ', 2414, ' is an island (no neighbors)')
+('WARNING: ', 2418, ' is an island (no neighbors)')
+('WARNING: ', 2419, ' is an island (no neighbors)')
+('WARNING: ', 2420, ' is an island (no neighbors)')
+('WARNING: ', 2423, ' is an island (no neighbors)')
+('WARNING: ', 2424, ' is an island (no neighbors)')
+('WARNING: ', 2425, ' is an island (no neighbors)')
+('WARNING: ', 2430, ' is an island (no neighbors)')
+('WARNING: ', 2431, ' is an island (no neighbors)')
+('WARNING: ', 2432, ' is an island (no neighbors)')
+('WARNING: ', 2434, ' is an island (no neighbors)')
+('WARNING: ', 2439, ' is an island (no neighbors)')
+('WARNING: ', 2441, ' is an island (no neighbors)')
+('WARNING: ', 2445, ' is an island (no neighbors)')
+('WARNING: ', 2446, ' is an island (no neighbors)')
+('WARNING: ', 2448, ' is an island (no neighbors)')
+('WARNING: ', 2450, ' is an island (no neighbors)')
+('WARNING: ', 2454, ' is an island (no neighbors)')
+('WARNING: ', 2459, ' is an island (no neighbors)')
+('WARNING: ', 2463, ' is an island (no neighbors)')
+('WARNING: ', 2464, ' is an island (no neighbors)')
+('WARNING: ', 2465, ' is an island (no neighbors)')
+('WARNING: ', 2466, ' is an island (no neighbors)')
+('WARNING: ', 2469, ' is an island (no neighbors)')
+('WARNING: ', 2470, ' is an island (no neighbors)')
+('WARNING: ', 2473, ' is an island (no neighbors)')
+('WARNING: ', 2474, ' is an island (no neighbors)')
+('WARNING: ', 2475, ' is an island (no neighbors)')
+('WARNING: ', 2489, ' is an island (no neighbors)')
+('WARNING: ', 2491, ' is an island (no neighbors)')
+('WARNING: ', 2497, ' is an island (no neighbors)')
+('WARNING: ', 2498, ' is an island (no neighbors)')
+('WARNING: ', 2501, ' is an island (no neighbors)')
+('WARNING: ', 2504, ' is an island (no neighbors)')
+('WARNING: ', 2505, ' is an island (no neighbors)')
+('WARNING: ', 2506, ' is an island (no neighbors)')
+('WARNING: ', 2507, ' is an island (no neighbors)')
+('WARNING: ', 2508, ' is an island (no neighbors)')
+('WARNING: ', 2509, ' is an island (no neighbors)')
+('WARNING: ', 2510, ' is an island (no neighbors)')
+('WARNING: ', 2512, ' is an island (no neighbors)')
+('WARNING: ', 2516, ' is an island (no neighbors)')
+('WARNING: ', 2519, ' is an island (no neighbors)')
+('WARNING: ', 2523, ' is an island (no neighbors)')
+('WARNING: ', 2530, ' is an island (no neighbors)')
+('WARNING: ', 2537, ' is an island (no neighbors)')
+('WARNING: ', 2542, ' is an island (no neighbors)')
+('WARNING: ', 2543, ' is an island (no neighbors)')
+('WARNING: ', 2544, ' is an island (no neighbors)')
+('WARNING: ', 2545, ' is an island (no neighbors)')
+('WARNING: ', 2546, ' is an island (no neighbors)')
+('WARNING: ', 2549, ' is an island (no neighbors)')
+('WARNING: ', 2550, ' is an island (no neighbors)')
+('WARNING: ', 2551, ' is an island (no neighbors)')
+('WARNING: ', 2552, ' is an island (no neighbors)')
+('WARNING: ', 2554, ' is an island (no neighbors)')
+('WARNING: ', 2555, ' is an island (no neighbors)')
+('WARNING: ', 2558, ' is an island (no neighbors)')
+('WARNING: ', 2561, ' is an island (no neighbors)')
+('WARNING: ', 2562, ' is an island (no neighbors)')
+('WARNING: ', 2564, ' is an island (no neighbors)')
+('WARNING: ', 2567, ' is an island (no neighbors)')
+('WARNING: ', 2577, ' is an island (no neighbors)')
+('WARNING: ', 2578, ' is an island (no neighbors)')
+('WARNING: ', 2579, ' is an island (no neighbors)')
+('WARNING: ', 2580, ' is an island (no neighbors)')
+('WARNING: ', 2581, ' is an island (no neighbors)')
+('WARNING: ', 2582, ' is an island (no neighbors)')
+('WARNING: ', 2584, ' is an island (no neighbors)')
+('WARNING: ', 2589, ' is an island (no neighbors)')
+('WARNING: ', 2592, ' is an island (no neighbors)')
+('WARNING: ', 2594, ' is an island (no neighbors)')
+('WARNING: ', 2603, ' is an island (no neighbors)')
+('WARNING: ', 2605, ' is an island (no neighbors)')
+('WARNING: ', 2607, ' is an island (no neighbors)')
+('WARNING: ', 2610, ' is an island (no neighbors)')
+('WARNING: ', 2616, ' is an island (no neighbors)')
+('WARNING: ', 2619, ' is an island (no neighbors)')
+('WARNING: ', 2623, ' is an island (no neighbors)')
+('WARNING: ', 2624, ' is an island (no neighbors)')
+('WARNING: ', 2626, ' is an island (no neighbors)')
+('WARNING: ', 2633, ' is an island (no neighbors)')
+('WARNING: ', 2636, ' is an island (no neighbors)')
+('WARNING: ', 2640, ' is an island (no neighbors)')
+('WARNING: ', 2641, ' is an island (no neighbors)')
+('WARNING: ', 2644, ' is an island (no neighbors)')
+('WARNING: ', 2649, ' is an island (no neighbors)')
+('WARNING: ', 2651, ' is an island (no neighbors)')
+('WARNING: ', 2662, ' is an island (no neighbors)')
+('WARNING: ', 2663, ' is an island (no neighbors)')
+('WARNING: ', 2667, ' is an island (no neighbors)')
+('WARNING: ', 2668, ' is an island (no neighbors)')
+('WARNING: ', 2669, ' is an island (no neighbors)')
+('WARNING: ', 2675, ' is an island (no neighbors)')
+('WARNING: ', 2677, ' is an island (no neighbors)')
+('WARNING: ', 2683, ' is an island (no neighbors)')
+('WARNING: ', 2684, ' is an island (no neighbors)')
+('WARNING: ', 2685, ' is an island (no neighbors)')
+('WARNING: ', 2687, ' is an island (no neighbors)')
+('WARNING: ', 2688, ' is an island (no neighbors)')
+('WARNING: ', 2689, ' is an island (no neighbors)')
+('WARNING: ', 2690, ' is an island (no neighbors)')
+('WARNING: ', 2691, ' is an island (no neighbors)')
+('WARNING: ', 2694, ' is an island (no neighbors)')
+('WARNING: ', 2700, ' is an island (no neighbors)')
+('WARNING: ', 2703, ' is an island (no neighbors)')
+('WARNING: ', 2706, ' is an island (no neighbors)')
+('WARNING: ', 2709, ' is an island (no neighbors)')
+('WARNING: ', 2711, ' is an island (no neighbors)')
+('WARNING: ', 2713, ' is an island (no neighbors)')
+('WARNING: ', 2718, ' is an island (no neighbors)')
+('WARNING: ', 2723, ' is an island (no neighbors)')
+('WARNING: ', 2725, ' is an island (no neighbors)')
+('WARNING: ', 2729, ' is an island (no neighbors)')
+('WARNING: ', 2734, ' is an island (no neighbors)')
+('WARNING: ', 2737, ' is an island (no neighbors)')
+('WARNING: ', 2741, ' is an island (no neighbors)')
+('WARNING: ', 2742, ' is an island (no neighbors)')
+('WARNING: ', 2744, ' is an island (no neighbors)')
+('WARNING: ', 2749, ' is an island (no neighbors)')
+('WARNING: ', 2750, ' is an island (no neighbors)')
+('WARNING: ', 2751, ' is an island (no neighbors)')
+('WARNING: ', 2753, ' is an island (no neighbors)')
+('WARNING: ', 2755, ' is an island (no neighbors)')
+('WARNING: ', 2757, ' is an island (no neighbors)')
+('WARNING: ', 2759, ' is an island (no neighbors)')
+('WARNING: ', 2760, ' is an island (no neighbors)')
+('WARNING: ', 2765, ' is an island (no neighbors)')
+('WARNING: ', 2766, ' is an island (no neighbors)')
+('WARNING: ', 2769, ' is an island (no neighbors)')
+('WARNING: ', 2771, ' is an island (no neighbors)')
+('WARNING: ', 2776, ' is an island (no neighbors)')
+('WARNING: ', 2780, ' is an island (no neighbors)')
+('WARNING: ', 2784, ' is an island (no neighbors)')
+('WARNING: ', 2791, ' is an island (no neighbors)')
+('WARNING: ', 2793, ' is an island (no neighbors)')
+('WARNING: ', 2794, ' is an island (no neighbors)')
+('WARNING: ', 2795, ' is an island (no neighbors)')
+('WARNING: ', 2796, ' is an island (no neighbors)')
+('WARNING: ', 2797, ' is an island (no neighbors)')
+('WARNING: ', 2798, ' is an island (no neighbors)')
+('WARNING: ', 2801, ' is an island (no neighbors)')
+('WARNING: ', 2803, ' is an island (no neighbors)')
+('WARNING: ', 2807, ' is an island (no neighbors)')
+('WARNING: ', 2809, ' is an island (no neighbors)')
+('WARNING: ', 2810, ' is an island (no neighbors)')
+('WARNING: ', 2814, ' is an island (no neighbors)')
+('WARNING: ', 2816, ' is an island (no neighbors)')
+('WARNING: ', 2817, ' is an island (no neighbors)')
+('WARNING: ', 2818, ' is an island (no neighbors)')
+('WARNING: ', 2824, ' is an island (no neighbors)')
+('WARNING: ', 2831, ' is an island (no neighbors)')
+('WARNING: ', 2836, ' is an island (no neighbors)')
+('WARNING: ', 2838, ' is an island (no neighbors)')
+('WARNING: ', 2842, ' is an island (no neighbors)')
+('WARNING: ', 2844, ' is an island (no neighbors)')
+('WARNING: ', 2848, ' is an island (no neighbors)')
+('WARNING: ', 2851, ' is an island (no neighbors)')
+('WARNING: ', 2854, ' is an island (no neighbors)')
+('WARNING: ', 2855, ' is an island (no neighbors)')
+('WARNING: ', 2857, ' is an island (no neighbors)')
+('WARNING: ', 2858, ' is an island (no neighbors)')
+('WARNING: ', 2860, ' is an island (no neighbors)')
+('WARNING: ', 2861, ' is an island (no neighbors)')
+('WARNING: ', 2864, ' is an island (no neighbors)')
+('WARNING: ', 2865, ' is an island (no neighbors)')
+('WARNING: ', 2866, ' is an island (no neighbors)')
+('WARNING: ', 2871, ' is an island (no neighbors)')
+('WARNING: ', 2872, ' is an island (no neighbors)')
+('WARNING: ', 2874, ' is an island (no neighbors)')
+('WARNING: ', 2875, ' is an island (no neighbors)')
+('WARNING: ', 2884, ' is an island (no neighbors)')
+('WARNING: ', 2893, ' is an island (no neighbors)')
+('WARNING: ', 2898, ' is an island (no neighbors)')
+('WARNING: ', 2900, ' is an island (no neighbors)')
+('WARNING: ', 2905, ' is an island (no neighbors)')
+('WARNING: ', 2907, ' is an island (no neighbors)')
+('WARNING: ', 2910, ' is an island (no neighbors)')
+('WARNING: ', 2911, ' is an island (no neighbors)')
+  Moran's I: nan
+
+################################################################################
+CLUSTERING SUMMARY
+################################################################################
+ Model  Active Params  Total Param Combos  Moran's I  Moran's I p-value  NN Ratio  Success Density  Concentration Index Clustering Pattern
+     1              1                  70      0.739              0.001     1.853              NaN                  NaN     RANDOM/UNIFORM
+     2              1                  70      0.664              0.001       NaN              NaN                  NaN            UNKNOWN
+     3              2                 100        NaN              0.001       NaN              NaN                  NaN            UNKNOWN
+     4              4                 468      0.961              0.001       NaN              NaN                  NaN            UNKNOWN
+     5              7               38880     -0.001              0.093       NaN              0.0                  0.0            UNKNOWN
+     6              9               58320        NaN              0.001       NaN              NaN                  NaN            UNKNOWN
+Summary table saved to: analysis/plots/cluster/15.09.25/Step1-May.26_Parlemeter_LR/enhanced_summary.csv
+Summary table saved to: analysis/plots/cluster/15.09.25/Step1-May.26_Parlemeter_LR/enhanced_summary.xlsx

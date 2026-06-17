@@ -28,6 +28,8 @@ import pandas as pd
 save_best_fit_data = False
 load_best_fit_data = True
 
+run_preliminary_sensitivity_analysis = False
+
 
 current_runs_title = "15.09.25"
 current_analysis_title = "Step1-May.26_Parlemeter_LR"
@@ -126,7 +128,7 @@ def save_top_percentile_data(js_fits_stepwise, percentiles_to_save=[5, 2, 1, 0.5
     print("SUMMARY")
     print(f"{'#'*60}")
 
-    for model_number in range(1, 7):
+    for model_number in steps_to_process:
         print(f"\nModel {model_number}:")
         for percentile in percentiles_to_save:
             count = all_models_results[model_number][percentile]['count']
@@ -367,7 +369,7 @@ def run_complete_percentile_analysis(js_fits_stepwise, percentiles_to_save=[5, 2
     Complete pipeline: save data and create visualizations
     """
     if models_to_analyze is None:
-        models_to_analyze = list(range(1, 7))
+        models_to_analyze = list(steps_to_process)
 
     print(f"Starting complete percentile analysis")
     print(f"Models: {models_to_analyze}")
@@ -414,46 +416,12 @@ def run_complete_percentile_analysis(js_fits_stepwise, percentiles_to_save=[5, 2
 
     return results
 
-# Let's first test with a simpler approach to debug
-def debug_save_and_plot(js_fits_stepwise, model_numbers=[5], percentiles=[5, 1]):
-    """
-    Simple debug function to test the pipeline
-    """
-    print("DEBUG MODE: Testing with limited data")
-
-    # Save data
-    saved_data = save_top_percentile_data(js_fits_stepwise, percentiles_to_save=percentiles)
-
-    # Load data
-    loaded_data = load_top_percentile_data(model_numbers, percentiles)
-
-    print(f"\nLoaded data keys: {loaded_data.keys()}")
-    for model in loaded_data:
-        print(f"Model {model} has percentiles: {list(loaded_data[model].keys())}")
-
-    # Try to create a simple plot
-    if loaded_data:
-        fig, df = create_single_percentile_comparison(loaded_data, percentiles[0])
-        if fig is not None:
-            plt.show()
-        else:
-            print("Could not create plot - check if data was saved correctly")
-
-    return loaded_data
-
-# Run debug first to see what's happening
-debug_data = debug_save_and_plot(js_fits_stepwise, model_numbers=[5], percentiles=[5, 1])
-
-# If debug works, then run the full analysis
-if debug_data:
-    print("\nDebug successful! Running full analysis...")
-    results = run_complete_percentile_analysis(
-        js_fits_stepwise, 
-        percentiles_to_save=[5, 0.5, 0.05],
-        models_to_analyze=[1, 2, 3, 4, 5, 6]
-    )
-else:
-    print("Debug failed - check the file paths and data structure")
+print("\nRunning percentile analysis...")
+results = run_complete_percentile_analysis(
+    js_fits_stepwise, 
+    percentiles_to_save=[100, 5, 0.5, 0.05],
+    models_to_analyze= steps_to_process
+)
 
 
 # ## Analyzing improved sims only
@@ -480,8 +448,8 @@ def save_improved_top_percentile_data(js_fits_stepwise, percentiles_to_save=[5, 
 
     all_models_results = {}
 
-    for model_idx in range(6):  # Models 0-5 representing models 1-6
-        model_number = model_idx + 1
+    for model_number in steps_to_process:
+        model_idx = model_number - 1
         print(f"\n{'#'*60}")
         print(f"PROCESSING MODEL {model_number}")
         print(f"{'#'*60}")
@@ -539,7 +507,7 @@ def save_improved_top_percentile_data(js_fits_stepwise, percentiles_to_save=[5, 
     print("SUMMARY - IMPROVED SIMULATIONS ONLY")
     print(f"{'#'*60}")
 
-    for model_number in range(1, 7):
+    for model_number in steps_to_process:
         if model_number in all_models_results:
             print(f"\nModel {model_number}:")
             total_improved = all_models_results[model_number][percentiles_to_save[0]]['improvement_count']
@@ -860,7 +828,6 @@ js_fits_stepwise[3]
 
 # # Active Params
 
-# In[2]:
 
 
 def analyze_model_parameters(df, stepNo, param_columns=None):
@@ -993,8 +960,6 @@ def comprehensive_analysis(steps_to_process, js_fits_stepwise):
 
     return all_results
 
-# Usage example:
-steps_to_process = [1, 2, 3, 4, 5, 6]  # Adjust based on what you want to process
 all_results = comprehensive_analysis(steps_to_process, js_fits_stepwise)
 
 # Create a summary table across all models
@@ -1032,13 +997,8 @@ for stepNo, results in all_results.items():
     print(f"Model {stepNo}: {results['active_params']}")
 
 
-# In[3]:
-
-
 list_countries = df['country'].unique()
 
-
-# In[ ]:
 
 
 
@@ -1786,16 +1746,10 @@ def run_comprehensive_sensitivity_analysis(config):
 
 
 
-# Setting up configuration
-CONFIG = {
-    # 'target_countries': countries_of_interest,
-    'model_number': 6,
-    'success_percentile': 5
-}
-
 
 # Execute the sensitivity analysis
-sensitivity_results = run_comprehensive_sensitivity_analysis(CONFIG)
+if(run_preliminary_sensitivity_analysis):
+    sensitivity_results = run_comprehensive_sensitivity_analysis(CONFIG)
 
 
 # In[7]:
@@ -3289,7 +3243,7 @@ def save_best_fits_simple(config, n_best=10):
     """
     save_path = '.'  # Current directory
 
-    for model_number in range(1, 7):
+    for model_number in steps_to_process:
         print(f"Processing Model {model_number}...")
 
         try:

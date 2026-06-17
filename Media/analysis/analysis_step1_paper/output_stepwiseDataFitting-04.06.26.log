@@ -1,0 +1,173 @@
+Running stepwiseDataFitting_Cluster.py
+The following steps will be processed: 
+
+Step 1 
+
+Step 2 
+
+Step 3 
+
+Step 4 
+
+Step 5 
+
+Step 6 
+
+-------------------- PREPROCESSED ALL STEPS DATA --------------------------------
+-------------------- LOADING PREPROCESSED DATA --------------------------------
+---- Preprocessed data loaded for Step #1 -----
+---- Preprocessed data loaded for Step #2 -----
+---- Preprocessed data loaded for Step #3 -----
+---- Preprocessed data loaded for Step #4 -----
+---- Preprocessed data loaded for Step #5 -----
+---- Preprocessed data loaded for Step #6 -----
+-------------------- BINNING SIMULATION DATA --------------------------------
+Step 1:
+  Model indices: 1 to 2100
+  Cumulative indices: 1 to 2100
+  Number of simulations: 2100
+
+Step 2:
+  Model indices: 1 to 2100
+  Cumulative indices: 2101 to 4200
+  Number of simulations: 2100
+
+Step 3:
+  Model indices: 1 to 3000
+  Cumulative indices: 4201 to 7200
+  Number of simulations: 3000
+
+Step 4:
+  Model indices: 1 to 14040
+  Cumulative indices: 7201 to 21240
+  Number of simulations: 14040
+
+Step 5:
+  Model indices: 1 to 116640
+  Cumulative indices: 21241 to 137880
+  Number of simulations: 116640
+
+Step 6:
+  Model indices: 1 to 116640
+  Cumulative indices: 137881 to 254520
+  Number of simulations: 116640
+
+-------------------- NOT GENERATING POOLED HISTOGRAMS --------------------------------
+-------------------- NOT GENERATING INDIVIDUAL HISTOGRAMS --------------------------------
+-------------------- LOADING SURVEY DATA --------------------------------
+-------------------- SURVEY DATA LOADED --------------------------------
+-------------------- PREPARING TO FIT --Fitting Data for all Steps --------------------------------
+
+Step 1: Parameter Analysis
+  Existing parameters: 13
+  Missing parameters: 0
+  Silence variables found: ['Silence_Alpha', 'Silence_Tau', 'Silence_Delta0', 'SilenceByBoundary']
+  Step 1 has reached index 0
+Step 1 final DataFrame shape: (1047900, 18)
+Step 1 columns: ['cumulative_simulation_index', 'epsM', 'epsSD', 'OpM', 'OpSD', 'MedM', 'RandomSeed', 'MedSD', 'MedInfF', 'Silence_Alpha', 'Silence_Tau', 'Silence_Delta0', 'SilenceByBoundary', 'country', 'year', 'distance_final', 'distance_initial', 'distance_delta']
+Step 1 sample silence values: {'Silence_Alpha': nan, 'Silence_Tau': nan, 'Silence_Delta0': nan, 'SilenceByBoundary': nan}
+
+Step 2: Parameter Analysis
+  Existing parameters: 13
+  Missing parameters: 0
+  Silence variables found: ['Silence_Alpha', 'Silence_Tau', 'Silence_Delta0', 'SilenceByBoundary']
+  Step 2 has reached index 0
+Step 2 final DataFrame shape: (1047900, 18)
+Step 2 columns: ['cumulative_simulation_index', 'epsM', 'epsSD', 'OpM', 'OpSD', 'MedM', 'RandomSeed', 'MedSD', 'MedInfF', 'Silence_Alpha', 'Silence_Tau', 'Silence_Delta0', 'SilenceByBoundary', 'country', 'year', 'distance_final', 'distance_initial', 'distance_delta']
+Step 2 sample silence values: {'Silence_Alpha': nan, 'Silence_Tau': nan, 'Silence_Delta0': nan, 'SilenceByBoundary': nan}
+
+Step 3: Parameter Analysis
+  Existing parameters: 13
+  Missing parameters: 0
+  Silence variables found: ['Silence_Alpha', 'Silence_Tau', 'Silence_Delta0', 'SilenceByBoundary']
+  Step 3 has reached index 0
+Step 3 final DataFrame shape: (1497000, 18)
+Step 3 columns: ['cumulative_simulation_index', 'epsM', 'epsSD', 'OpM', 'OpSD', 'MedM', 'RandomSeed', 'MedSD', 'MedInfF', 'Silence_Alpha', 'Silence_Tau', 'Silence_Delta0', 'SilenceByBoundary', 'country', 'year', 'distance_final', 'distance_initial', 'distance_delta']
+Step 3 sample silence values: {'Silence_Alpha': nan, 'Silence_Tau': nan, 'Silence_Delta0': nan, 'SilenceByBoundary': nan}
+
+Step 4: Parameter Analysis
+  Existing parameters: 13
+  Missing parameters: 0
+  Silence variables found: ['Silence_Alpha', 'Silence_Tau', 'Silence_Delta0', 'SilenceByBoundary']
+  Step 4 has reached index 0
+  Step 4 has reached index 10000
+Step 4 final DataFrame shape: (7005960, 18)
+Step 4 columns: ['cumulative_simulation_index', 'epsM', 'epsSD', 'OpM', 'OpSD', 'MedM', 'RandomSeed', 'MedSD', 'MedInfF', 'Silence_Alpha', 'Silence_Tau', 'Silence_Delta0', 'SilenceByBoundary', 'country', 'year', 'distance_final', 'distance_initial', 'distance_delta']
+Step 4 sample silence values: {'Silence_Alpha': 0.79, 'Silence_Tau': 5.0, 'Silence_Delta0': 0.0, 'SilenceByBoundary': False}
+
+Step 5: Parameter Analysis
+  Existing parameters: 13
+  Missing parameters: 0
+  Silence variables found: ['Silence_Alpha', 'Silence_Tau', 'Silence_Delta0', 'SilenceByBoundary']
+  Step 5 has reached index 0
+  Step 5 has reached index 10000
+  Step 5 has reached index 20000
+  Step 5 has reached index 30000
+  Step 5 has reached index 40000
+  Step 5 has reached index 50000
+  Step 5 has reached index 60000
+  Step 5 has reached index 70000
+  Step 5 has reached index 80000
+  Step 5 has reached index 90000
+  Step 5 has reached index 100000
+  Step 5 has reached index 110000
+Step 5 final DataFrame shape: (58203360, 18)
+Step 5 columns: ['cumulative_simulation_index', 'epsM', 'epsSD', 'OpM', 'OpSD', 'MedM', 'RandomSeed', 'MedSD', 'MedInfF', 'Silence_Alpha', 'Silence_Tau', 'Silence_Delta0', 'SilenceByBoundary', 'country', 'year', 'distance_final', 'distance_initial', 'distance_delta']
+Step 5 sample silence values: {'Silence_Alpha': 0.79, 'Silence_Tau': 5.0, 'Silence_Delta0': 0.0, 'SilenceByBoundary': False}
+
+Step 6: Parameter Analysis
+  Existing parameters: 13
+  Missing parameters: 0
+  Silence variables found: ['Silence_Alpha', 'Silence_Tau', 'Silence_Delta0', 'SilenceByBoundary']
+  Step 6 has reached index 0
+  Step 6 has reached index 10000
+  Step 6 has reached index 20000
+  Step 6 has reached index 30000
+  Step 6 has reached index 40000
+  Step 6 has reached index 50000
+  Step 6 has reached index 60000
+  Step 6 has reached index 70000
+  Step 6 has reached index 80000
+  Step 6 has reached index 90000
+  Step 6 has reached index 100000
+  Step 6 has reached index 110000
+Step 6 final DataFrame shape: (58203360, 18)
+Step 6 columns: ['cumulative_simulation_index', 'epsM', 'epsSD', 'OpM', 'OpSD', 'MedM', 'RandomSeed', 'MedSD', 'MedInfF', 'Silence_Alpha', 'Silence_Tau', 'Silence_Delta0', 'SilenceByBoundary', 'country', 'year', 'distance_final', 'distance_initial', 'distance_delta']
+Step 6 sample silence values: {'Silence_Alpha': 0.8, 'Silence_Tau': 9.0, 'Silence_Delta0': -0.75, 'SilenceByBoundary': True}
+
+==================================================
+PROCESSING SUMMARY
+==================================================
+Step 1: 1,047,900 rows | Silence vars: 4
+  Unique values: {'Silence_Alpha': array([nan]), 'Silence_Tau': array([nan]), 'Silence_Delta0': array([nan]), 'SilenceByBoundary': array([nan])}
+Step 2: 1,047,900 rows | Silence vars: 4
+  Unique values: {'Silence_Alpha': array([nan]), 'Silence_Tau': array([nan]), 'Silence_Delta0': array([nan]), 'SilenceByBoundary': array([nan])}
+Step 3: 1,497,000 rows | Silence vars: 4
+  Unique values: {'Silence_Alpha': array([nan]), 'Silence_Tau': array([nan]), 'Silence_Delta0': array([nan]), 'SilenceByBoundary': array([nan])}
+Step 4: 7,005,960 rows | Silence vars: 4
+  Unique values: {'Silence_Alpha': array([0.79]), 'Silence_Tau': array([5.]), 'Silence_Delta0': array([0.]), 'SilenceByBoundary': array([False])}
+Step 5: 58,203,360 rows | Silence vars: 4
+  Unique values: {'Silence_Alpha': array([0.79]), 'Silence_Tau': array([5.]), 'Silence_Delta0': array([0.]), 'SilenceByBoundary': array([False])}
+Step 6: 58,203,360 rows | Silence vars: 4
+  Unique values: {'Silence_Alpha': array([0.8]), 'Silence_Tau': array([9., 5., 1.]), 'Silence_Delta0': array([-0.75,  0.75,  0.  ]), 'SilenceByBoundary': array([ True])}
+Traceback (most recent call last):
+  File "/home/ramaswamy.51/.local/lib/python3.6/site-packages/matplotlib/style/core.py", line 121, in use
+    rc = rc_params_from_file(style, use_default_template=False)
+  File "/home/ramaswamy.51/.local/lib/python3.6/site-packages/matplotlib/__init__.py", line 883, in rc_params_from_file
+    config_from_file = _rc_params_in_file(fname, fail_on_error=fail_on_error)
+  File "/home/ramaswamy.51/.local/lib/python3.6/site-packages/matplotlib/__init__.py", line 812, in _rc_params_in_file
+    with _open_file_or_url(fname) as fd:
+  File "/usr/lib64/python3.6/contextlib.py", line 81, in __enter__
+    return next(self.gen)
+  File "/home/ramaswamy.51/.local/lib/python3.6/site-packages/matplotlib/__init__.py", line 790, in _open_file_or_url
+    with open(fname, encoding=encoding) as f:
+FileNotFoundError: [Errno 2] No such file or directory: 'seaborn-v0_8'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "stepwiseDataFitting_Cluster.py", line 1521, in <module>
+    plt.style.use('seaborn-v0_8')
+  File "/home/ramaswamy.51/.local/lib/python3.6/site-packages/matplotlib/style/core.py", line 127, in use
+    "available styles".format(style)) from err
+OSError: 'seaborn-v0_8' not found in the style library and input is not a valid URL or path; see `style.available` for list of available styles
