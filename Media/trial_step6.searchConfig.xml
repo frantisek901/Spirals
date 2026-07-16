@@ -3,7 +3,7 @@
 <search>
     <bsearchVersionNumber>1.10</bsearchVersionNumber>
     <modelInfo>
-        <modelFile>C:\Users\Lenovo\Documents\Github\Spirals\Media\mediaAndNetworks.nlogo</modelFile>
+        <modelFile>C:\Users\Lenovo\Documents\Github\Spirals\Media\mediaAndNetworks_BSearch_Step6.nlogo</modelFile>
         <modelSetupCommands>setup</modelSetupCommands>
         <modelStepCommands>go</modelStepCommands>
         <modelStopCondition>false</modelStopCondition>
@@ -18,10 +18,10 @@
         <fitnessCombineReplications>MEAN</fitnessCombineReplications>
     </fitnessInfo>
     <searchSpace>
-        <paramSpec>["number_of_agents" 100]</paramSpec>
+        <paramSpec>["number_of_agents" 1000]</paramSpec>
         <paramSpec>["number_of_opinion_dimensions" 1]</paramSpec>
         <paramSpec>["model" "HK"]</paramSpec>
-        <paramSpec>["boundary_mean" 0.01 0.02 0.43]</paramSpec>
+        <paramSpec>["boundary_mean" 0.01 0.02 0.41]</paramSpec>
         <paramSpec>["set-seed?" false]</paramSpec>
         <paramSpec>["boundary_distribution" "normal"]</paramSpec>
         <paramSpec>["conformity_mean" 1]</paramSpec>
@@ -40,24 +40,23 @@
         <paramSpec>["opinion_mean" [-1 0.1 1]]</paramSpec>
         <paramSpec>["opinion_std" [0 0.1 1]]</paramSpec>
         <paramSpec>["save_end_sim_data" false]</paramSpec>
-        <paramSpec>["endsimdirectory" "/home/ramaswamy.51/Documents/github/Spirals/Media/data/cluster/endsim/BehaviorSearch/Step6"]</paramSpec>
+        <paramSpec>["endsimdirectory" "/home/ramaswamy.51/Documents/github/Spirals/Media/data/cluster/endsim/BehaviorSearch/Step6_Trial"]</paramSpec>
         <paramSpec>["use_media_influence_factor?" true]</paramSpec>
         <paramSpec>["media_influence_factor" [0 0.1 1]]</paramSpec>
         <paramSpec>["silence_alpha" [0 0.1 1]]</paramSpec>
         <paramSpec>["silence_tau" [0 1 10]]</paramSpec>
         <paramSpec>["silence_delta0" [-1 0.1 1]]</paramSpec>
         <paramSpec>["classify_proponents_by_boundary?" true]</paramSpec>
-        <paramSpec>["use_silence?" true false]</paramSpec>
+        <paramSpec>["use_silence?" true]</paramSpec>
     </searchSpace>
-    <searchMethod type="StandardGA">
-        <searchMethodParameter name="mutation-rate" value="0.01"/>
-        <searchMethodParameter name="population-size" value="50"/>
-        <searchMethodParameter name="tournament-size" value="3"/>
-        <searchMethodParameter name="population-model" value="generational"/>
-        <searchMethodParameter name="crossover-rate" value="0.7"/>
+    <searchMethod type="SimulatedAnnealing">
+        <searchMethodParameter name="initial-temperature" value="1.0"/>
+        <searchMethodParameter name="mutation-rate" value="0.05"/>
+        <searchMethodParameter name="temperature-change-factor" value="0.99"/>
+        <searchMethodParameter name="restart-after-stall-count" value="0"/>
     </searchMethod>
-    <chromosomeRepresentation type="GrayBinaryChromosome"/>
-    <caching>false</caching>
-    <evaluationLimit>20</evaluationLimit>
+    <chromosomeRepresentation type="MixedTypeChromosome"/>
+    <caching>true</caching>
+    <evaluationLimit>10</evaluationLimit>
     <bestCheckingNumReplications>0</bestCheckingNumReplications>
 </search>

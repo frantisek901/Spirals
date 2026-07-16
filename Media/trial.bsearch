@@ -39,7 +39,7 @@
         <paramSpec>["opinion_distribution" "normal"]</paramSpec>
         <paramSpec>["opinion_mean" [-1 0.1 1]]</paramSpec>
         <paramSpec>["opinion_std" [0 0.1 1]]</paramSpec>
-        <paramSpec>["save_end_sim_data" true]</paramSpec>
+        <paramSpec>["save_end_sim_data" false]</paramSpec>
         <paramSpec>["endsimdirectory" "/home/ramaswamy.51/Documents/github/Spirals/Media/data/cluster/endsim/BehaviorSearch/Step6"]</paramSpec>
         <paramSpec>["use_media_influence_factor?" true]</paramSpec>
         <paramSpec>["media_influence_factor" [0 0.1 1]]</paramSpec>
@@ -56,8 +56,8 @@
         <searchMethodParameter name="population-model" value="generational"/>
         <searchMethodParameter name="crossover-rate" value="0.7"/>
     </searchMethod>
-    <chromosomeRepresentation type="MixedTypeChromosome"/>
-    <caching>true</caching>
-    <evaluationLimit>10000</evaluationLimit>
+    <chromosomeRepresentation type="GrayBinaryChromosome"/>
+    <caching>false</caching>
+    <evaluationLimit>20</evaluationLimit>
     <bestCheckingNumReplications>0</bestCheckingNumReplications>
 </search>
