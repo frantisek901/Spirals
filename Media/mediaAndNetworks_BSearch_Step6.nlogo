@@ -2973,7 +2973,7 @@ SWITCH
 606
 Media-Opinions_Use_specific_values
 Media-Opinions_Use_specific_values
-1
+0
 1
 -1000
 
@@ -3159,7 +3159,7 @@ INPUTBOX
 1654
 499
 EndSimDirectory
-C:\\Users\\Lenovo\\Documents\\GitHub\\Spirals\\Media\\data\\BehaviorSearchTrial
+/home/ramaswamy.51/Documents/github/Spirals/Media/data/cluster/endsim/BehaviorSearch/Step6_Trial
 1
 0
 String
