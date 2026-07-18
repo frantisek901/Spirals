@@ -1626,7 +1626,7 @@ to-report load-reference-distribution
   ; Reads the 9-bin reference distribution from the CSV
   ; Second row contains the fractions
 
-  let f-read csv:from-file "/EU_dataset/pooled_distribution.csv"
+  let f-read csv:from-file "EU_dataset/pooled_distribution.csv"
 
   ; Assuming second row (index 1) has the 9 values
   let row item 1 f-read
