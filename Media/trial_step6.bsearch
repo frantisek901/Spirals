@@ -3,7 +3,7 @@
 <search>
     <bsearchVersionNumber>1.10</bsearchVersionNumber>
     <modelInfo>
-        <modelFile>C:\Users\Lenovo\Documents\Github\Spirals\Media\mediaAndNetworks_BSearch_Step6.nlogo</modelFile>
+        <modelFile>mediaAndNetworks_BSearch_Step6.nlogo</modelFile>
         <modelSetupCommands>setup</modelSetupCommands>
         <modelStepCommands>go</modelStepCommands>
         <modelStopCondition>false</modelStopCondition>
