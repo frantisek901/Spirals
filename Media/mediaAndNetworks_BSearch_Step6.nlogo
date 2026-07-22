@@ -1605,11 +1605,11 @@ to __MEASURING-DISTRIBUTION-DIVERGENCE end
 to compute-opinion-divergence
   ; 1. Load reference distribution from CSV
   let reference-dist load-reference-distribution
-  show reference-dist
+  ;;show (word "ref dist" reference-dist)
 
   ; 2. Build agent opinion distribution and convert to 9-bin
   let agent-dist build-agent-opinion-distribution
-  show agent-dist
+  show (word "agent dist" agent-dist)
 
   ; 3. Calculate JS distance
   let js-result js-distance reference-dist agent-dist
