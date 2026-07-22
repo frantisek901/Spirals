@@ -50,7 +50,7 @@
         <paramSpec>["use_silence?" true]</paramSpec>
     </searchSpace>
     <searchMethod type="StandardGA">
-        <searchMethodParameter name="mutation-rate" value="0.02"/>
+        <searchMethodParameter name="mutation-rate" value="0.5"/>
         <searchMethodParameter name="population-size" value="60"/>
         <searchMethodParameter name="tournament-size" value="3"/>
         <searchMethodParameter name="population-model" value="steady-state-replace-worst"/>
@@ -58,6 +58,6 @@
     </searchMethod>
     <chromosomeRepresentation type="MixedTypeChromosome"/>
     <caching>true</caching>
-    <evaluationLimit>1</evaluationLimit>
+    <evaluationLimit>1000</evaluationLimit>
     <bestCheckingNumReplications>0</bestCheckingNumReplications>
 </search>

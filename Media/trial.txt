@@ -1,0 +1,632 @@
+[ramaswamy.51@u182 NetLogo]$ /home/ramaswamy.51/jdk-11.0.1/bin/java -cp "$(find . -name '*.jar' 2>/dev/null | tr '\n' ':')" bsearch.app.BehaviorSearch -p /home/ramaswamy.51/Documents/github/Spirals/Media/trial_step6_GA_Pooled_Run2.bsearch -o /home/ramaswamy.51/Documents/github/Spirals/Media/BSearchresults_GA -t 40
+observer: "agent dist[0 0 0 0.001 0.999 0 0 0 0]"
+observer: "JS Distance from reference: 0.5069"
+observer: "agent dist[0.006 0.002 0.031 0.029 0.859 0.025 0.032 0.004 0.012]"
+observer: "JS Distance from reference: 0.336"
+observer: "agent dist[0.038 0.191 0.074 0.085 0.243 0.087 0.06 0.186 0.036]"
+observer: "JS Distance from reference: 0.2783"
+observer: "agent dist[0 0 0.002 0.004 0.994 0 0 0 0]"
+observer: "JS Distance from reference: 0.4971"
+observer: "agent dist[0 0 0 0 0.924 0.018 0.056 0.002 0]"
+observer: "JS Distance from reference: 0.443"
+observer: "agent dist[0 0 0 0 1 0 0 0 0]"
+observer: "JS Distance from reference: 0.5095"
+observer: "agent dist[0 0 0 0 0.931 0.028 0.041 0 0]"
+observer: "JS Distance from reference: 0.4439"
+observer: "agent dist[0 0 0 0 1 0 0 0 0]"
+observer: "JS Distance from reference: 0.5095"
+observer: "agent dist[0.005 0.003 0.029 0.028 0.8500000000000001 0.03 0.037 0.007 0.011]"
+observer: "JS Distance from reference: 0.3281"
+observer: "agent dist[0.003 0 0.008 0.012 0.9500000000000001 0.015 0.006 0.003 0.003]"
+observer: "JS Distance from reference: 0.429"
+observer: "agent dist[0 0 0 0.001 0.998 0.001 0 0 0]"
+observer: "JS Distance from reference: 0.5042"
+observer: "agent dist[0 0 0 0 0.944 0.026 0.03 0 0]"
+observer: "JS Distance from reference: 0.4506"
+observer: "agent dist[0.045 0.014 0.135 0.081 0.725 0 0 0 0]"
+observer: "JS Distance from reference: 0.3479"
+observer: "agent dist[0.003 0.002 0.003 0.017 0.938 0.013 0.016 0.001 0.007]"
+observer: "JS Distance from reference: 0.4165"
+observer: "agent dist[0 0 0 0 1 0 0 0 0]"
+observer: "JS Distance from reference: 0.5095"
+observer: "agent dist[0 0 0 0 0.91 0.016 0.07 0.004 0]"
+observer: "JS Distance from reference: 0.4389"
+observer: "agent dist[0 0 0 0 1 0 0 0 0]"
+observer: "JS Distance from reference: 0.5095"
+observer: "agent dist[0.002 0 0.006 0.023 0.934 0.011 0.018 0.003 0.003]"
+observer: "JS Distance from reference: 0.4148"
+observer: "agent dist[0.001 0.002 0.004 0.006 0.9430000000000001 0.023 0.009 0.003 0.009]"
+observer: "JS Distance from reference: 0.4241"
+observer: "agent dist[0.04 0.017 0.115 0.078 0.75 0 0 0 0]"
+observer: "agent dist[0.08 0.046 0.121 0.188 0.256 0.121 0.096 0.044 0.048]"
+observer: "JS Distance from reference: 0.3501"
+observer: "JS Distance from reference: 0.1384"
+observer: "agent dist[0.044 0.011 0.128 0.087 0.73 0 0 0 0]"
+observer: "JS Distance from reference: 0.3492"
+observer: "agent dist[0 0.001 0.005 0.012 0.922 0.031 0.022 0.001 0.006]"
+observer: "JS Distance from reference: 0.4065"
+observer: "agent dist[0 0.001 0.006 0.018 0.912 0.03 0.026 0.002 0.005]"
+observer: "JS Distance from reference: 0.3958"
+observer: "agent dist[0 0 0 0 1 0 0 0 0]"
+observer: "JS Distance from reference: 0.5095"
+observer: "agent dist[0.011 0.006 0.028 0.029 0.865 0.02 0.033 0.001 0.007]"
+observer: "JS Distance from reference: 0.3412"
+observer: "agent dist[0.04 0.192 0.058 0.094 0.258 0.084 0.054 0.177 0.043]"
+observer: "JS Distance from reference: 0.2733"
+observer: "agent dist[0.053 0.208 0.061 0.091 0.245 0.088 0.053 0.164 0.037]"
+observer: "JS Distance from reference: 0.2769"
+observer: "agent dist[0 0 0 0 0.924 0.019 0.054 0.003 0]"
+observer: "JS Distance from reference: 0.4415"
+observer: "agent dist[0.057 0.151 0.058 0.094 0.27 0.069 0.054 0.201 0.046]"
+observer: "JS Distance from reference: 0.2675"
+observer: "agent dist[0.004 0.001 0.004 0.018 0.9309999999999999 0.019 0.007 0.004 0.012]"
+observer: "agent dist[0.001 0.001 0.004 0.017 0.937 0.02 0.017 0 0.003]"
+observer: "JS Distance from reference: 0.4092"
+observer: "JS Distance from reference: 0.4191"
+observer: "agent dist[0.081 0.054 0.129 0.156 0.246 0.153 0.089 0.03 0.062]"
+observer: "JS Distance from reference: 0.1378"
+observer: "agent dist[0.102 0.069 0.126 0.166 0.23299999999999998 0.123 0.095 0.041 0.045]"
+observer: "JS Distance from reference: 0.1584"
+observer: "agent dist[0.012 0.001 0.027 0.035 0.861 0.021 0.031 0.005 0.007]"
+observer: "JS Distance from reference: 0.3388"
+observer: "agent dist[0.081 0.067 0.112 0.169 0.28099999999999997 0.136 0.077 0.039 0.038]"
+observer: "JS Distance from reference: 0.1241"
+observer: "agent dist[0 0 0 0 0.944 0.027 0.029 0 0]"
+observer: "JS Distance from reference: 0.4504"
+observer: "agent dist[0 0 0 0 0.942 0.014 0.044 0 0]"
+observer: "JS Distance from reference: 0.4546"
+observer: "agent dist[0 0 0 0 0.94 0.014 0.044 0.002 0]"
+observer: "JS Distance from reference: 0.451"
+observer: "agent dist[0.036 0.015 0.104 0.123 0.722 0 0 0 0]"
+observer: "JS Distance from reference: 0.3443"
+observer: "agent dist[0.097 0.017 0.036 0.034 0.8160000000000001 0 0 0 0]"
+observer: "JS Distance from reference: 0.3897"
+observer: "agent dist[0 0 0.002 0.009 0.935 0.016 0.02 0 0.018]"
+observer: "JS Distance from reference: 0.4258"
+observer: "agent dist[0.099 0.022 0.02 0.032 0.827 0 0 0 0]"
+observer: "JS Distance from reference: 0.4001"
+observer: "agent dist[0.677 0.223 0.046 0.053 0.001 0 0 0 0]"
+observer: "JS Distance from reference: 0.6676"
+observer: "agent dist[0 0 0 0.005 0.95 0.023 0.013 0.001 0.008]"
+observer: "JS Distance from reference: 0.4409"
+observer: "agent dist[0.078 0.025 0.033 0.044 0.8200000000000001 0 0 0 0]"
+observer: "JS Distance from reference: 0.3824"
+observer: "agent dist[0.023 0.06 0.074 0.311 0.371 0.067 0.022 0.067 0.005]"
+observer: "JS Distance from reference: 0.2398"
+observer: "agent dist[0 0 0 0.002 0.946 0.019 0.016 0.002 0.015]"
+observer: "JS Distance from reference: 0.4405"
+observer: "agent dist[0.657 0.238 0.048 0.057 0 0 0 0 0]"
+observer: "JS Distance from reference: 0.6674"
+observer: "agent dist[0.003 0 0.029 0.061 0.277 0.235 0.32 0.023 0.052]"
+observer: "JS Distance from reference: 0.3087"
+observer: "agent dist[0.016 0.06 0.072 0.298 0.38 0.075 0.018 0.073 0.008]"
+observer: "JS Distance from reference: 0.2381"
+observer: "agent dist[0.014 0.072 0.068 0.33 0.362 0.056 0.018 0.072 0.008]"
+observer: "JS Distance from reference: 0.2625"
+observer: "agent dist[0 0 0 0 1 0 0 0 0]"
+observer: "JS Distance from reference: 0.5095"
+observer: "agent dist[0.082 0.024 0.029 0.036 0.8290000000000001 0 0 0 0]"
+observer: "JS Distance from reference: 0.39"
+observer: "agent dist[0.658 0.228 0.052 0.062 0 0 0 0 0]"
+observer: "JS Distance from reference: 0.6643"
+observer: "agent dist[0 0 0 0 1 0 0 0 0]"
+observer: "JS Distance from reference: 0.5095"
+observer: "agent dist[0.679 0.22 0.045 0.056 0 0 0 0 0]"
+observer: "JS Distance from reference: 0.6696"
+observer: "agent dist[0 0.045 0.127 0.489 0.33899999999999997 0 0 0 0]"
+observer: "JS Distance from reference: 0.4239"
+observer: "agent dist[0 0.001 0.001 0.004 0.9410000000000001 0.022 0.016 0.003 0.012]"
+observer: "JS Distance from reference: 0.4293"
+observer: "agent dist[0.002 0.001 0.039 0.054 0.29400000000000004 0.199 0.314 0.028 0.069]"
+observer: "JS Distance from reference: 0.292"
+observer: "agent dist[0.03 0.018 0.147 0.21 0.402 0.125 0.06 0.003 0.005]"
+observer: "JS Distance from reference: 0.1733"
+observer: "agent dist[0.015 0.052 0.074 0.352 0.327 0.087 0.013 0.072 0.008]"
+observer: "JS Distance from reference: 0.2667"
+observer: "agent dist[0.002 0.004 0.032 0.053 0.277 0.237 0.322 0.021 0.052]"
+observer: "JS Distance from reference: 0.304"
+observer: "agent dist[0 0 0 0 1 0 0 0 0]"
+observer: "JS Distance from reference: 0.5095"
+observer: "agent dist[0.003 0.001 0.036 0.057 0.28900000000000003 0.24 0.32 0.017 0.037]"
+observer: "JS Distance from reference: 0.3028"
+observer: "agent dist[0 0.039 0.099 0.492 0.37 0 0 0 0]"
+observer: "JS Distance from reference: 0.422"
+observer: "agent dist[0 0 0 0 0.162 0.806 0.025 0.007 0]"
+observer: "JS Distance from reference: 0.5551"
+observer: "agent dist[0 0 0 0 0.134 0.83 0.024 0.012 0]"
+observer: "JS Distance from reference: 0.5682"
+observer: "agent dist[0.03 0.017 0.143 0.187 0.444 0.118 0.046 0.007 0.008]"
+observer: "JS Distance from reference: 0.156"
+observer: "agent dist[0 0 0 0 1 0 0 0 0]"
+observer: "JS Distance from reference: 0.5095"
+observer: "agent dist[0 0.036 0.132 0.501 0.33099999999999996 0 0 0 0]"
+observer: "JS Distance from reference: 0.4282"
+observer: "agent dist[0 0.039 0.102 0.496 0.363 0 0 0 0]"
+observer: "JS Distance from reference: 0.4235"
+observer: "agent dist[0.008 0.009 0.028 0.034 0.921 0 0 0 0]"
+observer: "JS Distance from reference: 0.4214"
+observer: "agent dist[0.009 0.009 0.037 0.022 0.923 0 0 0 0]"
+observer: "JS Distance from reference: 0.4237"
+observer: "agent dist[0.029 0.014 0.15 0.218 0.40099999999999997 0.129 0.046 0.007 0.006]"
+observer: "JS Distance from reference: 0.1774"
+observer: "agent dist[0.04 0.017 0.116 0.217 0.451 0.102 0.04 0.01 0.007]"
+observer: "JS Distance from reference: 0.1631"
+observer: "agent dist[0.004 0.012 0.03 0.022 0.9319999999999999 0 0 0 0]"
+observer: "JS Distance from reference: 0.431"
+observer: "agent dist[0 0 0 0 0.155 0.8 0.034 0.011 0]"
+observer: "JS Distance from reference: 0.5516"
+observer: "agent dist[0.004 0.001 0.013 0.012 0.906 0.033 0.027 0.004 0]"
+observer: "JS Distance from reference: 0.3892"
+observer: "agent dist[0 0 0 0 0.143 0.824 0.029 0.004 0]"
+observer: "JS Distance from reference: 0.5651"
+observer: "agent dist[0 0 0 0 0.013999999999999999 0.046 0.242 0.263 0.435]"
+observer: "JS Distance from reference: 0.631"
+observer: "agent dist[0.001 0 0.017 0.018 0.9049999999999999 0.025 0.028 0.003 0.003]"
+observer: "JS Distance from reference: 0.3864"
+observer: "agent dist[0.037 0.02 0.052 0.4 0.49100000000000005 0 0 0 0]"
+observer: "JS Distance from reference: 0.3817"
+observer: "agent dist[0 0 0 0.001 0.008 0.059 0.248 0.269 0.415]"
+observer: "JS Distance from reference: 0.6314"
+observer: "agent dist[0.066 0.014 0.055 0.347 0.518 0 0 0 0]"
+observer: "JS Distance from reference: 0.3696"
+observer: "agent dist[0.058 0.025 0.056 0.475 0.386 0 0 0 0]"
+observer: "JS Distance from reference: 0.4007"
+observer: "agent dist[0.004 0.005 0.019 0.018 0.8680000000000001 0.028 0.041 0.002 0.015]"
+observer: "JS Distance from reference: 0.3481"
+observer: "agent dist[0.008 0.009 0.033 0.022 0.9279999999999999 0 0 0 0]"
+observer: "JS Distance from reference: 0.4269"
+observer: "agent dist[0 0 0 0 0.018000000000000002 0.066 0.242 0.269 0.405]"
+observer: "JS Distance from reference: 0.6178"
+observer: "agent dist[0.007 0.005 0.016 0.009 0.934 0.006 0.02 0.003 0]"
+observer: "JS Distance from reference: 0.4142"
+observer: "agent dist[0.059 0.015 0.046 0.225 0.655 0 0 0 0]"
+observer: "JS Distance from reference: 0.3547"
+observer: "agent dist[0 0 0 0 0.159 0.668 0.172 0.001 0]"
+observer: "JS Distance from reference: 0.5242"
+observer: "agent dist[0 0 0 0 0.165 0.666 0.169 0 0]"
+observer: "JS Distance from reference: 0.5233"
+observer: "agent dist[0.002 0.004 0.018 0.022 0.893 0.024 0.025 0.001 0.011]"
+observer: "JS Distance from reference: 0.3683"
+observer: "agent dist[0.011 0.004 0.023 0.012 0.923 0.004 0.018 0.001 0.004]"
+observer: "JS Distance from reference: 0.4019"
+observer: "agent dist[0 0 0 0 0.01 0.058 0.237 0.284 0.411]"
+observer: "JS Distance from reference: 0.632"
+observer: "agent dist[0.007 0 0.01 0.02 0.909 0.03 0.013 0.004 0.007]"
+observer: "JS Distance from reference: 0.3852"
+observer: "agent dist[0 0 0 0 0.131 0.679 0.186 0.004 0]"
+observer: "JS Distance from reference: 0.5353"
+observer: "agent dist[0 0 0 0 0.15 0.669 0.179 0.002 0]"
+observer: "JS Distance from reference: 0.5271"
+observer: "agent dist[0.004 0.001 0.012 0.017 0.9129999999999999 0.02 0.019 0.001 0.013]"
+observer: "JS Distance from reference: 0.3885"
+observer: "agent dist[0.003 0.001 0.015 0.028 0.892 0.034 0.017 0.001 0.009]"
+observer: "JS Distance from reference: 0.3697"
+observer: "agent dist[0.003 0.002 0.028 0.092 0.604 0.19 0.073 0.003 0.005]"
+observer: "JS Distance from reference: 0.2498"
+observer: "agent dist[0.007 0.002 0.01 0.026 0.898 0.029 0.015 0.002 0.011]"
+observer: "JS Distance from reference: 0.3723"
+observer: "agent dist[0.001 0.001 0.01 0.019 0.915 0.027 0.014 0.003 0.01]"
+observer: "JS Distance from reference: 0.392"
+observer: "agent dist[0 0 0 0 0.108 0.241 0.59 0.058 0.003]"
+observer: "JS Distance from reference: 0.536"
+observer: "agent dist[0.012 0.001 0.02 0.053 0.768 0.062 0.038 0.01 0.036]"
+observer: "JS Distance from reference: 0.2724"
+observer: "agent dist[0 0.003 0.037 0.087 0.59 0.202 0.074 0.003 0.004]"
+observer: "JS Distance from reference: 0.2535"
+observer: "agent dist[0.004 0.004 0.019 0.015 0.928 0.008 0.018 0.002 0.002]"
+observer: "JS Distance from reference: 0.4041"
+observer: "agent dist[0.005 0.001 0.014 0.041 0.793 0.059 0.051 0.006 0.03]"
+observer: "JS Distance from reference: 0.2984"
+observer: "agent dist[0 0 0 0 0.104 0.216 0.589 0.082 0.009]"
+observer: "JS Distance from reference: 0.534"
+observer: "agent dist[0.012 0 0.03 0.05 0.724 0.097 0.044 0.005 0.038]"
+observer: "JS Distance from reference: 0.2528"
+observer: "agent dist[0.011 0.004 0.016 0.014 0.925 0.009 0.021 0 0]"
+observer: "JS Distance from reference: 0.4056"
+observer: "agent dist[0.003 0 0.015 0.014 0.9069999999999999 0.033 0.02 0.003 0.005]"
+observer: "JS Distance from reference: 0.3857"
+observer: "agent dist[0.006 0.002 0.013 0.018 0.8999999999999999 0.033 0.021 0.001 0.006]"
+observer: "JS Distance from reference: 0.3755"
+observer: "agent dist[0.046 0.011 0.02 0.033 0.89 0 0 0 0]"
+observer: "JS Distance from reference: 0.4096"
+observer: "agent dist[0.006 0.002 0.012 0.023 0.891 0.032 0.023 0.002 0.009]"
+observer: "JS Distance from reference: 0.3659"
+observer: "agent dist[0 0 0 0 0.748 0.126 0.09 0.01 0.026]"
+observer: "JS Distance from reference: 0.3618"
+observer: "agent dist[0 0 0 0 0.873 0.057 0.048 0.002 0.02]"
+observer: "JS Distance from reference: 0.4012"
+observer: "agent dist[0.002 0.002 0.038 0.067 0.5680000000000001 0.217 0.088 0.008 0.01]"
+observer: "JS Distance from reference: 0.2382"
+observer: "agent dist[0 0 0 0 0.782 0.118 0.068 0.006 0.026]"
+observer: "JS Distance from reference: 0.3701"
+observer: "agent dist[0 0 0.005 0.022 0.5760000000000001 0.294 0.1 0.003 0]"
+observer: "JS Distance from reference: 0.3493"
+observer: "agent dist[0 0 0 0 0.099 0.246 0.585 0.063 0.007]"
+observer: "JS Distance from reference: 0.537"
+observer: "agent dist[0.021 0.006 0.087 0.18 0.64 0.035 0.026 0.002 0.003]"
+observer: "JS Distance from reference: 0.2514"
+observer: "agent dist[0 0 0 0 0.1 0.244 0.589 0.056 0.011]"
+observer: "JS Distance from reference: 0.534"
+observer: "agent dist[0 0 0 0.015 0.985 0 0 0 0]"
+observer: "JS Distance from reference: 0.4891"
+observer: "agent dist[0.01 0.007 0.02 0.057 0.759 0.049 0.049 0.007 0.042]"
+observer: "JS Distance from reference: 0.2631"
+observer: "agent dist[0.039 0.015 0.02 0.062 0.864 0 0 0 0]"
+observer: "JS Distance from reference: 0.3938"
+observer: "agent dist[0 0 0 0.009 0.9910000000000001 0 0 0 0]"
+observer: "JS Distance from reference: 0.4952"
+observer: "agent dist[0 0 0 0 0.887 0.05 0.051 0.001 0.011]"
+observer: "JS Distance from reference: 0.4107"
+observer: "agent dist[0 0 0.002 0.016 0.5940000000000001 0.293 0.093 0.001 0.001]"
+observer: "JS Distance from reference: 0.3614"
+observer: "agent dist[0 0 0 0.012 0.988 0 0 0 0]"
+observer: "JS Distance from reference: 0.492"
+observer: "agent dist[0.003 0.001 0.035 0.103 0.586 0.18 0.073 0.01 0.009]"
+observer: "JS Distance from reference: 0.2284"
+observer: "agent dist[0.044 0.011 0.018 0.019 0.904 0.004 0 0 0]"
+observer: "JS Distance from reference: 0.413"
+observer: "agent dist[0.022 0.007 0.087 0.176 0.643 0.049 0.013 0.002 0.001]"
+observer: "JS Distance from reference: 0.2585"
+observer: "agent dist[0 0 0 0.015 0.9850000000000001 0 0 0 0]"
+observer: "JS Distance from reference: 0.4891"
+observer: "agent dist[0 0 0 0 0.998 0.002 0 0 0]"
+observer: "JS Distance from reference: 0.5049"
+observer: "agent dist[0 0 0.001 0.027 0.5660000000000001 0.301 0.099 0.006 0]"
+observer: "JS Distance from reference: 0.3521"
+observer: "agent dist[0 0 0 0.013 0.5740000000000001 0.308 0.101 0.002 0.002]"
+observer: "JS Distance from reference: 0.3689"
+observer: "agent dist[0.013 0.01 0.075 0.173 0.663 0.047 0.018 0.001 0]"
+observer: "JS Distance from reference: 0.267"
+observer: "agent dist[0.041 0.007 0.018 0.018 0.913 0.003 0 0 0]"
+observer: "JS Distance from reference: 0.4198"
+observer: "agent dist[0.012 0.004 0.076 0.144 0.7150000000000001 0.03 0.017 0.001 0.001]"
+observer: "JS Distance from reference: 0.2882"
+observer: "agent dist[0 0 0 0.002 0.996 0.001 0.001 0 0]"
+observer: "JS Distance from reference: 0.4997"
+observer: "agent dist[0.038 0.01 0.061 0.096 0.795 0 0 0 0]"
+observer: "JS Distance from reference: 0.3631"
+observer: "agent dist[0.009 0.003 0.044 0.051 0.40800000000000003 0.392 0.068 0.011 0.014]"
+observer: "JS Distance from reference: 0.2745"
+observer: "agent dist[0.01 0.005 0.02 0.018 0.863 0.047 0.018 0.005 0.014]"
+observer: "JS Distance from reference: 0.3386"
+observer: "agent dist[0 0 0 0.001 0.997 0.001 0.001 0 0]"
+observer: "JS Distance from reference: 0.5017"
+observer: "agent dist[0.005 0.005 0.047 0.046 0.404 0.345 0.109 0.015 0.024]"
+observer: "JS Distance from reference: 0.2526"
+observer: "agent dist[0.003 0.001 0.042 0.042 0.425 0.364 0.086 0.015 0.022]"
+observer: "JS Distance from reference: 0.275"
+observer: "agent dist[0.006 0.036 0.009 0.047 0.87 0.016 0.003 0.012 0.001]"
+observer: "JS Distance from reference: 0.3729"
+observer: "agent dist[0 0 0.005 0.004 0.936 0.019 0.017 0.006 0.013]"
+observer: "JS Distance from reference: 0.4226"
+observer: "agent dist[0.001 0 0.004 0.009 0.932 0.013 0.022 0.006 0.013]"
+observer: "JS Distance from reference: 0.4163"
+observer: "agent dist[0.043 0.017 0.057 0.069 0.8140000000000001 0 0 0 0]"
+observer: "JS Distance from reference: 0.3668"
+observer: "agent dist[0 0 0 0 0.453 0.357 0.131 0.019 0.04]"
+observer: "JS Distance from reference: 0.3741"
+observer: "agent dist[0 0 0 0.001 0.997 0.002 0 0 0]"
+observer: "JS Distance from reference: 0.5022"
+observer: "agent dist[0 0 0 0 0.449 0.355 0.145 0.013 0.038]"
+observer: "JS Distance from reference: 0.3768"
+observer: "agent dist[0.046 0.012 0.049 0.109 0.784 0 0 0 0]"
+observer: "JS Distance from reference: 0.362"
+observer: "agent dist[0.038 0.014 0.052 0.092 0.804 0 0 0 0]"
+observer: "JS Distance from reference: 0.3649"
+observer: "agent dist[0.007 0 0.02 0.035 0.857 0.024 0.03 0.005 0.022]"
+observer: "JS Distance from reference: 0.3392"
+observer: "agent dist[0.006 0.04 0.01 0.046 0.858 0.009 0.007 0.024 0]"
+observer: "JS Distance from reference: 0.3724"
+observer: "agent dist[0.009 0.045 0.001 0.079 0.837 0.007 0.002 0.02 0]"
+observer: "JS Distance from reference: 0.3834"
+observer: "agent dist[0.003 0.002 0.064 0.053 0.389 0.347 0.109 0.009 0.024]"
+observer: "JS Distance from reference: 0.257"
+observer: "agent dist[0 0 0 0 0.459 0.347 0.114 0.02 0.06]"
+observer: "JS Distance from reference: 0.3697"
+observer: "agent dist[0.004 0.004 0.026 0.04 0.828 0.04 0.033 0.004 0.021]"
+observer: "JS Distance from reference: 0.3106"
+observer: "agent dist[0.011 0.002 0.024 0.042 0.8620000000000001 0.029 0.019 0.003 0.008]"
+observer: "JS Distance from reference: 0.3383"
+observer: "agent dist[0 0 0 0 1 0 0 0 0]"
+observer: "JS Distance from reference: 0.5095"
+observer: "agent dist[0.01 0.005 0.022 0.022 0.856 0.042 0.031 0.005 0.007]"
+observer: "JS Distance from reference: 0.3318"
+observer: "agent dist[0.01 0.002 0.028 0.04 0.852 0.041 0.016 0.002 0.009]"
+observer: "JS Distance from reference: 0.331"
+observer: "agent dist[0.001 0.002 0.001 0.008 0.9490000000000001 0.011 0.011 0.004 0.013]"
+observer: "JS Distance from reference: 0.4329"
+observer: "agent dist[0 0 0.004 0.008 0.941 0.015 0.02 0 0.012]"
+observer: "JS Distance from reference: 0.4282"
+observer: "agent dist[0.107 0.035 0.249 0.152 0.288 0.077 0.069 0.009 0.014]"
+observer: "JS Distance from reference: 0.1989"
+observer: "agent dist[0.005 0.03 0.013 0.054 0.869 0.007 0.001 0.019 0.002]"
+observer: "JS Distance from reference: 0.3789"
+observer: "agent dist[0 0 0 0 1 0 0 0 0]"
+observer: "JS Distance from reference: 0.5095"
+observer: "agent dist[0 0 0 0 0.417 0.358 0.134 0.028 0.063]"
+observer: "JS Distance from reference: 0.3745"
+observer: "agent dist[0.391 0.393 0.186 0.028 0.002 0 0 0 0]"
+observer: "JS Distance from reference: 0.644"
+observer: "agent dist[0.1 0.027 0.241 0.173 0.288 0.084 0.069 0.001 0.017]"
+observer: "JS Distance from reference: 0.2069"
+observer: "agent dist[0.005 0.003 0.025 0.033 0.84 0.02 0.041 0.004 0.029]"
+observer: "JS Distance from reference: 0.3266"
+observer: "agent dist[0.002 0.021 0.007 0.028 0.151 0.065 0.126 0.548 0.052]"
+observer: "JS Distance from reference: 0.4874"
+observer: "agent dist[0 0.001 0.015 0.017 0.524 0.282 0.113 0.019 0.029]"
+observer: "JS Distance from reference: 0.2987"
+observer: "agent dist[0.001 0 0.017 0.027 0.516 0.283 0.117 0.012 0.027]"
+observer: "JS Distance from reference: 0.2893"
+observer: "agent dist[0.401 0.41 0.157 0.03 0.002 0 0 0 0]"
+observer: "JS Distance from reference: 0.6468"
+observer: "agent dist[0.001 0.014 0.004 0.032 0.156 0.049 0.121 0.572 0.051]"
+observer: "JS Distance from reference: 0.5015"
+observer: "agent dist[0.382 0.425 0.171 0.02 0.002 0 0 0 0]"
+observer: "JS Distance from reference: 0.6512"
+observer: "agent dist[0 0.001 0.008 0.023 0.541 0.252 0.135 0.017 0.023]"
+observer: "JS Distance from reference: 0.3005"
+observer: "agent dist[0.098 0.031 0.25 0.158 0.3 0.074 0.074 0.006 0.009]"
+observer: "JS Distance from reference: 0.204"
+observer: "agent dist[0.001 0.016 0.01 0.04 0.125 0.066 0.1 0.603 0.039]"
+observer: "JS Distance from reference: 0.5081"
+observer: "agent dist[0.003 0.004 0.017 0.036 0.837 0.03 0.039 0.011 0.023]"
+observer: "JS Distance from reference: 0.322"
+observer: "agent dist[0.021 0.007 0.043 0.028 0.862 0.019 0.016 0.002 0.002]"
+observer: "JS Distance from reference: 0.3438"
+observer: "agent dist[0.412 0.408 0.161 0.019 0 0 0 0 0]"
+observer: "JS Distance from reference: 0.6578"
+observer: "agent dist[0 0 0 0 1 0 0 0 0]"
+observer: "JS Distance from reference: 0.5095"
+observer: "agent dist[0.115 0.028 0.259 0.165 0.295 0.063 0.054 0.008 0.013]"
+observer: "JS Distance from reference: 0.218"
+observer: "agent dist[0 0.001 0.013 0.031 0.554 0.269 0.1 0.016 0.016]"
+observer: "JS Distance from reference: 0.2921"
+observer: "agent dist[0 0 0 0 1 0 0 0 0]"
+observer: "JS Distance from reference: 0.5095"
+observer: "agent dist[0.001 0.011 0.011 0.028 0.149 0.06 0.138 0.565 0.037]"
+observer: "JS Distance from reference: 0.4968"
+observer: "agent dist[0.021 0.007 0.046 0.027 0.854 0.014 0.026 0.002 0.003]"
+observer: "JS Distance from reference: 0.3383"
+observer: "agent dist[0.017 0.015 0.326 0.414 0.228 0 0 0 0]"
+observer: "JS Distance from reference: 0.4419"
+observer: "agent dist[0.016 0.024 0.353 0.405 0.2 0.002 0 0 0]"
+observer: "JS Distance from reference: 0.4457"
+observer: "agent dist[0 0 0 0 0.58 0.156 0.225 0.019 0.02]"
+observer: "JS Distance from reference: 0.3631"
+observer: "agent dist[0 0 0 0 0 1 0 0 0]"
+observer: "JS Distance from reference: 0.7121"
+observer: "agent dist[0 0 0 0 0.659 0.129 0.179 0.013 0.02]"
+observer: "JS Distance from reference: 0.361"
+observer: "agent dist[0.01 0.002 0.051 0.033 0.859 0.024 0.015 0.002 0.004]"
+observer: "JS Distance from reference: 0.3431"
+observer: "agent dist[0.005 0.025 0.35 0.415 0.20500000000000002 0 0 0 0]"
+observer: "JS Distance from reference: 0.4577"
+observer: "agent dist[0.009 0.001 0.099 0.151 0.539 0.147 0.049 0.002 0.003]"
+observer: "JS Distance from reference: 0.2148"
+observer: "agent dist[0.021 0.01 0.056 0.023 0.84 0.021 0.024 0.002 0.003]"
+observer: "JS Distance from reference: 0.327"
+observer: "agent dist[0.065 0.029 0.173 0.284 0.371 0.058 0.018 0.002 0]"
+observer: "JS Distance from reference: 0.2564"
+observer: "agent dist[0.002 0.003 0.025 0.038 0.91 0.017 0.005 0 0]"
+observer: "JS Distance from reference: 0.3972"
+observer: "agent dist[0.012 0.004 0.076 0.168 0.538 0.129 0.058 0.002 0.013]"
+observer: "JS Distance from reference: 0.1868"
+observer: "agent dist[0 0 0 0 0.456 0.275 0.232 0.017 0.02]"
+observer: "JS Distance from reference: 0.3779"
+observer: "agent dist[0 0 0 0 0.833 0.088 0.031 0.004 0.044]"
+observer: "JS Distance from reference: 0.3878"
+observer: "agent dist[0 0 0 0.001 0.486 0.237 0.236 0.024 0.016]"
+observer: "JS Distance from reference: 0.3694"
+observer: "agent dist[0 0 0 0 0.822 0.093 0.029 0.008 0.048]"
+observer: "JS Distance from reference: 0.3836"
+observer: "agent dist[0.001 0.002 0.036 0.015 0.9199999999999999 0.02 0.006 0 0]"
+observer: "JS Distance from reference: 0.4074"
+observer: "agent dist[0 0 0 0 0.837 0.085 0.026 0.004 0.048]"
+observer: "JS Distance from reference: 0.391"
+observer: "agent dist[0.059 0.039 0.197 0.264 0.363 0.055 0.015 0.003 0.005]"
+observer: "JS Distance from reference: 0.2445"
+observer: "agent dist[0.02 0.016 0.343 0.417 0.20400000000000001 0 0 0 0]"
+observer: "JS Distance from reference: 0.4507"
+observer: "agent dist[0.004 0.001 0.015 0.057 0.9159999999999999 0.003 0.004 0 0]"
+observer: "JS Distance from reference: 0.4174"
+observer: "agent dist[0.003 0.001 0.031 0.018 0.922 0.018 0.007 0 0]"
+observer: "JS Distance from reference: 0.4062"
+observer: "agent dist[0 0 0 0 0 1 0 0 0]"
+observer: "JS Distance from reference: 0.7121"
+observer: "agent dist[0 0 0 0 0 1 0 0 0]"
+observer: "JS Distance from reference: 0.7121"
+observer: "agent dist[0.008 0.007 0.088 0.142 0.55 0.131 0.06 0.003 0.011]"
+observer: "JS Distance from reference: 0.1814"
+observer: "agent dist[0 0 0 0 0 1 0 0 0]"
+observer: "JS Distance from reference: 0.7121"
+observer: "agent dist[0.001 0 0.015 0.017 0.807 0.099 0.046 0.002 0.013]"
+observer: "JS Distance from reference: 0.3334"
+observer: "agent dist[0 0.002 0.02 0.029 0.9279999999999999 0.012 0.009 0 0]"
+observer: "JS Distance from reference: 0.4138"
+observer: "agent dist[0.007 0.002 0.064 0.145 0.5740000000000001 0.128 0.069 0.001 0.01]"
+observer: "JS Distance from reference: 0.2076"
+observer: "agent dist[0 0 0 0 0.846 0.072 0.035 0.004 0.043]"
+observer: "JS Distance from reference: 0.3908"
+observer: "agent dist[0.06 0.033 0.199 0.276 0.362 0.041 0.023 0.005 0.001]"
+observer: "JS Distance from reference: 0.2554"
+observer: "agent dist[0 0 0.011 0.02 0.791 0.101 0.061 0.008 0.008]"
+observer: "JS Distance from reference: 0.3303"
+observer: "agent dist[0.001 0.001 0.004 0.02 0.796 0.101 0.061 0.004 0.012]"
+observer: "JS Distance from reference: 0.3355"
+observer: "agent dist[0.006 0.001 0.013 0.038 0.929 0.008 0.004 0 0.001]"
+observer: "JS Distance from reference: 0.4156"
+observer: "agent dist[0.007 0 0.012 0.045 0.93 0.004 0.002 0 0]"
+observer: "JS Distance from reference: 0.4269"
+observer: "agent dist[0.006 0.001 0.017 0.043 0.913 0.014 0.006 0 0]"
+observer: "JS Distance from reference: 0.4007"
+observer: "agent dist[0 0 0 0 0.339 0.317 0.173 0.019 0.152]"
+observer: "JS Distance from reference: 0.3917"
+observer: "agent dist[0.065 0.037 0.186 0.285 0.356 0.047 0.021 0.003 0]"
+observer: "JS Distance from reference: 0.2607"
+observer: "agent dist[0 0 0 0 0.371 0.283 0.185 0.015 0.146]"
+observer: "JS Distance from reference: 0.3832"
+observer: "agent dist[0 0 0 0 0.324 0.328 0.183 0.021 0.144]"
+observer: "JS Distance from reference: 0.3953"
+observer: "agent dist[0 0 0 0 0.14 0.444 0.359 0.018 0.039]"
+observer: "JS Distance from reference: 0.4894"
+observer: "agent dist[0 0.001 0.013 0.021 0.793 0.104 0.055 0.004 0.009]"
+observer: "JS Distance from reference: 0.3274"
+observer: "agent dist[0 0 0 0 0.373 0.284 0.149 0.024 0.17]"
+observer: "JS Distance from reference: 0.3823"
+observer: "agent dist[0 0 0 0 0.179 0.481 0.292 0.021 0.027]"
+observer: "JS Distance from reference: 0.4711"
+observer: "agent dist[0 0 0 0 0.07 0.359 0.483 0.039 0.049]"
+observer: "JS Distance from reference: 0.5342"
+observer: "agent dist[0 0 0 0 0.134 0.44 0.361 0.027 0.038]"
+observer: "JS Distance from reference: 0.4908"
+Search 1: 100%
+Search 1: 200%
+Search 1: 300%
+Search 1: 400%
+Search 1: 500%
+Search 1: 600%
+Search 1: 700%
+Search 1: 800%
+Search 1: 900%
+Search 1: 1000%
+Search 1: 1100%
+Search 1: 1200%
+Search 1: 1300%
+Search 1: 1400%
+Search 1: 1500%
+Search 1: 1600%
+Search 1: 1700%
+Search 1: 1800%
+Search 1: 1900%
+Search 1: 2000%
+Search 1: 2100%
+Search 1: 2200%
+Search 1: 2300%
+Search 1: 2400%
+Search 1: 2500%
+Search 1: 2600%
+Search 1: 2700%
+Search 1: 2800%
+Search 1: 2900%
+Search 1: 3000%
+Search 1: 3100%
+Search 1: 3200%
+Search 1: 3300%
+Search 1: 3400%
+Search 1: 3500%
+Search 1: 3600%
+Search 1: 3700%
+Search 1: 3800%
+Search 1: 3900%
+Search 1: 4000%
+Search 1: 4100%
+Search 1: 4200%
+Search 1: 4300%
+Search 1: 4400%
+Search 1: 4500%
+Search 1: 4600%
+Search 1: 4700%
+Search 1: 4800%
+Search 1: 4900%
+Search 1: 5000%
+Search 1: 5100%
+Search 1: 5200%
+Search 1: 5300%
+Search 1: 5400%
+Search 1: 5500%
+Search 1: 5600%
+Search 1: 5700%
+Search 1: 5800%
+Search 1: 5900%
+Search 1: 6000%
+Search 1: 6100%
+Search 1: 6200%
+Search 1: 6300%
+Search 1: 6400%
+Search 1: 6500%
+Search 1: 6600%
+Search 1: 6700%
+Search 1: 6800%
+Search 1: 6900%
+Search 1: 7000%
+Search 1: 7100%
+Search 1: 7200%
+Search 1: 7300%
+Search 1: 7400%
+Search 1: 7500%
+Search 1: 7600%
+Search 1: 7700%
+Search 1: 7800%
+Search 1: 7900%
+Search 1: 8000%
+Search 1: 8100%
+Search 1: 8200%
+Search 1: 8300%
+Search 1: 8400%
+Search 1: 8500%
+Search 1: 8600%
+Search 1: 8700%
+Search 1: 8800%
+Search 1: 8900%
+Search 1: 9000%
+Search 1: 9100%
+Search 1: 9200%
+Search 1: 9300%
+Search 1: 9400%
+Search 1: 9500%
+Search 1: 9600%
+Search 1: 9700%
+Search 1: 9800%
+Search 1: 9900%
+Search 1: 10000%
+Search 1: 10100%
+Search 1: 10200%
+Search 1: 10300%
+Search 1: 10400%
+Search 1: 10500%
+Search 1: 10600%
+Search 1: 10700%
+Search 1: 10800%
+Search 1: 10900%
+Search 1: 11000%
+Search 1: 11100%
+Search 1: 11200%
+Search 1: 11300%
+Search 1: 11400%
+Search 1: 11500%
+Search 1: 11600%
+Search 1: 11700%
+Search 1: 11800%
+Search 1: 11900%
+Search 1: 12000%
+Search 1: 12100%
+Search 1: 12200%
+Search 1: 12300%
+Search 1: 12400%
+Search 1: 12500%
+Search 1: 12600%
+Search 1: 12700%
+Search 1: 12800%
+Search 1: 12900%
+Search 1: 13000%
+Search 1: 13100%
+Search 1: 13200%
+Search 1: 13300%
+Search 1: 13400%
+Search 1: 13500%
+Search 1: 13600%
+Search 1: 13700%
+Search 1: 13800%
+Search 1: 13900%
+Search 1: 14000%
+Search 1: 14100%
+Search 1: 14200%
+Search 1: 14300%
+Search 1: 14400%
+Search 1: 14500%
+Search 1: 14600%
+Search 1: 14700%
+Search 1: 14800%
+Search 1: 14900%
+Search 1: 15000%
+Search 1: 15100%
