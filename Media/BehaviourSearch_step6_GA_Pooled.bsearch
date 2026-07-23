@@ -58,6 +58,6 @@
     </searchMethod>
     <chromosomeRepresentation type="MixedTypeChromosome"/>
     <caching>true</caching>
-    <evaluationLimit>2000</evaluationLimit>
+    <evaluationLimit>1500</evaluationLimit>
     <bestCheckingNumReplications>0</bestCheckingNumReplications>
 </search>
