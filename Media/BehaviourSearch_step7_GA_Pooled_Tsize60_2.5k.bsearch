@@ -29,8 +29,8 @@
         <paramSpec>["boundary_std" [0 0.1 0.5]]</paramSpec>
         <paramSpec>["network_type" "Scale-free"]</paramSpec>
         <paramSpec>["scale_free_degree" [1 1 5]]</paramSpec>
-        <paramSpec>["scale_free_selection-mu" 0]</paramSpec>
-        <paramSpec>["scale_free_selection-sigma" 1]</paramSpec>
+        <paramSpec>["scale_free_selection-mu" [-1 0.1 1]]</paramSpec>
+        <paramSpec>["scale_free_selection-sigma" [-1 0.1 1]]</paramSpec>
         <paramSpec>["scale_free_selection-distribution" "uniform"]</paramSpec>
         <paramSpec>["media_house_distribution" "deterministic-normal"]</paramSpec>
         <paramSpec>["number_of_media_houses" [0 5 50]]</paramSpec>
@@ -46,8 +46,8 @@
         <paramSpec>["silence_alpha" [0 0.1 1]]</paramSpec>
         <paramSpec>["silence_tau" [0 1 10]]</paramSpec>
         <paramSpec>["silence_delta0" [-1 0.1 1]]</paramSpec>
-        <paramSpec>["classify_proponents_by_boundary?" true]</paramSpec>
-        <paramSpec>["use_silence?" true]</paramSpec>
+        <paramSpec>["classify_proponents_by_boundary?" true false]</paramSpec>
+        <paramSpec>["use_silence?" true false]</paramSpec>
     </searchSpace>
     <searchMethod type="StandardGA">
         <searchMethodParameter name="mutation-rate" value="0.3"/>
