@@ -23,7 +23,7 @@
         <paramSpec>["model" "HK"]</paramSpec>
         <paramSpec>["boundary_mean" [0.01 0.01 0.3]]</paramSpec>
         <paramSpec>["set-seed?" false]</paramSpec>
-        <paramSpec>["avoid_seed_control" true]</paramSpec>
+        <paramSpec>["avoid_seed_control?" true]</paramSpec>
         <paramSpec>["boundary_distribution" "normal"]</paramSpec>
         <paramSpec>["conformity_mean" 1]</paramSpec>
         <paramSpec>["conformity_distribution" "constant"]</paramSpec>
