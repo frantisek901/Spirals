@@ -8,13 +8,13 @@
         <modelStepCommands>go</modelStepCommands>
         <modelStopCondition>false</modelStopCondition>
         <modelStepLimit>365</modelStepLimit>
-        <modelMetricReporter>js-distance-result-EP-LR</modelMetricReporter>
+        <modelMetricReporter>js-distance-indiv-thresholded</modelMetricReporter>
         <modelMeasureIf>true</modelMeasureIf>
     </modelInfo>
     <fitnessInfo>
-        <fitnessMinimized>true</fitnessMinimized>
+        <fitnessMinimized>false</fitnessMinimized>
         <fitnessCollecting>AT_FINAL_STEP</fitnessCollecting>
-        <fitnessSamplingReplications>2</fitnessSamplingReplications>
+        <fitnessSamplingReplications>3</fitnessSamplingReplications>
         <fitnessCombineReplications>MEAN</fitnessCombineReplications>
     </fitnessInfo>
     <searchSpace>
@@ -59,6 +59,6 @@
     </searchMethod>
     <chromosomeRepresentation type="MixedTypeChromosome"/>
     <caching>true</caching>
-    <evaluationLimit>2500</evaluationLimit>
+    <evaluationLimit>2000</evaluationLimit>
     <bestCheckingNumReplications>0</bestCheckingNumReplications>
 </search>

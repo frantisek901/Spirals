@@ -40,7 +40,7 @@ turtles-own [own-opinion own-previous-opinion own-initial-opinion own-boundary o
 ;; also, unsystematically, during the centroid position we have to copy 'last-position' to 'own-previous-position', since some 'distance' procedures finds opinions by themselves.
 centroids-own [last-position]
 l-distances-own [l-weight]
-globals [agents positions_clusters ESBG_polarisation SPIRO_set IDs-and-ns-of-id-groups distance-matrices js-distance-result-EP-LR]
+globals [agents positions_clusters ESBG_polarisation SPIRO_set IDs-and-ns-of-id-groups distance-matrices js-distance-result-EP-LR js-distance-indiv-best js-distance-indiv-thresholded individual-dists-data]
 
 
 ;; Initialization and setup
@@ -173,6 +173,8 @@ set own-opinion get-agent-opinion
     setup-fine-grained-file
   ]
 
+  ;; Preparing for BSearch -- if individual distributions are needed
+  load-individual-distributions
 
   reset-ticks
 
@@ -1305,10 +1307,19 @@ to-report get-agent-current-delta
   report delT
 end
 
+to-report get-agent-supporter-count [neighbs]
+  ;;
+  report ifelse-value (Classify_Proponents_By_Boundary?)
+  [count neighbs with [(item 0 own-opinion < ([item 0 own-opinion + own-boundary] of myself)) and (item 0 own-opinion > ([item 0 own-opinion - own-boundary] of myself))]]  ;;The boundary-based conditon
+    [count neighbs with [signum item 0 own-opinion = signum [item 0 own-opinion] of myself]] ;;The sign based condition
+
+end
+
 to update-agent-delta-Wdelta
   ;; Pass the existing values over to the past.
   set own-previous-Wdelta own-Wdelta
   set own-delta get-agent-current-delta
+  show (word "old delta is " own-previous-Wdelta " while new delta is " own-delta)
 end
 
 to-report get-agent-Wdelta
@@ -1319,14 +1330,6 @@ end
 to-report should-agent-speak-now?
   let phi 1 / ( 1 + exp(Silence_Tau * (own-Wdelta - Silence_Delta0)))
   report abs (item 0 own-opinion) > phi
-end
-
-to-report get-agent-supporter-count [neighbs]
-  ;;
-  report ifelse-value (Classify_Proponents_By_Boundary?)
-  [count neighbs with [(item 0 own-opinion < ([item 0 own-opinion + own-boundary] of myself)) and (item 0 own-opinion > ([item 0 own-opinion - own-boundary] of myself))]]  ;;The boundary-based conditon
-    [count neighbs with [signum item 0 own-opinion = signum [item 0 own-opinion] of myself]] ;;The sign based condition
-
 end
 
 to __COMMUNICATION-NETWORKS end
@@ -1603,22 +1606,31 @@ end
 to __MEASURING-DISTRIBUTION-DIVERGENCE end
 
 to compute-opinion-divergence
+
+  ; --- POOLED objectives ---
+
   ; 1. Load reference distribution from CSV
-  let reference-dist load-reference-distribution
+  let reference-dist load-reference-distribution ;;pooled reference dist
   ;;show (word "ref dist" reference-dist)
 
   ; 2. Build agent opinion distribution and convert to 9-bin
   let agent-dist build-agent-opinion-distribution
-  show (word "agent dist" agent-dist)
+  ;; show (word "agent dist" agent-dist)
 
   ; 3. Calculate JS distance
   let js-result js-distance reference-dist agent-dist
 
   ; Store or report the result
-  show (word "JS Distance from reference: " precision js-result 4)
+  show (word "POOLED JS Distance: " precision js-result 4)
 
   ; You can store it in a global if needed:
   set js-distance-result-EP-LR js-result
+
+
+  ; --- Individual-level objectives ---
+  compute-individual-jsd-objectives agent-dist
+
+  show (word "BEST JS Distance: " precision js-distance-indiv-best 4 " ; THRESOLDED JS Score: " precision js-distance-indiv-thresholded 4)
 end
 
 
@@ -1828,6 +1840,121 @@ to-report kl-divergence [p q]
   report kl
 end
 
+
+;; INDIVIDUAL DIVERGENCE -- MEASURING DIVERGENCE WITH INDIVIDUAL DISTRIBUTIONS
+
+to load-individual-distributions
+  ; Read the CSV with 400+ rows.
+  ; First 9 columns = distribution values (should sum to 1),
+  ; Column 10 = country, Column 11 = year.
+  let loaded-individual-distributions csv:from-file "EU_dataset/individual_survey_distributions_Parlemeter-LR.csv"
+
+  ;;if empty? file-read [
+  ;;  show "Error: individual distributions CSV is empty or not found."
+  ;;  stop
+  ;;]
+
+  ; Assume first row is a header, skip it.
+  let data-rows but-first loaded-individual-distributions
+  set individual-dists-data []
+
+  foreach data-rows [ row ->
+    ;;show row
+    if length row < 11 [
+      show (word "Warning: row has fewer than 11 columns: " row)
+      stop
+    ]
+    ; Extract and convert the first 9 values (they are read as strings)
+    let dist-vals map [x -> x] (sublist row 0 9)
+    ; Normalise to be safe (in case the file’s numbers don’t exactly sum to 1)
+    set dist-vals normalize dist-vals
+
+    let country item 9 row
+    let year item 10 row   ; keep as string (or number, doesn’t matter)
+
+    set individual-dists-data lput (list dist-vals country year) individual-dists-data
+  ]
+
+  ;;show (word "Loaded " (length individual-dists-data) " individual distributions.")
+end
+
+to compute-individual-jsd-objectives [ agent-dist ]
+  ; agent-dist is the 9‑bin distribution of the agents at simulation end
+
+  if empty? individual-dists-data [
+    show "Warning: individual distributions not loaded. Setting objectives to defaults."
+    set js-distance-indiv-best -1
+    set js-distance-indiv-thresholded -1
+    stop
+  ]
+
+  let best-jsd 999999
+  let count-threshold 0
+  let min-jsd-above 999999
+  let matching-tuples []   ; will hold [country year] pairs
+
+  foreach individual-dists-data [ entry ->
+    let dist item 0 entry
+    let jsd js-distance agent-dist dist
+
+    ; update best (minimum) JSD
+    if jsd < best-jsd [ set best-jsd jsd ]
+
+    ; check against threshold and collect matching countries/years
+    ifelse jsd < JSD_Threshold [
+      set count-threshold count-threshold + 1
+      set matching-tuples lput (list (item 1 entry) (item 2 entry)) matching-tuples
+    ] [
+      ; track the smallest JSD among those that did NOT satisfy the threshold
+      if jsd < min-jsd-above [ set min-jsd-above jsd ]
+    ]
+  ]
+
+  ; --- Set the two objective globals ---
+  set js-distance-indiv-best best-jsd
+
+  ; Second objective: count + (1 - next lowest non‑threshold JSD)
+  ifelse count-threshold < length individual-dists-data [
+    ; there is at least one distribution with JSD >= threshold,
+    ; so min-jsd-above is valid
+    set js-distance-indiv-thresholded count-threshold + (1 - (min-jsd-above - JSD_Threshold))
+  ] [
+    ; all rows satisfy the threshold – no “next lowest” exists,
+    ; we simply return the count (or count + 0, same)
+    set js-distance-indiv-thresholded count-threshold
+  ]
+
+  ; --- Write the CSV row of satisfying distributions ---
+  write-threshold-satisfying-row matching-tuples
+end
+
+to write-threshold-satisfying-row [ tuples ]
+  ; tuples is a list of [country year] lists for rows where JSD < threshold
+  let filename "BSearch_threshold_satisfied_distributions.csv"
+  let distlist-str "" ;; list of distributions
+  let output-str ""
+
+  ; Build the semicolon‑separated string of "{country, year}"
+  ifelse empty? tuples [
+    set distlist-str ""   ; no matches, write empty line
+  ] [
+    let str-list map [ t -> (word "{" (item 0 t) " " (item 1 t) "}") ] tuples
+    set distlist-str reduce [ [a b] -> (word a " && " b) ] str-list
+  ]
+  set output-str (word js-distance-result-EP-LR "," js-distance-indiv-best "," js-distance-indiv-thresholded "," distlist-str)
+  ;;show "STRING TO BE WRITTEN"
+  ;;show output-str
+
+  ; Append to file (create with header if first time)
+  ifelse file-exists? filename [
+    file-open filename
+  ] [
+    file-open filename
+    file-print (word "JSD (pooled), JSD (best), Thresholded counts , matching_distributions at threshold: " JSD_Threshold)   ; header
+  ]
+  file-print output-str
+  file-close
+end
 
 
 to __DATA-SAVING end
@@ -2142,7 +2269,7 @@ Boundary_Mean
 Boundary_Mean
 0.0
 1
-0.719
+0.193
 0.001
 1
 NIL
@@ -2154,7 +2281,7 @@ INPUTBOX
 905
 70
 RS
-50.0
+48.0
 1
 0
 Number
@@ -2166,7 +2293,7 @@ SWITCH
 43
 set-seed?
 set-seed?
-1
+0
 1
 -1000
 
@@ -2212,7 +2339,7 @@ CHOOSER
 Boundary_Distribution
 Boundary_Distribution
 "constant" "uniform" "normal"
-0
+2
 
 PLOT
 1120
@@ -2611,7 +2738,7 @@ Boundary_STD
 Boundary_STD
 0
 1
-0.0
+0.15
 0.001
 1
 NIL
@@ -2746,7 +2873,7 @@ SWITCH
 298
 HK_opinion_distribution?
 HK_opinion_distribution?
-0
+1
 1
 -1000
 
@@ -2973,7 +3100,7 @@ SWITCH
 606
 Media-Opinions_Use_specific_values
 Media-Opinions_Use_specific_values
-0
+1
 1
 -1000
 
@@ -2985,7 +3112,7 @@ CHOOSER
 Opinion_Distribution
 Opinion_Distribution
 "normal" "uniform" "polarized" "beta" "constant"
-1
+0
 
 SLIDER
 726
@@ -3199,7 +3326,7 @@ Silence_Alpha
 Silence_Alpha
 0
 1
-0.79
+0.03
 0.01
 1
 NIL
@@ -3256,6 +3383,21 @@ Use_Silence?
 0
 1
 -1000
+
+SLIDER
+908
+541
+1080
+574
+JSD_Threshold
+JSD_Threshold
+0
+1
+0.15
+0.01
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
