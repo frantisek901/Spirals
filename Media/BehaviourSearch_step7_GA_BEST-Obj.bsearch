@@ -49,7 +49,7 @@
         <paramSpec>["silence_delta0" [-1 0.1 1]]</paramSpec>
         <paramSpec>["classify_proponents_by_boundary?" true false]</paramSpec>
         <paramSpec>["use_silence?" true false]</paramSpec>
-        <paramSpec>["BSearch_Objective" "thresholded-counts"]</paramSpec>
+        <paramSpec>["BSearch_Objective" "best"]</paramSpec>
     </searchSpace>
     <searchMethod type="StandardGA">
         <searchMethodParameter name="mutation-rate" value="0.3"/>
