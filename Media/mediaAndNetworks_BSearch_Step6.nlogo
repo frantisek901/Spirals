@@ -1889,48 +1889,57 @@ to compute-individual-jsd-objectives [ agent-dist ]
   ]
 
   let best-jsd 999999
+  let best-tuple []        ; stores [country year] of the single best match
   let count-threshold 0
   let min-jsd-above 999999
-  let matching-tuples []   ; will hold [country year] pairs
+  let matching-tuples []   ; will hold [country year] pairs for threshold
 
   foreach individual-dists-data [ entry ->
     let dist item 0 entry
+    let country item 1 entry
+    let year item 2 entry
     let jsd js-distance agent-dist dist
 
-    ; update best (minimum) JSD
-    if jsd < best-jsd [ set best-jsd jsd ]
+    ; Track best (minimum) JSD and its identity
+    if jsd < best-jsd [
+      set best-jsd jsd
+      set best-tuple (list country year)
+    ]
 
-    ; check against threshold and collect matching countries/years
-    ifelse jsd < JSD_Threshold [
+    ; Also track threshold-level data (needed for "thresholded-counts" objective)
+    if jsd < JSD_Threshold [
       set count-threshold count-threshold + 1
-      set matching-tuples lput (list (item 1 entry) (item 2 entry)) matching-tuples
-    ] [
-      ; track the smallest JSD among those that did NOT satisfy the threshold
-      if jsd < min-jsd-above [ set min-jsd-above jsd ]
+      set matching-tuples lput (list country year) matching-tuples
+    ]
+    ; Track smallest JSD that did NOT satisfy threshold
+    if jsd >= JSD_Threshold and jsd < min-jsd-above [
+      set min-jsd-above jsd
     ]
   ]
 
   ; --- Set the two objective globals ---
   set js-distance-indiv-best best-jsd
 
-  ; Second objective: count + (1 - next lowest non‑threshold JSD)
+  ; Second objective: count + (1 - (next lowest non‑threshold JSD - threshold))
   ifelse count-threshold < length individual-dists-data [
-    ; there is at least one distribution with JSD >= threshold,
-    ; so min-jsd-above is valid
     set js-distance-indiv-thresholded count-threshold + (1 - (min-jsd-above - JSD_Threshold))
   ] [
-    ; all rows satisfy the threshold – no “next lowest” exists,
-    ; we simply return the count (or count + 0, same)
     set js-distance-indiv-thresholded count-threshold
   ]
 
-  ; --- Write the CSV row of satisfying distributions ---
-  write-threshold-satisfying-row matching-tuples
+  ; --- Write output based on BSearch_Objective ---
+  if BSearch_Objective = "thresholded-counts" [
+    write-threshold-satisfying-row matching-tuples
+  ]
+  if BSearch_Objective = "best" [
+    write-best-distribution-row best-tuple best-jsd
+  ]
+  ; If "pooled", write nothing here (pooled JSD already stored in js-distance-result-EP-LR)
 end
 
 to write-threshold-satisfying-row [ tuples ]
   ; tuples is a list of [country year] lists for rows where JSD < threshold
-  let filename "BSearch_threshold_satisfied_distributions.csv"
+  let filename "BEHAVIORSearch_threshold_satisfied_distributions.csv"
   let distlist-str "" ;; list of distributions
   let output-str ""
 
@@ -1956,6 +1965,26 @@ to write-threshold-satisfying-row [ tuples ]
   file-close
 end
 
+to write-best-distribution-row [ best-tuple best-jsd ]
+  ; best-tuple is a list [country year] of the single best-matching distribution
+  let filename "BEHAVIORSearch_best_distribution.csv"
+
+  ; Build the string for the matching distribution
+  let dist-str (word "{" (item 0 best-tuple) " " (item 1 best-tuple) "}")
+
+  ; Build the output string with all three objective values
+  let output-str (word js-distance-result-EP-LR "," js-distance-indiv-best "," js-distance-indiv-thresholded "," dist-str)
+
+  ; Append to file (create with header if first time)
+  ifelse file-exists? filename [
+    file-open filename
+  ] [
+    file-open filename
+    file-print "JSD (pooled), JSD (best), Thresholded counts, best_matching_distribution"   ; header
+  ]
+  file-print output-str
+  file-close
+end
 
 to __DATA-SAVING end
 
@@ -3398,6 +3427,16 @@ JSD_Threshold
 1
 NIL
 HORIZONTAL
+
+CHOOSER
+232
+505
+387
+550
+BSearch_Objective
+BSearch_Objective
+"pooled" "best" "thresholded-counts"
+1
 
 @#$#@#$#@
 ## WHAT IS IT?

@@ -8,6 +8,7 @@ PolarizedStart\*.html
 .git-credentials
 IdentityPaper/Pics/*.png
 Media/data/*
+Media/analysis/*
 
 
 

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<!DOCTYPE search SYSTEM "behaviorsearch.dtd">
+<search>
+    <bsearchVersionNumber>1.10</bsearchVersionNumber>
+    <modelInfo>
+        <modelFile>mediaAndNetworks_BSearch_Step6.nlogo</modelFile>
+        <modelSetupCommands>setup</modelSetupCommands>
+        <modelStepCommands>go</modelStepCommands>
+        <modelStopCondition>false</modelStopCondition>
+        <modelStepLimit>365</modelStepLimit>
+        <modelMetricReporter>js-distance-indiv-thresholded</modelMetricReporter>
+        <modelMeasureIf>true</modelMeasureIf>
+    </modelInfo>
+    <fitnessInfo>
+        <fitnessMinimized>false</fitnessMinimized>
+        <fitnessCollecting>AT_FINAL_STEP</fitnessCollecting>
+        <fitnessSamplingReplications>3</fitnessSamplingReplications>
+        <fitnessCombineReplications>MEAN</fitnessCombineReplications>
+    </fitnessInfo>
+    <searchSpace>
+        <paramSpec>["number_of_agents" 1000]</paramSpec>
+        <paramSpec>["number_of_opinion_dimensions" 1]</paramSpec>
+        <paramSpec>["model" "HK"]</paramSpec>
+        <paramSpec>["boundary_mean" [0.01 0.01 0.3]]</paramSpec>
+        <paramSpec>["set-seed?" false]</paramSpec>
+        <paramSpec>["avoid_seed_control?" true]</paramSpec>
+        <paramSpec>["boundary_distribution" "normal"]</paramSpec>
+        <paramSpec>["conformity_mean" 1]</paramSpec>
+        <paramSpec>["conformity_distribution" "constant"]</paramSpec>
+        <paramSpec>["boundary_std" [0 0.1 0.5]]</paramSpec>
+        <paramSpec>["network_type" "Scale-free"]</paramSpec>
+        <paramSpec>["scale_free_degree" [1 1 5]]</paramSpec>
+        <paramSpec>["scale_free_selection-mu" [-1 0.1 1]]</paramSpec>
+        <paramSpec>["scale_free_selection-sigma" [-1 0.1 1]]</paramSpec>
+        <paramSpec>["scale_free_selection-distribution" "uniform"]</paramSpec>
+        <paramSpec>["media_house_distribution" "deterministic-normal"]</paramSpec>
+        <paramSpec>["number_of_media_houses" [0 5 50]]</paramSpec>
+        <paramSpec>["media_house_distribution_normal_mean" [-1 0.1 1]]</paramSpec>
+        <paramSpec>["media_house_distribution_normal_std" [0 0.1 1]]</paramSpec>
+        <paramSpec>["opinion_distribution" "normal"]</paramSpec>
+        <paramSpec>["opinion_mean" [-1 0.1 1]]</paramSpec>
+        <paramSpec>["opinion_std" [0 0.1 1]]</paramSpec>
+        <paramSpec>["save_end_sim_data" false]</paramSpec>
+        <paramSpec>["endsimdirectory" "/home/ramaswamy.51/Documents/github/Spirals/Media/data/cluster/endsim/BehaviorSearch/Step7"]</paramSpec>
+        <paramSpec>["use_media_influence_factor?" true]</paramSpec>
+        <paramSpec>["media_influence_factor" [0 0.1 1]]</paramSpec>
+        <paramSpec>["silence_alpha" [0 0.1 1]]</paramSpec>
+        <paramSpec>["silence_tau" [0 1 10]]</paramSpec>
+        <paramSpec>["silence_delta0" [-1 0.1 1]]</paramSpec>
+        <paramSpec>["classify_proponents_by_boundary?" true false]</paramSpec>
+        <paramSpec>["use_silence?" true false]</paramSpec>
+        <paramSpec>["JSD_Threshold" 0.05]</paramSpec>
+        <paramSpec>["BSearch_Objective" "thresholded-counts"]</paramSpec>
+    </searchSpace>
+    <searchMethod type="StandardGA">
+        <searchMethodParameter name="mutation-rate" value="0.3"/>
+        <searchMethodParameter name="population-size" value="60"/>
+        <searchMethodParameter name="tournament-size" value="3"/>
+        <searchMethodParameter name="population-model" value="steady-state-replace-worst"/>
+        <searchMethodParameter name="crossover-rate" value="0.8"/>
+    </searchMethod>
+    <chromosomeRepresentation type="MixedTypeChromosome"/>
+    <caching>true</caching>
+    <evaluationLimit>2000</evaluationLimit>
+    <bestCheckingNumReplications>0</bestCheckingNumReplications>
+</search>
